@@ -1,0 +1,73 @@
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\bin\Debug\CRMPhone.exe.config
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\bin\Debug\CRMPhone.exe
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\bin\Debug\CRMPhone.pdb
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\bin\Debug\EntityFramework.dll
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\bin\Debug\EntityFramework.SqlServer.dll
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\bin\Debug\MySql.Data.dll
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\bin\Debug\MySql.Data.Entity.EF6.dll
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\bin\Debug\EntityFramework.xml
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\bin\Debug\EntityFramework.SqlServer.xml
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\Interop.conaito.dll
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\CRMPhone.csproj.ResolveComReference.cache
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\MainWindow.g.cs
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\App.g.cs
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\CRMPhone_MarkupCompile.cache
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\CRMPhone_MarkupCompile.lref
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\MainWindow.baml
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\CRMPhone.g.resources
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\CRMPhone.Properties.Resources.resources
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\CRMPhone.csproj.GenerateResource.Cache
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\CRMPhone.exe
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\CRMPhone.pdb
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\CRMPhone\obj\Debug\CRMPhone.csprojResolveAssemblyReference.cache
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\bin\Debug\CRMPhone.exe.config
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\Interop.conaito.dll
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.csproj.ResolveComReference.cache
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.exe
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.pdb
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\bin\Debug\CRMPhone.exe
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\bin\Debug\CRMPhone.pdb
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\bin\Debug\MySql.Data.dll
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.csprojResolveAssemblyReference.cache
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\MainWindow.g.cs
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\App.g.cs
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone_MarkupCompile.cache
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone_MarkupCompile.lref
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\MainWindow.baml
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.g.resources
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.Properties.Resources.resources
+D:\Zerg\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.csproj.GenerateResource.Cache
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\bin\Debug\CRMPhone.exe.config
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\bin\Debug\CRMPhone.exe
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\bin\Debug\CRMPhone.pdb
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\bin\Debug\MySql.Data.dll
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.csprojResolveAssemblyReference.cache
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\Interop.conaito.dll
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.csproj.ResolveComReference.cache
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\Controls\UsersControl.g.cs
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\LoginView.g.cs
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\MainWindow.g.cs
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\Controls\PhoneControl.g.cs
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\Controls\RequestControl.g.cs
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\RequestDialog.g.cs
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\TransferDialog.g.cs
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\App.g.cs
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\GeneratedInternalTypeHelper.g.cs
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone_MarkupCompile.cache
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone_MarkupCompile.lref
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\Controls\UsersControl.baml
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\LoginView.baml
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\MainWindow.baml
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\Controls\PhoneControl.baml
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\Controls\RequestControl.baml
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\RequestDialog.baml
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\TransferDialog.baml
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.g.resources
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.Properties.Resources.resources
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.csproj.GenerateResource.Cache
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.exe
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone.pdb
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\bin\Debug\NLog.dll
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\bin\Debug\NLog.xml
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\bin\Debug\NLog.config
+C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone_Content.g.cs

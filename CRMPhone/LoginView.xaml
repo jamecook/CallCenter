@@ -1,0 +1,32 @@
+﻿<Window x:Class="CRMPhone.LoginView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:crmPhone="clr-namespace:CRMPhone"
+        xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance viewModel:LoginContext}"
+        Title="LoginView" Height="153.247" Width="300" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+    <Grid>
+        <StackPanel>
+            <TextBlock Margin="5" TextAlignment="Center">Для входа в систему введите логин и пароль</TextBlock>
+            <DockPanel>
+                <TextBlock Margin="9,5">Логин</TextBlock>
+                <ComboBox IsEditable="True" DisplayMemberPath="Login" ItemsSource="{Binding Users}" Text="{Binding UserName}" Margin="5"/>
+            </DockPanel>
+            <DockPanel>
+                <TextBlock Margin="5">Пароль</TextBlock>
+                <PasswordBox Margin="5" crmPhone:PasswordHelper.Password="{Binding Path=Password, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+                    <PasswordBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
+                    </PasswordBox.InputBindings>
+                </PasswordBox>
+            </DockPanel>
+            <DockPanel HorizontalAlignment="Center">
+                <Button  Margin="5" Content="Ок" Command="{Binding LoginCommand}" Width="80"/>
+                <Button Margin="5" Content="Отмена" Command="{Binding CancelCommand}" Width="80"/>
+            </DockPanel>
+        </StackPanel>
+    </Grid>
+</Window>

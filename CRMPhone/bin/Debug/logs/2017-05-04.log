@@ -1,0 +1,42 @@
+2017-05-04 22:22:43.6173 ERROR GetRequest(34)
+2017-05-04 22:24:04.7369 DEBUG GetRequest(34)
+2017-05-04 22:26:27.6881 DEBUG GetRequest(34)
+2017-05-04 22:26:27.7301 ERROR MySql.Data.MySqlClient.MySqlException (0x80004005): Unknown column 'R.isd' in 'field list'
+   в MySql.Data.MySqlClient.MySqlStream.ReadPacket()
+   в MySql.Data.MySqlClient.NativeDriver.GetResult(Int32& affectedRow, Int64& insertedId)
+   в MySql.Data.MySqlClient.Driver.GetResult(Int32 statementId, Int32& affectedRows, Int64& insertedId)
+   в MySql.Data.MySqlClient.Driver.NextResult(Int32 statementId, Boolean force)
+   в MySql.Data.MySqlClient.MySqlDataReader.NextResult()
+   в MySql.Data.MySqlClient.MySqlCommand.ExecuteReader(CommandBehavior behavior)
+   в MySql.Data.MySqlClient.MySqlCommand.ExecuteReader()
+   в CRMPhone.RequestService.GetRequest(Int32 requestId) в C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\RequestService.cs:строка 284
+2017-05-04 22:29:52.3418 DEBUG GetRequest(34)
+2017-05-04 22:29:52.3838 ERROR MySql.Data.MySqlClient.MySqlException (0x80004005): Unknown column 'R.i2d' in 'field list'
+   в MySql.Data.MySqlClient.MySqlStream.ReadPacket()
+   в MySql.Data.MySqlClient.NativeDriver.GetResult(Int32& affectedRow, Int64& insertedId)
+   в MySql.Data.MySqlClient.Driver.GetResult(Int32 statementId, Int32& affectedRows, Int64& insertedId)
+   в MySql.Data.MySqlClient.Driver.NextResult(Int32 statementId, Boolean force)
+   в MySql.Data.MySqlClient.MySqlDataReader.NextResult()
+   в MySql.Data.MySqlClient.MySqlCommand.ExecuteReader(CommandBehavior behavior)
+   в MySql.Data.MySqlClient.MySqlCommand.ExecuteReader()
+   в CRMPhone.RequestService.GetRequest(Int32 requestId) в C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\RequestService.cs:строка 284
+2017-05-04 22:34:49.4738 DEBUG RequestService.SaveNewRequest(876,5,CRMPhone.Dto.ContactDto[],34342,False)
+2017-05-04 22:34:49.5188 ERROR MySql.Data.MySqlClient.MySqlException (0x80004005): Unknown column 'address_i2d' in 'field list'
+   в MySql.Data.MySqlClient.MySqlStream.ReadPacket()
+   в MySql.Data.MySqlClient.NativeDriver.GetResult(Int32& affectedRow, Int64& insertedId)
+   в MySql.Data.MySqlClient.Driver.GetResult(Int32 statementId, Int32& affectedRows, Int64& insertedId)
+   в MySql.Data.MySqlClient.Driver.NextResult(Int32 statementId, Boolean force)
+   в MySql.Data.MySqlClient.MySqlDataReader.NextResult()
+   в MySql.Data.MySqlClient.MySqlCommand.ExecuteReader(CommandBehavior behavior)
+   в MySql.Data.MySqlClient.MySqlCommand.ExecuteScalar()
+   в CRMPhone.RequestService.SaveNewRequest(Int32 addressId, Int32 requestTypeId, ContactDto[] contactList, String requestMessage, Boolean isPaid) в C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\RequestService.cs:строка 46
+2017-05-04 22:42:13.2192 DEBUG RequestService.SaveNewRequest(2876,2,[1232;32333;43333],wrweqrqwer,False)
+2017-05-04 22:42:13.2622 ERROR MySql.Data.MySqlClient.MySqlException (0x80004005): Unknown column 'address_i1d' in 'field list'
+   в MySql.Data.MySqlClient.MySqlStream.ReadPacket()
+   в MySql.Data.MySqlClient.NativeDriver.GetResult(Int32& affectedRow, Int64& insertedId)
+   в MySql.Data.MySqlClient.Driver.GetResult(Int32 statementId, Int32& affectedRows, Int64& insertedId)
+   в MySql.Data.MySqlClient.Driver.NextResult(Int32 statementId, Boolean force)
+   в MySql.Data.MySqlClient.MySqlDataReader.NextResult()
+   в MySql.Data.MySqlClient.MySqlCommand.ExecuteReader(CommandBehavior behavior)
+   в MySql.Data.MySqlClient.MySqlCommand.ExecuteScalar()
+   в CRMPhone.RequestService.SaveNewRequest(Int32 addressId, Int32 requestTypeId, ContactDto[] contactList, String requestMessage, Boolean isPaid) в C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\RequestService.cs:строка 46
