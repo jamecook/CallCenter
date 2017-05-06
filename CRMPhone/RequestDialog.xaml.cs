@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using CRMPhone.Dto;
+using CRMPhone.ViewModel;
 
 namespace CRMPhone
 {
@@ -32,10 +33,15 @@ namespace CRMPhone
             InitializeComponent();
         }
 
-        private void SelectCurrentItem(object sender, MouseButtonEventArgs e)
+        private void SelectCurrentContact(object sender, MouseButtonEventArgs e)
         {
             var item = sender as ListBoxItem;
             _context.SelectedContact = (ContactDto)item.Content;
+        }
+        private void SelectCurrentRequest(object sender, MouseButtonEventArgs e)
+        {
+            var item = sender as ListBoxItem;
+            _context.SelectedRequest = (RequestItemViewModel)item.Content;
         }
     }
 }

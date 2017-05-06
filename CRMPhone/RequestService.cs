@@ -21,90 +21,111 @@ namespace CRMPhone
         }
 
         public int? SaveNewRequest(int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
-            bool isPaid = false)
+            bool chargeable = false, bool immediate = false)
         {
             int newId;
-            _logger.Debug($"RequestService.SaveNewRequest({addressId},{requestTypeId},[{contactList.Select(x=>$"{x.PhoneNumber}").Aggregate((f1,f2)=>f1+";"+f2)}],{requestMessage},{isPaid})");
+            _logger.Debug(
+                $"RequestService.SaveNewRequest({addressId},{requestTypeId},[{contactList.Select(x => $"{x.PhoneNumber}").Aggregate((f1, f2) => f1 + ";" + f2)}],{requestMessage},{chargeable},{immediate})");
             try
             {
 
-            using (var transaction = _dbConnection.BeginTransaction())
-            {
-                #region Сохранение заявки в базе данных
-                using (
-                    var cmd = new MySqlCommand(
-                        @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_free,create_user_id,state_id)
-values(@AddressId, @TypeId, @Message, sysdate(),@IsFree,@UserId,@State);
+                using (var transaction = _dbConnection.BeginTransaction())
+                {
+                    #region Сохранение заявки в базе данных
+
+                    using (
+                        var cmd = new MySqlCommand(
+                            @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_chargeable,create_user_id,state_id,is_immediate)
+values(@AddressId, @TypeId, @Message, sysdate(),@IsChargeable,@UserId,@State,@IsImmediate);
 select LAST_INSERT_ID();", _dbConnection))
-                {
-                    cmd.Parameters.AddWithValue("@AddressId", addressId);
-                    cmd.Parameters.AddWithValue("@TypeId", requestTypeId);
-                    cmd.Parameters.AddWithValue("@Message", requestMessage);
-                    cmd.Parameters.AddWithValue("@IsFree", !isPaid);
-                    cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
-                    cmd.Parameters.AddWithValue("@State", 1);
-                    newId = Convert.ToInt32(cmd.ExecuteScalar());
-                }
-                #endregion
-                #region Сохранение контактных номеров 
-                foreach (var contact in contactList.Where(c => !string.IsNullOrEmpty(c.PhoneNumber)).OrderByDescending(c=>c.IsMain))
-                {
-                    var clientPhoneId = 0;
-                    using (var cmd = new MySqlCommand("SELECT id FROM CallCenter.ClientPhones C where Number = @Phone", _dbConnection))
                     {
-                        cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
-
-                        using (var dataReader = cmd.ExecuteReader())
-                        {
-                            if (dataReader.Read())
-                            {
-                                clientPhoneId = dataReader.GetInt32("id");
-                            }
-                            dataReader.Close();
-                        }
-
+                        cmd.Parameters.AddWithValue("@AddressId", addressId);
+                        cmd.Parameters.AddWithValue("@TypeId", requestTypeId);
+                        cmd.Parameters.AddWithValue("@Message", requestMessage);
+                        cmd.Parameters.AddWithValue("@IsChargeable", chargeable);
+                        cmd.Parameters.AddWithValue("@IsImmediate", immediate);
+                        cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                        cmd.Parameters.AddWithValue("@State", 1);
+                        newId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
-                    if (clientPhoneId == 0)
+
+                    #endregion
+
+                    #region Сохранение контактных номеров 
+
+                    foreach (
+                        var contact in
+                            contactList.Where(c => !string.IsNullOrEmpty(c.PhoneNumber))
+                                .OrderByDescending(c => c.IsMain))
                     {
-                        using ( var cmd = new MySqlCommand( @"insert into CallCenter.ClientPhones(Number) values(@Phone);
-    select LAST_INSERT_ID();", _dbConnection))
+                        var clientPhoneId = 0;
+                        using (
+                            var cmd = new MySqlCommand(
+                                "SELECT id FROM CallCenter.ClientPhones C where Number = @Phone", _dbConnection))
                         {
                             cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
-                            clientPhoneId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                            using (var dataReader = cmd.ExecuteReader())
+                            {
+                                if (dataReader.Read())
+                                {
+                                    clientPhoneId = dataReader.GetInt32("id");
+                                }
+                                dataReader.Close();
+                            }
+
+                        }
+                        if (clientPhoneId == 0)
+                        {
+                            using (
+                                var cmd = new MySqlCommand(@"insert into CallCenter.ClientPhones(Number) values(@Phone);
+    select LAST_INSERT_ID();", _dbConnection))
+                            {
+                                cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
+                                clientPhoneId = Convert.ToInt32(cmd.ExecuteScalar());
+                            }
+                        }
+                        using (
+                            var cmd =
+                                new MySqlCommand(@"insert into CallCenter.RequestContacts (request_id,IsMain,ClientPhone_id) 
+    values(@RequestId,@IsMain,@PhoneId);", _dbConnection))
+                        {
+                            cmd.Parameters.AddWithValue("@RequestId", newId);
+                            cmd.Parameters.AddWithValue("@IsMain", contact.IsMain);
+                            cmd.Parameters.AddWithValue("@PhoneId", clientPhoneId);
+                            cmd.ExecuteNonQuery();
                         }
                     }
-                    using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestContacts (request_id,IsMain,ClientPhone_id) 
-    values(@RequestId,@IsMain,@PhoneId);", _dbConnection))
+
+                    #endregion
+
+                    #region Сохрарнение описания в истории изменений
+
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"insert into CallCenter.RequestDescriptionHistory (request_id,operation_date,user_id,description) 
+    values(@RequestId,sysdate(),@UserId,@Message);", _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", newId);
-                        cmd.Parameters.AddWithValue("@IsMain", contact.IsMain);
-                        cmd.Parameters.AddWithValue("@PhoneId", clientPhoneId);
+                        cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                        cmd.Parameters.AddWithValue("@Message", requestMessage);
                         cmd.ExecuteNonQuery();
                     }
-                }
-                #endregion
-                #region Сохрарнение описания в истории изменений
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestDescriptionHistory (request_id,operation_date,user_id,description) 
-    values(@RequestId,sysdate(),@UserId,@Message);", _dbConnection))
-                {
-                    cmd.Parameters.AddWithValue("@RequestId", newId);
-                    cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
-                    cmd.Parameters.AddWithValue("@Message", requestMessage);
-                    cmd.ExecuteNonQuery();
-                }
-                #endregion
-                transaction.Commit();
-                return newId;
+
+                    #endregion
+
+                    transaction.Commit();
+                    return newId;
                 }
             }
-            catch (Exception exc) 
+            catch (Exception exc)
             {
                 _logger.Error(exc);
             }
             return null;
         }
 
-        public void AddNewDescription(int requestId,string requestMessage)
+        public void AddNewDescription(int requestId, string requestMessage)
         {
             _logger.Debug($"RequestService.AddNewDescription({requestId},{requestMessage})");
             try
@@ -140,7 +161,7 @@ select LAST_INSERT_ID();", _dbConnection))
                 _logger.Error(exc);
                 throw;
             }
-    }
+        }
 
         public void AddNewWorker(int requestId, int workerId)
         {
@@ -148,24 +169,30 @@ select LAST_INSERT_ID();", _dbConnection))
             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())
-            {
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestWorkerHistory (request_id,operation_date,user_id,worker_id) 
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"insert into CallCenter.RequestWorkerHistory (request_id,operation_date,user_id,worker_id) 
     values(@RequestId,sysdate(),@UserId,@WorkerId);", _dbConnection))
-                {
-                    cmd.Parameters.AddWithValue("@RequestId", requestId);
-                    cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
-                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
-                    cmd.ExecuteNonQuery();
-                }
-                using (var cmd = new MySqlCommand(@"update CallCenter.Requests set worker_id = @WorkerId where id = @RequestId", _dbConnection))
-                {
-                    cmd.Parameters.AddWithValue("@RequestId", requestId);
-                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
-                    cmd.ExecuteNonQuery();
-                }
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                        cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                        cmd.ExecuteNonQuery();
+                    }
+                    using (
+                        var cmd =
+                            new MySqlCommand(
+                                @"update CallCenter.Requests set worker_id = @WorkerId where id = @RequestId",
+                                _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                        cmd.ExecuteNonQuery();
+                    }
 
-                transaction.Commit();
-            }
+                    transaction.Commit();
+                }
             }
             catch (Exception exc)
             {
@@ -181,25 +208,31 @@ select LAST_INSERT_ID();", _dbConnection))
             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())
-            {
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestExecuteDateHistory (request_id,operation_date,user_id,execute_date,note) 
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"insert into CallCenter.RequestExecuteDateHistory (request_id,operation_date,user_id,execute_date,note) 
     values(@RequestId,sysdate(),@UserId,@ExecuteDate,@Note);", _dbConnection))
-                {
-                    cmd.Parameters.AddWithValue("@RequestId", requestId);
-                    cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
-                    cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
-                    cmd.Parameters.AddWithValue("@Note", note);
-                    cmd.ExecuteNonQuery();
-                }
-                using (var cmd = new MySqlCommand(@"update CallCenter.Requests set execute_date = @ExecuteDate where id = @RequestId", _dbConnection))
-                {
-                    cmd.Parameters.AddWithValue("@RequestId", requestId);
-                    cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
-                    cmd.ExecuteNonQuery();
-                }
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                        cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
+                        cmd.Parameters.AddWithValue("@Note", note);
+                        cmd.ExecuteNonQuery();
+                    }
+                    using (
+                        var cmd =
+                            new MySqlCommand(
+                                @"update CallCenter.Requests set execute_date = @ExecuteDate where id = @RequestId",
+                                _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
+                        cmd.ExecuteNonQuery();
+                    }
 
-                transaction.Commit();
-            }
+                    transaction.Commit();
+                }
             }
             catch (Exception exc)
             {
@@ -214,17 +247,19 @@ select LAST_INSERT_ID();", _dbConnection))
             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())
-            {
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestNoteHistory (request_id,operation_date,user_id,note) 
-    values(@RequestId,sysdate(),@UserId,@Note);", _dbConnection))
                 {
-                    cmd.Parameters.AddWithValue("@RequestId", requestId);
-                    cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
-                    cmd.Parameters.AddWithValue("@Note", note);
-                    cmd.ExecuteNonQuery();
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"insert into CallCenter.RequestNoteHistory (request_id,operation_date,user_id,note) 
+    values(@RequestId,sysdate(),@UserId,@Note);", _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                        cmd.Parameters.AddWithValue("@Note", note);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
                 }
-                transaction.Commit();
-            }
             }
             catch (Exception exc)
             {
@@ -241,8 +276,8 @@ select LAST_INSERT_ID();", _dbConnection))
             RequestInfoDto result = null;
             try
             {
-            using (var cmd =
-                new MySqlCommand(@"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_free,R.Create_user_id,R.state_id,
+                using (var cmd =
+                    new MySqlCommand(@"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_chargeable,R.Create_user_id,R.state_id,
     RS.name state_name,RS.description state_descript,
     RT.parrent_id,RT.name as rt_name,RT2.name rt_parrent_name,
     A.type_id address_type_id,A.house_id,A.flat,
@@ -264,86 +299,86 @@ select LAST_INSERT_ID();", _dbConnection))
     join CallCenter.Cities C on C.id = S.city_id
     join CallCenter.Users U on U.id = R.Create_user_id
     where R.id = @reqId", _dbConnection))
-            {
-                cmd.Parameters.AddWithValue("@reqId", requestId);
-                using (var dataReader = cmd.ExecuteReader())
                 {
-                    if (dataReader.Read())
+                    cmd.Parameters.AddWithValue("@reqId", requestId);
+                    using (var dataReader = cmd.ExecuteReader())
                     {
-                        result = new RequestInfoDto
+                        if (dataReader.Read())
                         {
-                            Id = dataReader.GetInt32("req_id"),
-                            CreateTime = dataReader.GetDateTime("create_time"),
-                            Type = new RequestTypeDto
+                            result = new RequestInfoDto
                             {
-                                Id = dataReader.GetInt32("type_id"),
-                                Name = dataReader.GetString("rt_name"),
-                                ParentId = dataReader.GetNullableInt("parrent_id"),
-                                ParentName = dataReader.GetString("rt_parrent_name"),
-                            },
-                            Description = dataReader.GetNullableString("description"),
-                            State = new RequestStateDto
-                            {
-                                Id = dataReader.GetInt32("state_id"),
-                                Name = dataReader.GetString("state_name"),
-                                Description = dataReader.GetString("state_descript")
-                            },
-                            CreateUser = new RequestUserDto
-                            {
-                                Id = dataReader.GetInt32("Create_user_id"),
-                                SurName = dataReader.GetString("SurName"),
-                                FirstName = dataReader.GetNullableString("FirstName"),
-                                PatrName = dataReader.GetNullableString("PatrName")
-                            },
-                            Address = new AddressDto
-                            {
-                                Id = dataReader.GetInt32("Address_id"),
-                                Building = dataReader.GetString("building"),
-                                Corpus = dataReader.GetNullableString("corps"),
-                                City = dataReader.GetString("City_name"),
-                                CityId = dataReader.GetInt32("city_id"),
-                                HouseId = dataReader.GetInt32("house_id"),
-                                StreetName = dataReader.GetString("street_name"),
-                                Flat = dataReader.GetNullableString("flat"),
-                                TypeId = dataReader.GetInt32("address_type_id"),
-                                Type = dataReader.GetString("type_name"),
-                                StreetId = dataReader.GetInt32("street_id"),
-                                StreetPrefixId = dataReader.GetInt32("prefix_id"),
-                                StreetPrefix = dataReader.GetString("prefix_name")
-                            }
-
-                        };
-                    }
-                    dataReader.Close();
-                    if (result != null)
-                    {
-                        var contactInfo = new List<ContactDto>();
-                        using (
-                            var contact =
-                                new MySqlCommand(
-                                    @"SELECT R.id, IsMain,Number from CallCenter.RequestContacts R
-    join CallCenter.ClientPhones P on P.id = R.ClientPhone_id where request_id = @reqId",
-                                    _dbConnection))
-                        {
-                            contact.Parameters.AddWithValue("@reqId", requestId);
-                            using (var contactReader = contact.ExecuteReader())
-                            {
-                                while (contactReader.Read())
+                                Id = dataReader.GetInt32("req_id"),
+                                CreateTime = dataReader.GetDateTime("create_time"),
+                                Type = new RequestTypeDto
                                 {
-                                    contactInfo.Add(new ContactDto
+                                    Id = dataReader.GetInt32("type_id"),
+                                    Name = dataReader.GetString("rt_name"),
+                                    ParentId = dataReader.GetNullableInt("parrent_id"),
+                                    ParentName = dataReader.GetString("rt_parrent_name"),
+                                },
+                                Description = dataReader.GetNullableString("description"),
+                                State = new RequestStateDto
+                                {
+                                    Id = dataReader.GetInt32("state_id"),
+                                    Name = dataReader.GetString("state_name"),
+                                    Description = dataReader.GetString("state_descript")
+                                },
+                                CreateUser = new RequestUserDto
+                                {
+                                    Id = dataReader.GetInt32("Create_user_id"),
+                                    SurName = dataReader.GetString("SurName"),
+                                    FirstName = dataReader.GetNullableString("FirstName"),
+                                    PatrName = dataReader.GetNullableString("PatrName")
+                                },
+                                Address = new AddressDto
+                                {
+                                    Id = dataReader.GetInt32("Address_id"),
+                                    Building = dataReader.GetString("building"),
+                                    Corpus = dataReader.GetNullableString("corps"),
+                                    City = dataReader.GetString("City_name"),
+                                    CityId = dataReader.GetInt32("city_id"),
+                                    HouseId = dataReader.GetInt32("house_id"),
+                                    StreetName = dataReader.GetString("street_name"),
+                                    Flat = dataReader.GetNullableString("flat"),
+                                    TypeId = dataReader.GetInt32("address_type_id"),
+                                    Type = dataReader.GetString("type_name"),
+                                    StreetId = dataReader.GetInt32("street_id"),
+                                    StreetPrefixId = dataReader.GetInt32("prefix_id"),
+                                    StreetPrefix = dataReader.GetString("prefix_name")
+                                }
+
+                            };
+                        }
+                        dataReader.Close();
+                        if (result != null)
+                        {
+                            var contactInfo = new List<ContactDto>();
+                            using (
+                                var contact =
+                                    new MySqlCommand(
+                                        @"SELECT R.id, IsMain,Number from CallCenter.RequestContacts R
+    join CallCenter.ClientPhones P on P.id = R.ClientPhone_id where request_id = @reqId",
+                                        _dbConnection))
+                            {
+                                contact.Parameters.AddWithValue("@reqId", requestId);
+                                using (var contactReader = contact.ExecuteReader())
+                                {
+                                    while (contactReader.Read())
                                     {
-                                        Id = contactReader.GetInt32("id"),
-                                        IsMain = contactReader.GetBoolean("IsMain"),
-                                        PhoneNumber = contactReader.GetString("Number"),
-                                    });
+                                        contactInfo.Add(new ContactDto
+                                        {
+                                            Id = contactReader.GetInt32("id"),
+                                            IsMain = contactReader.GetBoolean("IsMain"),
+                                            PhoneNumber = contactReader.GetString("Number"),
+                                        });
+                                    }
                                 }
                             }
+                            result.Contacts = contactInfo.ToArray();
                         }
-                        result.Contacts = contactInfo.ToArray();
+                        return result;
                     }
-                    return result;
                 }
-            }
             }
             catch (Exception exc)
             {
@@ -355,7 +390,7 @@ select LAST_INSERT_ID();", _dbConnection))
         public IList<RequestForListDto> GetRequestList()
         {
             using (var cmd =
-                    new MySqlCommand(@"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat FROM CallCenter.Requests R
+                new MySqlCommand(@"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat FROM CallCenter.Requests R
     join CallCenter.Addresses a on a.id = R.address_id
     join CallCenter.AddressesTypes at on at.id = a.type_id
     join CallCenter.Houses h on h.id = house_id
@@ -415,7 +450,8 @@ select LAST_INSERT_ID();", _dbConnection))
 
         public IList<CityDto> GetCities()
         {
-            using (var cmd = new MySqlCommand(@"select id,name from CallCenter.Cities where enabled = 1", _dbConnection))
+            using (var cmd = new MySqlCommand(@"select id,name from CallCenter.Cities where enabled = 1", _dbConnection)
+                )
             {
                 var cities = new List<CityDto>();
                 using (var dataReader = cmd.ExecuteReader())
@@ -468,7 +504,11 @@ select LAST_INSERT_ID();", _dbConnection))
 
         public IList<HouseDto> GetHouses(int streetId)
         {
-            using (var cmd = new MySqlCommand(@"SELECT id,street_id,building,corps,service_company_id FROM CallCenter.Houses where street_id = @StreetId and enabled = 1;", _dbConnection))
+            using (
+                var cmd =
+                    new MySqlCommand(
+                        @"SELECT id,street_id,building,corps,service_company_id FROM CallCenter.Houses where street_id = @StreetId and enabled = 1;",
+                        _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@StreetId", streetId);
                 var houses = new List<HouseDto>();
@@ -520,11 +560,12 @@ select LAST_INSERT_ID();", _dbConnection))
 
         public IList<ServiceDto> GetServices(long? parentId)
         {
-            var query = parentId.HasValue ? @"SELECT id,name FROM CallCenter.RequestTypes R where parrent_id = @ParentId and enabled = 1 order by name":
-                @"SELECT id,name FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
+            var query = parentId.HasValue
+                ? @"SELECT id,name FROM CallCenter.RequestTypes R where parrent_id = @ParentId and enabled = 1 order by name"
+                : @"SELECT id,name FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
-                if(parentId.HasValue)
+                if (parentId.HasValue)
                     cmd.Parameters.AddWithValue("@ParentId", parentId.Value);
 
                 var services = new List<ServiceDto>();
@@ -541,6 +582,28 @@ select LAST_INSERT_ID();", _dbConnection))
                     dataReader.Close();
                 }
                 return services;
+            }
+        }
+
+        public List<AddressTypeDto> GetAddressTypes()
+        {
+            var query = "SELECT id,Name FROM CallCenter.AddressesTypes A order by OrderNum";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var types = new List<AddressTypeDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        types.Add(new AddressTypeDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return types;
             }
         }
     }

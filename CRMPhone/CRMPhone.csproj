@@ -66,7 +66,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\RequestItem.xaml.cs">
+      <DependentUpon>RequestItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dto\AddressDto.cs" />
+    <Compile Include="Dto\AddressTypeDto.cs" />
     <Compile Include="Dto\CityDto.cs" />
     <Compile Include="Controls\UsersControl.xaml.cs">
       <DependentUpon>UsersControl.xaml</DependentUpon>
@@ -76,6 +80,7 @@
     <Compile Include="Dto\HouseDto.cs" />
     <Compile Include="Dto\RequestForListDto.cs" />
     <Compile Include="Dto\RequestInfoDto.cs" />
+    <Compile Include="ViewModel\RequestItemViewModel.cs" />
     <Compile Include="Dto\RequestStateDto.cs" />
     <Compile Include="Dto\RequestTypeDto.cs" />
     <Compile Include="Dto\RequestUserDto.cs" />
@@ -110,6 +115,10 @@
     </Compile>
     <Compile Include="TrasferDialogViewModel.cs" />
     <Compile Include="Dto\UserDto.cs" />
+    <Page Include="Controls\RequestItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\UsersControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

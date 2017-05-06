@@ -42,8 +42,8 @@ namespace CRMPhone.ViewModel
             viewModel.SelectedStreet = viewModel.StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
             viewModel.SelectedHouse = viewModel.HouseList.SingleOrDefault(i=>i.Id == request.Address.HouseId);
             viewModel.SelectedFlat =  viewModel.FlatList.SingleOrDefault(i=>i.Id == request.Address.Id);
-            viewModel.SelectedParentService = viewModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
-            viewModel.SelectedService = viewModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+            //viewModel.SelectedParentService = viewModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            //viewModel.SelectedService = viewModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
             viewModel.RequestMessage = request.Description;
             viewModel.RequestId = request.Id;
             viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
