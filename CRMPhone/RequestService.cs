@@ -576,7 +576,7 @@ select LAST_INSERT_ID();", _dbConnection))
                         services.Add(new ServiceDto
                         {
                             Id = dataReader.GetInt32("id"),
-                            Name = dataReader.GetString("name"),
+                            Name = dataReader.GetString("name")
                         });
                     }
                     dataReader.Close();
@@ -598,12 +598,56 @@ select LAST_INSERT_ID();", _dbConnection))
                         types.Add(new AddressTypeDto
                         {
                             Id = dataReader.GetInt32("id"),
-                            Name = dataReader.GetString("name"),
+                            Name = dataReader.GetString("name")
                         });
                     }
                     dataReader.Close();
                 }
                 return types;
+            }
+        }
+        public List<PeriodDto> GetPeriods()
+        {
+            var query = "SELECT id,Name,SetTime,OrderNum FROM CallCenter.PeriodTimes P";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var periods = new List<PeriodDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        periods.Add(new PeriodDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                            SetTime = dataReader.GetDateTime("SetTime"),
+                            OrderNum = dataReader.GetInt32("OrderNum")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return periods.OrderBy(i=>i.OrderNum).ToList();
+            }
+        }
+        public List<ServiceCompanyDto> GetServiceCompanies()
+        {
+            var query = "SELECT id,name FROM CallCenter.ServiceCompanies S where Enabled = 1";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var companies = new List<ServiceCompanyDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        companies.Add(new ServiceCompanyDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return companies.OrderBy(i=>i.Name).ToList();
             }
         }
     }

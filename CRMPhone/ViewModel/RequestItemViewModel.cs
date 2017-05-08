@@ -24,6 +24,8 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<ServiceCompanyDto> _companyList;
         private ServiceCompanyDto _selectedCompany;
         private int? _requestId;
+        private ObservableCollection<PeriodDto> _periodList;
+        private PeriodDto _selectedPeriod;
 
         public RequestItemViewModel()
         {
@@ -31,10 +33,11 @@ namespace CRMPhone.ViewModel
             ServiceList = new ObservableCollection<ServiceDto>();
             WorkerList = new ObservableCollection<WorkerDto>(_requestService.GetWorkers(null));
             ParentServiceList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
-            if (ParentServiceList.Count > 0)
-            {
-                SelectedParentService = ParentServiceList.FirstOrDefault();
-            }
+            SelectedParentService = ParentServiceList.FirstOrDefault();
+            PeriodList = new ObservableCollection<PeriodDto>(_requestService.GetPeriods());
+            SelectedPeriod = PeriodList.FirstOrDefault();
+            CompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
+            SelectedCompany = CompanyList.FirstOrDefault();
         }
 
         public string UniqueId
@@ -118,6 +121,18 @@ namespace CRMPhone.ViewModel
         {
             get { return _selectedWorker; }
             set { _selectedWorker = value; OnPropertyChanged(nameof(SelectedWorker)); }
+        }
+
+        public ObservableCollection<PeriodDto> PeriodList
+        {
+            get { return _periodList; }
+            set { _periodList = value; OnPropertyChanged(nameof(PeriodList)); }
+        }
+
+        public PeriodDto SelectedPeriod
+        {
+            get { return _selectedPeriod; }
+            set { _selectedPeriod = value; OnPropertyChanged(nameof(SelectedPeriod)); }
         }
 
         private void ChangeParentService(int? parentServiceId)

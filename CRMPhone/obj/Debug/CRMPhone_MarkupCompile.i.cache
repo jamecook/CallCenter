@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\
+c:\Projects\CallCenter\CRMPhone\obj\Debug\
 CRMPhone
 none
 false
 DEBUG;TRACE
-C:\Projects\CallCenter\CRMPhone\App.xaml
+c:\Projects\CallCenter\CRMPhone\App.xaml
 81801795730
 1-2138471434
-48-347149274
-15-416099930
+49-1681585191
+151305940118
 Controls\RequestItem.xaml;Controls\UsersControl.xaml;LoginView.xaml;MainWindow.xaml;Controls\PhoneControl.xaml;Controls\RequestControl.xaml;RequestDialog.xaml;TransferDialog.xaml;
 
 False

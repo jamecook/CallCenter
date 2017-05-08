@@ -78,6 +78,7 @@
     <Compile Include="Dto\ContactDto.cs" />
     <Compile Include="Dto\FlatDto.cs" />
     <Compile Include="Dto\HouseDto.cs" />
+    <Compile Include="Dto\PeriodDto.cs" />
     <Compile Include="Dto\RequestForListDto.cs" />
     <Compile Include="Dto\RequestInfoDto.cs" />
     <Compile Include="ViewModel\RequestItemViewModel.cs" />
