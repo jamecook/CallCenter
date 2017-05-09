@@ -100,7 +100,6 @@
                     </StackPanel>
                 </TabItem.Header>
                 <Grid>
-
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>

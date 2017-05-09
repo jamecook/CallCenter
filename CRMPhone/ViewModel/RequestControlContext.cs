@@ -53,11 +53,11 @@ namespace CRMPhone.ViewModel
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
             requestModel.RequestState = request.State.Description;
-
+            requestModel.SelectedWorker = requestModel.WorkerList.SingleOrDefault(w => w.Id == request.ExecutorId);
             requestModel.RequestId = request.Id;
-            if (request.ExecuteDate.Date > DateTime.MinValue)
+            if (request.ExecuteDate.HasValue && request.ExecuteDate.Value.Date > DateTime.MinValue)
             {
-                requestModel.SelectedDateTime = request.ExecuteDate.Date;
+                requestModel.SelectedDateTime = request.ExecuteDate.Value.Date;
                 requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
             }
             viewModel.RequestId = request.Id;

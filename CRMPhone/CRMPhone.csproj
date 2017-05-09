@@ -66,6 +66,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ChangeWorkerDialog.xaml.cs">
+      <DependentUpon>ChangeWorkerDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ChangeWorkerDialogViewModel.cs" />
     <Compile Include="Controls\RequestItem.xaml.cs">
       <DependentUpon>RequestItem.xaml</DependentUpon>
     </Compile>
@@ -81,6 +85,7 @@
     <Compile Include="Dto\PeriodDto.cs" />
     <Compile Include="Dto\RequestForListDto.cs" />
     <Compile Include="Dto\RequestInfoDto.cs" />
+    <Compile Include="Dto\WorkerHistoryDto.cs" />
     <Compile Include="ViewModel\RequestItemViewModel.cs" />
     <Compile Include="Dto\RequestStateDto.cs" />
     <Compile Include="Dto\RequestTypeDto.cs" />
@@ -116,6 +121,10 @@
     </Compile>
     <Compile Include="TrasferDialogViewModel.cs" />
     <Compile Include="Dto\UserDto.cs" />
+    <Page Include="ChangeWorkerDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\RequestItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

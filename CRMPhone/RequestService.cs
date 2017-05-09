@@ -279,7 +279,7 @@ select LAST_INSERT_ID();", _dbConnection))
             try
             {
                 using (var cmd =
-                    new MySqlCommand(@"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_chargeable,R.is_immediate,R.period_time_id,R.Create_user_id,R.state_id,
+                    new MySqlCommand(@"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_chargeable,R.is_immediate,R.period_time_id,R.Create_user_id,R.state_id,R.worker_id,R.execute_date,
     RS.name state_name,RS.description state_descript,
     RT.parrent_id,RT.name as rt_name,RT2.name rt_parrent_name,
     A.type_id address_type_id,A.house_id,A.flat,
@@ -311,9 +311,12 @@ select LAST_INSERT_ID();", _dbConnection))
                             {
                                 Id = dataReader.GetInt32("req_id"),
                                 CreateTime = dataReader.GetDateTime("create_time"),
-                                PeriodId = dataReader.GetInt32("period_time_id"),
+                                PeriodId = dataReader.GetNullableInt("period_time_id"),
+                                ExecutorId = dataReader.GetNullableInt("worker_id"),
                                 IsChargeable = dataReader.GetBoolean("is_chargeable"),
                                 IsImmediate = dataReader.GetBoolean("is_immediate"),
+                                Description = dataReader.GetNullableString("description"),
+                                ExecuteDate =  dataReader.GetNullableDateTime("execute_date"),
                                 Type = new RequestTypeDto
                                 {
                                     Id = dataReader.GetInt32("type_id"),
@@ -321,7 +324,6 @@ select LAST_INSERT_ID();", _dbConnection))
                                     ParentId = dataReader.GetNullableInt("parrent_id"),
                                     ParentName = dataReader.GetString("rt_parrent_name"),
                                 },
-                                Description = dataReader.GetNullableString("description"),
                                 State = new RequestStateDto
                                 {
                                     Id = dataReader.GetInt32("state_id"),
@@ -653,6 +655,45 @@ select LAST_INSERT_ID();", _dbConnection))
                     dataReader.Close();
                 }
                 return companies.OrderBy(i=>i.Name).ToList();
+            }
+        }
+
+        public List<WorkerHistoryDto> GetWorkerHistoryByRequest(int requestId)
+        {
+            var query = @"SELECT operation_date, R.worker_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestWorkerHistory R
+ join CallCenter.Workers w on w.id = R.worker_id
+ join CallCenter.Users u on u.id = user_id
+ where request_id = @RequestId";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var companies = new List<WorkerHistoryDto>();
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        companies.Add(new WorkerHistoryDto
+                        {
+                            CreateTime = dataReader.GetDateTime("operation_date"),
+                            Worker = new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("worker_id"),
+                                SurName = dataReader.GetNullableString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                            },
+                            CreateUser = new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("user_id"),
+                                SurName = dataReader.GetNullableString("surname"),
+                                FirstName = dataReader.GetNullableString("firstname"),
+                                PatrName = dataReader.GetNullableString("patrname"),
+                            },
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return companies.OrderBy(i => i.CreateTime).ToList();
             }
         }
     }

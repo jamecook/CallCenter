@@ -186,7 +186,18 @@ namespace CRMPhone
 
         private void ChangeWorker(object sender)
         {
-            
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            if(!requestModel.RequestId.HasValue)
+                return;
+            var model = new ChangeWorkerDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var view = new ChangeWorkerDialog();
+            view.Owner = _view;
+            view.DataContext = model;
+            view.ShowDialog();
+            var newWorkerId = model.ExecuterId;
+            requestModel.SelectedWorker = requestModel.WorkerList.SingleOrDefault(w => w.Id == newWorkerId);
         }
 
         private void ChangeDate(object sender)
