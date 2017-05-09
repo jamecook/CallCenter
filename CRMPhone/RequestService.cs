@@ -397,12 +397,18 @@ select LAST_INSERT_ID();", _dbConnection))
         public IList<RequestForListDto> GetRequestList()
         {
             using (var cmd =
-                new MySqlCommand(@"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat FROM CallCenter.Requests R
+                new MySqlCommand(@"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
+    R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
+    R.execute_date,p.Name Period_Name
+    FROM CallCenter.Requests R
     join CallCenter.Addresses a on a.id = R.address_id
     join CallCenter.AddressesTypes at on at.id = a.type_id
     join CallCenter.Houses h on h.id = house_id
     join CallCenter.Streets s on s.id = street_id
     join CallCenter.StreetPrefixes sp on sp.id = s.prefix_id
+    left join CallCenter.Workers w on w.id = R.worker_id
+    join CallCenter.Users u on u.id = create_user_id
+    left join CallCenter.PeriodTimes p on p.id = R.period_time_id
     order by id desc", _dbConnection))
             {
                 var requests = new List<RequestForListDto>();
@@ -419,7 +425,25 @@ select LAST_INSERT_ID();", _dbConnection))
                             Flat = dataReader.GetString("flat"),
                             Building = dataReader.GetString("building"),
                             Corpus = dataReader.GetNullableString("corps"),
-                            CreateTime = dataReader.GetDateTime("create_time")
+                            CreateTime = dataReader.GetDateTime("create_time"),
+                            Worker = dataReader.GetNullableInt("worker_id")!=null?new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("worker_id"),
+                                SurName = dataReader.GetNullableString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                            }:null,
+                            CreateUser = new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("create_user_id"),
+                                SurName = dataReader.GetNullableString("surname"),
+                                FirstName = dataReader.GetNullableString("firstname"),
+                                PatrName = dataReader.GetNullableString("patrname"),
+                            },
+                            ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                            ExecutePeriod = dataReader.GetNullableString("Period_Name"),
+
+
                         });
                     }
                     dataReader.Close();
@@ -666,13 +690,13 @@ select LAST_INSERT_ID();", _dbConnection))
  where request_id = @RequestId";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
-                var companies = new List<WorkerHistoryDto>();
+                var historyDtos = new List<WorkerHistoryDto>();
                 cmd.Parameters.AddWithValue("@RequestId", requestId);
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                     {
-                        companies.Add(new WorkerHistoryDto
+                        historyDtos.Add(new WorkerHistoryDto
                         {
                             CreateTime = dataReader.GetDateTime("operation_date"),
                             Worker = new RequestUserDto
@@ -693,7 +717,41 @@ select LAST_INSERT_ID();", _dbConnection))
                     }
                     dataReader.Close();
                 }
-                return companies.OrderBy(i => i.CreateTime).ToList();
+                return historyDtos.OrderByDescending(i => i.CreateTime).ToList();
+            }
+        }
+        public List<ExecuteDateHistoryDto> GetExecuteDateHistoryByRequest(int requestId)
+        {
+            var query = @"SELECT R.operation_date,R.user_id,u.surname,u.firstname,u.patrname,R.note,R.execute_date,p.Name FROM CallCenter.RequestExecuteDateHistory R
+ join CallCenter.Users u on u.id = user_id
+ join CallCenter.PeriodTimes p on p.id = R.period_time_id
+ where request_id = @RequestId";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var executeDateHistoryDtos = new List<ExecuteDateHistoryDto>();
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        executeDateHistoryDtos.Add(new ExecuteDateHistoryDto
+                        {
+                            CreateTime = dataReader.GetDateTime("operation_date"),
+                            Note = dataReader.GetNullableString("note"),
+                            ExecuteTime = dataReader.GetDateTime("execute_date"),
+                            ExecutePeriod = dataReader.GetNullableString("name"),
+                            CreateUser = new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("user_id"),
+                                SurName = dataReader.GetNullableString("surname"),
+                                FirstName = dataReader.GetNullableString("firstname"),
+                                PatrName = dataReader.GetNullableString("patrname"),
+                            },
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return executeDateHistoryDtos.OrderByDescending(i => i.CreateTime).ToList();
             }
         }
     }

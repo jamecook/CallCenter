@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Release\
+c:\Projects\CallCenter\CRMPhone\obj\Release\
 CRMPhone
 none
 false
 TRACE
-C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\App.xaml
-743996418
+c:\Projects\CallCenter\CRMPhone\App.xaml
+10-917304074
+1-2138471434
+55-533292702
+15718531100
+ChangeExecuteDateDialog.xaml;ChangeWorkerDialog.xaml;Controls\RequestItem.xaml;Controls\UsersControl.xaml;LoginView.xaml;MainWindow.xaml;Controls\PhoneControl.xaml;Controls\RequestControl.xaml;RequestDialog.xaml;TransferDialog.xaml;
 
-43-1663476780
-131429358566
-Controls\UsersControl.xaml;LoginView.xaml;MainWindow.xaml;Controls\PhoneControl.xaml;Controls\RequestControl.xaml;RequestDialog.xaml;TransferDialog.xaml;
-
-False
+True
 

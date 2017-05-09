@@ -9,7 +9,7 @@
         xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModel:CRMContext}"
-        Title="{Binding AppTitle}" Height="600" Width="800" MinWidth="800" MinHeight="600" Closing="Window_Closing">
+        Title="{Binding AppTitle}" Height="600" Width="1000" MinWidth="1000" MinHeight="600" Closing="Window_Closing">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -79,8 +79,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
-
-        <TabControl Margin="3" Grid.Column="1">
+        <TabControl Margin="3" Grid.Row="0" Grid.Column="1">
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
@@ -88,9 +87,7 @@
                         <TextBlock Margin="3" Text="Заявки"/>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid>
                     <controls:RequestControl DataContext="{Binding RequestDataContext}"></controls:RequestControl>
-                </Grid>
             </TabItem>
             <TabItem>
                 <TabItem.Header>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
 using CRMPhone.Dto;
@@ -11,6 +12,8 @@ namespace CRMPhone
 {
     public class ChangeWorkerDialogViewModel :INotifyPropertyChanged
     {
+        private Window _view;
+
         private RequestService _requestService;
         private int _requestId;
         private ObservableCollection<WorkerDto> _workerList;
@@ -29,6 +32,11 @@ namespace CRMPhone
             Refresh(null);
         }
 
+        public void SetView(Window view)
+        {
+            _view = view;
+        }
+
         private ICommand _refreshCommand;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new RelayCommand(Refresh)); } }
         private ICommand _saveCommand;
@@ -40,7 +48,7 @@ namespace CRMPhone
                 return;
             _requestService.AddNewWorker(_requestId,SelectedWorker.Id);
             _oldExecuterId = SelectedWorker.Id;
-            Refresh(null);
+            _view.DialogResult = true;
         }
 
         public int? ExecuterId => _oldExecuterId;

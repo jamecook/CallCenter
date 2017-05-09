@@ -6,11 +6,10 @@
              xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
              xmlns:dto="clr-namespace:CRMPhone.Dto"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="600"
+             d:DesignHeight="300" d:DesignWidth="900"
              d:DataContext="{d:DesignInstance viewModel:RequestControlContext}">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -24,7 +23,8 @@
                           SelectionMode="Single"
                           SelectionUnit="FullRow"
                           IsReadOnly="True"
-                          HorizontalScrollBarVisibility="Disabled">
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto">
             <DataGrid.InputBindings>
                 <MouseBinding MouseAction="LeftDoubleClick"
                   Command="{Binding Path=OpenRequestCommand}"
@@ -37,7 +37,14 @@
                              Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"></DataGridTextColumn>
                 <DataGridTextColumn Header="Адрес" Width="300"
                              Binding="{Binding Path=FullAddress}"></DataGridTextColumn>
-
+                <DataGridTextColumn Header="Исполнитель" Width="120"
+                             Binding="{Binding Path=Worker.ShortName}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Дата исполнения" Width="110"
+                             Binding="{Binding Path=ExecuteTime, StringFormat='{}{0:dd.MM.yyyy}'}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Период" Width="100"
+                             Binding="{Binding Path=ExecutePeriod}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Создатель" Width="120"
+                             Binding="{Binding Path=CreateUser.ShortName}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
 

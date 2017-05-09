@@ -66,6 +66,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ChangeExecuteDateDialog.xaml.cs">
+      <DependentUpon>ChangeExecuteDateDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ChangeExecuteDateDialogViewModel.cs" />
     <Compile Include="ChangeWorkerDialog.xaml.cs">
       <DependentUpon>ChangeWorkerDialog.xaml</DependentUpon>
     </Compile>
@@ -80,6 +84,7 @@
       <DependentUpon>UsersControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dto\ContactDto.cs" />
+    <Compile Include="Dto\ExecuteDateHistoryDto.cs" />
     <Compile Include="Dto\FlatDto.cs" />
     <Compile Include="Dto\HouseDto.cs" />
     <Compile Include="Dto\PeriodDto.cs" />
@@ -121,6 +126,10 @@
     </Compile>
     <Compile Include="TrasferDialogViewModel.cs" />
     <Compile Include="Dto\UserDto.cs" />
+    <Page Include="ChangeExecuteDateDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ChangeWorkerDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

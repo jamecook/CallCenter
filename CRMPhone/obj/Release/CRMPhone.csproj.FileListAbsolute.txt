@@ -55,3 +55,43 @@ C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Release\CRMPhone.
 C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Release\CRMPhone.exe
 C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Release\CRMPhone.pdb
 C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Release\CRMPhone.csprojResolveAssemblyReference.cache
+c:\Projects\CallCenter\CRMPhone\bin\Release\NLog.config
+c:\Projects\CallCenter\CRMPhone\bin\Release\CRMPhone.exe.config
+c:\Projects\CallCenter\CRMPhone\bin\Release\CRMPhone.exe
+c:\Projects\CallCenter\CRMPhone\bin\Release\CRMPhone.pdb
+c:\Projects\CallCenter\CRMPhone\bin\Release\MySql.Data.dll
+c:\Projects\CallCenter\CRMPhone\bin\Release\NLog.dll
+c:\Projects\CallCenter\CRMPhone\bin\Release\NLog.xml
+c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.csprojResolveAssemblyReference.cache
+c:\Projects\CallCenter\CRMPhone\obj\Release\Interop.conaito.dll
+c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.csproj.ResolveComReference.cache
+c:\Projects\CallCenter\CRMPhone\obj\Release\ChangeExecuteDateDialog.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\ChangeWorkerDialog.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\Controls\RequestItem.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\Controls\UsersControl.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\LoginView.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\MainWindow.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\Controls\PhoneControl.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\Controls\RequestControl.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\RequestDialog.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\TransferDialog.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\App.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone_Content.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\GeneratedInternalTypeHelper.g.cs
+c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone_MarkupCompile.cache
+c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone_MarkupCompile.lref
+c:\Projects\CallCenter\CRMPhone\obj\Release\ChangeExecuteDateDialog.baml
+c:\Projects\CallCenter\CRMPhone\obj\Release\ChangeWorkerDialog.baml
+c:\Projects\CallCenter\CRMPhone\obj\Release\Controls\RequestItem.baml
+c:\Projects\CallCenter\CRMPhone\obj\Release\Controls\UsersControl.baml
+c:\Projects\CallCenter\CRMPhone\obj\Release\LoginView.baml
+c:\Projects\CallCenter\CRMPhone\obj\Release\MainWindow.baml
+c:\Projects\CallCenter\CRMPhone\obj\Release\Controls\PhoneControl.baml
+c:\Projects\CallCenter\CRMPhone\obj\Release\Controls\RequestControl.baml
+c:\Projects\CallCenter\CRMPhone\obj\Release\RequestDialog.baml
+c:\Projects\CallCenter\CRMPhone\obj\Release\TransferDialog.baml
+c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.g.resources
+c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.Properties.Resources.resources
+c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.csproj.GenerateResource.Cache
+c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.exe
+c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.pdb

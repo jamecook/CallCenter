@@ -193,16 +193,33 @@ namespace CRMPhone
                 return;
             var model = new ChangeWorkerDialogViewModel(_requestService, requestModel.RequestId.Value);
             var view = new ChangeWorkerDialog();
+            model.SetView(view);
             view.Owner = _view;
             view.DataContext = model;
-            view.ShowDialog();
-            var newWorkerId = model.ExecuterId;
-            requestModel.SelectedWorker = requestModel.WorkerList.SingleOrDefault(w => w.Id == newWorkerId);
+            if (view.ShowDialog()==true)
+            {
+                requestModel.SelectedWorker = requestModel.WorkerList.SingleOrDefault(w => w.Id == model.ExecuterId);
+            }
         }
 
         private void ChangeDate(object sender)
         {
-            
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            if (!requestModel.RequestId.HasValue)
+                return;
+            var model = new ChangeExecuteDateDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var view = new ChangeExecuteDateDialog();
+            model.SetView(view);
+            view.Owner = _view;
+            view.DataContext = model;
+            if (view.ShowDialog() == true)
+            {
+                requestModel.SelectedDateTime = model.SelectedDateTime;
+                requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(w => w.Id == model.SelectedPeriod.Id);
+            }
+
         }
 
         private void SaveRequestRequest(object sender)
@@ -210,6 +227,16 @@ namespace CRMPhone
             if (!(sender is RequestItemViewModel))
                 return;
             var requestModel = sender as RequestItemViewModel;
+            if (requestModel.SelectedService == null)
+            {
+                MessageBox.Show("Необходимо выбрать причину обращения!");
+                return;
+            }
+            if (SelectedFlat == null)
+            {
+                MessageBox.Show("Необходимо выбрать верный адрес!");
+                return;
+            }
             var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate);
             if (!request.HasValue)
             {

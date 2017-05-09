@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 
 namespace CRMPhone.Dto
 {
@@ -13,6 +12,11 @@ namespace CRMPhone.Dto
         public string Corpus { get; set; }
         public string Flat { get; set; }
         public string AddressType { get; set; }
+        public RequestUserDto Worker { get; set; }
+        public RequestUserDto CreateUser { get; set; }
+        public DateTime? ExecuteTime { get; set; }
+        public string ExecutePeriod { get; set; }
+
 
         public string FullAddress
         {
