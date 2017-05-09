@@ -13,6 +13,9 @@ namespace CRMPhone.Dto
         public RequestUserDto CreateUser { get; set; }
         public ContactDto[] Contacts { get; set; }
         public DateTime ExecuteDate { get; set; }
+        public int PeriodId { get; set; }
         public int ExecutorId { get; set; }
+        public bool IsImmediate { get; set; }
+        public bool IsChargeable { get; set; }
     }
 }

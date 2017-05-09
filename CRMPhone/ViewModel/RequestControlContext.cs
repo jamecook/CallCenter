@@ -25,6 +25,8 @@ namespace CRMPhone.ViewModel
         private void OpenRequest(object sender)
         {
             var selectedItem = sender as RequestForListDto;
+            if (selectedItem == null)
+                return;
             if (_requestService == null)
                 _requestService = new RequestService(AppSettings.DbConnection);
 
@@ -42,9 +44,22 @@ namespace CRMPhone.ViewModel
             viewModel.SelectedStreet = viewModel.StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
             viewModel.SelectedHouse = viewModel.HouseList.SingleOrDefault(i=>i.Id == request.Address.HouseId);
             viewModel.SelectedFlat =  viewModel.FlatList.SingleOrDefault(i=>i.Id == request.Address.Id);
-            //viewModel.SelectedParentService = viewModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
-            //viewModel.SelectedService = viewModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
-            viewModel.RequestMessage = request.Description;
+            var requestModel = viewModel.RequestList.FirstOrDefault();
+            requestModel.SelectedParentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            requestModel.SelectedService = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+            requestModel.Description = request.Description;
+            requestModel.IsChargeable = request.IsChargeable;
+            requestModel.IsImmediate = request.IsImmediate;
+            requestModel.RequestCreator = request.CreateUser.ShortName;
+            requestModel.RequestDate = request.CreateTime;
+            requestModel.RequestState = request.State.Description;
+
+            requestModel.RequestId = request.Id;
+            if (request.ExecuteDate.Date > DateTime.MinValue)
+            {
+                requestModel.SelectedDateTime = request.ExecuteDate.Date;
+                requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
+            }
             viewModel.RequestId = request.Id;
             viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
             var t = view.ShowDialog();

@@ -21,7 +21,7 @@ namespace CRMPhone
         }
 
         public int? SaveNewRequest(int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
-            bool chargeable = false, bool immediate = false)
+            bool chargeable, bool immediate)
         {
             int newId;
             _logger.Debug(
@@ -202,32 +202,34 @@ select LAST_INSERT_ID();", _dbConnection))
 
         }
 
-        public void AddNewExecuteDate(int requestId, DateTime executeDate, string note)
+        public void AddNewExecuteDate(int requestId, DateTime executeDate,PeriodDto period, string note)
         {
-            _logger.Debug($"RequestService.AddNewExecuteDate({requestId},{executeDate},{note})");
+            _logger.Debug($"RequestService.AddNewExecuteDate({requestId},{executeDate},{period.Id},{note})");
             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"insert into CallCenter.RequestExecuteDateHistory (request_id,operation_date,user_id,execute_date,note) 
-    values(@RequestId,sysdate(),@UserId,@ExecuteDate,@Note);", _dbConnection))
+                            new MySqlCommand(@"insert into CallCenter.RequestExecuteDateHistory (request_id,operation_date,user_id,execute_date,period_time_id,note) 
+    values(@RequestId,sysdate(),@UserId,@ExecuteDate,@Period,@Note);", _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
                         cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
                         cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
                         cmd.Parameters.AddWithValue("@Note", note);
+                        cmd.Parameters.AddWithValue("@Period", period.Id);
                         cmd.ExecuteNonQuery();
                     }
                     using (
                         var cmd =
                             new MySqlCommand(
-                                @"update CallCenter.Requests set execute_date = @ExecuteDate where id = @RequestId",
+                                @"update CallCenter.Requests set execute_date = @ExecuteDate, period_time_id = @Period  where id = @RequestId",
                                 _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
-                        cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
+                        cmd.Parameters.AddWithValue("@ExecuteDate", executeDate + period.SetTime.TimeOfDay);
+                        cmd.Parameters.AddWithValue("@Period", period.Id);
                         cmd.ExecuteNonQuery();
                     }
 
@@ -277,7 +279,7 @@ select LAST_INSERT_ID();", _dbConnection))
             try
             {
                 using (var cmd =
-                    new MySqlCommand(@"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_chargeable,R.Create_user_id,R.state_id,
+                    new MySqlCommand(@"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_chargeable,R.is_immediate,R.period_time_id,R.Create_user_id,R.state_id,
     RS.name state_name,RS.description state_descript,
     RT.parrent_id,RT.name as rt_name,RT2.name rt_parrent_name,
     A.type_id address_type_id,A.house_id,A.flat,
@@ -309,6 +311,9 @@ select LAST_INSERT_ID();", _dbConnection))
                             {
                                 Id = dataReader.GetInt32("req_id"),
                                 CreateTime = dataReader.GetDateTime("create_time"),
+                                PeriodId = dataReader.GetInt32("period_time_id"),
+                                IsChargeable = dataReader.GetBoolean("is_chargeable"),
+                                IsImmediate = dataReader.GetBoolean("is_immediate"),
                                 Type = new RequestTypeDto
                                 {
                                     Id = dataReader.GetInt32("type_id"),

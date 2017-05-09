@@ -23,14 +23,7 @@ namespace CRMPhone
         private HouseDto _selectedHouse;
         private ObservableCollection<FlatDto> _flatList;
         private FlatDto _selectedFlat;
-        //private ObservableCollection<ServiceDto> _parentServiceList;
-        //private ServiceDto _selectedParentService;
-        //private ObservableCollection<ServiceDto> _serviceList;
-        //private ServiceDto _selectedService;
-        //private ObservableCollection<WorkerDto> _workerList;
-        //private WorkerDto _selectedWorker;
-        //private DateTime? _selectedDateTime;
-
+        
         private ObservableCollection<ContactDto> _contactList;
         private int _requestId;
 
@@ -98,18 +91,6 @@ namespace CRMPhone
             OnPropertyChanged(nameof(FlatList));
         }
 
-        //private void ChangeParentService(int? parentServiceId)
-        //{
-        //    ServiceList.Clear();
-        //    if (!parentServiceId.HasValue)
-        //        return;
-        //    foreach (var source in _requestService.GetServices(parentServiceId.Value).OrderBy(s=>s.Name))
-        //    {
-        //        ServiceList.Add(source);
-        //    }
-        //    OnPropertyChanged(nameof(ServiceList));
-        //}
-
         public ObservableCollection<StreetDto> StreetList
         {
             get { return _streetList;}
@@ -168,58 +149,24 @@ namespace CRMPhone
             set { _addressTypeList = value; OnPropertyChanged(nameof(AddressTypeList));}
         }
 
-        //public ObservableCollection<ServiceDto> ParentServiceList
-        //{
-        //    get { return _parentServiceList; }
-        //    set { _parentServiceList = value; OnPropertyChanged(nameof(ParentServiceList));}
-        //}
-
-        //public ServiceDto SelectedParentService
-        //{
-        //    get { return _selectedParentService; }
-        //    set
-        //    {
-        //        _selectedParentService = value;
-        //        ChangeParentService(value?.Id);
-        //        OnPropertyChanged(nameof(SelectedParentService));
-        //    }
-        //}
-
-        //public ObservableCollection<ServiceDto> ServiceList
-        //{
-        //    get { return _serviceList; }
-        //    set { _serviceList = value; OnPropertyChanged(nameof(ServiceList));}
-        //}
-
-        //public ServiceDto SelectedService
-        //{
-        //    get { return _selectedService; }
-        //    set { _selectedService = value; OnPropertyChanged(nameof(SelectedService)); }
-        //}
-
-        //public ObservableCollection<WorkerDto> WorkerList
-        //{
-        //    get { return _workerList; }
-        //    set { _workerList = value; OnPropertyChanged(nameof(WorkerList));}
-        //}
-
-        //public WorkerDto SelectedWorker
-        //{
-        //    get { return _selectedWorker; }
-        //    set { _selectedWorker = value; OnPropertyChanged(nameof(SelectedWorker));}
-        //}
-
         public ObservableCollection<ContactDto> ContactList
         {
             get { return _contactList; }
             set { _contactList = value; OnPropertyChanged(nameof(ContactList)); }
         }
-        private string _requestMessage;
         private ContactDto _selectedContact;
         private RequestItemViewModel _selectedRequest;
 
         private ICommand _addContactCommand;
         public ICommand AddContactCommand { get { return _addContactCommand ?? (_addContactCommand = new CommandHandler(AddContact, true)); } }
+        private ICommand _addRequestCommand;
+        public ICommand AddRequestCommand { get { return _addRequestCommand ?? (_addRequestCommand = new CommandHandler(AddRequest, true)); } }
+
+        private void AddRequest()
+        {
+            RequestList.Add(new RequestItemViewModel());
+        }
+
         private ICommand _deleteCommand;
         public ICommand DeleteCommand { get { return _deleteCommand ?? (_deleteCommand = new CommandHandler(Delete, true)); } }
 
@@ -227,18 +174,32 @@ namespace CRMPhone
         public ICommand ChangeCheckedStateCommand { get { return _changeCheckedStateCommand ?? (_changeCheckedStateCommand = new CommandHandler(ChangeChekedState, true)); } }
 
 
-        private ICommand _saveCommand;
-        public ICommand SaveCommand { get { return _saveCommand ?? (_saveCommand = new CommandHandler(SaveRequest, true)); } }
-
         private ICommand _saveRequestCommand;
         public ICommand SaveRequestCommand { get { return _saveRequestCommand ?? (_saveRequestCommand = new RelayCommand(SaveRequestRequest)); } }
+
+        private ICommand _changeWorkerCommand;
+        public ICommand ChangeWorkerCommand { get { return _changeWorkerCommand ?? (_changeWorkerCommand = new RelayCommand(ChangeWorker)); } }
+
+        private ICommand _changeDateCommand;
+        public ICommand ChangeDateCommand { get { return _changeDateCommand ?? (_changeDateCommand = new RelayCommand(ChangeDate)); } }
+
+
+        private void ChangeWorker(object sender)
+        {
+            
+        }
+
+        private void ChangeDate(object sender)
+        {
+            
+        }
 
         private void SaveRequestRequest(object sender)
         {
             if (!(sender is RequestItemViewModel))
                 return;
             var requestModel = sender as RequestItemViewModel;
-            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), RequestMessage,requestModel.IsChargeable, requestModel.IsImmediate);
+            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate);
             if (!request.HasValue)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");
@@ -248,15 +209,20 @@ namespace CRMPhone
             if (requestModel.SelectedWorker != null && requestModel.SelectedWorker.Id > 0)
                 _requestService.AddNewWorker(request.Value, requestModel.SelectedWorker.Id);
             if (requestModel.SelectedDateTime.HasValue)
-                _requestService.AddNewExecuteDate(request.Value, requestModel.SelectedDateTime.Value, "");
-
-            MessageBox.Show($"Создана заявка №{request}", "Заявка", MessageBoxButton.OK);
+                _requestService.AddNewExecuteDate(request.Value, requestModel.SelectedDateTime.Value, requestModel.SelectedPeriod, "");
+            //Обновление информации о заявке
+            var newRequest = _requestService.GetRequest(request.Value);
+            requestModel.RequestCreator = newRequest.CreateUser.ShortName;
+            requestModel.RequestDate = newRequest.CreateTime;
+            requestModel.RequestState = newRequest.State.Description;
+            MessageBox.Show($"Номер заявки №{request}", "Заявка", MessageBoxButton.OK);
 
         }
 
         private ICommand _closeCommand;
         private AddressTypeDto _selectedAddressType;
         private ObservableCollection<AddressTypeDto> _addressTypeList;
+        private ObservableCollection<RequestItemViewModel> _requestList;
         public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new CommandHandler(Close, true)); } }
 
         private void ChangeChekedState()
@@ -275,44 +241,18 @@ namespace CRMPhone
             _view.DialogResult = true;
         }
 
-        private void SaveRequest()
-        {
-            //    var request = _requestService.SaveNewRequest(SelectedFlat.Id, SelectedService.Id, ContactList.ToArray(), RequestMessage);
-            //    if (!request.HasValue)
-            //    {
-            //        MessageBox.Show("Произошла непредвиденная ошибка!");
-            //        return;
-            //    }
-            //    if (SelectedWorker!= null && SelectedWorker.Id>0)
-            //        _requestService.AddNewWorker(request.Value,SelectedWorker.Id);
-            //    if(SelectedDateTime.HasValue)
-            //        _requestService.AddNewExecuteDate(request.Value, SelectedDateTime.Value,"");
-
-            //    MessageBox.Show($"Создана заявка №{request}", "Заявка", MessageBoxButton.OK);
-        }
-
         public ContactDto SelectedContact
         {
             get { return _selectedContact; }
             set { _selectedContact = value; OnPropertyChanged(nameof(SelectedContact));}
         }
 
-        public string RequestMessage
-        {
-            get { return _requestMessage; }
-            set { _requestMessage = value; OnPropertyChanged(nameof(RequestMessage));}
-        }
-
-        //public DateTime? SelectedDateTime
-        //{
-        //    get { return _selectedDateTime; }
-        //    set { _selectedDateTime = value;OnPropertyChanged(nameof(SelectedDateTime));}
-        //}
-
         public ObservableCollection<RequestItemViewModel> RequestList
         {
-            get { return new ObservableCollection<RequestItemViewModel>(new[] { new RequestItemViewModel { UniqueId = "asdsad"}, new RequestItemViewModel { UniqueId = "wqeqw"} }); }
+            get { return _requestList; }
+            set { _requestList = value; OnPropertyChanged(nameof(RequestList));}
         }
+
         public RequestItemViewModel SelectedRequest
         {
             get { return _selectedRequest; }
@@ -339,12 +279,6 @@ namespace CRMPhone
         public RequestDialogViewModel()
         {
             _requestService = new RequestService(AppSettings.DbConnection);
-
-            //_requestService.AddNewWorker(2,1);
-            //_requestService.AddNewDescription(2,"Проверка добавления");
-            //_requestService.AddNewExecuteDate(2,DateTime.Now, "Описание");
-            //_requestService.AddNewNote(2, "Note1");
-
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
@@ -353,21 +287,13 @@ namespace CRMPhone
             {
                 SelectedAddressType = AddressTypeList.FirstOrDefault();
             }
-
-            //ServiceList = new ObservableCollection<ServiceDto>();
-            //WorkerList = new ObservableCollection<WorkerDto>(_requestService.GetWorkers(null));
             ContactList = new ObservableCollection<ContactDto>(new [] {new ContactDto {Id = 1,IsMain = true,PhoneNumber = AppSettings.LastIncomingCall}});
             CityList = new ObservableCollection<CityDto>(_requestService.GetCities());
             if (CityList.Count > 0)
             {
                 SelectedCity = CityList.FirstOrDefault();
             }
-
-            //ParentServiceList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
-            //if (ParentServiceList.Count > 0)
-            //{
-            //    SelectedParentService = ParentServiceList.FirstOrDefault();
-            //}
+            RequestList = new ObservableCollection<RequestItemViewModel> {new RequestItemViewModel()};
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

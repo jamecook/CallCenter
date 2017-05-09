@@ -18,7 +18,6 @@ namespace CRMPhone.ViewModel
         private ServiceDto _selectedService;
         private DateTime? _selectedDateTime;
 
-        private string _uniqueId;
         private bool _isChargeable;
         private bool _isImmediate;
         private ObservableCollection<ServiceCompanyDto> _companyList;
@@ -26,6 +25,10 @@ namespace CRMPhone.ViewModel
         private int? _requestId;
         private ObservableCollection<PeriodDto> _periodList;
         private PeriodDto _selectedPeriod;
+        private string _description;
+        private DateTime? _requestDate;
+        private string _requestCreator;
+        private string _requestState;
 
         public RequestItemViewModel()
         {
@@ -40,16 +43,13 @@ namespace CRMPhone.ViewModel
             SelectedCompany = CompanyList.FirstOrDefault();
         }
 
-        public string UniqueId
-        {
-            get { return _uniqueId; }
-            set { _uniqueId = value; OnPropertyChanged(nameof(UniqueId)); }
-        }
-
         public int? RequestId
         {
             get { return _requestId; }
-            set { _requestId = value; OnPropertyChanged(nameof(RequestId)); }
+            set { _requestId = value;
+                OnPropertyChanged(nameof(CanSave));
+                OnPropertyChanged(nameof(CanEdit));
+                OnPropertyChanged(nameof(RequestId)); }
         }
 
         public ObservableCollection<ServiceCompanyDto> CompanyList
@@ -80,6 +80,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _isImmediate; }
             set { _isImmediate = value; OnPropertyChanged(nameof(IsImmediate)); }
+        }
+
+        public string Description
+        {
+            get { return _description; }
+            set { _description = value; OnPropertyChanged(nameof(Description)); }
         }
 
         public ServiceDto SelectedParentService
@@ -133,6 +139,39 @@ namespace CRMPhone.ViewModel
         {
             get { return _selectedPeriod; }
             set { _selectedPeriod = value; OnPropertyChanged(nameof(SelectedPeriod)); }
+        }
+
+        public DateTime? RequestDate
+        {
+            get { return _requestDate; }
+            set { _requestDate = value; OnPropertyChanged(nameof(RequestDate));}
+        }
+
+        public string RequestCreator
+        {
+            get { return _requestCreator; }
+            set { _requestCreator = value; OnPropertyChanged(nameof(RequestCreator));}
+        }
+
+        public string RequestState
+        {
+            get { return _requestState; }
+            set { _requestState = value; OnPropertyChanged(nameof(RequestState));}
+        }
+
+        public bool CanSave
+        {
+            get
+            {
+                return RequestId == null;
+            }
+        }
+        public bool CanEdit
+        {
+            get
+            {
+                return !CanSave;
+            }
         }
 
         private void ChangeParentService(int? parentServiceId)
