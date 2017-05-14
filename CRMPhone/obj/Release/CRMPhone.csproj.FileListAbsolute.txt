@@ -62,7 +62,6 @@ c:\Projects\CallCenter\CRMPhone\bin\Release\CRMPhone.pdb
 c:\Projects\CallCenter\CRMPhone\bin\Release\MySql.Data.dll
 c:\Projects\CallCenter\CRMPhone\bin\Release\NLog.dll
 c:\Projects\CallCenter\CRMPhone\bin\Release\NLog.xml
-c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.csprojResolveAssemblyReference.cache
 c:\Projects\CallCenter\CRMPhone\obj\Release\Interop.conaito.dll
 c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.csproj.ResolveComReference.cache
 c:\Projects\CallCenter\CRMPhone\obj\Release\ChangeExecuteDateDialog.g.cs

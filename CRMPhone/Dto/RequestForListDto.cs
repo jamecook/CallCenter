@@ -16,6 +16,10 @@ namespace CRMPhone.Dto
         public RequestUserDto CreateUser { get; set; }
         public DateTime? ExecuteTime { get; set; }
         public string ExecutePeriod { get; set; }
+        public string Description { get; set; }
+        public string ParentService { get; set; }
+        public string Service { get; set; }
+        public string ContactPhones { get; set; }
 
 
         public string FullAddress

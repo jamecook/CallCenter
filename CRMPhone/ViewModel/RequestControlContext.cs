@@ -1,11 +1,14 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Xml.Linq;
 using CRMPhone.Annotations;
 using CRMPhone.Dto;
+using Microsoft.Win32;
 using MySql.Data.MySqlClient;
 
 namespace CRMPhone.ViewModel
@@ -19,7 +22,69 @@ namespace CRMPhone.ViewModel
         public ICommand AddRequestCommand { get { return _addRequestCommand ?? (_addRequestCommand = new CommandHandler(AddRequest, true)); } }
         private ICommand _refreshRequestCommand;
         public ICommand RefreshRequestCommand { get { return _refreshRequestCommand ?? (_refreshRequestCommand = new CommandHandler(RefreshRequest, true)); } }
+        private ICommand _exportRequestCommand;
+        public ICommand ExportRequestCommand { get { return _exportRequestCommand ?? (_exportRequestCommand = new CommandHandler(ExportRequest, true)); } }
+
+        private void ExportRequest()
+        {
+            if (RequestList.Count == 0)
+            {
+                MessageBox.Show("Нельзя экспортировать пустой список!","Ошибка");
+                return;
+            }
+            try
+            {
+
+                var saveDialog = new SaveFileDialog();
+                saveDialog.AddExtension = true;
+                saveDialog.DefaultExt = ".xml";
+                saveDialog.Filter = "XML Файл|*.xml";
+                if (saveDialog.ShowDialog() == true)
+                {
+                    var fileName = saveDialog.FileName;
+
+
+                    XElement root = new XElement("Records");
+                    foreach (var request in RequestList)
+                    {
+                        root.AddFirst(
+                            new XElement("Record",
+                                new []
+                                {
+                                    new XElement("Заявка", request.Id),
+                                    new XElement("ДатаСоздания", request.CreateTime.ToString("dd.MM.yyyy HH:mm")),
+                                    new XElement("Создатель", request.CreateUser.ShortName),
+                                    new XElement("Улица", request.StreetName),
+                                    new XElement("Дом", request.Building),
+                                    new XElement("Корпус", request.Corpus),
+                                    new XElement("Квартира", request.Flat),
+                                    new XElement("Телефоны", request.ContactPhones),
+                                    new XElement("Услуга", request.ParentService),
+                                    new XElement("Причина", request.Service),
+                                    new XElement("Примечание", request.Description),
+                                    new XElement("Дата", request.ExecuteTime?.Date.ToString("dd.MM.yyyy") ?? ""),
+                                    new XElement("Время", request.ExecutePeriod),
+                                    new XElement("Исполнитель", request.Worker?.ShortName),
+                                }));
+
+
+                    }
+                    var saver = new FileStream(fileName, FileMode.Create);
+                    root.Save(saver);
+                    saver.Close();
+                    MessageBox.Show("Данные сохранены в файл\r\n" + fileName);
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("Произошла ошибка:\r\n" + exc.Message);
+            }
+
+        }
+
         private ICommand _openRequestCommand;
+        private DateTime _fromDate;
+        private DateTime _toDate;
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
         private void OpenRequest(object sender)
@@ -71,7 +136,7 @@ namespace CRMPhone.ViewModel
             if(_requestService == null)
                 _requestService = new RequestService(AppSettings.DbConnection);
             RequestList.Clear();
-            var requests = _requestService.GetRequestList();
+            var requests = _requestService.GetRequestList(FromDate,ToDate);
             foreach (var request in requests)
             {
                 RequestList.Add(request);
@@ -82,12 +147,26 @@ namespace CRMPhone.ViewModel
         public RequestControlContext()
         {
             RequestList = new ObservableCollection<RequestForListDto>();
+            FromDate = DateTime.Today;
+            ToDate = DateTime.Today;
         }
 
         public ObservableCollection<RequestForListDto> RequestList
         {
             get { return _requestList; }
             set { _requestList = value; OnPropertyChanged(nameof(RequestList));}
+        }
+
+        public DateTime FromDate
+        {
+            get { return _fromDate; }
+            set { _fromDate = value; OnPropertyChanged(nameof(FromDate));}
+        }
+
+        public DateTime ToDate
+        {
+            get { return _toDate; }
+            set { _toDate = value; OnPropertyChanged(nameof(ToDate));}
         }
 
 

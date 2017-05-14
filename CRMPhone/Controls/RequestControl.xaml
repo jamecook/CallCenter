@@ -13,9 +13,17 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         <WrapPanel Grid.Row="0" HorizontalAlignment="Center">
+            <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата с:"/>
+            <DatePicker  Margin="3" Width="110" SelectedDate="{Binding FromDate}"/>
+            <TextBlock Margin="3" VerticalAlignment="Center" Text="по:"/>
+            <DatePicker  Margin="3" Width="110" SelectedDate="{Binding ToDate}"/>
             <Button Width="80" Margin="5" Content="Добавить" Command="{Binding AddRequestCommand}"/>
             <Button Width="80" Margin="5" Content="Обновить" Command="{Binding RefreshRequestCommand}"/>
+            <Button Width="80" Margin="5" Content="Экспорт" Command="{Binding ExportRequestCommand}"/>
         </WrapPanel>
         <DataGrid Name="RequestsGrid" Grid.Row ="1" 
                           AutoGenerateColumns="False"
@@ -34,17 +42,25 @@
                 <DataGridTextColumn Header="№" Width="60"
                              Binding="{Binding Path=Id}"></DataGridTextColumn>
                 <DataGridTextColumn Header="Дата заявки" Width="120"
-                             Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"></DataGridTextColumn>
+                             Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
                 <DataGridTextColumn Header="Адрес" Width="300"
-                             Binding="{Binding Path=FullAddress}"></DataGridTextColumn>
+                             Binding="{Binding Path=FullAddress}"/>
+                <DataGridTextColumn Header="Телефоны" Width="120"
+                             Binding="{Binding Path=ContactPhones}"/>
+                <DataGridTextColumn Header="Услуга" Width="120"
+                             Binding="{Binding Path=ParentService}"/>
+                <DataGridTextColumn Header="Причина" Width="180"
+                             Binding="{Binding Path=Service}"/>
+                <DataGridTextColumn Header="Причина" Width="200"
+                             Binding="{Binding Path=Description}"/>
                 <DataGridTextColumn Header="Исполнитель" Width="120"
-                             Binding="{Binding Path=Worker.ShortName}"></DataGridTextColumn>
+                             Binding="{Binding Path=Worker.ShortName}"/>
                 <DataGridTextColumn Header="Дата исполнения" Width="110"
-                             Binding="{Binding Path=ExecuteTime, StringFormat='{}{0:dd.MM.yyyy}'}"></DataGridTextColumn>
+                             Binding="{Binding Path=ExecuteTime, StringFormat='{}{0:dd.MM.yyyy}'}"/>
                 <DataGridTextColumn Header="Период" Width="100"
-                             Binding="{Binding Path=ExecutePeriod}"></DataGridTextColumn>
+                             Binding="{Binding Path=ExecutePeriod}"/>
                 <DataGridTextColumn Header="Создатель" Width="120"
-                             Binding="{Binding Path=CreateUser.ShortName}"></DataGridTextColumn>
+                             Binding="{Binding Path=CreateUser.ShortName}"/>
             </DataGrid.Columns>
         </DataGrid>
 

@@ -394,23 +394,34 @@ select LAST_INSERT_ID();", _dbConnection))
             return null;
         }
 
-        public IList<RequestForListDto> GetRequestList()
+        public IList<RequestForListDto> GetRequestList(DateTime fromDate, DateTime toDate)
         {
+            var findFromDate = fromDate.Date;
+            var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
             using (var cmd =
                 new MySqlCommand(@"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
-    R.execute_date,p.Name Period_Name
+    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number) client_phones
     FROM CallCenter.Requests R
     join CallCenter.Addresses a on a.id = R.address_id
     join CallCenter.AddressesTypes at on at.id = a.type_id
     join CallCenter.Houses h on h.id = house_id
     join CallCenter.Streets s on s.id = street_id
     join CallCenter.StreetPrefixes sp on sp.id = s.prefix_id
+    join CallCenter.RequestTypes rt on rt.id = R.type_id
+    join CallCenter.RequestTypes rt2 on rt2.id = rt.parrent_id
     left join CallCenter.Workers w on w.id = R.worker_id
+    left join CallCenter.RequestContacts rc on rc.request_id = R.id
+    left join CallCenter.ClientPhones cp on cp.id = rc.clientPhone_id
     join CallCenter.Users u on u.id = create_user_id
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
+    where R.create_time between @FromDate and @ToDate
+    group by R.id
     order by id desc", _dbConnection))
             {
+                cmd.Parameters.AddWithValue("@FromDate", findFromDate);
+                cmd.Parameters.AddWithValue("@ToDate", findToDate);
+
                 var requests = new List<RequestForListDto>();
                 using (var dataReader = cmd.ExecuteReader())
                 {
@@ -426,6 +437,10 @@ select LAST_INSERT_ID();", _dbConnection))
                             Building = dataReader.GetString("building"),
                             Corpus = dataReader.GetNullableString("corps"),
                             CreateTime = dataReader.GetDateTime("create_time"),
+                            Description = dataReader.GetNullableString("description"),
+                            ContactPhones = dataReader.GetNullableString("client_phones"),
+                            ParentService = dataReader.GetNullableString("parent_name"),
+                            Service = dataReader.GetNullableString("service_name"),
                             Worker = dataReader.GetNullableInt("worker_id")!=null?new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("worker_id"),
