@@ -21,11 +21,11 @@ namespace CRMPhone
         }
 
         public int? SaveNewRequest(int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
-            bool chargeable, bool immediate)
+            bool chargeable, bool immediate, string callUniqueId)
         {
             int newId;
             _logger.Debug(
-                $"RequestService.SaveNewRequest({addressId},{requestTypeId},[{contactList.Select(x => $"{x.PhoneNumber}").Aggregate((f1, f2) => f1 + ";" + f2)}],{requestMessage},{chargeable},{immediate})");
+                $"RequestService.SaveNewRequest({addressId},{requestTypeId},[{contactList.Select(x => $"{x.PhoneNumber}").Aggregate((f1, f2) => f1 + ";" + f2)}],{requestMessage},{chargeable},{immediate},{callUniqueId})");
             try
             {
 
@@ -47,6 +47,20 @@ select LAST_INSERT_ID();", _dbConnection))
                         cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
                         cmd.Parameters.AddWithValue("@State", 1);
                         newId = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+
+                    #endregion
+                    #region Прикрепление звонка к заявке
+
+                    if (!string.IsNullOrEmpty(callUniqueId))
+                    {
+                        using (var cmd =
+                                new MySqlCommand("insert into CallCenter.RequestCalls(request_id,uniqueID) values(@Request, @UniqueId)",_dbConnection))
+                        {
+                            cmd.Parameters.AddWithValue("@Request", newId);
+                            cmd.Parameters.AddWithValue("@UniqueId", callUniqueId);
+                            cmd.ExecuteNonQuery();
+                        }
                     }
 
                     #endregion
@@ -73,16 +87,30 @@ select LAST_INSERT_ID();", _dbConnection))
                                 }
                                 dataReader.Close();
                             }
-
                         }
                         if (clientPhoneId == 0)
                         {
                             using (
-                                var cmd = new MySqlCommand(@"insert into CallCenter.ClientPhones(Number) values(@Phone);
+                                var cmd = new MySqlCommand(@"insert into CallCenter.ClientPhones(Number,sur_name,first_name,patr_name) values(@Phone,@SurName,@FirstName,@PatrName);
     select LAST_INSERT_ID();", _dbConnection))
                             {
                                 cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
+                                cmd.Parameters.AddWithValue("@SurName", contact.SurName);
+                                cmd.Parameters.AddWithValue("@FirstName", contact.FirstName);
+                                cmd.Parameters.AddWithValue("@PatrName", contact.PatrName);
                                 clientPhoneId = Convert.ToInt32(cmd.ExecuteScalar());
+                            }
+                        }
+                        else
+                        {
+                            using (
+    var cmd = new MySqlCommand(@"update CallCenter.ClientPhones set sur_name = @SurName,first_name = @FirstName,patr_name = @PatrName where Number = @Phone;", _dbConnection))
+                            {
+                                cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
+                                cmd.Parameters.AddWithValue("@SurName", contact.SurName);
+                                cmd.Parameters.AddWithValue("@FirstName", contact.FirstName);
+                                cmd.Parameters.AddWithValue("@PatrName", contact.PatrName);
+                                cmd.ExecuteNonQuery();
                             }
                         }
                         using (
@@ -243,6 +271,27 @@ select LAST_INSERT_ID();", _dbConnection))
             }
         }
 
+        internal string GetActiveCallUniqueId()
+        {
+            string retVal = null;
+            var query = @"SELECT case when A.MonitorFile is null then A2.UniqueId else A.UniqueId end uniqueId FROM asterisk.ActiveChannels A
+ left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID<> A.UniqueID
+ where A.UserID = @UserId";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        retVal = dataReader.GetNullableString("uniqueId");
+                    }
+                    dataReader.Close();
+                }
+                return retVal;
+            }
+        }
+
         public void AddNewNote(int requestId, string note)
         {
             _logger.Debug($"RequestService.AddNewNote({requestId},{note})");
@@ -363,7 +412,7 @@ select LAST_INSERT_ID();", _dbConnection))
                             using (
                                 var contact =
                                     new MySqlCommand(
-                                        @"SELECT R.id, IsMain,Number from CallCenter.RequestContacts R
+                                        @"SELECT R.id, IsMain,Number,sur_name,first_name,patr_name from CallCenter.RequestContacts R
     join CallCenter.ClientPhones P on P.id = R.ClientPhone_id where request_id = @reqId",
                                         _dbConnection))
                             {
@@ -377,6 +426,9 @@ select LAST_INSERT_ID();", _dbConnection))
                                             Id = contactReader.GetInt32("id"),
                                             IsMain = contactReader.GetBoolean("IsMain"),
                                             PhoneNumber = contactReader.GetString("Number"),
+                                            SurName = contactReader.GetNullableString("sur_name"),
+                                            FirstName = contactReader.GetNullableString("first_name"),
+                                            PatrName = contactReader.GetNullableString("patr_name"),
                                         });
                                     }
                                 }
@@ -601,6 +653,24 @@ select LAST_INSERT_ID();", _dbConnection))
                     dataReader.Close();
                 }
                 return flats;
+            }
+        }
+        public int? GetServiceCompany(int houseId)
+        {
+            int? retVal = null;
+            using (var cmd = new MySqlCommand(@"SELECT service_company_id FROM CallCenter.Houses H where id = @HouseId", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@HouseId", houseId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        retVal = dataReader.GetNullableInt("service_company_id");
+                    }
+                    dataReader.Close();
+                }
+                return retVal;
             }
         }
 

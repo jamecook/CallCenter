@@ -26,7 +26,7 @@
                     <TextBlock Margin = "3" FontWeight ="Bold" VerticalAlignment="Center" Text="{Binding RequestId}"/>
                     <TextBlock Margin = "3" VerticalAlignment="Center" Text="Дата:"/>
                     <TextBlock Margin = "3" VerticalAlignment="Center" Text="{Binding RequestDate, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
-                    <TextBlock Margin = "3" VerticalAlignment="Center" Text="Солдатель:"/>
+                    <TextBlock Margin = "3" VerticalAlignment="Center" Text="Создатель:"/>
                     <TextBlock Margin = "3" VerticalAlignment="Center" Text="{Binding RequestCreator}"/>
                     <TextBlock Margin = "3" VerticalAlignment="Center" Text="Статус:"/>
                     <TextBlock Margin = "3" VerticalAlignment="Center" Text="{Binding RequestState}"/>

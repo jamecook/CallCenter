@@ -43,5 +43,24 @@ namespace CRMPhone
             var item = sender as ListBoxItem;
             _context.SelectedRequest = (RequestItemViewModel)item.Content;
         }
+
+        private void tabItem_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                //e.Key = Key.Tab;
+                var request = new TraversalRequest(FocusNavigationDirection.Right) { Wrapped = true };
+                if (sender is ComboBox)
+                {
+                    var parentDepObj = VisualTreeHelper.GetParent(sender as DependencyObject);
+                    var comboBoxes = (parentDepObj as WrapPanel).Children.OfType<ComboBox>().ToList();
+                    var currentIndex = comboBoxes.IndexOf(sender as ComboBox);
+                    if (currentIndex < comboBoxes.Count - 1)
+                        comboBoxes[currentIndex + 1].Focus();
+                    //var t = (sender as ComboBox).PredictFocus(FocusNavigationDirection.Next);
+                    //(sender as ComboBox).MoveFocus(request);
+                }
+            }
+        }
     }
 }

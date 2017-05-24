@@ -7,7 +7,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:controls="clr-namespace:CRMPhone.Controls"
         mc:Ignorable="d"
-        Title="Заявка" MinHeight="600" MaxHeight="600" MinWidth ="900" MaxWidth="900" Height="600" Width="900"
+        Title="Заявка" MinHeight="700" MaxHeight="700" MinWidth ="900" MaxWidth="900" Height="700" Width="900"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         d:DataContext="{d:DesignInstance crmPhone:RequestDialogViewModel}">
@@ -23,17 +23,17 @@
         </Grid.RowDefinitions>
         <WrapPanel Margin="5" IsEnabled ="{Binding CanEdit}" Grid.Row="0">
             <TextBlock Margin="3" VerticalAlignment="Center" Text="город:"/>
-            <ComboBox Margin="3" Width="100" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCity}" ItemsSource="{Binding CityList}" IsEditable="True" />
+            <ComboBox Margin="3" Width="100" TabIndex ="1" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCity}" ItemsSource="{Binding CityList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="улица:"/>
-            <ComboBox Margin="3" Width ="150" DisplayMemberPath="NameWithPrefix" SelectedItem="{Binding SelectedStreet}" ItemsSource="{Binding StreetList}" IsEditable="True" />
+            <ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="NameWithPrefix" SelectedItem="{Binding SelectedStreet}" ItemsSource="{Binding StreetList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="дом:"/>
-            <ComboBox Margin="3" Width="65" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" />
-            <ComboBox Margin="3" Width="100" DisplayMemberPath="Name" SelectedItem="{Binding SelectedAddressType}" ItemsSource="{Binding AddressTypeList}" IsEditable="True" />
-            <ComboBox Margin="3" Width="45" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFlat}" ItemsSource="{Binding FlatList}" IsEditable="True" />
+            <ComboBox Margin="3" Width="65" TabIndex ="3" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+            <ComboBox Margin="3" Width="100" TabIndex ="4" DisplayMemberPath="Name" SelectedItem="{Binding SelectedAddressType}" ItemsSource="{Binding AddressTypeList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+            <ComboBox Margin="3" Width="45" TabIndex ="5" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFlat}" ItemsSource="{Binding FlatList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="подъезд:"/>
-            <TextBox Margin="3" Width="45" Text="{Binding Path=Flat}"/>
+            <TextBox Margin="3" Width="45" TabIndex ="6" Text="{Binding Path=Flat}"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="этаж:"/>
-            <TextBox Margin="3" Width="45" Text="{Binding Path=Flat}" />
+            <TextBox Margin="3" Width="45" TabIndex ="7" Text="{Binding Path=Flat}" />
         </WrapPanel>
         <StackPanel IsEnabled ="{Binding CanEdit}" Grid.Row="1">
             <TextBlock Margin ="3" Text="Контактные телефоны:"/>
@@ -43,6 +43,7 @@
                      ItemsSource="{Binding Path=ContactList}" 
                      SelectedItem="{Binding Path=SelectedContact}"
                      Margin="3">
+                
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -51,10 +52,23 @@
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <EventSetter Event="PreviewMouseUp" Handler="SelectCurrentContact"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True" >
+                                <!--<Setter Property="FontWeight" Value="Bold" />-->
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Foreground" Value="Black" />
+                                <!--<Setter Property="Margin" Value="5" />-->
+                            </Trigger>
+                        </Style.Triggers>
+                        <Style.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
+                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent" />
+                        </Style.Resources>
                     </Style>
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
+                        <StackPanel>
                         <DockPanel>
                             <CheckBox Margin="3" Content="Основной" IsChecked="{Binding Path=IsMain}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeCheckedStateCommand}"/>
                             <TextBox Margin ="3" Width="125" Text="{Binding Path=PhoneNumber}" />
@@ -62,6 +76,20 @@
                                 <Image Source="pack://application:,,,/Images/button_delete.png" Width="16" Height="16" />
                             </Button>
                         </DockPanel>
+                            <CheckBox Margin="3" Content="Собственник" IsChecked="{Binding Path=IsOwner}"/>
+                            <DockPanel>
+                            <TextBlock Margin="3" VerticalAlignment="Center" Text="Фамилия"/>
+                                <TextBox Margin ="0,3,33,0" Width="125" HorizontalAlignment="Right" Text="{Binding Path=SurName}" />
+                            </DockPanel>
+                            <DockPanel>
+                                <TextBlock Margin="3" VerticalAlignment="Center" Text="Имя"/>
+                                <TextBox Margin ="0,3,33,0" Width="125" HorizontalAlignment="Right" Text="{Binding Path=FirstName}" />
+                            </DockPanel>
+                            <DockPanel>
+                                <TextBlock Margin="3" VerticalAlignment="Center" Text="Отчество"/>
+                                <TextBox Margin ="0,3,33,5" Width="125" HorizontalAlignment="Right" Text="{Binding Path=PatrName}" />
+                            </DockPanel>
+                        </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

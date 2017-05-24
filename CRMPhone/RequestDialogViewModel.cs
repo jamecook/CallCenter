@@ -23,6 +23,7 @@ namespace CRMPhone
         private HouseDto _selectedHouse;
         private ObservableCollection<FlatDto> _flatList;
         private FlatDto _selectedFlat;
+        private string _callUniqueId;
         
         private ObservableCollection<ContactDto> _contactList;
         private int _requestId;
@@ -87,6 +88,15 @@ namespace CRMPhone
             foreach (var flat in _requestService.GetFlats(houseId.Value).OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6,'0')))
             {
                 FlatList.Add(flat);
+            }
+            var serviceCompanyId = _requestService.GetServiceCompany(houseId.Value);
+            if (serviceCompanyId != null)
+            {
+                foreach (var request in RequestList.Where(r => r.CanSave))
+                {
+                    request.SelectedCompany = request.CompanyList.FirstOrDefault(c => c.Id == serviceCompanyId.Value);
+                }
+                
             }
             OnPropertyChanged(nameof(FlatList));
         }
@@ -237,7 +247,7 @@ namespace CRMPhone
                 MessageBox.Show("Необходимо выбрать верный адрес!");
                 return;
             }
-            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate);
+            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate,_callUniqueId);
             if (!request.HasValue)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");
@@ -317,6 +327,8 @@ namespace CRMPhone
         public RequestDialogViewModel()
         {
             _requestService = new RequestService(AppSettings.DbConnection);
+
+            _callUniqueId = _requestService.GetActiveCallUniqueId();
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();

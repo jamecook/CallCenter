@@ -8,6 +8,7 @@ namespace CRMPhone.Dto
     public class ContactDto : INotifyPropertyChanged
     {
         private bool _isMain;
+        private bool _isOwner;
         public int Id { get; set; }
 
         public bool IsMain
@@ -16,7 +17,16 @@ namespace CRMPhone.Dto
             set { _isMain = value; OnPropertyChanged(nameof(IsMain));}
         }
 
+        public bool IsOwner
+        {
+            get { return _isOwner; }
+            set { _isOwner = value; OnPropertyChanged(nameof(IsOwner));}
+        }
+
         public string PhoneNumber { get; set; }
+        public string SurName { get; set; }
+        public string FirstName { get; set; }
+        public string PatrName { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -106,7 +106,6 @@ C:\Projects\CallCenter\CRMPhone\obj\Debug\TransferDialog.baml
 C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.g.resources
 C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.Properties.Resources.resources
 C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.csproj.GenerateResource.Cache
-C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.csprojResolveAssemblyReference.cache
 c:\Projects\CallCenter\CRMPhone\obj\Debug\ChangeWorkerDialog.g.cs
 c:\Projects\CallCenter\CRMPhone\obj\Debug\ChangeWorkerDialog.baml
 c:\Projects\CallCenter\CRMPhone\obj\Debug\ChangeExecuteDateDialog.g.cs

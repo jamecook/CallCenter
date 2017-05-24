@@ -94,3 +94,4 @@ c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.Properties.Resources.resour
 c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.csproj.GenerateResource.Cache
 c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.exe
 c:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.pdb
+C:\Projects\CallCenter\CRMPhone\obj\Release\CRMPhone.csprojResolveAssemblyReference.cache
