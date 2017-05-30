@@ -6,8 +6,9 @@
         xmlns:crmPhone="clr-namespace:CRMPhone"
         xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         mc:Ignorable="d"
+        FontSize="14"
         d:DataContext="{d:DesignInstance viewModel:LoginContext}"
-        Title="LoginView" Height="153.247" Width="300" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+        Title="LoginView" Height="166.247" Width="346" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Grid>
         <StackPanel>
             <TextBlock Margin="5" TextAlignment="Center">Для входа в систему введите логин и пароль</TextBlock>

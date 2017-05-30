@@ -24,8 +24,13 @@ namespace CRMPhone.Dto
 
         public string FullAddress
         {
-            get { return string.IsNullOrEmpty(Corpus)?$"{StreetPrefix} {StreetName}, {Building}, {AddressType} {Flat}"
-                    : $"{StreetPrefix} {StreetName}, {Building}/{Corpus}, {AddressType} {Flat}"; }
+            //get { return string.IsNullOrEmpty(Corpus)?$"{StreetPrefix} {StreetName}, {Building}, {AddressType} {Flat}"
+            //        : $"{StreetPrefix} {StreetName}, {Building}/{Corpus}, {AddressType} {Flat}"; }
+            get
+            {
+                return string.IsNullOrEmpty(Corpus) ? $"{StreetName}, {Building}, {Flat}"
+                  : $"{StreetName}, {Building}/{Corpus}, {Flat}";
+            }
         }
 
     }

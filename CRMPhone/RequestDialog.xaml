@@ -7,11 +7,13 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:controls="clr-namespace:CRMPhone.Controls"
         mc:Ignorable="d"
-        Title="Заявка" MinHeight="700" MaxHeight="700" MinWidth ="900" MaxWidth="900" Height="700" Width="900"
+        Title="Заявка" MinHeight="700" MaxHeight="700" MinWidth ="1000" MaxWidth="1000" Height="700" Width="900"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
+        FontSize="14"
         d:DataContext="{d:DesignInstance crmPhone:RequestDialogViewModel}">
-    <Grid Name ="RequestGrid">
+    
+    <Grid Name ="RequestGrid" >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
