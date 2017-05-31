@@ -71,6 +71,9 @@
       <DependentUpon>ChangeExecuteDateDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="ChangeExecuteDateDialogViewModel.cs" />
+    <Compile Include="ChangeStatusDialog.xaml.cs">
+      <DependentUpon>ChangeStatusDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ChangeStatusDialogViewModel.cs" />
     <Compile Include="ChangeWorkerDialog.xaml.cs">
       <DependentUpon>ChangeWorkerDialog.xaml</DependentUpon>
@@ -93,6 +96,7 @@
     <Compile Include="Dto\RequestForListDto.cs" />
     <Compile Include="Dto\RequestInfoDto.cs" />
     <Compile Include="Dto\StatusDto.cs" />
+    <Compile Include="Dto\StatusHistoryDto.cs" />
     <Compile Include="Dto\WorkerHistoryDto.cs" />
     <Compile Include="ViewModel\RequestItemViewModel.cs" />
     <Compile Include="Dto\RequestStateDto.cs" />
@@ -130,6 +134,10 @@
     <Compile Include="TrasferDialogViewModel.cs" />
     <Compile Include="Dto\UserDto.cs" />
     <Page Include="ChangeExecuteDateDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ChangeStatusDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

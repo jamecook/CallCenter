@@ -232,6 +232,44 @@ select LAST_INSERT_ID();", _dbConnection))
 
         }
 
+        public void AddNewState(int requestId, int stateId)
+        {
+            _logger.Debug($"RequestService.AddNewState({requestId},{stateId})");
+            try
+            {
+                using (var transaction = _dbConnection.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"insert into CallCenter.RequestStateHistory (request_id,operation_date,user_id,state_id) 
+    values(@RequestId,sysdate(),@UserId,@StatusId);", _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                        cmd.Parameters.AddWithValue("@StatusId", stateId);
+                        cmd.ExecuteNonQuery();
+                    }
+                    using (
+                        var cmd =
+                            new MySqlCommand(
+                                @"update CallCenter.Requests set state_id = @StatusId where id = @RequestId",
+                                _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@StatusId", stateId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                }
+            }
+            catch (Exception exc)
+            {
+                _logger.Error(exc);
+                throw;
+            }
+
+        }
         public void AddNewExecuteDate(int requestId, DateTime executeDate,PeriodDto period, string note)
         {
             _logger.Debug($"RequestService.AddNewExecuteDate({requestId},{executeDate},{period.Id},{note})");
@@ -902,6 +940,43 @@ select LAST_INSERT_ID();", _dbConnection))
                                 SurName = dataReader.GetNullableString("sur_name"),
                                 FirstName = dataReader.GetNullableString("first_name"),
                                 PatrName = dataReader.GetNullableString("patr_name"),
+                            },
+                            CreateUser = new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("user_id"),
+                                SurName = dataReader.GetNullableString("surname"),
+                                FirstName = dataReader.GetNullableString("firstname"),
+                                PatrName = dataReader.GetNullableString("patrname"),
+                            },
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return historyDtos.OrderByDescending(i => i.CreateTime).ToList();
+            }
+        }
+        public List<StatusHistoryDto> GetStatusHistoryByRequest(int requestId)
+        {
+            var query = @"SELECT operation_date, R.state_id, s.name, s.description, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestStateHistory R
+ join CallCenter.RequestState s on s.id = R.state_id
+ join CallCenter.Users u on u.id = user_id
+ where request_id = @RequestId";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var historyDtos = new List<StatusHistoryDto>();
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        historyDtos.Add(new StatusHistoryDto
+                        {
+                            CreateTime = dataReader.GetDateTime("operation_date"),
+                            Status = new StatusDto
+                            {
+                                Id = dataReader.GetInt32("state_id"),
+                                Name = dataReader.GetNullableString("name"),
+                                Description = dataReader.GetNullableString("description"),
                             },
                             CreateUser = new RequestUserDto
                             {

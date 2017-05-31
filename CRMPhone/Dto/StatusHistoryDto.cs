@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 
 namespace CRMPhone.Dto
 {
-    public class WorkerHistoryDto
+    public class StatusHistoryDto
     {
         public DateTime CreateTime { get; set; }
-        public RequestUserDto Worker { get; set; }
+        public StatusDto Status { get; set; }
         public RequestUserDto CreateUser { get; set; }
     }
 

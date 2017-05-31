@@ -17,7 +17,7 @@ namespace CRMPhone
         private int _requestId;
         private ObservableCollection<StatusDto> _statusList;
         private StatusDto _selectedStatus;
-        private ObservableCollection<WorkerHistoryDto> _workerHistoryList;
+        private ObservableCollection<StatusHistoryDto> _statusHistoryList;
         private int? _oldStatusId;
 
         public ChangeStatusDialogViewModel(RequestService requestService, int requestId)
@@ -45,17 +45,17 @@ namespace CRMPhone
         {
             if (_oldStatusId == SelectedStatus.Id)
                 return;
-            _requestService.AddNewWorker(_requestId, SelectedStatus.Id);
+            _requestService.AddNewState(_requestId, SelectedStatus.Id);
             _oldStatusId = SelectedStatus.Id;
             _view.DialogResult = true;
         }
 
         public int? StatusId => _oldStatusId;
 
-        public ObservableCollection<WorkerHistoryDto> WorkerHistoryList
+        public ObservableCollection<StatusHistoryDto> StatusHistoryList
         {
-            get { return _workerHistoryList; }
-            set { _workerHistoryList = value; OnPropertyChanged(nameof(WorkerHistoryList)); }
+            get { return _statusHistoryList; }
+            set { _statusHistoryList = value; OnPropertyChanged(nameof(StatusHistoryList)); }
         }
 
         public ObservableCollection<StatusDto> StatusList
@@ -66,7 +66,7 @@ namespace CRMPhone
 
         public void Refresh(object sender)
         {
-            WorkerHistoryList = new ObservableCollection<WorkerHistoryDto>(_requestService.GetWorkerHistoryByRequest(_requestId));
+            StatusHistoryList = new ObservableCollection<StatusHistoryDto>(_requestService.GetStatusHistoryByRequest(_requestId));
         }
 
         public StatusDto SelectedStatus

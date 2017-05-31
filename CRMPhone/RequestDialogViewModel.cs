@@ -231,6 +231,20 @@ namespace CRMPhone
         }
         private void ChangeStatus(object sender)
         {
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            if (!requestModel.RequestId.HasValue)
+                return;
+            var model = new ChangeStatusDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var view = new ChangeStatusDialog();
+            model.SetView(view);
+            view.Owner = _view;
+            view.DataContext = model;
+            if (view.ShowDialog() == true)
+            {
+                requestModel.RequestState = model.SelectedStatus.Description;
+            }
         }
         private void ChangeNote(object sender)
         {
