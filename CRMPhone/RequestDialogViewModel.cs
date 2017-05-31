@@ -41,10 +41,12 @@ namespace CRMPhone
                 _requestId = value;
                 OnPropertyChanged(nameof(RequestId));
                 OnPropertyChanged(nameof(CanEdit));
-                }
+                OnPropertyChanged(nameof(ReadOnly));
+            }
         }
 
         public bool CanEdit { get { return RequestId == 0; } }
+        public bool ReadOnly { get { return !CanEdit; } }
         public CityDto SelectedCity
         {
             get { return _selectedCity; }
@@ -203,6 +205,12 @@ namespace CRMPhone
         private ICommand _changeDateCommand;
         public ICommand ChangeDateCommand { get { return _changeDateCommand ?? (_changeDateCommand = new RelayCommand(ChangeDate)); } }
 
+        private ICommand _changeStatusCommand;
+        public ICommand ChangeStatusCommand { get { return _changeStatusCommand ?? (_changeStatusCommand = new RelayCommand(ChangeStatus)); } }
+
+        private ICommand _changeNoteCommand;
+        public ICommand ChangeNoteCommand { get { return _changeNoteCommand ?? (_changeNoteCommand = new RelayCommand(ChangeNote)); } }
+
 
         private void ChangeWorker(object sender)
         {
@@ -221,7 +229,12 @@ namespace CRMPhone
                 requestModel.SelectedWorker = requestModel.WorkerList.SingleOrDefault(w => w.Id == model.ExecuterId);
             }
         }
-
+        private void ChangeStatus(object sender)
+        {
+        }
+        private void ChangeNote(object sender)
+        {
+        }
         private void ChangeDate(object sender)
         {
             if (!(sender is RequestItemViewModel))

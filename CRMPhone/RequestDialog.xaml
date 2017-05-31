@@ -36,7 +36,7 @@
             <TextBlock Margin="3" VerticalAlignment="Center" Text="этаж:"/>
             <TextBox Margin="3" Width="45" TabIndex ="7" Text="{Binding Path=Floor}" />
         </WrapPanel>
-        <StackPanel IsEnabled ="{Binding CanEdit}" Grid.Row="1">
+        <StackPanel Grid.Row="1">
             <TextBlock Margin ="3" Text="Контактные телефоны:"/>
             <Button Margin ="3" Content="Добавить" Width="120" Command="{Binding AddContactCommand}" HorizontalAlignment="Left"/>
             <ListBox Name="ContactListBox"
@@ -71,24 +71,24 @@
                     <DataTemplate>
                         <StackPanel>
                         <DockPanel>
-                            <CheckBox Margin="3" Content="Основной" IsChecked="{Binding Path=IsMain}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeCheckedStateCommand}"/>
-                            <TextBox Margin ="3" Width="125" Text="{Binding Path=PhoneNumber}" />
-                            <Button Margin="3" Command="{Binding ElementName=RequestGrid, Path=DataContext.DeleteCommand}">
+                                <CheckBox Margin="3" Content="Основной" IsEnabled="{Binding ElementName=RequestGrid, Path=DataContext.CanEdit}" IsChecked="{Binding Path=IsMain}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeCheckedStateCommand}"/>
+                                <TextBox Margin ="3" Width="125" Text="{Binding Path=PhoneNumber}" IsReadOnly="{Binding ElementName=RequestGrid, Path=DataContext.ReadOnly}"/>
+                                <Button Margin="3" IsEnabled ="{Binding ElementName=RequestGrid, Path=DataContext.CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.DeleteCommand}">
                                 <Image Source="pack://application:,,,/Images/button_delete.png" Width="16" Height="16" />
                             </Button>
                         </DockPanel>
-                            <CheckBox Margin="3" Content="Собственник" IsChecked="{Binding Path=IsOwner}"/>
+                            <CheckBox Margin="3" Content="Собственник" IsEnabled="{Binding ElementName=RequestGrid, Path=DataContext.CanEdit}" IsChecked="{Binding Path=IsOwner}"/>
                             <DockPanel>
                             <TextBlock Margin="3" VerticalAlignment="Center" Text="Фамилия"/>
-                                <TextBox Margin ="0,3,33,0" Width="125" HorizontalAlignment="Right" Text="{Binding Path=SurName}" />
+                                <TextBox Margin ="0,3,33,0" Width="125" IsReadOnly="{Binding ElementName=RequestGrid, Path=DataContext.ReadOnly}" HorizontalAlignment="Right" Text="{Binding Path=SurName}" />
                             </DockPanel>
                             <DockPanel>
                                 <TextBlock Margin="3" VerticalAlignment="Center" Text="Имя"/>
-                                <TextBox Margin ="0,3,33,0" Width="125" HorizontalAlignment="Right" Text="{Binding Path=FirstName}" />
+                                <TextBox Margin ="0,3,33,0" Width="125" IsReadOnly="{Binding ElementName=RequestGrid, Path=DataContext.ReadOnly}" HorizontalAlignment="Right" Text="{Binding Path=FirstName}" />
                             </DockPanel>
                             <DockPanel>
                                 <TextBlock Margin="3" VerticalAlignment="Center" Text="Отчество"/>
-                                <TextBox Margin ="0,3,33,5" Width="125" HorizontalAlignment="Right" Text="{Binding Path=PatrName}" />
+                                <TextBox Margin ="0,3,33,5" Width="125" IsReadOnly="{Binding ElementName=RequestGrid, Path=DataContext.ReadOnly}" HorizontalAlignment="Right" Text="{Binding Path=PatrName}" />
                             </DockPanel>
                         </StackPanel>
                     </DataTemplate>

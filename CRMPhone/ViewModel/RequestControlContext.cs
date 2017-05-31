@@ -289,7 +289,8 @@ namespace CRMPhone.ViewModel
             if(_requestService == null)
                 _requestService = new RequestService(AppSettings.DbConnection);
             RequestList.Clear();
-            var requests = _requestService.GetRequestList(FromDate,ToDate,SelectedStreet?.Id,_selectedHouse?.Id,SelectedFlat?.Id,SelectedParentService?.Id,SelectedService?.Id,SelectedStatus?.Id,SelectedWorker?.Id);
+            var requests = string.IsNullOrEmpty(RequestNum) ? _requestService.GetRequestList(FromDate,ToDate,SelectedStreet?.Id,_selectedHouse?.Id,SelectedFlat?.Id,SelectedParentService?.Id,SelectedService?.Id,SelectedStatus?.Id,SelectedWorker?.Id)
+                :_requestService.GetRequestById(RequestNum);
             foreach (var request in requests)
             {
                 RequestList.Add(request);

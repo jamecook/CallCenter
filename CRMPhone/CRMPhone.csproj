@@ -71,6 +71,7 @@
       <DependentUpon>ChangeExecuteDateDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="ChangeExecuteDateDialogViewModel.cs" />
+    <Compile Include="ChangeStatusDialogViewModel.cs" />
     <Compile Include="ChangeWorkerDialog.xaml.cs">
       <DependentUpon>ChangeWorkerDialog.xaml</DependentUpon>
     </Compile>
