@@ -4,10 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:crmPhone="clr-namespace:CRMPhone"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:controls="clr-namespace:CRMPhone.Controls"
         mc:Ignorable="d"
-        Title="Заявка" MinHeight="700" MaxHeight="700" MinWidth ="1000" MaxWidth="1000" Height="700" Width="900"
+        Title="Заявка" MinHeight="740" MaxHeight="740" MinWidth ="1000" MaxWidth="1000" Height="740" Width="1000"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         FontSize="14"
@@ -30,12 +29,12 @@
             <ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="NameWithPrefix" SelectedItem="{Binding SelectedStreet}" ItemsSource="{Binding StreetList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="дом:"/>
             <ComboBox Margin="3" Width="65" TabIndex ="3" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
-            <ComboBox Margin="3" Width="100" TabIndex ="4" DisplayMemberPath="Name" SelectedItem="{Binding SelectedAddressType}" ItemsSource="{Binding AddressTypeList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
-            <ComboBox Margin="3" Width="45" TabIndex ="5" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFlat}" ItemsSource="{Binding FlatList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+            <!--<ComboBox Margin="3" Width="100" TabIndex ="4" DisplayMemberPath="Name" SelectedItem="{Binding SelectedAddressType}" ItemsSource="{Binding AddressTypeList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>-->
+            <ComboBox Margin="3" Width="100" TabIndex ="5" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFlat}" ItemsSource="{Binding FlatList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="подъезд:"/>
-            <TextBox Margin="3" Width="45" TabIndex ="6" Text="{Binding Path=Flat}"/>
+            <TextBox Margin="3" Width="45" TabIndex ="6" Text="{Binding Path=Entrance}"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="этаж:"/>
-            <TextBox Margin="3" Width="45" TabIndex ="7" Text="{Binding Path=Flat}" />
+            <TextBox Margin="3" Width="45" TabIndex ="7" Text="{Binding Path=Floor}" />
         </WrapPanel>
         <StackPanel IsEnabled ="{Binding CanEdit}" Grid.Row="1">
             <TextBlock Margin ="3" Text="Контактные телефоны:"/>

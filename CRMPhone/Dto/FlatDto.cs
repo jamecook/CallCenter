@@ -11,10 +11,10 @@ namespace CRMPhone.Dto
         {
             get
             {
-                if (TypeId == 1)
-                    return TypeName;
-                if (TypeId == 2)
-                    return TypeName + " ¹" + Flat;
+                //if (TypeId == 1 || TypeId == 2)
+                //    return Flat;
+                //if (TypeId == 2)
+                //    return TypeName + " ¹" + Flat;
                 return Flat;
             }
         }

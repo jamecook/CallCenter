@@ -71,45 +71,6 @@ C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\bin\Debug\NLog.dll
 C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\bin\Debug\NLog.xml
 C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\bin\Debug\NLog.config
 C:\Users\zerg\Google Диск\CallCenter\CRMPhone\CRMPhone\obj\Debug\CRMPhone_Content.g.cs
-C:\Projects\CallCenter\CRMPhone\bin\Debug\CRMPhone.exe.config
-C:\Projects\CallCenter\CRMPhone\obj\Debug\Interop.conaito.dll
-C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.csproj.ResolveComReference.cache
-C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.exe
-C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.pdb
-C:\Projects\CallCenter\CRMPhone\bin\Debug\NLog.config
-C:\Projects\CallCenter\CRMPhone\bin\Debug\CRMPhone.exe
-C:\Projects\CallCenter\CRMPhone\bin\Debug\CRMPhone.pdb
-C:\Projects\CallCenter\CRMPhone\bin\Debug\MySql.Data.dll
-C:\Projects\CallCenter\CRMPhone\bin\Debug\NLog.dll
-C:\Projects\CallCenter\CRMPhone\bin\Debug\NLog.xml
-C:\Projects\CallCenter\CRMPhone\obj\Debug\Controls\RequestItem.baml
-C:\Projects\CallCenter\CRMPhone\obj\Debug\Controls\RequestItem.g.cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\Controls\UsersControl.g.cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\LoginView.g.cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\MainWindow.g.cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\Controls\PhoneControl.g.cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\Controls\RequestControl.g.cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\RequestDialog.g.cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\TransferDialog.g.cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\App.g.cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone_Content.g.cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\GeneratedInternalTypeHelper.g.cs
-C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone_MarkupCompile.cache
-C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone_MarkupCompile.lref
-C:\Projects\CallCenter\CRMPhone\obj\Debug\Controls\UsersControl.baml
-C:\Projects\CallCenter\CRMPhone\obj\Debug\LoginView.baml
-C:\Projects\CallCenter\CRMPhone\obj\Debug\MainWindow.baml
-C:\Projects\CallCenter\CRMPhone\obj\Debug\Controls\PhoneControl.baml
-C:\Projects\CallCenter\CRMPhone\obj\Debug\Controls\RequestControl.baml
-C:\Projects\CallCenter\CRMPhone\obj\Debug\RequestDialog.baml
-C:\Projects\CallCenter\CRMPhone\obj\Debug\TransferDialog.baml
-C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.g.resources
-C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.Properties.Resources.resources
-C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.csproj.GenerateResource.Cache
-c:\Projects\CallCenter\CRMPhone\obj\Debug\ChangeWorkerDialog.g.cs
-c:\Projects\CallCenter\CRMPhone\obj\Debug\ChangeWorkerDialog.baml
-c:\Projects\CallCenter\CRMPhone\obj\Debug\ChangeExecuteDateDialog.g.cs
-c:\Projects\CallCenter\CRMPhone\obj\Debug\ChangeExecuteDateDialog.baml
 F:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.csprojResolveAssemblyReference.cache
 F:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.csproj.ResolveComReference.cache
 F:\Projects\CallCenter\CRMPhone\obj\Debug\ChangeExecuteDateDialog.g.cs
@@ -150,4 +111,3 @@ F:\Projects\CallCenter\CRMPhone\obj\Debug\TransferDialog.baml
 F:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.g.resources
 F:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.Properties.Resources.resources
 F:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.csproj.GenerateResource.Cache
-C:\Projects\CallCenter\CRMPhone\obj\Debug\CRMPhone.csprojResolveAssemblyReference.cache

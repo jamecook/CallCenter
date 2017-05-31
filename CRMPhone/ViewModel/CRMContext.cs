@@ -89,7 +89,7 @@ namespace CRMPhone.ViewModel
             }
             InitMySql();
             AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser})";
-            
+            _requestDataContext.InitCollections();
         }
         public DateTime FromDate
         {

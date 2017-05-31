@@ -21,7 +21,7 @@ namespace CRMPhone
         }
 
         public int? SaveNewRequest(int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
-            bool chargeable, bool immediate, string callUniqueId)
+            bool chargeable, bool immediate, string callUniqueId,string entrance,string floor)
         {
             int newId;
             _logger.Debug(
@@ -35,8 +35,8 @@ namespace CRMPhone
 
                     using (
                         var cmd = new MySqlCommand(
-                            @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_chargeable,create_user_id,state_id,is_immediate)
-values(@AddressId, @TypeId, @Message, sysdate(),@IsChargeable,@UserId,@State,@IsImmediate);
+                            @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_chargeable,create_user_id,state_id,is_immediate, entrance, floor)
+values(@AddressId, @TypeId, @Message, sysdate(),@IsChargeable,@UserId,@State,@IsImmediate,@Entrance,@Floor);
 select LAST_INSERT_ID();", _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@AddressId", addressId);
@@ -44,6 +44,8 @@ select LAST_INSERT_ID();", _dbConnection))
                         cmd.Parameters.AddWithValue("@Message", requestMessage);
                         cmd.Parameters.AddWithValue("@IsChargeable", chargeable);
                         cmd.Parameters.AddWithValue("@IsImmediate", immediate);
+                        cmd.Parameters.AddWithValue("@Entrance", entrance);
+                        cmd.Parameters.AddWithValue("@Floor", floor);
                         cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
                         cmd.Parameters.AddWithValue("@State", 1);
                         newId = Convert.ToInt32(cmd.ExecuteScalar());
@@ -337,7 +339,8 @@ select LAST_INSERT_ID();", _dbConnection))
     S.name street_name,S.prefix_id,S.city_id,
     SP.Name prefix_name,
     C.name City_name,
-    U.SurName,U.FirstName,U.PatrName
+    U.SurName,U.FirstName,U.PatrName,
+    entrance,floor
      FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.RequestTypes RT on RT.id = R.type_id
@@ -365,6 +368,8 @@ select LAST_INSERT_ID();", _dbConnection))
                                 IsChargeable = dataReader.GetBoolean("is_chargeable"),
                                 IsImmediate = dataReader.GetBoolean("is_immediate"),
                                 Description = dataReader.GetNullableString("description"),
+                                Entrance = dataReader.GetNullableString("entrance"),
+                                Floor = dataReader.GetNullableString("floor"),
                                 ExecuteDate =  dataReader.GetNullableDateTime("execute_date"),
                                 Type = new RequestTypeDto
                                 {
@@ -413,7 +418,7 @@ select LAST_INSERT_ID();", _dbConnection))
                                 var contact =
                                     new MySqlCommand(
                                         @"SELECT R.id, IsMain,Number,sur_name,first_name,patr_name from CallCenter.RequestContacts R
-    join CallCenter.ClientPhones P on P.id = R.ClientPhone_id where request_id = @reqId",
+    join CallCenter.ClientPhones P on P.id = R.ClientPhone_id where request_id = @reqId order by IsMain desc",
                                         _dbConnection))
                             {
                                 contact.Parameters.AddWithValue("@reqId", requestId);
@@ -446,14 +451,13 @@ select LAST_INSERT_ID();", _dbConnection))
             return null;
         }
 
-        public IList<RequestForListDto> GetRequestList(DateTime fromDate, DateTime toDate)
+        public IList<RequestForListDto> GetRequestList(DateTime fromDate, DateTime toDate, int? streetId, int? houseId,int? addressId,int? parentServiceId,int? serviceId,int? statusId,int? workerId)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
-            using (var cmd =
-                new MySqlCommand(@"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
+            var sqlQuery = @"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
-    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number) client_phones
+    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones
     FROM CallCenter.Requests R
     join CallCenter.Addresses a on a.id = R.address_id
     join CallCenter.AddressesTypes at on at.id = a.type_id
@@ -467,9 +471,25 @@ select LAST_INSERT_ID();", _dbConnection))
     left join CallCenter.ClientPhones cp on cp.id = rc.clientPhone_id
     join CallCenter.Users u on u.id = create_user_id
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
-    where R.create_time between @FromDate and @ToDate
-    group by R.id
-    order by id desc", _dbConnection))
+    where R.create_time between @FromDate and @ToDate";
+            if (streetId.HasValue)
+                sqlQuery += $" and s.id = {streetId.Value}";
+            if (houseId.HasValue)
+                sqlQuery += $" and h.id = {houseId.Value}";
+            if (addressId.HasValue)
+                sqlQuery += $" and a.id = {addressId.Value}";
+            if (serviceId.HasValue)
+                sqlQuery += $" and rt.id = {serviceId.Value}";
+            if (parentServiceId.HasValue)
+                sqlQuery += $" and rt2.id = {parentServiceId.Value}";
+            if (statusId.HasValue)
+                sqlQuery += $" and R.state_id = {statusId.Value}";
+            if (workerId.HasValue)
+                sqlQuery += $" and w.id = {workerId.Value}";
+
+            sqlQuery += " group by R.id order by id desc";
+            using (var cmd =
+                new MySqlCommand(sqlQuery, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@FromDate", findFromDate);
                 cmd.Parameters.AddWithValue("@ToDate", findToDate);
@@ -722,6 +742,31 @@ select LAST_INSERT_ID();", _dbConnection))
                 return types;
             }
         }
+
+        public List<StatusDto> GetRequestStatuses()
+        {
+            var query = "SELECT id, name, Description FROM CallCenter.RequestState R order by Description";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var types = new List<StatusDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        types.Add(new StatusDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                            Description = dataReader.GetString("Description")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return types;
+            }
+        }
+        
+
         public List<PeriodDto> GetPeriods()
         {
             var query = "SELECT id,Name,SetTime,OrderNum FROM CallCenter.PeriodTimes P";

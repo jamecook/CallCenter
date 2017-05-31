@@ -57,8 +57,16 @@ namespace CRMPhone
                     var currentIndex = comboBoxes.IndexOf(sender as ComboBox);
                     if (currentIndex < comboBoxes.Count - 1)
                         comboBoxes[currentIndex + 1].Focus();
-                    //var t = (sender as ComboBox).PredictFocus(FocusNavigationDirection.Next);
-                    //(sender as ComboBox).MoveFocus(request);
+                    else
+                    {
+                        var t = (sender as FrameworkElement).PredictFocus(FocusNavigationDirection.Next);
+                        (sender as FrameworkElement).MoveFocus(request);
+                    }
+                }
+                else
+                {
+                    var t = (sender as FrameworkElement).PredictFocus(FocusNavigationDirection.Next);
+                    (sender as FrameworkElement).MoveFocus(request);
                 }
             }
         }

@@ -146,6 +146,16 @@ namespace CRMPhone
             get { return _selectedFlat; }
             set { _selectedFlat = value; OnPropertyChanged(nameof(SelectedFlat));}
         }
+        public string Entrance
+        {
+            get { return _entrance; }
+            set { _entrance = value; OnPropertyChanged(nameof(Entrance)); }
+        }
+        public string Floor
+        {
+            get { return _floor; }
+            set { _floor = value; OnPropertyChanged(nameof(Floor)); }
+        }
 
         public AddressTypeDto SelectedAddressType
         {
@@ -247,7 +257,7 @@ namespace CRMPhone
                 MessageBox.Show("Необходимо выбрать верный адрес!");
                 return;
             }
-            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate,_callUniqueId);
+            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate,_callUniqueId,Entrance,Floor);
             if (!request.HasValue)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");
@@ -271,6 +281,9 @@ namespace CRMPhone
         private AddressTypeDto _selectedAddressType;
         private ObservableCollection<AddressTypeDto> _addressTypeList;
         private ObservableCollection<RequestItemViewModel> _requestList;
+        private string _entrance;
+        private string _floor;
+
         public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new CommandHandler(Close, true)); } }
 
         private void ChangeChekedState()
@@ -333,10 +346,10 @@ namespace CRMPhone
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
             AddressTypeList = new ObservableCollection<AddressTypeDto>(_requestService.GetAddressTypes());
-            if (AddressTypeList.Count > 0)
-            {
-                SelectedAddressType = AddressTypeList.FirstOrDefault();
-            }
+            //if (AddressTypeList.Count > 0)
+            //{
+            //    SelectedAddressType = AddressTypeList.FirstOrDefault();
+            //}
             ContactList = new ObservableCollection<ContactDto>(new [] {new ContactDto {Id = 1,IsMain = true,PhoneNumber = AppSettings.LastIncomingCall}});
             CityList = new ObservableCollection<CityDto>(_requestService.GetCities());
             if (CityList.Count > 0)

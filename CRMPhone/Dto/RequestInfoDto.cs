@@ -8,6 +8,8 @@ namespace CRMPhone.Dto
         public DateTime CreateTime { get; set; }
         public AddressDto Address { get; set; }
         public string Description { get; set; }
+        public string Entrance { get; set; }
+        public string Floor { get; set; }
         public RequestTypeDto Type { get; set; }
         public RequestStateDto State { get; set; }
         public RequestUserDto CreateUser { get; set; }

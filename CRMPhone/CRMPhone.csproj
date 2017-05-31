@@ -91,6 +91,7 @@
     <Compile Include="Dto\PeriodDto.cs" />
     <Compile Include="Dto\RequestForListDto.cs" />
     <Compile Include="Dto\RequestInfoDto.cs" />
+    <Compile Include="Dto\StatusDto.cs" />
     <Compile Include="Dto\WorkerHistoryDto.cs" />
     <Compile Include="ViewModel\RequestItemViewModel.cs" />
     <Compile Include="Dto\RequestStateDto.cs" />
