@@ -273,6 +273,7 @@ namespace CRMPhone.ViewModel
             requestModel.RequestState = request.State.Description;
             requestModel.SelectedWorker = requestModel.WorkerList.SingleOrDefault(w => w.Id == request.ExecutorId);
             requestModel.RequestId = request.Id;
+            requestModel.Rating = request.Rating;
             if (request.ExecuteDate.HasValue && request.ExecuteDate.Value.Date > DateTime.MinValue)
             {
                 requestModel.SelectedDateTime = request.ExecuteDate.Value.Date;

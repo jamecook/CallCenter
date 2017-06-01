@@ -19,5 +19,6 @@ namespace CRMPhone.Dto
         public int? ExecutorId { get; set; }
         public bool IsImmediate { get; set; }
         public bool IsChargeable { get; set; }
+        public RequestRatingDto Rating { get; set; }
     }
 }

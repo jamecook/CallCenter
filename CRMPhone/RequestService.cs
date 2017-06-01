@@ -270,6 +270,35 @@ select LAST_INSERT_ID();", _dbConnection))
             }
 
         }
+
+        public void SetRating(int requestId, int ratingId,string description)
+        {
+            _logger.Debug($"RequestService.SetRating({requestId},{ratingId},{description})");
+            try
+            {
+                using (var transaction = _dbConnection.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"insert into CallCenter.RequestRating(request_id,create_date,rating_id,Description,user_id)
+ values(@RequestId,sysdate(),@RatingId,@Desc,@UserId);", _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                        cmd.Parameters.AddWithValue("@RatingId", ratingId);
+                        cmd.Parameters.AddWithValue("@Desc", description);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+            catch (Exception exc)
+            {
+                _logger.Error(exc);
+                throw;
+            }
+
+        }
         public void AddNewExecuteDate(int requestId, DateTime executeDate,PeriodDto period, string note)
         {
             _logger.Debug($"RequestService.AddNewExecuteDate({requestId},{executeDate},{period.Id},{note})");
@@ -378,7 +407,8 @@ select LAST_INSERT_ID();", _dbConnection))
     SP.Name prefix_name,
     C.name City_name,
     U.SurName,U.FirstName,U.PatrName,
-    entrance,floor
+    entrance,floor,
+    rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc
      FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.RequestTypes RT on RT.id = R.type_id
@@ -390,6 +420,8 @@ select LAST_INSERT_ID();", _dbConnection))
     join CallCenter.StreetPrefixes SP on SP.id = S.prefix_id
     join CallCenter.Cities C on C.id = S.city_id
     join CallCenter.Users U on U.id = R.Create_user_id
+    left join CallCenter.RequestRating rtype on rtype.request_id = R.id
+    left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
     where R.id = @reqId", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@reqId", requestId);
@@ -408,7 +440,7 @@ select LAST_INSERT_ID();", _dbConnection))
                                 Description = dataReader.GetNullableString("description"),
                                 Entrance = dataReader.GetNullableString("entrance"),
                                 Floor = dataReader.GetNullableString("floor"),
-                                ExecuteDate =  dataReader.GetNullableDateTime("execute_date"),
+                                ExecuteDate = dataReader.GetNullableDateTime("execute_date"),
                                 Type = new RequestTypeDto
                                 {
                                     Id = dataReader.GetInt32("type_id"),
@@ -444,8 +476,11 @@ select LAST_INSERT_ID();", _dbConnection))
                                     StreetId = dataReader.GetInt32("street_id"),
                                     StreetPrefixId = dataReader.GetInt32("prefix_id"),
                                     StreetPrefix = dataReader.GetString("prefix_name")
-                                }
-
+                                },
+                                Rating = dataReader.GetNullableInt("rating_id").HasValue ? new RequestRatingDto { Id = dataReader.GetInt32("rating_id"),
+                                    Name = dataReader.GetString("RatingName"),
+                                    Description = dataReader.GetString("RatingDesc")
+                                } : new RequestRatingDto()
                             };
                         }
                         dataReader.Close();
@@ -493,7 +528,8 @@ select LAST_INSERT_ID();", _dbConnection))
         {
             var sqlQuery = @"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
-    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones
+    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones,
+    rating.Name Rating
     FROM CallCenter.Requests R
     join CallCenter.Addresses a on a.id = R.address_id
     join CallCenter.AddressesTypes at on at.id = a.type_id
@@ -507,6 +543,9 @@ select LAST_INSERT_ID();", _dbConnection))
     left join CallCenter.ClientPhones cp on cp.id = rc.clientPhone_id
     join CallCenter.Users u on u.id = create_user_id
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
+    left join CallCenter.RequestRating rtype on rtype.request_id = R.id
+    left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
+
     where R.id = @RequestId";
             using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
             {
@@ -547,8 +586,7 @@ select LAST_INSERT_ID();", _dbConnection))
                             },
                             ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
                             ExecutePeriod = dataReader.GetNullableString("Period_Name"),
-
-
+                            Rating = dataReader.GetNullableString("Rating")
                         });
                     }
                     dataReader.Close();
@@ -562,7 +600,8 @@ select LAST_INSERT_ID();", _dbConnection))
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
             var sqlQuery = @"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
-    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones
+    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones,
+    rating.Name Rating
     FROM CallCenter.Requests R
     join CallCenter.Addresses a on a.id = R.address_id
     join CallCenter.AddressesTypes at on at.id = a.type_id
@@ -576,6 +615,9 @@ select LAST_INSERT_ID();", _dbConnection))
     left join CallCenter.ClientPhones cp on cp.id = rc.clientPhone_id
     join CallCenter.Users u on u.id = create_user_id
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
+    left join CallCenter.RequestRating rtype on rtype.request_id = R.id
+    left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
+
     where R.create_time between @FromDate and @ToDate";
             if (streetId.HasValue)
                 sqlQuery += $" and s.id = {streetId.Value}";
@@ -634,7 +676,7 @@ select LAST_INSERT_ID();", _dbConnection))
                             },
                             ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
                             ExecutePeriod = dataReader.GetNullableString("Period_Name"),
-
+                            Rating = dataReader.GetNullableString("Rating")
 
                         });
                     }
@@ -870,7 +912,28 @@ select LAST_INSERT_ID();", _dbConnection))
                 return types;
             }
         }
-        
+
+        public List<RequestRatingDto> GetRequestRating()
+        {
+            var query = "SELECT id, name FROM CallCenter.RatingTypes R order by OrderNum";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var ratings = new List<RequestRatingDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        ratings.Add(new RequestRatingDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return ratings;
+            }
+        }
 
         public List<PeriodDto> GetPeriods()
         {

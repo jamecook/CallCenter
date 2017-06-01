@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using CRMPhone.Annotations;
 using CRMPhone.Dto;
+using System.Windows;
 
 namespace CRMPhone.ViewModel
 {
@@ -29,6 +30,8 @@ namespace CRMPhone.ViewModel
         private DateTime? _requestDate;
         private string _requestCreator;
         private string _requestState;
+        private RequestRatingDto _rating;
+
 
         public RequestItemViewModel()
         {
@@ -41,6 +44,7 @@ namespace CRMPhone.ViewModel
             SelectedPeriod = PeriodList.FirstOrDefault();
             CompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
             SelectedCompany = CompanyList.FirstOrDefault();
+            Rating = new RequestRatingDto();
         }
 
         public int? RequestId
@@ -52,6 +56,20 @@ namespace CRMPhone.ViewModel
                 OnPropertyChanged(nameof(RequestId)); }
         }
 
+        public RequestRatingDto Rating
+        {
+            get { return _rating; }
+            set { _rating = value; OnPropertyChanged(nameof(Rating)); OnPropertyChanged(nameof(CanAddRating)); OnPropertyChanged(nameof(ShowRating)); }
+        }
+
+        public bool CanAddRating { get { return CanEdit && Rating.Id == 0; } }
+        public Visibility ShowRating
+        {
+            get
+            {
+                return Rating.Id > 0 ? Visibility.Visible : Visibility.Hidden;
+            }
+        }
         public ObservableCollection<ServiceCompanyDto> CompanyList
         {
             get { return _companyList; }

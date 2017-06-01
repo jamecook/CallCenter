@@ -20,6 +20,7 @@ namespace CRMPhone.Dto
         public string ParentService { get; set; }
         public string Service { get; set; }
         public string ContactPhones { get; set; }
+        public string Rating { get; set; }
 
 
         public string FullAddress

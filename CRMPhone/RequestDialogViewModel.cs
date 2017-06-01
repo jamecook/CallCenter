@@ -197,7 +197,7 @@ namespace CRMPhone
 
 
         private ICommand _saveRequestCommand;
-        public ICommand SaveRequestCommand { get { return _saveRequestCommand ?? (_saveRequestCommand = new RelayCommand(SaveRequestRequest)); } }
+        public ICommand SaveRequestCommand { get { return _saveRequestCommand ?? (_saveRequestCommand = new RelayCommand(SaveRequest)); } }
 
         private ICommand _changeWorkerCommand;
         public ICommand ChangeWorkerCommand { get { return _changeWorkerCommand ?? (_changeWorkerCommand = new RelayCommand(ChangeWorker)); } }
@@ -210,6 +210,8 @@ namespace CRMPhone
 
         private ICommand _changeNoteCommand;
         public ICommand ChangeNoteCommand { get { return _changeNoteCommand ?? (_changeNoteCommand = new RelayCommand(ChangeNote)); } }
+        private ICommand _ratingCommand;
+        public ICommand RatingCommand { get { return _ratingCommand ?? (_ratingCommand = new RelayCommand(AddRating)); } }
 
 
         private void ChangeWorker(object sender)
@@ -246,6 +248,25 @@ namespace CRMPhone
                 requestModel.RequestState = model.SelectedStatus.Description;
             }
         }
+
+        private void AddRating(object sender)
+        {
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            if (!requestModel.RequestId.HasValue)
+                return;
+            var model = new AddRatingDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var view = new AddRatingDialog();
+            model.SetView(view);
+            view.Owner = _view;
+            view.DataContext = model;
+            if (view.ShowDialog() == true)
+            {
+                requestModel.Rating = model.SelectedRating;
+                requestModel.Rating.Description = model.Description;
+            }
+        }
         private void ChangeNote(object sender)
         {
         }
@@ -269,7 +290,7 @@ namespace CRMPhone
 
         }
 
-        private void SaveRequestRequest(object sender)
+        private void SaveRequest(object sender)
         {
             if (!(sender is RequestItemViewModel))
                 return;
@@ -284,7 +305,7 @@ namespace CRMPhone
                 MessageBox.Show("Необходимо выбрать верный адрес!");
                 return;
             }
-            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate,_callUniqueId,Entrance,Floor);
+            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor);
             if (!request.HasValue)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");
@@ -300,6 +321,7 @@ namespace CRMPhone
             requestModel.RequestCreator = newRequest.CreateUser.ShortName;
             requestModel.RequestDate = newRequest.CreateTime;
             requestModel.RequestState = newRequest.State.Description;
+            requestModel.Rating = newRequest.Rating;
             MessageBox.Show($"Номер заявки №{request}", "Заявка", MessageBoxButton.OK);
 
         }

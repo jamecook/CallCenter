@@ -83,7 +83,12 @@
                              VerticalScrollBarVisibility="Auto"
                              Text="{Binding Description}"/>
                 </WrapPanel>
-                
+                <WrapPanel Grid.Row="4" Grid.Column="0" Visibility="{Binding ShowRating}">
+                    <TextBlock Margin="3" Text="Оценка:"/>
+                    <TextBlock Margin="3" Text="{Binding Rating.Name}"/>
+                    <TextBlock Margin="3" Text="Комментарий:"/>
+                    <TextBlock Margin="3" Text="{Binding Rating.Description}" TextWrapping="Wrap" Width="460"/>
+                </WrapPanel>
                 <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="3">
             <Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanSave}" Command="{Binding ElementName=RequestGrid, Path=DataContext.SaveRequestCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Сохранить</Button>
@@ -93,6 +98,8 @@
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Время</Button>
                     <Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeStatusCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Статус</Button>
+                    <Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanAddRating}" Command="{Binding ElementName=RequestGrid, Path=DataContext.RatingCommand}"
+             CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Оценка качества</Button>
                     <!--<Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeNoteCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Примечание</Button>-->
                 </StackPanel>

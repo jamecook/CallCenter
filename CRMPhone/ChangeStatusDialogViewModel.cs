@@ -26,7 +26,7 @@ namespace CRMPhone
             _requestId = requestId;
             StatusList = new ObservableCollection<StatusDto>(_requestService.GetRequestStatuses());
             var request = _requestService.GetRequest(_requestId);
-            _oldStatusId = request.ExecutorId;
+            _oldStatusId = request.State.Id;
             SelectedStatus = StatusList.SingleOrDefault(s => s.Id == request.State.Id);
             Refresh(null);
         }
@@ -83,5 +83,4 @@ namespace CRMPhone
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-
 }
