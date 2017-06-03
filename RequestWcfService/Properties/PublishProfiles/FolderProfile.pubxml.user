@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_NewBackgroundProfile>True</_NewBackgroundProfile>
+    <_PublishTargetUrl>C:\Projects\CallCenter\RequestWcfService\bin\Release\PublishOutput</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="bin/MySql.Data.dll">
+      <publishTime>06/17/2016 18:29:10</publishTime>
+    </File>
+    <File Include="bin/NLog.dll">
+      <publishTime>05/31/2017 19:01:20</publishTime>
+    </File>
+    <File Include="bin/RequestServiceImpl.dll">
+      <publishTime>06/04/2017 00:19:47</publishTime>
+    </File>
+    <File Include="bin/RequestServiceImpl.dll.config">
+      <publishTime>06/03/2017 17:56:35</publishTime>
+    </File>
+    <File Include="bin/RequestWcfService.dll">
+      <publishTime>06/04/2017 00:19:48</publishTime>
+    </File>
+    <File Include="packages.config">
+      <publishTime>06/03/2017 23:41:57</publishTime>
+    </File>
+    <File Include="RequestWebService.svc">
+      <publishTime>06/03/2017 23:39:03</publishTime>
+    </File>
+    <File Include="Web.config">
+      <publishTime>06/04/2017 00:19:48</publishTime>
+    </File>
+  </ItemGroup>
+</Project>
