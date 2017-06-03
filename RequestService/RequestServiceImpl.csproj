@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F8832D54-A8E8-44EA-A64B-26202D7B64C9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RequestServiceImpl</RootNamespace>
+    <AssemblyName>RequestServiceImpl</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.6.9.9\lib\net40\MySql.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.4.10\lib\net40\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AppSettings.cs" />
+    <Compile Include="Dto\ActiveChannelsDto.cs" />
+    <Compile Include="Dto\AddressDto.cs" />
+    <Compile Include="Dto\AddressTypeDto.cs" />
+    <Compile Include="Dto\CallsListDto.cs" />
+    <Compile Include="Dto\CityDto.cs" />
+    <Compile Include="Dto\ContactDto.cs" />
+    <Compile Include="Dto\ExecuteDateHistoryDto.cs" />
+    <Compile Include="Dto\FlatDto.cs" />
+    <Compile Include="Dto\HouseDto.cs" />
+    <Compile Include="Dto\NotAnsweredDto.cs" />
+    <Compile Include="Dto\PeriodDto.cs" />
+    <Compile Include="Dto\RecuestRatingDto.cs" />
+    <Compile Include="Dto\RequestForListDto.cs" />
+    <Compile Include="Dto\RequestInfoDto.cs" />
+    <Compile Include="Dto\RequestStateDto.cs" />
+    <Compile Include="Dto\RequestTypeDto.cs" />
+    <Compile Include="Dto\RequestUserDto.cs" />
+    <Compile Include="Dto\RoleDto.cs" />
+    <Compile Include="Dto\ServiceCompanyDto.cs" />
+    <Compile Include="Dto\ServiceDto.cs" />
+    <Compile Include="Dto\SipDto.cs" />
+    <Compile Include="Dto\StatusDto.cs" />
+    <Compile Include="Dto\StatusHistoryDto.cs" />
+    <Compile Include="Dto\StreetDto.cs" />
+    <Compile Include="Dto\StreetPrefixDto.cs" />
+    <Compile Include="Dto\UserDto.cs" />
+    <Compile Include="Dto\WorkerDto.cs" />
+    <Compile Include="Dto\WorkerHistoryDto.cs" />
+    <Compile Include="MysqlDecorator.cs" />
+    <Compile Include="RequestService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

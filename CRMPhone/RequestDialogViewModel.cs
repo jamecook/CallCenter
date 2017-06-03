@@ -5,8 +5,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
-using CRMPhone.Dto;
 using CRMPhone.ViewModel;
+using RequestServiceImpl;
+using RequestServiceImpl.Dto;
 
 namespace CRMPhone
 {
@@ -14,7 +15,7 @@ namespace CRMPhone
     {
         private Window _view;
 
-        private readonly RequestService _requestService;
+        private readonly RequestServiceImpl.RequestService _requestService;
         private ObservableCollection<CityDto> _cityList;
         private CityDto _selectedCity;
         private ObservableCollection<StreetDto> _streetList;
@@ -263,8 +264,8 @@ namespace CRMPhone
             view.DataContext = model;
             if (view.ShowDialog() == true)
             {
+                model.SelectedRating.Description = model.Description;
                 requestModel.Rating = model.SelectedRating;
-                requestModel.Rating.Description = model.Description;
             }
         }
         private void ChangeNote(object sender)
@@ -388,7 +389,7 @@ namespace CRMPhone
 
         public RequestDialogViewModel()
         {
-            _requestService = new RequestService(AppSettings.DbConnection);
+            _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
 
             _callUniqueId = _requestService.GetActiveCallUniqueId();
             StreetList = new ObservableCollection<StreetDto>();

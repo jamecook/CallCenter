@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
-             xmlns:dto="clr-namespace:CRMPhone.Dto"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="900"
              d:DataContext="{d:DesignInstance viewModel:RequestControlContext}">
@@ -45,6 +44,9 @@
                 <DatePicker  Margin="3" Width="110" SelectedDate="{Binding ToDate}"/>
                 <Button Width="80" Margin="5" Content="Обновить" Command="{Binding RefreshRequestCommand}"/>
                 <Button Width="80" Margin="5" Content="Экспорт" Command="{Binding ExportRequestCommand}"/>
+                <Button Width="120" Margin="5" Content="Сброс фильтров" Command="{Binding ClearFiltersCommand}"/>
+                <TextBlock Margin="35,3,3,3" VerticalAlignment="Center" Text="Заявок:"/>
+                <TextBlock Margin="3,3,3,3" FontWeight="Bold" VerticalAlignment="Center" Text="{Binding RequestCount}"/>
             </WrapPanel>
         </WrapPanel>
         <DataGrid Name="RequestsGrid" Grid.Row ="1" 

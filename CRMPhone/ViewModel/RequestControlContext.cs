@@ -7,16 +7,16 @@ using System.Windows;
 using System.Windows.Input;
 using System.Xml.Linq;
 using CRMPhone.Annotations;
-using CRMPhone.Dto;
 using Microsoft.Win32;
-using MySql.Data.MySqlClient;
+using RequestServiceImpl;
+using RequestServiceImpl.Dto;
 
 namespace CRMPhone.ViewModel
 {
     public class RequestControlContext : INotifyPropertyChanged
     {
         private ObservableCollection<RequestForListDto> _requestList;
-        private RequestService _requestService;
+        private RequestServiceImpl.RequestService _requestService;
 
         private ICommand _addRequestCommand;
         public ICommand AddRequestCommand { get { return _addRequestCommand ?? (_addRequestCommand = new CommandHandler(AddRequest, true)); } }
@@ -24,6 +24,18 @@ namespace CRMPhone.ViewModel
         public ICommand RefreshRequestCommand { get { return _refreshRequestCommand ?? (_refreshRequestCommand = new CommandHandler(RefreshRequest, true)); } }
         private ICommand _exportRequestCommand;
         public ICommand ExportRequestCommand { get { return _exportRequestCommand ?? (_exportRequestCommand = new CommandHandler(ExportRequest, true)); } }
+        private ICommand _clearFiltersCommand;
+        public ICommand ClearFiltersCommand { get { return _clearFiltersCommand ?? (_clearFiltersCommand = new CommandHandler(ClearFilters, true)); } }
+
+        private void ClearFilters()
+        {
+            RequestNum = string.Empty;
+            SelectedStreet = null;
+            SelectedParentService = null;
+            SelectedStatus = null;
+            SelectedWorker = null;
+            RefreshRequest();
+        }
 
         private void ExportRequest()
         {
@@ -99,10 +111,16 @@ namespace CRMPhone.ViewModel
         private ServiceDto _selectedService;
         private ObservableCollection<StatusDto> _statusList;
         private StatusDto _selectedList;
+        private string _requestNum;
+        private int _requestCount;
 
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
-        public string RequestNum { get; set; }
+        public string RequestNum
+        {
+            get { return _requestNum; }
+            set { _requestNum = value; OnPropertyChanged(nameof(RequestNum));}
+        }
 
         public ObservableCollection<StreetDto> StreetList
         {
@@ -244,7 +262,7 @@ namespace CRMPhone.ViewModel
             if (selectedItem == null)
                 return;
             if (_requestService == null)
-                _requestService = new RequestService(AppSettings.DbConnection);
+                _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
 
             var request = _requestService.GetRequest(selectedItem.Id);
             if (request == null)
@@ -288,15 +306,23 @@ namespace CRMPhone.ViewModel
         private void RefreshRequest()
         {
             if(_requestService == null)
-                _requestService = new RequestService(AppSettings.DbConnection);
+                _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             RequestList.Clear();
-            var requests = string.IsNullOrEmpty(RequestNum) ? _requestService.GetRequestList(FromDate,ToDate,SelectedStreet?.Id,_selectedHouse?.Id,SelectedFlat?.Id,SelectedParentService?.Id,SelectedService?.Id,SelectedStatus?.Id,SelectedWorker?.Id)
-                :_requestService.GetRequestById(RequestNum);
+            var requests = _requestService.GetRequestList(RequestNum, FromDate, ToDate, SelectedStreet?.Id,
+                _selectedHouse?.Id, SelectedFlat?.Id, SelectedParentService?.Id, SelectedService?.Id,
+                SelectedStatus?.Id, SelectedWorker?.Id);
             foreach (var request in requests)
             {
                 RequestList.Add(request);
             }
+            RequestCount = RequestList.Count;
             OnPropertyChanged(nameof(RequestList));
+        }
+
+        public int RequestCount
+        {
+            get { return _requestCount; }
+            set { _requestCount = value; OnPropertyChanged(nameof(RequestCount));}
         }
 
         public RequestControlContext()
@@ -308,7 +334,7 @@ namespace CRMPhone.ViewModel
 
         public void InitCollections()
         {
-            _requestService = new RequestService(AppSettings.DbConnection);
+            _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();

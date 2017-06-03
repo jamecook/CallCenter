@@ -3,14 +3,15 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using CRMPhone.Annotations;
-using CRMPhone.Dto;
 using System.Windows;
+using RequestServiceImpl;
+using RequestServiceImpl.Dto;
 
 namespace CRMPhone.ViewModel
 {
     public class RequestItemViewModel : INotifyPropertyChanged
     {
-        private readonly RequestService _requestService;
+        private readonly RequestServiceImpl.RequestService _requestService;
         private ObservableCollection<WorkerDto> _workerList;
         private WorkerDto _selectedWorker;
         private ObservableCollection<ServiceDto> _parentServiceList;
@@ -35,7 +36,7 @@ namespace CRMPhone.ViewModel
 
         public RequestItemViewModel()
         {
-            _requestService = new RequestService(AppSettings.DbConnection);
+            _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             ServiceList = new ObservableCollection<ServiceDto>();
             WorkerList = new ObservableCollection<WorkerDto>(_requestService.GetWorkers(null));
             ParentServiceList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));

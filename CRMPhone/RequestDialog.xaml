@@ -100,6 +100,7 @@
                 <TextBlock Margin="3" Text="Заявки:"/>
                 <Button IsEnabled ="{Binding CanEdit}" Margin ="3" Content="Добавить" Width="120" Command="{Binding AddRequestCommand}" HorizontalAlignment="Left"/>
                 <ListBox Name ="RequestList" Height="340"
+                     ScrollViewer.CanContentScroll="False"
                      ItemsSource="{Binding Path=RequestList}" 
                      SelectedItem ="{Binding Path=SelectedRequest}"
                      Margin="5">

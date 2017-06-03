@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CRMPhone", "CRMPhone\CRMPhone.csproj", "{B34CFB1A-EDC8-49A7-B838-AEBDCC6DF6B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestServiceImpl", "RequestService\RequestServiceImpl.csproj", "{F8832D54-A8E8-44EA-A64B-26202D7B64C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{B34CFB1A-EDC8-49A7-B838-AEBDCC6DF6B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B34CFB1A-EDC8-49A7-B838-AEBDCC6DF6B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B34CFB1A-EDC8-49A7-B838-AEBDCC6DF6B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8832D54-A8E8-44EA-A64B-26202D7B64C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8832D54-A8E8-44EA-A64B-26202D7B64C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8832D54-A8E8-44EA-A64B-26202D7B64C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8832D54-A8E8-44EA-A64B-26202D7B64C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

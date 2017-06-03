@@ -11,8 +11,10 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using conaito;
 using CRMPhone.Annotations;
-using CRMPhone.Dto;
 using MySql.Data.MySqlClient;
+using RequestServiceImpl;
+using RequestServiceImpl.Dto;
+using System.Diagnostics;
 
 namespace CRMPhone.ViewModel
 {
@@ -172,6 +174,18 @@ namespace CRMPhone.ViewModel
                 OnPropertyChanged(nameof(CallsList));
             }
         }
+
+        private ICommand _playCommand;
+        public ICommand PlayCommand { get { return _playCommand ?? (_playCommand = new RelayCommand(PlayRecord)); } }
+
+        private void PlayRecord(object obj)
+        {
+            var record = obj as CallsListDto;
+            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"]; ;
+            var localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\");
+            Process.Start(localFileName);
+        }
+
 
         public Brush MuteButtonBackground
         {

@@ -5,8 +5,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
-using CRMPhone.Dto;
 using CRMPhone.ViewModel;
+using RequestServiceImpl.Dto;
 
 namespace CRMPhone
 {
@@ -14,14 +14,14 @@ namespace CRMPhone
     {
         private Window _view;
 
-        private RequestService _requestService;
+        private RequestServiceImpl.RequestService _requestService;
         private int _requestId;
         private ObservableCollection<WorkerDto> _workerList;
         private WorkerDto _selectedWorker;
         private ObservableCollection<WorkerHistoryDto> _workerHistoryList;
         private int? _oldExecuterId;
 
-        public ChangeWorkerDialogViewModel(RequestService requestService,int requestId)
+        public ChangeWorkerDialogViewModel(RequestServiceImpl.RequestService requestService,int requestId)
         {
             _requestService = requestService;
             _requestId = requestId;

@@ -3,14 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CRMPhone"
-        xmlns:dto="clr-namespace:CRMPhone.Dto"
         xmlns:controls="clr-namespace:CRMPhone.Controls"
         xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
+        xmlns:dto="clr-namespace:RequestServiceImpl.Dto;assembly=RequestServiceImpl"
         mc:Ignorable="d"
         FontSize="14"
         d:DataContext="{d:DesignInstance viewModel:CRMContext}"
         Title="{Binding AppTitle}" Height="600" Width="1000" MinWidth="1000" MinHeight="600" Closing="Window_Closing">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -110,7 +112,7 @@
                         <DatePicker Height="24" SelectedDate="{Binding ToDate}"/>
                         <Button  Margin="5" Width="80" Height="24" Content="Обновить" Command="{Binding RefreshCommand}"/>
                     </DockPanel>
-                    <DataGrid Grid.Row ="1" 
+                    <DataGrid Grid.Row ="1" Name="RecordGrid"
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding Path=CallsList}"
                           SelectionMode="Single"
@@ -198,8 +200,8 @@
                                 </DataGridTemplateColumn.HeaderStyle>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate DataType="dto:CallsListDto">
-                                        <Button Width="20" Command="{Binding PlayCommand}"
-                                            Visibility="{Binding PlayButtonVisibility}">
+                                        <Button Width="20" Command="{Binding ElementName=RecordGrid, Path=DataContext.PlayCommand}" CommandParameter="{Binding ElementName=RecordGrid, Path=SelectedItem}"
+                                            Visibility="{Binding EnablePlayButton, Converter={StaticResource BooleanToVisibility} }">
                                             <Image Source="pack://application:,,,/Images/play.png"/>
                                         </Button>
                                     </DataTemplate>
