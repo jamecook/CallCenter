@@ -106,10 +106,15 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <DockPanel Grid.Row ="0" Margin="3">
+                        <TextBlock Margin="5" VerticalAlignment="Center" Text="№ заявки:"/>
+                        <TextBox Margin="5" Width="50" Text="{Binding RequestNum}"/>
                         <TextBlock Margin="10,5" VerticalAlignment="Center" Text="Дата с:"/>
                         <DatePicker Height="24" SelectedDate="{Binding FromDate}"/>
                         <TextBlock Margin="10,5" VerticalAlignment="Center" Text="по:"/>
                         <DatePicker Height="24" SelectedDate="{Binding ToDate}"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="Оператор:"/>
+                        <ComboBox Margin="3" Width="125" DisplayMemberPath="ShortName" SelectedItem="{Binding SelectedUser}" ItemsSource="{Binding UserList}" IsEditable="True" />
+
                         <Button  Margin="5" Width="80" Height="24" Content="Обновить" Command="{Binding RefreshCommand}"/>
                     </DockPanel>
                     <DataGrid Grid.Row ="1" Name="RecordGrid"
@@ -181,6 +186,47 @@
                                     <DataTemplate DataType="dto:CallsListDto">
                                         <DockPanel>
                                             <TextBlock Margin ="5,0" Text="{Binding Path=TalkTime}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            
+                            <DataGridTemplateColumn Width="110" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="№ заявки" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=RequestId}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="110" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Оператор" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=User.ShortName}"/>
                                         </DockPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

@@ -6,7 +6,7 @@ namespace RequestServiceImpl.Dto
         public string SurName { get; set; }
         public string FirstName { get; set; }
         public string PatrName { get; set; }
-        public string Speciality { get; set; }
+        public int? SpecialityId { get; set; }
         public string FullName => SurName + " " + FirstName + " " + PatrName;
     }
 }

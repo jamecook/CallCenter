@@ -23,5 +23,10 @@ namespace RequestWcfService
         {
             return _requestService.GetCities().ToArray();
         }
+
+        public WebUserDto Login(string login, string password)
+        {
+            return _requestService.WebLogin(login, password);
+        }
     }
 }

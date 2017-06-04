@@ -15,6 +15,7 @@ using MySql.Data.MySqlClient;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 using System.Diagnostics;
+using System.Security.RightsManagement;
 
 namespace CRMPhone.ViewModel
 {
@@ -235,6 +236,10 @@ namespace CRMPhone.ViewModel
         private string _appTitle;
         private bool _enablePhone;
         private RequestControlContext _requestDataContext;
+        private RequestService _requestService;
+        private string _requestNum;
+        private RequestUserDto _selectedUser;
+        private ObservableCollection<RequestUserDto> _userList;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
 
         public bool IsMuted
@@ -260,6 +265,24 @@ namespace CRMPhone.ViewModel
             set { _requestDataContext = value; OnPropertyChanged(nameof(RequestDataContext)); }
         }
 
+        public string RequestNum
+        {
+            get { return _requestNum; }
+            set { _requestNum = value; OnPropertyChanged(nameof(RequestNum)); }
+        }
+
+        public ObservableCollection<RequestUserDto> UserList
+        {
+            get { return _userList; }
+            set { _userList = value; OnPropertyChanged(nameof(UserList));}
+        }
+
+        public RequestUserDto SelectedUser
+        {
+            get { return _selectedUser; }
+            set { _selectedUser = value; OnPropertyChanged(nameof(SelectedUser)); }
+        }
+
         private void InitMySql()
         {
             var connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", _serverIP, "asterisk", "mysqlasterisk", "asterisk");
@@ -267,13 +290,17 @@ namespace CRMPhone.ViewModel
             try
             {
                 _dbRefreshConnection.Open();
-                if(EnablePhone)
+                _requestService = new RequestService(_dbRefreshConnection);
+                UserList = new ObservableCollection<RequestUserDto>(_requestService.GetOperators());
+
+                if (EnablePhone)
                 {
                 _refreshTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
                 _refreshTimer.Tick += RefreshTimerOnTick;
                 _refreshTimer.Start();
                 }
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show("Произошла ошибка в приложении! Приложение будет закрыто!\r\n"+ex.Message,"Ошибка");
@@ -327,36 +354,8 @@ namespace CRMPhone.ViewModel
         }
         public void RefreshList()
         {
-            using (
-                var cmd =
-                    new MySqlCommand(@"SELECT UniqueId,CallDirection,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime,MonitorFile,TalkTime,WaitingTime FROM asterisk.CallsHistory C
- where CreateTime between @fromdate and @todate order by UniqueId", AppSettings.DbConnection))
-            {
-                cmd.Parameters.AddWithValue("@fromdate", FromDate);
-                cmd.Parameters.AddWithValue("@todate", ToDate);
-                using (var dataReader = cmd.ExecuteReader())
-                {
-                    CallsList.Clear();
-                    while (dataReader.Read())
-                    {
-                        CallsList.Add(new CallsListDto
-                        {
-                            UniqueId = dataReader.GetNullableString("UniqueID"),
-                            CallerId = dataReader.GetNullableString("CallerIDNum"),
-                            Direction = dataReader.GetNullableString("CallDirection"),
-                            AnswerTime = dataReader.GetNullableDateTime("AnswerTime"),
-                            CreateTime = dataReader.GetNullableDateTime("CreateTime"),
-                            BridgedTime = dataReader.GetNullableDateTime("BridgedTime"),
-                            EndTime = dataReader.GetNullableDateTime("EndTime"),
-                            TalkTime = dataReader.GetNullableInt("TalkTime"),
-                            WaitingTime = dataReader.GetNullableInt("WaitingTime"),
-                            MonitorFileName = dataReader.GetNullableString("MonitorFile"),
-                        });
-                    }
-                    dataReader.Close();
-                    CallsCount = CallsList.Count;
-                }
-            }
+            CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallList(FromDate, ToDate, RequestNum, SelectedUser?.Id));
+            CallsCount = CallsList.Count;
         }
 
 

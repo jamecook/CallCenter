@@ -10,5 +10,8 @@ namespace RequestWcfService
     {
         [OperationContract]
         CityDto[] GetData();
-     }
+
+        [OperationContract]
+        WebUserDto Login(string login, string password);
+    }
 }

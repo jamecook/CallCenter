@@ -35,7 +35,8 @@ namespace RequestServiceImpl.Dto
                 return false;
             }
         }
-
+        public RequestUserDto User { get; set; }
+        public int? RequestId { get; set; }
         public string ImagePath => Direction == "in" ? "pack://application:,,,/Images/incalls.png" : "pack://application:,,,/Images/outcalls.png";
     }
 }

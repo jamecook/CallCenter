@@ -21,6 +21,7 @@ namespace RequestServiceImpl.Dto
         public string Service { get; set; }
         public string ContactPhones { get; set; }
         public string Rating { get; set; }
+        public string Status { get; set; }
 
 
         public string FullAddress

@@ -524,76 +524,6 @@ select LAST_INSERT_ID();", _dbConnection))
             return null;
         }
 
-        public List<RequestForListDto> GetRequestByIdForDel(string  requestId)
-        {
-            var sqlQuery = @"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
-    R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
-    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones,
-    rating.Name Rating
-    FROM CallCenter.Requests R
-    join CallCenter.Addresses a on a.id = R.address_id
-    join CallCenter.AddressesTypes at on at.id = a.type_id
-    join CallCenter.Houses h on h.id = house_id
-    join CallCenter.Streets s on s.id = street_id
-    join CallCenter.StreetPrefixes sp on sp.id = s.prefix_id
-    join CallCenter.RequestTypes rt on rt.id = R.type_id
-    join CallCenter.RequestTypes rt2 on rt2.id = rt.parrent_id
-    left join CallCenter.Workers w on w.id = R.worker_id
-    left join CallCenter.RequestContacts rc on rc.request_id = R.id
-    left join CallCenter.ClientPhones cp on cp.id = rc.clientPhone_id
-    join CallCenter.Users u on u.id = create_user_id
-    left join CallCenter.PeriodTimes p on p.id = R.period_time_id
-    left join CallCenter.RequestRating rtype on rtype.request_id = R.id
-    left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
-
-    where R.id = @RequestId";
-            using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
-            {
-                cmd.Parameters.AddWithValue("@RequestId", requestId.Trim());
-
-                var requests = new List<RequestForListDto>();
-                using (var dataReader = cmd.ExecuteReader())
-                {
-                    while (dataReader.Read())
-                    {
-                        requests.Add(new RequestForListDto
-                        {
-                            Id = dataReader.GetInt32("id"),
-                            StreetPrefix = dataReader.GetString("prefix_name"),
-                            StreetName = dataReader.GetString("street_name"),
-                            AddressType = dataReader.GetString("address_type"),
-                            Flat = dataReader.GetString("flat"),
-                            Building = dataReader.GetString("building"),
-                            Corpus = dataReader.GetNullableString("corps"),
-                            CreateTime = dataReader.GetDateTime("create_time"),
-                            Description = dataReader.GetNullableString("description"),
-                            ContactPhones = dataReader.GetNullableString("client_phones"),
-                            ParentService = dataReader.GetNullableString("parent_name"),
-                            Service = dataReader.GetNullableString("service_name"),
-                            Worker = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
-                            {
-                                Id = dataReader.GetInt32("worker_id"),
-                                SurName = dataReader.GetNullableString("sur_name"),
-                                FirstName = dataReader.GetNullableString("first_name"),
-                                PatrName = dataReader.GetNullableString("patr_name"),
-                            } : null,
-                            CreateUser = new RequestUserDto
-                            {
-                                Id = dataReader.GetInt32("create_user_id"),
-                                SurName = dataReader.GetNullableString("surname"),
-                                FirstName = dataReader.GetNullableString("firstname"),
-                                PatrName = dataReader.GetNullableString("patrname"),
-                            },
-                            ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
-                            ExecutePeriod = dataReader.GetNullableString("Period_Name"),
-                            Rating = dataReader.GetNullableString("Rating")
-                        });
-                    }
-                    dataReader.Close();
-                }
-                return requests;
-            }
-        }
         public IList<RequestForListDto> GetRequestList(string requestId, DateTime fromDate, DateTime toDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId)
         {
             var findFromDate = fromDate.Date;
@@ -602,8 +532,10 @@ select LAST_INSERT_ID();", _dbConnection))
                 @"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones,
-    rating.Name Rating
+    rating.Name Rating,
+    RS.Description Req_Status
     FROM CallCenter.Requests R
+    join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.Addresses a on a.id = R.address_id
     join CallCenter.AddressesTypes at on at.id = a.type_id
     join CallCenter.Houses h on h.id = house_id
@@ -690,8 +622,8 @@ select LAST_INSERT_ID();", _dbConnection))
                             },
                             ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
                             ExecutePeriod = dataReader.GetNullableString("Period_Name"),
-                            Rating = dataReader.GetNullableString("Rating")
-
+                            Rating = dataReader.GetNullableString("Rating"),
+                            Status = dataReader.GetNullableString("Req_Status"),
                         });
                     }
                     dataReader.Close();
@@ -718,7 +650,7 @@ select LAST_INSERT_ID();", _dbConnection))
                             SurName = dataReader.GetString("sur_name"),
                             FirstName = dataReader.GetNullableString("first_name"),
                             PatrName = dataReader.GetNullableString("patr_name"),
-                            Speciality = dataReader.GetNullableString("speciality"),
+                            SpecialityId = dataReader.GetNullableInt("speciality_id"),
                         });
                     }
                     dataReader.Close();
@@ -1102,6 +1034,125 @@ select LAST_INSERT_ID();", _dbConnection))
                 }
                 return executeDateHistoryDtos.OrderByDescending(i => i.CreateTime).ToList();
             }
+        }
+
+        public WebUserDto WebLogin(string userName, string password)
+        {
+            using (var cmd = new MySqlCommand($"Call CallCenter.WebLogin('{userName}','{password}')", _dbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        return new WebUserDto
+                        {
+                            Id = dataReader.GetInt32("Id"),
+                            SurName = dataReader.GetString("sur_name"),
+                            FirstName = dataReader.GetNullableString("first_name"),
+                            PatrName = dataReader.GetNullableString("patr_name"),
+                        };
+                    }
+                    dataReader.Close();
+                }
+            }
+            return null;
+        }
+
+        public List<CallsListDto> GetCallList(DateTime fromDate, DateTime toDate, string requestId, int? operatorId)
+        {
+            var sqlQuery = @"SELECT UniqueId,CallDirection,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime, 
+ MonitorFile,TalkTime,WaitingTime, userId, SurName, FirstName, PatrName, RequestId FROM asterisk.CallsHistory C";
+            if (!string.IsNullOrEmpty(requestId))
+            {
+                sqlQuery += " where RequestId = @RequestNum";
+            }
+            else
+            {
+                sqlQuery += " where CreateTime between @fromdate and @todate";
+                if (operatorId.HasValue)
+                {
+                    sqlQuery += " and userId = @UserNum";
+
+                }
+            }
+            sqlQuery += " order by UniqueId";
+
+            using (
+            var cmd = new MySqlCommand(sqlQuery, AppSettings.DbConnection))
+            {
+                if (!string.IsNullOrEmpty(requestId))
+                {
+                    cmd.Parameters.AddWithValue("@RequestNum", requestId.Trim());
+
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@fromdate", fromDate);
+                    cmd.Parameters.AddWithValue("@todate", toDate);
+                    if (operatorId.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@UserNum", operatorId);
+                    }
+                }
+                    using (var dataReader = cmd.ExecuteReader())
+                {
+                    var callList = new List<CallsListDto>();
+                    while (dataReader.Read())
+                    {
+                        callList.Add(new CallsListDto
+                        {
+                            UniqueId = dataReader.GetNullableString("UniqueID"),
+                            CallerId = dataReader.GetNullableString("CallerIDNum"),
+                            Direction = dataReader.GetNullableString("CallDirection"),
+                            AnswerTime = dataReader.GetNullableDateTime("AnswerTime"),
+                            CreateTime = dataReader.GetNullableDateTime("CreateTime"),
+                            BridgedTime = dataReader.GetNullableDateTime("BridgedTime"),
+                            EndTime = dataReader.GetNullableDateTime("EndTime"),
+                            TalkTime = dataReader.GetNullableInt("TalkTime"),
+                            WaitingTime = dataReader.GetNullableInt("WaitingTime"),
+                            MonitorFileName = dataReader.GetNullableString("MonitorFile"),
+                            RequestId = dataReader.GetNullableInt("RequestId"),
+                            User = dataReader.GetNullableInt("userId").HasValue
+                                ? new RequestUserDto
+                                {
+                                    Id = dataReader.GetInt32("userId"),
+                                    SurName = dataReader.GetNullableString("SurName"),
+                                    FirstName = dataReader.GetNullableString("FirstName"),
+                                    PatrName = dataReader.GetNullableString("PatrName")
+                                }
+                                : null
+                        });
+                    }
+                    dataReader.Close();
+                    return callList;
+                }
+            }
+        }
+
+        public List<RequestUserDto> GetOperators()
+        {
+            using (
+                var cmd = new MySqlCommand(@"SELECT u.id, SurName, FirstName, PatrName FROM CallCenter.Users u where u.enabled = 1 and u.ShowInForm = 1 order by SurName,FirstName",
+                    AppSettings.DbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var usersList = new List<RequestUserDto>();
+                    while (dataReader.Read())
+                    {
+                        usersList.Add(new RequestUserDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            SurName = dataReader.GetNullableString("SurName"),
+                            FirstName = dataReader.GetNullableString("FirstName"),
+                            PatrName = dataReader.GetNullableString("PatrName")
+                        });
+                    }
+                    dataReader.Close();
+                    return usersList;
+                }
+            }
+
         }
     }
 }
