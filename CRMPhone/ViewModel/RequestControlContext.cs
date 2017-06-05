@@ -299,7 +299,7 @@ namespace CRMPhone.ViewModel
             }
             viewModel.RequestId = request.Id;
             viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
-            var t = view.ShowDialog();
+            view.Show();
 
         }
 
@@ -380,7 +380,7 @@ namespace CRMPhone.ViewModel
             var viewModel = new RequestDialogViewModel();
             var view = new RequestDialog(viewModel);
             viewModel.SetView(view);
-            var t = view.ShowDialog();
+            view.Show();
 
         }
 
