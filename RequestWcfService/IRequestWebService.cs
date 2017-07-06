@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 using RequestServiceImpl.Dto;
 
@@ -13,5 +14,20 @@ namespace RequestWcfService
 
         [OperationContract]
         WebUserDto Login(string login, string password);
+
+        [OperationContract]
+        RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate);
+
+        [OperationContract]
+        RequestInfoDto GetRequestById(int requestId);
+
+        [OperationContract]
+        WorkerDto[] GetWorkers(int workerId);
+        [OperationContract]
+        StreetDto[] GetStreetListByWorker(int workerId);
+        [OperationContract]
+        WebStatusDto[] GetWebStatuses();
+        [OperationContract]
+        WebHouseDto[] GetHousesByStrteetAndWorkerId(int streetId, int workerId);
     }
 }

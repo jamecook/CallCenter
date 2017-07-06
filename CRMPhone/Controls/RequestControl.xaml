@@ -28,20 +28,32 @@
             </WrapPanel>
             <WrapPanel >
                 <TextBlock Margin="3" VerticalAlignment="Center" Text="услуга:"/>
-                <ComboBox Margin="3" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedParentService}" ItemsSource="{Binding ParentServiceList}" IsEditable="True" />
+                <ComboBox Margin="3" Width="125" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedParentService}" ItemsSource="{Binding ParentServiceList}" IsEditable="True" />
                 <TextBlock Margin="3" VerticalAlignment="Center" Text="причина:"/>
-                <ComboBox Margin="3" Width="240" DisplayMemberPath="Name" SelectedItem="{Binding SelectedService}" ItemsSource="{Binding ServiceList}" IsEditable="True" />
+                <ComboBox Margin="3" Width="240" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedService}" ItemsSource="{Binding ServiceList}" IsEditable="True" />
             </WrapPanel>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="статус:"/>
-            <ComboBox Margin="3" Width="80" DisplayMemberPath="Description" SelectedItem="{Binding SelectedStatus}" ItemsSource="{Binding StatusList}" IsEditable="True" />
+            <ComboBox Margin="3" Width="80" VerticalAlignment="Center" DisplayMemberPath="Description" SelectedItem="{Binding SelectedStatus}" ItemsSource="{Binding StatusList}" IsEditable="True" />
 
             <TextBlock Margin="3" VerticalAlignment="Center" Text="бригада:"/>
-            <ComboBox Margin="3" Width="120" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedWorker}" ItemsSource="{Binding WorkerList}" IsEditable="True" />
+            <ComboBox Margin="3" Width="120" VerticalAlignment="Center" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedWorker}" ItemsSource="{Binding WorkerList}" IsEditable="True" />
             <WrapPanel>
-                <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата с:"/>
-                <DatePicker  Margin="3" Width="110" SelectedDate="{Binding FromDate}"/>
-                <TextBlock Margin="3" VerticalAlignment="Center" Text="по:"/>
-                <DatePicker  Margin="3" Width="110" SelectedDate="{Binding ToDate}"/>
+                <StackPanel>
+                    <DockPanel>
+                        <RadioButton Margin="3" GroupName="DateFind" IsChecked ="{Binding FilterByCreateDate}" VerticalAlignment="Center" Content="По дате заявки"  Width="140"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="с:"/>
+                        <DatePicker  Margin="3" Width="110" SelectedDate="{Binding FromDate}"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="по:"/>
+                        <DatePicker  Margin="3" Width="110" SelectedDate="{Binding ToDate}"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <RadioButton Margin="3" GroupName="DateFind"  VerticalAlignment="Center" Content="По дате исполнения" Width="140"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="с:"/>
+                        <DatePicker  Margin="3" Width="110" SelectedDate="{Binding ExecuteFromDate}"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="по:"/>
+                        <DatePicker  Margin="3" Width="110" SelectedDate="{Binding ExecuteToDate}"/>
+                    </DockPanel>
+                </StackPanel>
                 <Button Width="80" Margin="5" Content="Обновить" Command="{Binding RefreshRequestCommand}"/>
                 <Button Width="80" Margin="5" Content="Экспорт" Command="{Binding ExportRequestCommand}"/>
                 <Button Width="120" Margin="5" Content="Сброс фильтров" Command="{Binding ClearFiltersCommand}"/>

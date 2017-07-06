@@ -17,13 +17,13 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>05/31/2017 19:01:20</publishTime>
     </File>
     <File Include="bin/RequestServiceImpl.dll">
-      <publishTime>06/04/2017 00:19:47</publishTime>
+      <publishTime>06/26/2017 00:27:01</publishTime>
     </File>
     <File Include="bin/RequestServiceImpl.dll.config">
       <publishTime>06/03/2017 17:56:35</publishTime>
     </File>
     <File Include="bin/RequestWcfService.dll">
-      <publishTime>06/04/2017 00:19:48</publishTime>
+      <publishTime>11/06/2017 22:19:04</publishTime>
     </File>
     <File Include="packages.config">
       <publishTime>06/03/2017 23:41:57</publishTime>
@@ -32,7 +32,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>06/03/2017 23:39:03</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>06/04/2017 00:19:48</publishTime>
+      <publishTime>06/26/2017 00:27:06</publishTime>
     </File>
   </ItemGroup>
 </Project>

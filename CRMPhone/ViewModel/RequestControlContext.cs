@@ -113,6 +113,9 @@ namespace CRMPhone.ViewModel
         private StatusDto _selectedList;
         private string _requestNum;
         private int _requestCount;
+        private DateTime _executeFromDate;
+        private DateTime _executeToDate;
+        private bool _filterByCreateDate;
 
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
@@ -308,7 +311,7 @@ namespace CRMPhone.ViewModel
             if(_requestService == null)
                 _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             RequestList.Clear();
-            var requests = _requestService.GetRequestList(RequestNum, FromDate, ToDate, SelectedStreet?.Id,
+            var requests = _requestService.GetRequestList(RequestNum, FilterByCreateDate, FromDate, ToDate, ExecuteFromDate,ExecuteToDate, SelectedStreet?.Id,
                 _selectedHouse?.Id, SelectedFlat?.Id, SelectedParentService?.Id, SelectedService?.Id,
                 SelectedStatus?.Id, SelectedWorker?.Id);
             foreach (var request in requests)
@@ -328,8 +331,11 @@ namespace CRMPhone.ViewModel
         public RequestControlContext()
         {
             RequestList = new ObservableCollection<RequestForListDto>();
+            FilterByCreateDate = true;
             FromDate = DateTime.Today;
             ToDate = DateTime.Today;
+            ExecuteFromDate = FromDate;
+            ExecuteToDate = ToDate;
         }
 
         public void InitCollections()
@@ -349,6 +355,18 @@ namespace CRMPhone.ViewModel
         {
             get { return _requestList; }
             set { _requestList = value; OnPropertyChanged(nameof(RequestList));}
+        }
+
+        public DateTime ExecuteFromDate
+        {
+            get { return _executeFromDate; }
+            set { _executeFromDate = value; OnPropertyChanged(nameof(ExecuteFromDate));}
+        }
+
+        public DateTime ExecuteToDate
+        {
+            get { return _executeToDate; }
+            set { _executeToDate = value; OnPropertyChanged(nameof(ExecuteToDate));}
         }
 
         public DateTime FromDate
@@ -373,6 +391,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _selectedList; }
             set { _selectedList = value; OnPropertyChanged(nameof(SelectedStatus)); }
+        }
+
+        public bool FilterByCreateDate
+        {
+            get { return _filterByCreateDate; }
+            set { _filterByCreateDate = value; OnPropertyChanged(nameof(FilterByCreateDate)); }
         }
 
         private void AddRequest()

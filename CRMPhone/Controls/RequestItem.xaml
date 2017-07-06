@@ -73,15 +73,21 @@
                         <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsImmediate}">Срочная</CheckBox>
                     </DockPanel>
                 </WrapPanel>
-                <WrapPanel Grid.Row="3" Grid.Column="0" IsEnabled="{Binding CanSave}">
+                <WrapPanel Grid.Row="3" Grid.Column="0">
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Примечание:"/>
-                    <TextBox Margin="3" Width="550" Height="48"
+                    <TextBox Margin="3" Width="530" Height="48"
                              MaxLength="1000" 
                              TextWrapping="Wrap"
                              AcceptsReturn="True"
                              HorizontalScrollBarVisibility="Auto"
                              VerticalScrollBarVisibility="Auto"
                              Text="{Binding Description}"/>
+                    <Button Margin="5" Width="32" Height="32" Command="{Binding ElementName=RequestGrid, Path=DataContext.SaveDescCommand}"
+                            CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">
+                        <Image Source="pack://application:,,,/Images/edit_small.png"/>
+                    </Button>
+
+
                 </WrapPanel>
                 <WrapPanel Grid.Row="4" Grid.Column="0" Visibility="{Binding ShowRating}">
                     <TextBlock Margin="3" Text="Оценка:"/>

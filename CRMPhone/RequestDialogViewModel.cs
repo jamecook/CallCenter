@@ -213,7 +213,19 @@ namespace CRMPhone
         public ICommand ChangeNoteCommand { get { return _changeNoteCommand ?? (_changeNoteCommand = new RelayCommand(ChangeNote)); } }
         private ICommand _ratingCommand;
         public ICommand RatingCommand { get { return _ratingCommand ?? (_ratingCommand = new RelayCommand(AddRating)); } }
+        private ICommand _saveDescCommand;
+        public ICommand SaveDescCommand { get { return _saveDescCommand ?? (_saveDescCommand = new RelayCommand(SaveDesc)); } }
 
+        private void SaveDesc(object sender)
+        {
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            if (!requestModel.RequestId.HasValue)
+                return;
+            _requestService.ChangeDescription(requestModel.RequestId.Value, requestModel.Description);
+            MessageBox.Show("Примечание сохранено!");
+        }
 
         private void ChangeWorker(object sender)
         {
@@ -349,7 +361,7 @@ namespace CRMPhone
 
         private void Close()
         {
-            _view.DialogResult = true;
+            _view.Close();
         }
 
         public ContactDto SelectedContact
