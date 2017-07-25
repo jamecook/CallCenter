@@ -16,7 +16,7 @@ namespace RequestWcfService
         WebUserDto Login(string login, string password);
 
         [OperationContract]
-        RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate);
+        RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId);
 
         [OperationContract]
         RequestInfoDto GetRequestById(int requestId);
@@ -28,6 +28,12 @@ namespace RequestWcfService
         [OperationContract]
         WebStatusDto[] GetWebStatuses();
         [OperationContract]
-        WebHouseDto[] GetHousesByStrteetAndWorkerId(int streetId, int workerId);
+        WebHouseDto[] GetHousesByStreetAndWorkerId(int streetId, int workerId);
+        [OperationContract]
+        WebFlatDto[] GetFlatByHouseId(int houseId);
+        [OperationContract]
+        ServiceDto[] GetServices(int? parentId);
+        [OperationContract]
+        byte[] GetMediaByRequestId(int requestId);
     }
 }

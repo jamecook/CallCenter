@@ -26,6 +26,8 @@ namespace CRMPhone
 
         private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
+            MessageBox.Show(e.Exception.ToString());
+            e.Handled = true;
             //throw new NotImplementedException();
         }
     }

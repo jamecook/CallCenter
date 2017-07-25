@@ -10,7 +10,7 @@ namespace RequestWcfService
 {
     // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "RequestWebService" in code, svc and config file together.
     // NOTE: In order to launch WCF Test Client for testing this service, please select RequestWebService.svc or RequestWebService.svc.cs at the Solution Explorer and start debugging.
-    public class RequestWebService : IRequestWebService
+    public class RequestWebService : IRequestWebService, IDisposable
     {
         private RequestService _requestService;
         private MySqlConnection _connection;
@@ -31,9 +31,9 @@ namespace RequestWcfService
             return _requestService.WebLogin(login, password);
         }
 
-        public RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate)
+        public RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate,int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId,int? FilterParrentServiceId, int? FilterServiceId )
         {
-            return _requestService.WebRequestList(workerId,null,false,DateTime.Now,DateTime.Now, fromDate, toDate, null,null,null,null,null,null,null);
+            return _requestService.WebRequestList(workerId,null,false,DateTime.Now,DateTime.Now, fromDate, toDate, FilterStreetId, FilterHouseId, FilterAddressId, FilterParrentServiceId, FilterServiceId, FilterStatusId, FirlerWorkerId);
         }
 
         public RequestInfoDto GetRequestById(int requestId)
@@ -55,9 +55,32 @@ namespace RequestWcfService
             return _requestService.GetWebStatuses();
         }
 
-        public WebHouseDto[] GetHousesByStrteetAndWorkerId(int streetId, int workerId)
+        public WebHouseDto[] GetHousesByStreetAndWorkerId(int streetId, int workerId)
         {
-            return _requestService.GetHousesByStrteetAndWorkerId(streetId, workerId);
+            return _requestService.GetHousesByStreetAndWorkerId(streetId, workerId);
+        }
+        public ServiceDto[] GetServices(int? parentId)
+        {
+            return _requestService.GetServices(parentId).ToArray();
+        }
+        public WebFlatDto[] GetFlatByHouseId(int houseId)
+        {
+            var flats = _requestService.GetFlats(houseId).OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6, '0'));
+            return flats.Select(f => new WebFlatDto { Id = f.Id, Name = f.Name }).ToArray();
+        }
+
+        public void Dispose()
+        {
+            if (_connection != null)
+            {
+                _connection.Close();
+                _connection = null;
+            }
+        }
+
+        public byte[] GetMediaByRequestId(int requestId)
+        {
+            return _requestService.GetMeiaByRequestId(requestId);
         }
     }
 }

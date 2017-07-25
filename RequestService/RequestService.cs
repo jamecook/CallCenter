@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using MySql.Data.MySqlClient;
 using NLog;
@@ -151,6 +153,26 @@ select LAST_INSERT_ID();", _dbConnection))
                 _logger.Error(exc);
             }
             return null;
+        }
+
+        public byte[] GetMeiaByRequestId(int requestId)
+        {
+            using (var cmd =
+                    new MySqlCommand(@"SELECT MonitorFile FROM asterisk.CallsHistory C where RequestId = @reqId", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@reqId", requestId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        var fileName = dataReader.GetNullableString("MonitorFile");
+                        var serverIpAddress = _dbConnection.DataSource;
+                        var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\");
+                        return File.ReadAllBytes(localFileName);
+                    }
+                }
+            }
+            return new byte[0];
         }
 
         public void AddNewDescription(int requestId, string requestMessage)
@@ -1083,6 +1105,7 @@ select LAST_INSERT_ID();", _dbConnection))
     RS.Description Req_Status
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
+    join CallCenter.WebStateToState WS on WS.state_id = R.state_id
     join CallCenter.Addresses a on a.id = R.address_id
     join CallCenter.AddressesTypes at on at.id = a.type_id
     join CallCenter.Houses h on h.id = house_id
@@ -1123,7 +1146,7 @@ select LAST_INSERT_ID();", _dbConnection))
                 if (parentServiceId.HasValue)
                     sqlQuery += $" and rt2.id = {parentServiceId.Value}";
                 if (statusId.HasValue)
-                    sqlQuery += $" and R.state_id = {statusId.Value}";
+                    sqlQuery += $" and WS.Web_State_Id = {statusId.Value}";
                 if (workerId.HasValue)
                     sqlQuery += $" and w.id = {workerId.Value}";
             }
@@ -1254,7 +1277,7 @@ select LAST_INSERT_ID();", _dbConnection))
             }
         }
 
-        public WebHouseDto[] GetHousesByStrteetAndWorkerId(int streetId,int workerId)
+        public WebHouseDto[] GetHousesByStreetAndWorkerId(int streetId,int workerId)
         {
             var sqlQuery = @"SELECT h.id,h.Building,h.Corps FROM CallCenter.Houses h
     join CallCenter.Workers w on w.service_company_id = h.service_company_id
@@ -1297,7 +1320,7 @@ select LAST_INSERT_ID();", _dbConnection))
                         {
                             Id = status_id,
                             Name = dataReader.GetString("name"),
-                            IsDefault = status_id == 2 ? true : false
+                            //IsDefault = status_id == 2 ? true : false
                         });
                     }
                     dataReader.Close();
