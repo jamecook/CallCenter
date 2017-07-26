@@ -35,5 +35,8 @@ namespace RequestWcfService
         ServiceDto[] GetServices(int? parentId);
         [OperationContract]
         byte[] GetMediaByRequestId(int requestId);
+
+        [OperationContract]
+        byte[] GetRequestActs(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId);
     }
 }

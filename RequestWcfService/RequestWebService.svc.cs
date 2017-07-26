@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using MySql.Data.MySqlClient;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
+using Stimulsoft.Report;
 
 
 namespace RequestWcfService
@@ -20,6 +22,26 @@ namespace RequestWcfService
             _connection = new MySqlConnection(connectionString);
             _connection.Open();
             _requestService = new RequestService(_connection);
+        }
+
+        public byte[] GetRequestActs(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId)
+        {
+            var requests = _requestService.WebRequestList(workerId, null, false, DateTime.Now, DateTime.Now, fromDate, toDate, FilterStreetId, FilterHouseId, FilterAddressId, FilterParrentServiceId, FilterServiceId, FilterStatusId, FirlerWorkerId);
+            var stiReport = new StiReport();
+            stiReport.Load("templates\\act.mrt");
+            StiOptions.Engine.HideRenderingProgress = true;
+            StiOptions.Engine.HideExceptions = true;
+            StiOptions.Engine.HideMessages = true;
+
+            var acts = requests.Select(r=>new {Address=r.FullAddress,Fio = r.CreateUser.FullName,Phone = r.ContactPhones}).ToArray();
+
+            stiReport.RegBusinessObject("", "Acts", acts);
+            stiReport.Render();
+            var reportStream = new MemoryStream();
+            stiReport.ExportDocument(StiExportFormat.Pdf, reportStream);
+            reportStream.Position = 0;
+            File.WriteAllBytes("\\111.pdf",reportStream.GetBuffer());
+            return reportStream.GetBuffer();
         }
         public CityDto[] GetData()
         {
