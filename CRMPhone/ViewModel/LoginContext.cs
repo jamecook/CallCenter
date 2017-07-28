@@ -8,7 +8,6 @@ using CRMPhone.Annotations;
 using MySql.Data.MySqlClient;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
-using Stimulsoft.Report;
 
 namespace CRMPhone.ViewModel
 {

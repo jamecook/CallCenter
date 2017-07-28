@@ -25,7 +25,6 @@ namespace CRMPhone.ViewModel
         private MySqlConnection _dbRefreshConnection;
         private UserAgent _sipAgent;
 
-        private string _incommingCallPhone;
         private string _sipUser;
         private string _sipSecret;
         private string _serverIP;
@@ -117,6 +116,26 @@ namespace CRMPhone.ViewModel
             set { _incomingCallFrom = value;
                 AppSettings.LastIncomingCall = value;
                 OnPropertyChanged(nameof(IncomingCallFrom)); }
+        }
+
+        public string LastAnsweredPhoneNumber
+        {
+            get { return _lastAnsweredPhoneNumber; }
+            set
+            {
+                _lastAnsweredPhoneNumber = value; 
+                OnPropertyChanged(nameof(LastAnsweredPhoneNumber));
+            }
+        }
+
+        public string CallFromServiceCompany
+        {
+            get { return _callFromServiceCompany; }
+            set
+            {
+                _callFromServiceCompany = value;
+                OnPropertyChanged(nameof(CallFromServiceCompany));
+            }
         }
 
         public string SipPhone {
@@ -240,6 +259,8 @@ namespace CRMPhone.ViewModel
         private string _requestNum;
         private RequestUserDto _selectedUser;
         private ObservableCollection<RequestUserDto> _userList;
+        private string _callFromServiceCompany;
+        private string _lastAnsweredPhoneNumber;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
 
         public bool IsMuted
@@ -457,7 +478,7 @@ namespace CRMPhone.ViewModel
                 //    _sipAgent.CallMaker.Invite(callId);
                 //    return;
                 //}
-                IncomingCallFrom = _incommingCallPhone;
+                LastAnsweredPhoneNumber = IncomingCallFrom;
 
                 _sipAgent.CallMaker.Accept(0);
                 return;
@@ -513,6 +534,8 @@ namespace CRMPhone.ViewModel
         public void HangUpAll()
         {
             _sipAgent.CallMaker.HangupAll();
+            IncomingCallFrom = "";
+            CallFromServiceCompany = "";
         }
 
         public void Unregister()
@@ -569,13 +592,10 @@ namespace CRMPhone.ViewModel
             //}
 
             var phoneNumber = GetPhoneNumberFromUri(remoteUri);
-
+            CallFromServiceCompany = _requestService.ServiceCompanyByIncommingPhoneNumber(phoneNumber);
             SipState = $"Входящий вызов от {phoneNumber}";
-            var lines = remoteUri.Split(':', '@');
-            if (lines.Length > 1)
-            {
-                 _incommingCallPhone = lines[1].Trim();
-            }
+            IncomingCallFrom = phoneNumber;
+
             _ringPlayer.PlayLooping();
             //Bring To Front
             Application.Current.Dispatcher.Invoke(new Action(() =>
@@ -595,6 +615,7 @@ namespace CRMPhone.ViewModel
                 mainWindow.Focus(); // important
             }));
         }
+
 
         private void RegisterSIP()
         {

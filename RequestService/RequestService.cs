@@ -1450,5 +1450,25 @@ select LAST_INSERT_ID();", _dbConnection))
                 throw;
             }
         }
+
+        public string ServiceCompanyByIncommingPhoneNumber(string phoneNumber)
+        {
+            using (var cmd = new MySqlCommand(@"SELECT S.id,S.Name FROM asterisk.ActiveChannels A
+            join CallCenter.ServiceCompanies S on S.trunk_name = A.context where A.CallerIDNum = @phoneNumber", AppSettings.DbConnection))
+            {
+                cmd.Parameters.AddWithValue("@phoneNumber", phoneNumber);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        return dataReader.GetNullableString("Name");
+                    }
+                    dataReader.Close();
+                }
+
+            }
+            return "неизвестная УК";
+        }
+
     }
 }
