@@ -29,17 +29,6 @@ namespace CRMPhone.ViewModel
 
         public LoginContext(string server)
         {
-                //var stiReport = new StiReport();
-                //stiReport.Load("templates\\act.mrt");
-                //var acts = new[]
-                //{
-                //    new {Address = "123231", Fio = "Vasya", Phone = "33-33-33"},
-                //    new {Address = "80 ÎÂÚ ¬À —Ã 111 11", Fio = "»‚‡Ì", Phone = "133-33-33"}
-                //};
-                //stiReport.RegBusinessObject("", "Akts", acts);
-                //stiReport.Render();
-                //stiReport.Design(true);
-
             var connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", server, "asterisk", "mysqlasterisk", "asterisk");
             AppSettings.SetDbConnection(new MySqlConnection(connectionString));
             try

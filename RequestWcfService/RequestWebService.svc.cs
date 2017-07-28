@@ -33,14 +33,14 @@ namespace RequestWcfService
             StiOptions.Engine.HideExceptions = true;
             StiOptions.Engine.HideMessages = true;
 
-            var acts = requests.Select(r=>new {Address=r.FullAddress,Fio = r.CreateUser.FullName,Phone = r.ContactPhones}).ToArray();
+            var acts = requests.Select(r=>new {Address=r.FullAddress, Workers = r.Worker.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": "+ r.Service, Description = r.Description}).ToArray();
 
             stiReport.RegBusinessObject("", "Acts", acts);
             stiReport.Render();
             var reportStream = new MemoryStream();
             stiReport.ExportDocument(StiExportFormat.Pdf, reportStream);
             reportStream.Position = 0;
-            File.WriteAllBytes("\\111.pdf",reportStream.GetBuffer());
+            //File.WriteAllBytes("\\111.pdf",reportStream.GetBuffer());
             return reportStream.GetBuffer();
         }
         public CityDto[] GetData()

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Stimulsoft.Editor</id>
+    <version>2014.1.1900.0</version>
+    <authors>Stimulsoft</authors>
+    <owners>MedInfoCenter</owners>
+    <licenseUrl>http://www.stimulsoft.com/licensing</licenseUrl>
+    <projectUrl>http://www.stimulsoft.com/products/reports-net</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Stimulsoft.Editor.dll</description>
+    <copyright>Copyright 2003-2014 Stimulsoft</copyright>
+    <tags>Stimulsoft Reports.Net</tags>
+  </metadata>
+  <files>
+    <file src="Stimulsoft.Editor.dll" target="lib\net20" />
+  </files>
+</package>
