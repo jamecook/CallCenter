@@ -62,7 +62,13 @@ namespace CRMPhone.ViewModel
                 OnPropertyChanged(nameof(PhoneVisibility));
             }
         }
-
+        public Visibility IsAdminRoleExist
+        {
+            get { if(AppSettings.CurrentUser != null && AppSettings.CurrentUser.Roles.Exists(r => r.Name == "admin"))
+                    {return Visibility.Visible;}
+                    return Visibility.Collapsed;
+            }
+        }
         public CRMContext()
         {
             IsMuted = false;
@@ -79,7 +85,8 @@ namespace CRMPhone.ViewModel
             FromDate = DateTime.Now.Date;
             ToDate = FromDate.AddDays(1);
             EnablePhone = false;
-            _requestDataContext = new RequestControlContext();
+            RequestDataContext = new RequestControlContext();
+            ServiceCompanyDataContext = new ServiceCompanyControlContext();
         }
 
         public void InitMysqlAndSip()
@@ -91,7 +98,9 @@ namespace CRMPhone.ViewModel
             }
             InitMySql();
             AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser})";
-            _requestDataContext.InitCollections();
+            RequestDataContext.InitCollections();
+            ServiceCompanyDataContext.RefreshList();
+            OnPropertyChanged(nameof(IsAdminRoleExist));
         }
         public DateTime FromDate
         {
@@ -261,6 +270,7 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<RequestUserDto> _userList;
         private string _callFromServiceCompany;
         private string _lastAnsweredPhoneNumber;
+        private ServiceCompanyControlContext _serviceCompanyDataContext;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
 
         public bool IsMuted
@@ -284,6 +294,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _requestDataContext; }
             set { _requestDataContext = value; OnPropertyChanged(nameof(RequestDataContext)); }
+        }
+
+        public ServiceCompanyControlContext ServiceCompanyDataContext
+        {
+            get { return _serviceCompanyDataContext; }
+            set { _serviceCompanyDataContext = value; OnPropertyChanged(nameof(ServiceCompanyDataContext));}
         }
 
         public string RequestNum

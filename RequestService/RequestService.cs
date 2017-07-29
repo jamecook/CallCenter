@@ -938,7 +938,7 @@ select LAST_INSERT_ID();", _dbConnection))
         }
         public List<ServiceCompanyDto> GetServiceCompanies()
         {
-            var query = "SELECT id,name FROM CallCenter.ServiceCompanies S where Enabled = 1";
+            var query = "SELECT id,name FROM CallCenter.ServiceCompanies S where Enabled = 1 order by S.Name";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 var companies = new List<ServiceCompanyDto>();
@@ -955,6 +955,28 @@ select LAST_INSERT_ID();", _dbConnection))
                     dataReader.Close();
                 }
                 return companies.OrderBy(i => i.Name).ToList();
+            }
+        }
+        public ServiceCompanyDto GetServiceCompanyById(int id)
+        {
+            ServiceCompanyDto serviceCompany = null;
+            var query = "SELECT id,name FROM CallCenter.ServiceCompanies S where Enabled = 1 and id = @ID";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ID", id);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        serviceCompany =  new ServiceCompanyDto
+                                            {
+                                                Id = dataReader.GetInt32("id"),
+                                                Name = dataReader.GetString("name")
+                                            };
+                    }
+                    dataReader.Close();
+                }
+                return serviceCompany;
             }
         }
 
@@ -1470,5 +1492,27 @@ select LAST_INSERT_ID();", _dbConnection))
             return "неизвестная УК";
         }
 
+        public void SaveServiceCompany(int? serviceCompanyId, string serviceCompanyName)
+        {
+            if (serviceCompanyId.HasValue)
+            {
+                using (var cmd = new MySqlCommand(@"update CallCenter.ServiceCompanies set Name = @ServiceCompanyName where id = @ID;", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@ID", serviceCompanyId.Value);
+                    cmd.Parameters.AddWithValue("@ServiceCompanyName", serviceCompanyName);
+                    cmd.ExecuteNonQuery();
+                }
+
+            }
+            else
+            {
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.ServiceCompanies(Name) values(@ServiceCompanyName);", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@ServiceCompanyName", serviceCompanyName);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
     }
 }

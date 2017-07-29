@@ -55,7 +55,7 @@
                     </Button>
                 </WrapPanel>
                 <StackPanel>
-                     <Button  Margin="15" Width="48" Height="48" Command="{Binding MuteCommand}" ToolTip="Микрофон" Background="{Binding MuteButtonBackground}">
+                    <Button  Margin="15" Width="48" Height="48" Command="{Binding MuteCommand}" ToolTip="Микрофон" Background="{Binding MuteButtonBackground}">
                         <Image Source="pack://application:,,,/Images/mic-mute.png" Width="24" Height="24" />
                     </Button>
                 </StackPanel>
@@ -100,7 +100,7 @@
                         <TextBlock Margin="3" Text="Заявки"/>
                     </StackPanel>
                 </TabItem.Header>
-                    <controls:RequestControl DataContext="{Binding RequestDataContext}"></controls:RequestControl>
+                <controls:RequestControl DataContext="{Binding RequestDataContext}"/>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
@@ -110,12 +110,16 @@
                     </StackPanel>
                 </TabItem.Header>
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="71*"/>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <WrapPanel Grid.Row ="0" Margin="3">
+                    <WrapPanel Grid.Row ="0" Margin="3,3,3,228" Grid.ColumnSpan="2">
                         <TextBlock Margin="5" VerticalAlignment="Center" Text="№ заявки:"/>
                         <TextBox Margin="5" Width="50" Text="{Binding RequestNum}"/>
                         <TextBlock Margin="10,5" VerticalAlignment="Center" Text="Дата с:"/>
@@ -127,13 +131,13 @@
 
                         <Button  Margin="5" Width="80" Height="24" Content="Обновить" Command="{Binding RefreshCommand}"/>
                     </WrapPanel>
-                    <DataGrid Grid.Row ="1" Name="RecordGrid"
+                    <DataGrid Name="RecordGrid"
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding Path=CallsList}"
                           SelectionMode="Single"
                           SelectionUnit="FullRow"
                           IsReadOnly="True"
-                          HorizontalScrollBarVisibility="Disabled">
+                          HorizontalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Margin="0,41,0,0" Grid.RowSpan="2">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Время звонка" Width="120"
                              Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"></DataGridTextColumn>
@@ -165,7 +169,7 @@
                                         <Setter Property="ContentTemplate">
                                             <Setter.Value>
                                                 <DataTemplate>
-                                                     <TextBlock Text="Время ожидания" />
+                                                    <TextBlock Text="Время ожидания" />
                                                 </DataTemplate>
                                             </Setter.Value>
                                         </Setter>
@@ -179,7 +183,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            
+
                             <DataGridTemplateColumn Width="110" >
                                 <DataGridTemplateColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
@@ -200,7 +204,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            
+
                             <DataGridTemplateColumn Width="110" >
                                 <DataGridTemplateColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
@@ -241,7 +245,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            
+
                             <DataGridTemplateColumn Width="50" >
                                 <DataGridTemplateColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
@@ -266,13 +270,13 @@
 
                         </DataGrid.Columns>
                     </DataGrid>
-                    <DockPanel Grid.Row="2" HorizontalAlignment="Right">
+                    <DockPanel Grid.Row="2" HorizontalAlignment="Right" Grid.Column="1">
                         <TextBlock Margin="3" Text="Всего записей:"/>
                         <TextBlock Margin="3" MinWidth="45" TextAlignment="Right"  Text="{Binding CallsCount}"/>
                     </DockPanel>
                 </Grid>
             </TabItem>
-            <TabItem>
+            <TabItem Visibility="{Binding IsAdminRoleExist}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image  Source="pack://application:,,,/Images/settings_small.png" Stretch="UniformToFill" Height="28" />
@@ -289,6 +293,15 @@
                                 </StackPanel>
                             </TabItem.Header>
                             <controls:UsersControl/>
+                        </TabItem>
+                        <TabItem Name="ServiceCompanyTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="УК"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <controls:ServiceCompanyControl DataContext="{Binding ServiceCompanyDataContext}"/>
                         </TabItem>
                         <TabItem Name="AdressesTab">
                             <TabItem.Header>

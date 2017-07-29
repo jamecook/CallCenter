@@ -67,25 +67,31 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AddRatingDialog.xaml.cs">
+    <Compile Include="Dialogs\AddRatingDialog.xaml.cs">
       <DependentUpon>AddRatingDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AddRatingDialogViewModel.cs" />
+    <Compile Include="Dialogs\ServiceCompanyAddOrEditDialog.xaml.cs">
+      <DependentUpon>ServiceCompanyAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
     <Compile Include="BooleanToVisibilityConverter.cs" />
-    <Compile Include="ChangeExecuteDateDialog.xaml.cs">
+    <Compile Include="Dialogs\ChangeExecuteDateDialog.xaml.cs">
       <DependentUpon>ChangeExecuteDateDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ChangeExecuteDateDialogViewModel.cs" />
-    <Compile Include="ChangeStatusDialog.xaml.cs">
+    <Compile Include="ViewModel\ChangeExecuteDateDialogViewModel.cs" />
+    <Compile Include="Dialogs\ChangeStatusDialog.xaml.cs">
       <DependentUpon>ChangeStatusDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ChangeStatusDialogViewModel.cs" />
-    <Compile Include="ChangeWorkerDialog.xaml.cs">
+    <Compile Include="ViewModel\ChangeStatusDialogViewModel.cs" />
+    <Compile Include="Dialogs\ChangeWorkerDialog.xaml.cs">
       <DependentUpon>ChangeWorkerDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ChangeWorkerDialogViewModel.cs" />
+    <Compile Include="ViewModel\ChangeWorkerDialogViewModel.cs" />
     <Compile Include="Controls\RequestItem.xaml.cs">
       <DependentUpon>RequestItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ServiceCompanyControl.xaml.cs">
+      <DependentUpon>ServiceCompanyControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\UsersControl.xaml.cs">
       <DependentUpon>UsersControl.xaml</DependentUpon>
@@ -94,7 +100,7 @@
     <Compile Include="LoginView.xaml.cs">
       <DependentUpon>LoginView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RequestDialogViewModel.cs" />
+    <Compile Include="ViewModel\RequestDialogViewModel.cs" />
     <Compile Include="ViewModel\LoginContext.cs" />
     <Compile Include="PasswordHelper.cs" />
     <Compile Include="Controls\PhoneControl.xaml.cs">
@@ -105,26 +111,28 @@
     <Compile Include="Controls\RequestControl.xaml.cs">
       <DependentUpon>RequestControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RequestDialog.xaml.cs">
+    <Compile Include="Dialogs\RequestDialog.xaml.cs">
       <DependentUpon>RequestDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TransferDialog.xaml.cs">
+    <Compile Include="Dialogs\TransferDialog.xaml.cs">
       <DependentUpon>TransferDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TrasferDialogViewModel.cs" />
-    <Page Include="AddRatingDialog.xaml">
+    <Compile Include="ViewModel\ServiceCompanyDialogViewModel.cs" />
+    <Compile Include="ViewModel\TrasferDialogViewModel.cs" />
+    <Compile Include="ViewModel\ServiceCompanyControlContext.cs" />
+    <Page Include="Dialogs\AddRatingDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ChangeExecuteDateDialog.xaml">
+    <Page Include="Dialogs\ChangeExecuteDateDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ChangeStatusDialog.xaml">
+    <Page Include="Dialogs\ChangeStatusDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ChangeWorkerDialog.xaml">
+    <Page Include="Dialogs\ChangeWorkerDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -132,7 +140,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\ServiceCompanyControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\UsersControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ServiceCompanyAddOrEditDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -162,11 +178,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RequestDialog.xaml">
+    <Page Include="Dialogs\RequestDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TransferDialog.xaml">
+    <Page Include="Dialogs\TransferDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
