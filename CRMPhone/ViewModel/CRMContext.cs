@@ -69,6 +69,7 @@ namespace CRMPhone.ViewModel
                     return Visibility.Collapsed;
             }
         }
+
         public CRMContext()
         {
             IsMuted = false;
@@ -87,6 +88,7 @@ namespace CRMPhone.ViewModel
             EnablePhone = false;
             RequestDataContext = new RequestControlContext();
             ServiceCompanyDataContext = new ServiceCompanyControlContext();
+            WorkerAdminDataContext = new WorkerAdminControlContext();
         }
 
         public void InitMysqlAndSip()
@@ -100,6 +102,7 @@ namespace CRMPhone.ViewModel
             AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser})";
             RequestDataContext.InitCollections();
             ServiceCompanyDataContext.RefreshList();
+            WorkerAdminDataContext.RefreshList();
             OnPropertyChanged(nameof(IsAdminRoleExist));
         }
         public DateTime FromDate
@@ -271,6 +274,7 @@ namespace CRMPhone.ViewModel
         private string _callFromServiceCompany;
         private string _lastAnsweredPhoneNumber;
         private ServiceCompanyControlContext _serviceCompanyDataContext;
+        private WorkerAdminControlContext _workerAdminDataContext;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
 
         public bool IsMuted
@@ -300,6 +304,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _serviceCompanyDataContext; }
             set { _serviceCompanyDataContext = value; OnPropertyChanged(nameof(ServiceCompanyDataContext));}
+        }
+
+        public WorkerAdminControlContext WorkerAdminDataContext
+        {
+            get { return _workerAdminDataContext; }
+            set { _workerAdminDataContext = value; OnPropertyChanged(nameof(WorkerAdminDataContext));}
         }
 
         public string RequestNum

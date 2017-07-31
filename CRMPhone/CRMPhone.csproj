@@ -67,17 +67,24 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\Admins\WorkerAdminControl.xaml.cs">
+      <DependentUpon>WorkerAdminControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\AddRatingDialog.xaml.cs">
       <DependentUpon>AddRatingDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\ServiceCompanyAddOrEditDialog.xaml.cs">
+    <Compile Include="Dialogs\Admins\ServiceCompanyAddOrEditDialog.xaml.cs">
       <DependentUpon>ServiceCompanyAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\WorkerAddOrEditDialog.xaml.cs">
+      <DependentUpon>WorkerAddOrEditDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
     <Compile Include="BooleanToVisibilityConverter.cs" />
     <Compile Include="Dialogs\ChangeExecuteDateDialog.xaml.cs">
       <DependentUpon>ChangeExecuteDateDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\ChangeExecuteDateDialogViewModel.cs" />
     <Compile Include="Dialogs\ChangeStatusDialog.xaml.cs">
       <DependentUpon>ChangeStatusDialog.xaml</DependentUpon>
@@ -90,7 +97,7 @@
     <Compile Include="Controls\RequestItem.xaml.cs">
       <DependentUpon>RequestItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ServiceCompanyControl.xaml.cs">
+    <Compile Include="Controls\Admins\ServiceCompanyControl.xaml.cs">
       <DependentUpon>ServiceCompanyControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\UsersControl.xaml.cs">
@@ -117,10 +124,19 @@
     <Compile Include="Dialogs\TransferDialog.xaml.cs">
       <DependentUpon>TransferDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModel\ServiceCompanyDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\ServiceCompanyDialogViewModel.cs" />
     <Compile Include="ViewModel\TrasferDialogViewModel.cs" />
     <Compile Include="ViewModel\ServiceCompanyControlContext.cs" />
+    <Compile Include="ViewModel\WorkerAdminControlContext.cs" />
+    <Page Include="Controls\Admins\WorkerAdminControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\AddRatingDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\WorkerAddOrEditDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -140,7 +156,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\ServiceCompanyControl.xaml">
+    <Page Include="Controls\Admins\ServiceCompanyControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -148,7 +164,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialogs\ServiceCompanyAddOrEditDialog.xaml">
+    <Page Include="Dialogs\Admins\ServiceCompanyAddOrEditDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

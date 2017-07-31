@@ -6,6 +6,7 @@
         xmlns:controls="clr-namespace:CRMPhone.Controls"
         xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         xmlns:dto="clr-namespace:RequestServiceImpl.Dto;assembly=RequestServiceImpl"
+        xmlns:admins="clr-namespace:CRMPhone.Controls.Admins"
         mc:Ignorable="d"
         FontSize="14"
         d:DataContext="{d:DesignInstance viewModel:CRMContext}"
@@ -302,6 +303,15 @@
                                 </StackPanel>
                             </TabItem.Header>
                             <controls:ServiceCompanyControl DataContext="{Binding ServiceCompanyDataContext}"/>
+                        </TabItem>
+                        <TabItem Name="WorkersTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Исполнители"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:WorkerAdminControl DataContext="{Binding WorkerAdminDataContext}"/>
                         </TabItem>
                         <TabItem Name="AdressesTab">
                             <TabItem.Header>

@@ -666,7 +666,9 @@ select LAST_INSERT_ID();", _dbConnection))
 
         public IList<WorkerDto> GetWorkers(int? serviceCompanyId)
         {
-            var query = @"select * from CallCenter.Workers where enabled = 1";
+            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id FROM CallCenter.Workers w
+    left join CallCenter.ServiceCompanies s on s.id = w.service_company_id   
+    where w.enabled = 1";
             query += serviceCompanyId.HasValue ? " and service_company_id = " + serviceCompanyId : "";
             query += " order by sur_name,first_name,patr_name";
             using (var cmd = new MySqlCommand(query, _dbConnection))
@@ -679,10 +681,13 @@ select LAST_INSERT_ID();", _dbConnection))
                         workers.Add(new WorkerDto
                         {
                             Id = dataReader.GetInt32("id"),
+                            ServiceCompanyId = dataReader.GetNullableInt("service_id"),
+                            ServiceCompanyName = dataReader.GetNullableString("service_name"),
                             SurName = dataReader.GetString("sur_name"),
                             FirstName = dataReader.GetNullableString("first_name"),
                             PatrName = dataReader.GetNullableString("patr_name"),
                             SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            Phone = dataReader.GetNullableString("phone"),
                         });
                     }
                     dataReader.Close();
@@ -690,7 +695,36 @@ select LAST_INSERT_ID();", _dbConnection))
                 return workers;
             }
         }
-
+        public WorkerDto GetWorkerById(int workerId)
+        {
+            WorkerDto worker = null;
+            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id FROM CallCenter.Workers w
+    left join CallCenter.ServiceCompanies s on s.id = w.service_company_id   
+    where w.enabled = 1 and w.id = @WorkerId";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        worker = new WorkerDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            ServiceCompanyId = dataReader.GetNullableInt("service_id"),
+                            ServiceCompanyName = dataReader.GetNullableString("service_name"),
+                            SurName = dataReader.GetString("sur_name"),
+                            FirstName = dataReader.GetNullableString("first_name"),
+                            PatrName = dataReader.GetNullableString("patr_name"),
+                            SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            Phone = dataReader.GetNullableString("phone"),
+                        };
+                    }
+                    dataReader.Close();
+                }
+                return worker;
+            }
+        }
         public IList<CityDto> GetCities()
         {
             using (var cmd = new MySqlCommand(@"select id,name from CallCenter.Cities where enabled = 1", _dbConnection)
@@ -1509,6 +1543,36 @@ select LAST_INSERT_ID();", _dbConnection))
                 using (var cmd = new MySqlCommand(@"insert into CallCenter.ServiceCompanies(Name) values(@ServiceCompanyName);", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@ServiceCompanyName", serviceCompanyName);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+        public void SaveWorker(int? workerId, int serviceCompanyId,string surName,string firstName,string patrName,string phone)
+        {
+            if (workerId.HasValue)
+            {
+                using (var cmd = new MySqlCommand(@"update CallCenter.Workers set sur_name = @surName,first_name = @firstName,patr_name = @patrName,phone = @phone,service_company_id = @serviceCompanyId where id = @ID;", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@ID", workerId.Value);
+                    cmd.Parameters.AddWithValue("@surName", surName);
+                    cmd.Parameters.AddWithValue("@firstName", firstName);
+                    cmd.Parameters.AddWithValue("@patrName", patrName);
+                    cmd.Parameters.AddWithValue("@phone", phone);
+                    cmd.Parameters.AddWithValue("@serviceCompanyId", serviceCompanyId);
+                    cmd.ExecuteNonQuery();
+                }
+
+            }
+            else
+            {
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.Workers(sur_name,first_name,patr_name,phone,service_company_id) values(@surName,@firstName,@patrName,@phone,@serviceCompanyId);", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@surName", surName);
+                    cmd.Parameters.AddWithValue("@firstName", firstName);
+                    cmd.Parameters.AddWithValue("@patrName", patrName);
+                    cmd.Parameters.AddWithValue("@phone", phone);
+                    cmd.Parameters.AddWithValue("@serviceCompanyId", serviceCompanyId);
                     cmd.ExecuteNonQuery();
                 }
             }
