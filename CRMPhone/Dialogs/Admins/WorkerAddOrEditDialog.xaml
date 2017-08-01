@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CRMPhone.Dialogs.Admins"
         mc:Ignorable="d"
-        Title="Исполнитель" Height="240" Width="320" MinWidth ="320" MinHeight="240"
+        Title="Исполнитель" Height="270" Width="320" MinWidth ="320" MinHeight="270"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow">
     <Grid>
