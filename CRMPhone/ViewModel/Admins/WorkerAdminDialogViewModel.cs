@@ -4,10 +4,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
-using CRMPhone.ViewModel;
 using RequestServiceImpl.Dto;
 
-namespace CRMPhone
+namespace CRMPhone.ViewModel.Admins
 {
     public class WorkerAdminDialogViewModel : INotifyPropertyChanged
     {
@@ -22,6 +21,20 @@ namespace CRMPhone
         private string _phone;
         private ObservableCollection<ServiceCompanyDto> _serviceCompanyList;
         private ServiceCompanyDto _selectedServiceCompany;
+        private ObservableCollection<SpecialityDto> _specialityList;
+        private SpecialityDto _selectedSpeciality;
+
+        public ObservableCollection<SpecialityDto> SpecialityList
+        {
+            get { return _specialityList; }
+            set { _specialityList = value; OnPropertyChanged(nameof(SpecialityList));}
+        }
+
+        public SpecialityDto SelectedSpeciality
+        {
+            get { return _selectedSpeciality; }
+            set { _selectedSpeciality = value; OnPropertyChanged(nameof(SelectedSpeciality));}
+        }
 
         public ObservableCollection<ServiceCompanyDto> ServiceCompanyList
         {
@@ -64,6 +77,7 @@ namespace CRMPhone
             _requestService = requestService;
             _workerId = workerId;
             ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
+            SpecialityList = new ObservableCollection<SpecialityDto>(_requestService.GetSpecialities());
             if (workerId.HasValue)
             {
                 var worker = _requestService.GetWorkerById(workerId.Value);
@@ -72,6 +86,7 @@ namespace CRMPhone
                 PatrName = worker.PatrName;
                 Phone = worker.Phone;
                 SelectedServiceCompany = ServiceCompanyList.SingleOrDefault(s => s.Id == worker.ServiceCompanyId);
+                SelectedSpeciality = SpecialityList.SingleOrDefault(s => s.Id == worker.SpecialityId);
             }
         }
 
@@ -83,14 +98,14 @@ namespace CRMPhone
 
         private void Save(object sender)
         {
-            if (SelectedServiceCompany != null && !string.IsNullOrEmpty(SurName))
+            if (SelectedServiceCompany != null && !string.IsNullOrEmpty(SurName) && SelectedSpeciality != null)
             {
-                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone);
+                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id);
                 _view.DialogResult = true;
             }
             else
             {
-                MessageBox.Show("Необходимо заполнить УК и фамилию!");
+                MessageBox.Show("Необходимо заполнить УК и фамилию и специальность!");
             }
         }
 

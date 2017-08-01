@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
@@ -9,38 +8,39 @@ using CRMPhone.Dialogs.Admins;
 using CRMPhone.ViewModel.Admins;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
+using ServiceCompanyAddOrEditDialog = CRMPhone.Dialogs.Admins.ServiceCompanyAddOrEditDialog;
 
 namespace CRMPhone.ViewModel
 {
-    public class WorkerAdminControlContext : INotifyPropertyChanged
+    public class SpecialityControlContext : INotifyPropertyChanged
     {
-        private ObservableCollection<WorkerDto> _workersList;
-        public ObservableCollection<WorkerDto> WorkersList
+        private ObservableCollection<SpecialityDto> _specialityList;
+        public ObservableCollection<SpecialityDto> SpecialityList
         {
-            get => _workersList;
-            set { _workersList = value; OnPropertyChanged(nameof(WorkersList)); }
+            get { return _specialityList; }
+            set { _specialityList = value; OnPropertyChanged(nameof(SpecialityList)); }
         }
 
         private RequestService _requestService;
         private ICommand _addNewCommand;
-        public ICommand AddNewCommand { get { return _addNewCommand ?? (_addNewCommand = new CommandHandler(AddWorker, true)); } }
+        public ICommand AddNewCommand { get { return _addNewCommand ?? (_addNewCommand = new CommandHandler(AddCompany, true)); } }
         private ICommand _editCommand;
         public ICommand EditCommand { get { return _editCommand ?? (_editCommand = new RelayCommand(EditCompany)); } }
 
-        public WorkerAdminControlContext()
+        public SpecialityControlContext()
         {
-            WorkersList = new ObservableCollection<WorkerDto>();
+            SpecialityList = new ObservableCollection<SpecialityDto>();
         }
         private void EditCompany(object sender)
         {
-            var selectedItem = sender as WorkerDto;
+            var selectedItem = sender as SpecialityDto;
             if (selectedItem == null)
                 return;
             if (_requestService == null)
                 _requestService = new RequestService(AppSettings.DbConnection);
 
-            var model = new WorkerAdminDialogViewModel(_requestService, selectedItem.Id);
-            var view = new WorkerAddOrEditDialog();
+            var model = new SpecialityDialogViewModel(_requestService, selectedItem.Id);
+            var view = new SpecialityAddOrEditDialog();
             model.SetView(view);
             view.Owner = Application.Current.MainWindow;
             view.DataContext = model;
@@ -54,17 +54,17 @@ namespace CRMPhone.ViewModel
         {
             if (_requestService == null)
                 _requestService = new RequestService(AppSettings.DbConnection);
-            WorkersList.Clear();
+            SpecialityList.Clear();
 
-            _requestService.GetWorkers(null).ToList().ForEach(w => WorkersList.Add(w));
+            _requestService.GetSpecialities().ForEach(c => SpecialityList.Add(c));
 
-            OnPropertyChanged(nameof(WorkersList));
+            OnPropertyChanged(nameof(SpecialityList));
         }
 
-        private void AddWorker()
+        private void AddCompany()
         {
-            var model = new WorkerAdminDialogViewModel(_requestService, null);
-            var view = new WorkerAddOrEditDialog();
+            var model = new SpecialityDialogViewModel(_requestService, null);
+            var view = new SpecialityAddOrEditDialog();
             model.SetView(view);
             view.Owner = Application.Current.MainWindow;
             view.DataContext = model;

@@ -67,6 +67,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\Admins\SpecialityAdminControl.xaml.cs">
+      <DependentUpon>SpecialityAdminControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Admins\WorkerAdminControl.xaml.cs">
       <DependentUpon>WorkerAdminControl.xaml</DependentUpon>
     </Compile>
@@ -76,6 +79,9 @@
     <Compile Include="Dialogs\Admins\ServiceCompanyAddOrEditDialog.xaml.cs">
       <DependentUpon>ServiceCompanyAddOrEditDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\Admins\SpecialityAddOrEditDialog.xaml.cs">
+      <DependentUpon>SpecialityAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\Admins\WorkerAddOrEditDialog.xaml.cs">
       <DependentUpon>WorkerAddOrEditDialog.xaml</DependentUpon>
     </Compile>
@@ -84,6 +90,7 @@
     <Compile Include="Dialogs\ChangeExecuteDateDialog.xaml.cs">
       <DependentUpon>ChangeExecuteDateDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\Admins\SpecialityDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\ChangeExecuteDateDialogViewModel.cs" />
     <Compile Include="Dialogs\ChangeStatusDialog.xaml.cs">
@@ -125,14 +132,23 @@
       <DependentUpon>TransferDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\Admins\ServiceCompanyDialogViewModel.cs" />
+    <Compile Include="ViewModel\SpecialityControlContext.cs" />
     <Compile Include="ViewModel\TrasferDialogViewModel.cs" />
     <Compile Include="ViewModel\ServiceCompanyControlContext.cs" />
     <Compile Include="ViewModel\WorkerAdminControlContext.cs" />
+    <Page Include="Controls\Admins\SpecialityAdminControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\Admins\WorkerAdminControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\AddRatingDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\SpecialityAddOrEditDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

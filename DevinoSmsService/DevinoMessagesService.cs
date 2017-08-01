@@ -23,7 +23,7 @@ namespace DevinoSmsService
                 DelayUntilUtc = DateTime.Now.AddMinutes(1),
                 Data = "Test",
                 DestinationAddresses = phones,
-                SourceAddress = "123",
+                SourceAddress = "DTSMS",
                 ReceiptRequested = false
             };
             var t = sender.GetBalance(sessionID);

@@ -6,8 +6,10 @@ using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
 using CRMPhone.Dialogs;
+using CRMPhone.ViewModel.Admins;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
+using ServiceCompanyAddOrEditDialog = CRMPhone.Dialogs.Admins.ServiceCompanyAddOrEditDialog;
 
 namespace CRMPhone.ViewModel
 {

@@ -302,7 +302,16 @@
                                     <TextBlock Margin="3" Text="УК"/>
                                 </StackPanel>
                             </TabItem.Header>
-                            <controls:ServiceCompanyControl DataContext="{Binding ServiceCompanyDataContext}"/>
+                            <admins:ServiceCompanyControl DataContext="{Binding ServiceCompanyDataContext}"/>
+                        </TabItem>
+                        <TabItem Name="SpecialitiesTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Специальности"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:SpecialityAdminControl DataContext="{Binding SpecialityAdminContext}"/>
                         </TabItem>
                         <TabItem Name="WorkersTab">
                             <TabItem.Header>

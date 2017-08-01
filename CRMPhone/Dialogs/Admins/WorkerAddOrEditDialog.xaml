@@ -39,6 +39,14 @@
                 </TextBox>
             </DockPanel>
             <DockPanel>
+            <TextBlock Margin="5" VerticalAlignment="Center" Text="Специальность:"/>
+                <ComboBox Margin="5" HorizontalAlignment="Right" Width="185" DisplayMemberPath="Name" SelectedItem="{Binding SelectedSpeciality}" ItemsSource="{Binding SpecialityList}" IsEditable="True">
+                <ComboBox.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
+                </ComboBox.Resources>
+            </ComboBox>
+            </DockPanel>
+            <DockPanel>
                 <TextBlock Margin="5" VerticalAlignment="Center" Text="Телефон:"/>
                 <TextBox Margin="5" HorizontalAlignment="Right" Width="185" MaxLength="255" TextWrapping="Wrap" Text="{Binding Phone}">
                 </TextBox>

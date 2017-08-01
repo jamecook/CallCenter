@@ -72,6 +72,7 @@
     <Compile Include="Dto\ServiceCompanyDto.cs" />
     <Compile Include="Dto\ServiceDto.cs" />
     <Compile Include="Dto\SipDto.cs" />
+    <Compile Include="Dto\SpecialityDto.cs" />
     <Compile Include="Dto\StatusDto.cs" />
     <Compile Include="Dto\StatusHistoryDto.cs" />
     <Compile Include="Dto\StreetDto.cs" />

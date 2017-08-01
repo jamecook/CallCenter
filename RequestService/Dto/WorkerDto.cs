@@ -9,6 +9,7 @@ namespace RequestServiceImpl.Dto
         public string FirstName { get; set; }
         public string PatrName { get; set; }
         public int? SpecialityId { get; set; }
+        public string SpecialityName { get; set; }
         public string FullName => SurName + " " + FirstName + " " + PatrName;
         public string Phone { get; set; }
     }

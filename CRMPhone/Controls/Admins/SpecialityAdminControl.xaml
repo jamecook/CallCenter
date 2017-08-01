@@ -1,13 +1,12 @@
-﻿<UserControl x:Class="CRMPhone.Controls.Admins.ServiceCompanyControl"
+﻿<UserControl x:Class="CRMPhone.Controls.Admins.SpecialityAdminControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:CRMPhone.Controls"
              xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance viewModel:ServiceCompanyControlContext}">
+             d:DataContext="{d:DesignInstance viewModel:SpecialityControlContext}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -16,9 +15,9 @@
         <WrapPanel Grid.Row="0">
             <Button Width="100" Margin ="5" Content="Добавить" Command="{Binding AddNewCommand}"/>
         </WrapPanel>
-        <DataGrid Name="ServiceCompanyGrid" Grid.Row ="1" 
+        <DataGrid Name="SpecialityGrid" Grid.Row ="1" 
                   AutoGenerateColumns="False"
-                  ItemsSource="{Binding Path=ServiceCompanyList}"
+                  ItemsSource="{Binding Path=SpecialityList}"
                   SelectionMode="Single"
                   SelectionUnit="FullRow"
                   IsReadOnly="True"
@@ -27,10 +26,10 @@
             <DataGrid.InputBindings>
                 <MouseBinding MouseAction="LeftDoubleClick"
                               Command="{Binding Path=EditCommand}"
-                              CommandParameter="{Binding ElementName=ServiceCompanyGrid, Path=SelectedItem}" />
+                              CommandParameter="{Binding ElementName=SpecialityGrid, Path=SelectedItem}" />
             </DataGrid.InputBindings>
             <DataGrid.Columns>
-               <DataGridTextColumn Header="Наименование" Width="*"
+                <DataGridTextColumn Header="Наименование" Width="*"
                                     Binding="{Binding Path=Name}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -39,16 +38,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <!--<DataGridTextColumn Header="Доступность" Width="100"
-                                    Binding="{Binding Path=IsEnabled}">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="TextWrapping" Value="Wrap"/>
-                            <Setter Property="Margin" Value="3"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>-->
-               
+                
             </DataGrid.Columns>
         </DataGrid>
 

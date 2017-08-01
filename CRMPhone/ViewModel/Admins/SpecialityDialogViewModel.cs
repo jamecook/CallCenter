@@ -5,29 +5,29 @@ using CRMPhone.Annotations;
 
 namespace CRMPhone.ViewModel.Admins
 {
-    public class ServiceCompanyDialogViewModel : INotifyPropertyChanged
+    public class SpecialityDialogViewModel : INotifyPropertyChanged
     {
         private Window _view;
 
         private RequestServiceImpl.RequestService _requestService;
-        private int? _serviceCompanyId;
+        private int? _specialityId;
         private ICommand _saveCommand;
-        private string _serviceName;
+        private string _specialityName;
 
-        public string ServiceName
+        public string SpecialityName
         {
-            get { return _serviceName; }
-            set { _serviceName = value; OnPropertyChanged(nameof(ServiceName));}
+            get { return _specialityName; }
+            set { _specialityName = value; OnPropertyChanged(nameof(SpecialityName));}
         }
 
-        public ServiceCompanyDialogViewModel(RequestServiceImpl.RequestService requestService, int? serviceCompanyId)
+        public SpecialityDialogViewModel(RequestServiceImpl.RequestService requestService, int? specialityId)
         {
             _requestService = requestService;
-            _serviceCompanyId = serviceCompanyId;
-            if (serviceCompanyId.HasValue)
+            _specialityId = specialityId;
+            if (specialityId.HasValue)
             {
-                var serviceCompany = _requestService.GetServiceCompanyById(serviceCompanyId.Value);
-                ServiceName = serviceCompany.Name;
+                var serviceCompany = _requestService.GetSpecialityById(specialityId.Value);
+                SpecialityName = serviceCompany.Name;
             }
         }
 
@@ -39,7 +39,7 @@ namespace CRMPhone.ViewModel.Admins
 
         private void Save(object sender)
         {
-            _requestService.SaveServiceCompany(_serviceCompanyId,ServiceName);
+            _requestService.SaveSpeciality(_specialityId,SpecialityName);
             _view.DialogResult = true;
         }
 
