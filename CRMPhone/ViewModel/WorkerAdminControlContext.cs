@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -21,10 +22,37 @@ namespace CRMPhone.ViewModel
             set { _workersList = value; OnPropertyChanged(nameof(WorkersList)); }
         }
 
+        public WorkerDto SelectedWorker
+        {
+            get { return _selectedWorker; }
+            set { _selectedWorker = value; OnPropertyChanged(nameof(SelectedWorker));}
+        }
+
         private RequestService _requestService;
         private ICommand _addNewCommand;
         public ICommand AddNewCommand { get { return _addNewCommand ?? (_addNewCommand = new CommandHandler(AddWorker, true)); } }
+        private ICommand _deleteCommand;
+        public ICommand DeleteCommand { get { return _deleteCommand ?? (_deleteCommand = new CommandHandler(DeleteWorker, true)); } }
+
+        private void DeleteWorker()
+        {
+            if (SelectedWorker != null)
+            {
+                if (MessageBox.Show(Application.Current.MainWindow,
+                        $"Вы действительно хотите удалить исполнителя {SelectedWorker.FullName}", "Удалить",
+                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    if (_requestService == null)
+                        _requestService = new RequestService(AppSettings.DbConnection);
+                    _requestService.DeleteWorker(SelectedWorker.Id);
+                    RefreshList();
+                }
+            }
+            
+        }
+
         private ICommand _editCommand;
+        private WorkerDto _selectedWorker;
         public ICommand EditCommand { get { return _editCommand ?? (_editCommand = new RelayCommand(EditCompany)); } }
 
         public WorkerAdminControlContext()

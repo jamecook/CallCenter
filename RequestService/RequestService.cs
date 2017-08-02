@@ -1648,5 +1648,71 @@ select LAST_INSERT_ID();", _dbConnection))
             }
 
         }
+
+        public void DeleteWorker(int selectedWorkerId)
+        {
+            using (var cmd = new MySqlCommand(@"update CallCenter.Workers set enabled = false where id = @ID;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ID", selectedWorkerId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteService(int id)
+        {
+            using (var cmd = new MySqlCommand(@"update CallCenter.RequestTypes set enabled = false where id = @ID;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ID", id);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public ServiceDto GetServiceById(int serviceId)
+        {
+            ServiceDto service = null;
+            var query = "SELECT id,name FROM CallCenter.RequestTypes  where enabled = 1 and id = @ID";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ID", serviceId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        service = new ServiceDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name")
+                        };
+                    }
+                    dataReader.Close();
+                }
+            }
+            return service;
+        }
+        public void SaveService(int? serviceId, int? parentId,  string serviceName)
+        {
+            if (serviceId.HasValue)
+            {
+                using (var cmd = new MySqlCommand(@"update CallCenter.RequestTypes set Name = @serviceName, parrent_id = @parentId where id = @ID;", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@ID", serviceId.Value);
+                    cmd.Parameters.AddWithValue("@serviceName", serviceName);
+                    cmd.Parameters.AddWithValue("@parentId", parentId);
+                    cmd.ExecuteNonQuery();
+                }
+
+            }
+            else
+            {
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestTypes(parrent_id,Name) values(@parentId, @serviceName);", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@serviceName", serviceName);
+                    cmd.Parameters.AddWithValue("@parentId", parentId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+
     }
 }

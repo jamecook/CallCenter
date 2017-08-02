@@ -322,14 +322,14 @@
                             </TabItem.Header>
                             <admins:WorkerAdminControl DataContext="{Binding WorkerAdminDataContext}"/>
                         </TabItem>
-                        <TabItem Name="AdressesTab">
+                        <TabItem Name="ServicesTab">
                             <TabItem.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
-                                    <TextBlock Margin="3" Text="Адреса"/>
+                                    <TextBlock Margin="3" Text="Услуги"/>
                                 </StackPanel>
                             </TabItem.Header>
-                            <!--<controls:UsersControl/>-->
+                            <admins:ServiceAdminControl DataContext="{Binding ServiceAdminContext}"/>
                         </TabItem>
                     </TabControl>
                 </Grid>

@@ -13,10 +13,12 @@
         </Grid.RowDefinitions>
         <WrapPanel Grid.Row="0">
             <Button Width="100" Margin ="5" Content="Добавить" Command="{Binding AddNewCommand}"/>
+            <Button Width="100" Margin ="5" Content="Удалить" Command="{Binding DeleteCommand}"/>
         </WrapPanel>
         <DataGrid Name="ServiceCompanyGrid" Grid.Row ="1" 
                   AutoGenerateColumns="False"
                   ItemsSource="{Binding Path=WorkersList}"
+                  SelectedItem="{Binding Path=SelectedWorker}"
                   SelectionMode="Single"
                   SelectionUnit="FullRow"
                   IsReadOnly="True"
