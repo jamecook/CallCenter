@@ -8,7 +8,7 @@
         WindowStartupLocation="CenterOwner"
         FontSize="14"
         d:DataContext="{d:DesignInstance local:TrasferDialogViewModel}"
-        Title="Перевести звонок" Height="100" Width="260" ResizeMode="NoResize" Icon="PhoneIco.ico">
+        Title="Перевести звонок" Height="100" Width="260" ResizeMode="NoResize">
     <Grid>
         <StackPanel>
             <DockPanel>
