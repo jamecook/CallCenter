@@ -748,6 +748,31 @@ select LAST_INSERT_ID();", _dbConnection))
                 return cities;
             }
         }
+        public IList<StreetPrefixDto> GetStreetPrefixes()
+        {
+            using (
+                var cmd =
+                    new MySqlCommand(@"SELECT P.id as Prefix_id,P.Name as Prefix_Name,P.ShortName FROM CallCenter.StreetPrefixes P", _dbConnection))
+            {
+                var streetPrefixes = new List<StreetPrefixDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        streetPrefixes.Add( new StreetPrefixDto
+                            {
+                                Id = dataReader.GetInt32("Prefix_id"),
+                                Name = dataReader.GetString("Prefix_Name"),
+                                ShortName = dataReader.GetString("ShortName")
+                            }
+                        );
+                    }
+                    dataReader.Close();
+                }
+                return streetPrefixes;
+            }
+        }
+
 
         public IList<StreetDto> GetStreets(int cityId)
         {
@@ -786,7 +811,8 @@ select LAST_INSERT_ID();", _dbConnection))
             using (
                 var cmd =
                     new MySqlCommand(
-                        @"SELECT id,street_id,building,corps,service_company_id FROM CallCenter.Houses where street_id = @StreetId and enabled = 1;",
+                        @"SELECT h.id,h.street_id,h.building,h.corps,h.entrance_count,h.flat_count,h.floor_count,service_company_id,s.Name service_company_name FROM CallCenter.Houses h
+    left join CallCenter.ServiceCompanies s on s.id = h.service_company_id where h.street_id = @StreetId and h.enabled = 1;",
                         _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@StreetId", streetId);
@@ -802,6 +828,10 @@ select LAST_INSERT_ID();", _dbConnection))
                             StreetId = dataReader.GetInt32("street_id"),
                             Corpus = dataReader.GetNullableString("corps"),
                             ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
+                            ServiceCompanyName = dataReader.GetNullableString("service_company_name"),
+                            EntranceCount = dataReader.GetNullableInt("entrance_count"),
+                            FlatCount = dataReader.GetNullableInt("flat_count"),
+                            FloorCount = dataReader.GetNullableInt("floor_count"),
                         });
                     }
                     dataReader.Close();
@@ -1377,6 +1407,37 @@ select LAST_INSERT_ID();", _dbConnection))
                 return streets.ToArray();
             }
         }
+        public StreetDto GetStreetById(int streetId)
+        {
+            var sqlQuery = @"SELECT s.id,s.name,s.city_id,p.id as Prefix_id,p.Name as Prefix_Name,p.ShortName FROM CallCenter.Streets s
+    join CallCenter.StreetPrefixes p on p.id = s.prefix_id
+    where s.id = @StreetId and s.enabled = 1";
+            using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@StreetId", streetId);
+                StreetDto street = null;
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        street = new StreetDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                            Prefix = new StreetPrefixDto
+                            {
+                                Id = dataReader.GetInt32("Prefix_id"),
+                                Name = dataReader.GetString("Prefix_Name"),
+                                ShortName = dataReader.GetString("ShortName")
+                            },
+                            CityId = dataReader.GetInt32("city_id")
+                        };
+                    }
+                    dataReader.Close();
+                }
+                return street;
+            }
+        }
 
         public WebHouseDto[] GetHousesByStreetAndWorkerId(int streetId,int workerId)
         {
@@ -1593,6 +1654,33 @@ select LAST_INSERT_ID();", _dbConnection))
             }
 
         }
+        public void SaveStreet(int? streetId, string streetName, int cityId, int streetPrefixId)
+        {
+            if (streetId.HasValue)
+            {
+                using (var cmd = new MySqlCommand(@"update CallCenter.Streets set name = @StreetName,prefix_id = @PrefixId, city_id = @CityId where id = @ID;", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@ID", streetId.Value);
+                    cmd.Parameters.AddWithValue("@StreetName", streetName);
+                    cmd.Parameters.AddWithValue("@CityId", cityId);
+                    cmd.Parameters.AddWithValue("@PrefixId", streetPrefixId);
+                    cmd.ExecuteNonQuery();
+                }
+
+            }
+            else
+            {
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.Streets(name,prefix_id,city_id) values(@StreetName, @PrefixId, @CityId);", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@StreetName", streetName);
+                    cmd.Parameters.AddWithValue("@CityId", cityId);
+                    cmd.Parameters.AddWithValue("@PrefixId", streetPrefixId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+
         public void SaveSpeciality(int? specialityId, string specialityName)
         {
             if (specialityId.HasValue)
@@ -1666,6 +1754,15 @@ select LAST_INSERT_ID();", _dbConnection))
                 cmd.ExecuteNonQuery();
             }
         }
+        public void DeleteStreet(int streetId)
+        {
+            using (var cmd = new MySqlCommand(@"update CallCenter.Streets set enabled = false where id = @ID;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ID", streetId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
 
         public ServiceDto GetServiceById(int serviceId)
         {

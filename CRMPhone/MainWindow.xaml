@@ -331,6 +331,15 @@
                             </TabItem.Header>
                             <admins:ServiceAdminControl DataContext="{Binding ServiceAdminContext}"/>
                         </TabItem>
+                        <TabItem Name="HousesTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Адреса"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:HouseAdminControl DataContext="{Binding HouseAdminContext}"/>
+                        </TabItem>
                     </TabControl>
                 </Grid>
             </TabItem>

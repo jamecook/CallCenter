@@ -67,6 +67,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\Admins\HouseAdminControl.xaml.cs">
+      <DependentUpon>HouseAdminControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Admins\ServiceAdminControl.xaml.cs">
       <DependentUpon>ServiceAdminControl.xaml</DependentUpon>
     </Compile>
@@ -88,6 +91,9 @@
     <Compile Include="Dialogs\Admins\SpecialityAddOrEditDialog.xaml.cs">
       <DependentUpon>SpecialityAddOrEditDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\Admins\StreetAddOrEditDialog.xaml.cs">
+      <DependentUpon>StreetAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\Admins\WorkerAddOrEditDialog.xaml.cs">
       <DependentUpon>WorkerAddOrEditDialog.xaml</DependentUpon>
     </Compile>
@@ -98,6 +104,7 @@
     </Compile>
     <Compile Include="ViewModel\Admins\ServiceDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\SpecialityDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\StreetAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\ChangeExecuteDateDialogViewModel.cs" />
     <Compile Include="Dialogs\ChangeStatusDialog.xaml.cs">
@@ -117,6 +124,7 @@
     <Compile Include="Controls\UsersControl.xaml.cs">
       <DependentUpon>UsersControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\HouseAdminControlContext.cs" />
     <Compile Include="ViewModel\RequestItemViewModel.cs" />
     <Compile Include="LoginView.xaml.cs">
       <DependentUpon>LoginView.xaml</DependentUpon>
@@ -144,6 +152,10 @@
     <Compile Include="ViewModel\TrasferDialogViewModel.cs" />
     <Compile Include="ViewModel\ServiceCompanyControlContext.cs" />
     <Compile Include="ViewModel\WorkerAdminControlContext.cs" />
+    <Page Include="Controls\Admins\HouseAdminControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\Admins\ServiceAdminControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -165,6 +177,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\Admins\SpecialityAddOrEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\StreetAddOrEditDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
