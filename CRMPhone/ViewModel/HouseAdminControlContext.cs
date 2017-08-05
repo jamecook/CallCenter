@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -136,15 +137,15 @@ namespace CRMPhone.ViewModel
             var selectedItem = sender as StreetDto;
             if (selectedItem == null)
                 return;
-            ShowEditDialog(selectedItem);
+            ShowStreetEditDialog(selectedItem);
         }
 
 
         private void AddStreet()
         {
-            ShowEditDialog(null);
+            ShowStreetEditDialog(null);
         }
-        private void ShowEditDialog(StreetDto selectedItem)
+        private void ShowStreetEditDialog(StreetDto selectedItem)
         {
             var model = new StreetAdminDialogViewModel(RequestService, selectedItem?.Id);
             var view = new StreetAddOrEditDialog();
@@ -156,6 +157,56 @@ namespace CRMPhone.ViewModel
                 RefreshStreets(SelectedCity);
             }
         }
+
+        private ICommand _addHouseCommand;
+        public ICommand AddHouseCommand { get { return _addHouseCommand ?? (_addHouseCommand = new CommandHandler(AddHouse, true)); } }
+
+
+        private ICommand _editHouseCommand;
+        public ICommand EditHouseCommand { get { return _editHouseCommand ?? (_editHouseCommand = new RelayCommand(EditHouse)); } }
+        private ICommand _deleteHouseCommand;
+        public ICommand DeleteHouseCommand { get { return _deleteHouseCommand ?? (_deleteHouseCommand = new CommandHandler(DeleteHouse, true)); } }
+
+        private void AddHouse()
+        {
+            ShowHouseEditDialog(null);
+        }
+        private void EditHouse(object sender)
+        {
+            var selectedItem = sender as HouseDto;
+            if (selectedItem == null)
+                return;
+            ShowHouseEditDialog(selectedItem);
+        }
+        private void ShowHouseEditDialog(HouseDto selectedItem)
+        {
+            if (SelectedStreet == null)
+                return;
+            var model = new HouseAdminDialogViewModel(RequestService, SelectedStreet.Id, selectedItem?.Id);
+            var view = new HouseAddOrEditDialog();
+            model.SetView(view);
+            view.Owner = Application.Current.MainWindow;
+            view.DataContext = model;
+            if (view.ShowDialog() == true)
+            {
+                RefreshHouses(SelectedStreet);
+            }
+        }
+
+        private void DeleteHouse()
+        {
+            if (SelectedHouse != null)
+            {
+                if (MessageBox.Show($"Вы действительно хотите удалить дом {SelectedHouse.FullName}", "Удалить",
+                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    RequestService.DeleteHouse(SelectedHouse.Id);
+                    RefreshHouses(SelectedStreet);
+                }
+            }
+
+        }
+
 
         /*
                 private ICommand _addNewParentServiceCommand;
@@ -204,7 +255,7 @@ namespace CRMPhone.ViewModel
                 }
                 private void AddParentService()
                 {
-                    ShowEditDialog(null,null);
+                    ShowStreetEditDialog(null,null);
                 }
                 private void EditParentService(object sender)
                 {
@@ -212,13 +263,13 @@ namespace CRMPhone.ViewModel
                     if (selectedItem == null)
                         return;
 
-                    ShowEditDialog(selectedItem, null);
+                    ShowStreetEditDialog(selectedItem, null);
                 }
                 private void AddService()
                 {
                     if (SelectedParentService != null)
                     {
-                        ShowEditDialog(null, SelectedParentService.Id);
+                        ShowStreetEditDialog(null, SelectedParentService.Id);
                     }
                 }
                 private void EditService(object sender)
@@ -228,11 +279,11 @@ namespace CRMPhone.ViewModel
                         return;
                     if (SelectedParentService != null)
                     {
-                        ShowEditDialog(selectedItem, SelectedParentService.Id);
+                        ShowStreetEditDialog(selectedItem, SelectedParentService.Id);
                     }
                 }
 
-                private void ShowEditDialog(ServiceDto selectedItem, int? parentId)
+                private void ShowStreetEditDialog(ServiceDto selectedItem, int? parentId)
                 {
                     var model = new ServiceDialogViewModel(RequestService, selectedItem?.Id, parentId);
                     var view = new ServiceAddOrEditDialog();

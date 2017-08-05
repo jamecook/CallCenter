@@ -82,6 +82,9 @@
     <Compile Include="Dialogs\AddRatingDialog.xaml.cs">
       <DependentUpon>AddRatingDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\Admins\HouseAddOrEditDialog.xaml.cs">
+      <DependentUpon>HouseAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\Admins\ServiceAddOrEditDialog.xaml.cs">
       <DependentUpon>ServiceAddOrEditDialog.xaml</DependentUpon>
     </Compile>
@@ -102,6 +105,7 @@
     <Compile Include="Dialogs\ChangeExecuteDateDialog.xaml.cs">
       <DependentUpon>ChangeExecuteDateDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\Admins\HouseAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\ServiceDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\SpecialityDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\StreetAdminDialogViewModel.cs" />
@@ -169,6 +173,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\AddRatingDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\HouseAddOrEditDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

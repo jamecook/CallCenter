@@ -19,7 +19,7 @@
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0">
             <TextBlock Margin="5" VerticalAlignment="Center" Text="Город:"/>
-            <ComboBox Margin="5" HorizontalAlignment="Right" Width="210" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCity}" ItemsSource="{Binding CityList}" IsEditable="True">
+            <ComboBox Margin="5" HorizontalAlignment="Right" Width="210" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCity}" ItemsSource="{Binding CityList}">
                 <ComboBox.Resources>
                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                 </ComboBox.Resources>
@@ -27,7 +27,7 @@
         </DockPanel>
         <DockPanel Grid.Row="1">
             <TextBlock Margin="5" VerticalAlignment="Center" Text="Тип:"/>
-            <ComboBox Margin="5" HorizontalAlignment="Right" Width="210" DisplayMemberPath="Name" SelectedItem="{Binding SelectedStreetPrefix}" ItemsSource="{Binding StreetPrefixList}" IsEditable="True">
+            <ComboBox Margin="5" HorizontalAlignment="Right" Width="210" DisplayMemberPath="Name" SelectedItem="{Binding SelectedStreetPrefix}" ItemsSource="{Binding StreetPrefixList}">
                 <ComboBox.Resources>
                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                 </ComboBox.Resources>

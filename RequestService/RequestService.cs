@@ -1811,5 +1811,100 @@ select LAST_INSERT_ID();", _dbConnection))
 
         }
 
+        public HouseDto GetHouseById(int houseId)
+        {
+            HouseDto house = null;
+            using (var cmd = new MySqlCommand(@"SELECT h.id, h.street_id, h.building, h.corps, h.service_company_id, h.entrance_count, h.flat_count, h.floor_count, h.service_company_id, s.Name service_company_name FROM CallCenter.Houses h
+ left join CallCenter.ServiceCompanies s on s.id = h.service_company_id where h.enabled = 1 and h.id = @HouseId", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@HouseId", houseId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        house = new HouseDto()
+                        {
+                            Building = dataReader.GetString("building"),
+                            StreetId = dataReader.GetInt32("street_id"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
+                            ServiceCompanyName = dataReader.GetNullableString("service_company_name"),
+                            EntranceCount = dataReader.GetNullableInt("entrance_count"),
+                            FlatCount = dataReader.GetNullableInt("flat_count"),
+                            FloorCount = dataReader.GetNullableInt("floor_count"),
+                        };
+                    }
+                    dataReader.Close();
+                }
+
+            }
+            return house;
+        }
+
+        public void SaveHouse(int? houseId, int streetId, string buildingNumber, string corpus, int serviceCompanyId,
+            int? entranceCount, int? floorCount, int? flatsCount)
+        {
+            using (var cmd = new MySqlCommand(
+                    @"call CallCenter.AddOrUndateHouse(@houseId,@streetId,@buildingNumber,@corpus,@serviceCompanyId,@entranceCount,@floorCount,@flatsCount);",
+                    _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@houseId", houseId);
+                cmd.Parameters.AddWithValue("@streetId", streetId);
+                cmd.Parameters.AddWithValue("@buildingNumber", buildingNumber);
+                cmd.Parameters.AddWithValue("@corpus", corpus);
+                cmd.Parameters.AddWithValue("@serviceCompanyId", serviceCompanyId);
+                cmd.Parameters.AddWithValue("@entranceCount", entranceCount);
+                cmd.Parameters.AddWithValue("@floorCount", floorCount);
+                cmd.Parameters.AddWithValue("@flatsCount", flatsCount);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public HouseDto FindHouse(int streetId, string buildingNumber, string corpus)
+        {
+            HouseDto house = null;
+            var sqlQuery =
+                @"SELECT h.id, h.street_id, h.building, h.corps, h.service_company_id, h.entrance_count, h.flat_count, h.floor_count, h.service_company_id, s.Name service_company_name FROM CallCenter.Houses h
+ left join CallCenter.ServiceCompanies s on s.id = h.service_company_id where h.enabled = 1 and h.street_id = @streetId and building = @buildingNumber";
+            if (!string.IsNullOrEmpty(corpus))
+                sqlQuery += " and corps = @corpus";
+
+            using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@streetId", streetId);
+                cmd.Parameters.AddWithValue("@buildingNumber", buildingNumber);
+                if (!string.IsNullOrEmpty(corpus))
+                    cmd.Parameters.AddWithValue("@corpus", corpus);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        house = new HouseDto()
+                        {
+                            Building = dataReader.GetString("building"),
+                            StreetId = dataReader.GetInt32("street_id"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
+                            ServiceCompanyName = dataReader.GetNullableString("service_company_name"),
+                            EntranceCount = dataReader.GetNullableInt("entrance_count"),
+                            FlatCount = dataReader.GetNullableInt("flat_count"),
+                            FloorCount = dataReader.GetNullableInt("floor_count"),
+                        };
+                    }
+                    dataReader.Close();
+                }
+            }
+            return house;
+        }
+        public void DeleteHouse(int houseId)
+        {
+            using (var cmd = new MySqlCommand(@"update CallCenter.Houses set enabled = false where id = @ID;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ID", houseId);
+                cmd.ExecuteNonQuery();
+            }
     }
+    }
+
 }

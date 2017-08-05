@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
         <WrapPanel>
             <TextBlock Text="Город:" Margin="3"/>
-            <ComboBox Margin="5" HorizontalAlignment="Right" Width="185" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCity}" ItemsSource="{Binding CityList}" IsEditable="True">
+            <ComboBox Margin="5" HorizontalAlignment="Right" Width="185" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCity}" ItemsSource="{Binding CityList}">
                 <ComboBox.Resources>
                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                 </ComboBox.Resources>
@@ -62,7 +62,7 @@
             </DataGrid.Columns>
         </DataGrid>
         <WrapPanel Grid.Row="0"  Grid.Column="1">
-            <Button Width="80" Margin ="5" Content="Добавить" Command="{Binding AddNewHouseCommand}"/>
+            <Button Width="80" Margin ="5" Content="Добавить" Command="{Binding AddHouseCommand}"/>
             <Button Width="80" Margin ="5" Content="Удалить" Command="{Binding DeleteHouseCommand}"/>
         </WrapPanel>
         <DataGrid Name="HouseGrid" Grid.Row ="1" Grid.Column="1"
