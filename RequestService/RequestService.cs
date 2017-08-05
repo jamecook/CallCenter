@@ -844,7 +844,7 @@ select LAST_INSERT_ID();", _dbConnection))
         {
             using (var cmd = new MySqlCommand(@"SELECT A.id,A.type_id,A.flat,T.Name FROM CallCenter.Addresses A
     join CallCenter.AddressesTypes T on T.id = A.type_id
-    where A.house_id = @HouseId", _dbConnection))
+    where A.enabled = true and A.house_id = @HouseId", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@HouseId", houseId);
 

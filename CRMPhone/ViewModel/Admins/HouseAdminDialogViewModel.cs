@@ -109,11 +109,14 @@ namespace CRMPhone.ViewModel.Admins
                 return;
             }
             var corpus = Corpus?.Trim();
-            var findedhouse = _requestService.FindHouse(_streetId, BuildingNumber, corpus);
-            if (findedhouse != null)
+            if (_houseId == null)
             {
-                MessageBox.Show(Application.Current.MainWindow, "Такой дом уже существует в системе!", "Дома");
-                return;
+                var findedhouse = _requestService.FindHouse(_streetId, BuildingNumber, corpus);
+                if (findedhouse != null)
+                {
+                    MessageBox.Show(Application.Current.MainWindow, "Такой дом уже существует в системе!", "Дома");
+                    return;
+                }
             }
             _requestService.SaveHouse(_houseId, _streetId, BuildingNumber, corpus, SelectedServiceCompany.Id, EntranceCount, FloorCount, FlatsCount);
             _view.DialogResult = true;
