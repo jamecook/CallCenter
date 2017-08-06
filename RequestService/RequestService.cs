@@ -1905,6 +1905,32 @@ select LAST_INSERT_ID();", _dbConnection))
                 cmd.ExecuteNonQuery();
             }
     }
+
+        public string GetRedirectPhone()
+        {
+            string phone = null;
+            using (var cmd = new MySqlCommand("SELECT Phone FROM asterisk.RedirectPhone where id = 1;", _dbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        phone = dataReader.GetNullableString("Phone");
+                    }
+                    dataReader.Close();
+                }
+            }
+            return phone;
+        }
+
+        public void SaveRedirectPhone(string phoneNumber)
+        {
+            using (var cmd = new MySqlCommand(@"update asterisk.RedirectPhone set Phone = @PhoneNumber where id = 1;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@PhoneNumber", phoneNumber);
+                cmd.ExecuteNonQuery();
+            }
+        }
     }
 
 }

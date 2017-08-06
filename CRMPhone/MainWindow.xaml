@@ -340,6 +340,15 @@
                             </TabItem.Header>
                             <admins:HouseAdminControl DataContext="{Binding HouseAdminContext}"/>
                         </TabItem>
+                        <TabItem Name="RedirectTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Переадресация"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:RedirectAdminControl DataContext="{Binding RedirectAdminContext}"/>
+                        </TabItem>
                     </TabControl>
                 </Grid>
             </TabItem>
