@@ -3,11 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CRMPhone.Dialogs.Admins"
+        xmlns:admins="clr-namespace:CRMPhone.ViewModel.Admins"
         mc:Ignorable="d"
-        Title="Исполнитель" Height="270" Width="320" MinWidth ="320" MinHeight="270"
+        Title="Исполнитель" Height="330" Width="320" MinWidth ="320" MinHeight="330"
         WindowStartupLocation="CenterOwner"
-        WindowStyle="ToolWindow">
+        WindowStyle="ToolWindow"
+        d:DataContext="{d:DesignInstance admins:WorkerAdminDialogViewModel}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -23,6 +24,14 @@
             </ComboBox>
         </DockPanel>
         <StackPanel Grid.Row="1">
+            <DockPanel>
+                <TextBlock Margin="5" VerticalAlignment="Center" Text="Руководитель:"/>
+                <ComboBox Margin="5" HorizontalAlignment="Right" Width="185" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedParentWorker}" ItemsSource="{Binding ParentWorkerList}">
+                    <ComboBox.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
+                    </ComboBox.Resources>
+                </ComboBox>
+            </DockPanel>
             <DockPanel>
                 <TextBlock Margin="5" VerticalAlignment="Center" Text="Фамилия:"/>
                 <TextBox Margin="5" HorizontalAlignment="Right" Width="185" MaxLength="255" TextWrapping="Wrap" Text="{Binding SurName}">
@@ -50,6 +59,9 @@
                 <TextBlock Margin="5" VerticalAlignment="Center" Text="Телефон:"/>
                 <TextBox Margin="5" HorizontalAlignment="Right" Width="185" MaxLength="255" TextWrapping="Wrap" Text="{Binding Phone}">
                 </TextBox>
+            </DockPanel>
+            <DockPanel>
+                <CheckBox Margin="5" IsChecked="{Binding Path=CanAssign}">Может выполнять заявки</CheckBox>
             </DockPanel>
         </StackPanel>
         <StackPanel Grid.Row="2" HorizontalAlignment="Right">

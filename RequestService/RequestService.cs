@@ -664,12 +664,14 @@ select LAST_INSERT_ID();", _dbConnection))
             }
         }
 
-        public IList<WorkerDto> GetWorkers(int? serviceCompanyId)
+        public IList<WorkerDto> GetWorkers(int? serviceCompanyId, bool showOnlyExecutors = true)
         {
-            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name FROM CallCenter.Workers w
+            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
     where w.enabled = 1";
+            if (showOnlyExecutors)
+                query += " and can_assign = true";
             query += serviceCompanyId.HasValue ? " and service_company_id = " + serviceCompanyId : "";
             query += " order by sur_name,first_name,patr_name";
             using (var cmd = new MySqlCommand(query, _dbConnection))
@@ -690,6 +692,8 @@ select LAST_INSERT_ID();", _dbConnection))
                             SpecialityId = dataReader.GetNullableInt("speciality_id"),
                             SpecialityName = dataReader.GetNullableString("speciality_name"),
                             Phone = dataReader.GetNullableString("phone"),
+                            CanAssign = dataReader.GetBoolean("can_assign"),
+                            ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
                         });
                     }
                     dataReader.Close();
@@ -700,7 +704,7 @@ select LAST_INSERT_ID();", _dbConnection))
         public WorkerDto GetWorkerById(int workerId)
         {
             WorkerDto worker = null;
-            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id FROM CallCenter.Workers w
+            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,w.can_assign,w.parent_worker_id FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id   
     where w.enabled = 1 and w.id = @WorkerId";
             using (var cmd = new MySqlCommand(query, _dbConnection))
@@ -720,6 +724,8 @@ select LAST_INSERT_ID();", _dbConnection))
                             PatrName = dataReader.GetNullableString("patr_name"),
                             SpecialityId = dataReader.GetNullableInt("speciality_id"),
                             Phone = dataReader.GetNullableString("phone"),
+                            CanAssign = dataReader.GetBoolean("can_assign"),
+                            ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
                         };
                     }
                     dataReader.Close();
@@ -1703,11 +1709,11 @@ select LAST_INSERT_ID();", _dbConnection))
             }
 
         }
-        public void SaveWorker(int? workerId, int serviceCompanyId,string surName,string firstName,string patrName,string phone,int specialityId)
+        public void SaveWorker(int? workerId, int serviceCompanyId,string surName,string firstName,string patrName,string phone,int specialityId,bool canAssign, int? parentWorkerId)
         {
             if (workerId.HasValue)
             {
-                using (var cmd = new MySqlCommand(@"update CallCenter.Workers set sur_name = @surName,first_name = @firstName,patr_name = @patrName,phone = @phone,service_company_id = @serviceCompanyId, speciality_id = @specialityId where id = @ID;", _dbConnection))
+                using (var cmd = new MySqlCommand(@"update CallCenter.Workers set sur_name = @surName,first_name = @firstName,patr_name = @patrName,phone = @phone,service_company_id = @serviceCompanyId, speciality_id = @specialityId, can_assign = @canAssign, parent_worker_id = @parentWorkerId where id = @ID;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@ID", workerId.Value);
                     cmd.Parameters.AddWithValue("@surName", surName);
@@ -1716,13 +1722,15 @@ select LAST_INSERT_ID();", _dbConnection))
                     cmd.Parameters.AddWithValue("@phone", phone);
                     cmd.Parameters.AddWithValue("@serviceCompanyId", serviceCompanyId);
                     cmd.Parameters.AddWithValue("@specialityId", specialityId);
+                    cmd.Parameters.AddWithValue("@canAssign", canAssign);
+                    cmd.Parameters.AddWithValue("@parentWorkerId", parentWorkerId);
                     cmd.ExecuteNonQuery();
                 }
 
             }
             else
             {
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.Workers(sur_name,first_name,patr_name,phone,service_company_id,speciality_id) values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId);", _dbConnection))
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.Workers(sur_name,first_name,patr_name,phone,service_company_id,speciality_id,can_assign, parent_worker_id) values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,canAssign,@parentWorkerId);", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@surName", surName);
                     cmd.Parameters.AddWithValue("@firstName", firstName);
@@ -1730,7 +1738,8 @@ select LAST_INSERT_ID();", _dbConnection))
                     cmd.Parameters.AddWithValue("@phone", phone);
                     cmd.Parameters.AddWithValue("@serviceCompanyId", serviceCompanyId);
                     cmd.Parameters.AddWithValue("@specialityId", specialityId);
-
+                    cmd.Parameters.AddWithValue("@canAssign", canAssign);
+                    cmd.Parameters.AddWithValue("@parentWorkerId", parentWorkerId);
                     cmd.ExecuteNonQuery();
                 }
             }

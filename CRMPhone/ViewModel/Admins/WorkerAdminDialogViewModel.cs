@@ -23,6 +23,9 @@ namespace CRMPhone.ViewModel.Admins
         private ServiceCompanyDto _selectedServiceCompany;
         private ObservableCollection<SpecialityDto> _specialityList;
         private SpecialityDto _selectedSpeciality;
+        private ObservableCollection<WorkerDto> _parentWorkerList;
+        private WorkerDto _selectedParentWorker;
+        private bool _canAssign;
 
         public ObservableCollection<SpecialityDto> SpecialityList
         {
@@ -45,7 +48,28 @@ namespace CRMPhone.ViewModel.Admins
         public ServiceCompanyDto SelectedServiceCompany
         {
             get => _selectedServiceCompany;
-            set { _selectedServiceCompany = value; OnPropertyChanged(nameof(SelectedServiceCompany)); }
+            set { _selectedServiceCompany = value;
+                ChangeParentWorkerList(value);
+                OnPropertyChanged(nameof(SelectedServiceCompany)); }
+        }
+
+        private void ChangeParentWorkerList(ServiceCompanyDto serviceCompany)
+        {
+            ParentWorkerList.Clear();
+            ParentWorkerList.Add(new WorkerDto(){Id= 0, SurName = "Нет руководителя" });
+            _requestService.GetWorkers(serviceCompany.Id).ToList().ForEach(w=>ParentWorkerList.Add(w));
+        }
+
+        public ObservableCollection<WorkerDto> ParentWorkerList
+        {
+            get { return _parentWorkerList; }
+            set { _parentWorkerList = value; OnPropertyChanged(nameof(ParentWorkerList));}
+        }
+
+        public WorkerDto SelectedParentWorker
+        {
+            get { return _selectedParentWorker; }
+            set { _selectedParentWorker = value; OnPropertyChanged(nameof(SelectedParentWorker));}
         }
 
         public string SurName
@@ -72,12 +96,19 @@ namespace CRMPhone.ViewModel.Admins
             set { _phone = value; OnPropertyChanged(nameof(Phone)); }
         }
 
+        public bool CanAssign
+        {
+            get { return _canAssign; }
+            set { _canAssign = value; OnPropertyChanged(nameof(CanAssign)); }
+        }
+
         public WorkerAdminDialogViewModel(RequestServiceImpl.RequestService requestService, int? workerId)
         {
             _requestService = requestService;
             _workerId = workerId;
             ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
             SpecialityList = new ObservableCollection<SpecialityDto>(_requestService.GetSpecialities());
+            ParentWorkerList = new ObservableCollection<WorkerDto>();
             if (workerId.HasValue)
             {
                 var worker = _requestService.GetWorkerById(workerId.Value);
@@ -85,8 +116,11 @@ namespace CRMPhone.ViewModel.Admins
                 FirstName = worker.FirstName;
                 PatrName = worker.PatrName;
                 Phone = worker.Phone;
+                CanAssign = worker.CanAssign;
                 SelectedServiceCompany = ServiceCompanyList.SingleOrDefault(s => s.Id == worker.ServiceCompanyId);
                 SelectedSpeciality = SpecialityList.SingleOrDefault(s => s.Id == worker.SpecialityId);
+                var selectParentWorkerId = worker.ParentWorkerId ?? 0;
+                SelectedParentWorker = ParentWorkerList.SingleOrDefault(w => w.Id == selectParentWorkerId);
             }
         }
 
@@ -100,7 +134,7 @@ namespace CRMPhone.ViewModel.Admins
         {
             if (SelectedServiceCompany != null && !string.IsNullOrEmpty(SurName) && SelectedSpeciality != null)
             {
-                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id);
+                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id, CanAssign, SelectedParentWorker.Id>0? SelectedParentWorker.Id :(int?) null);
                 _view.DialogResult = true;
             }
             else
