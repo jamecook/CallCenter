@@ -134,7 +134,7 @@ namespace CRMPhone.ViewModel.Admins
         {
             if (SelectedServiceCompany != null && !string.IsNullOrEmpty(SurName) && SelectedSpeciality != null)
             {
-                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id, CanAssign, SelectedParentWorker.Id>0? SelectedParentWorker.Id :(int?) null);
+                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id, CanAssign, (SelectedParentWorker!=null && SelectedParentWorker.Id>0)? SelectedParentWorker.Id :(int?) null);
                 _view.DialogResult = true;
             }
             else

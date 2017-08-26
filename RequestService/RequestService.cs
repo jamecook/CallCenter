@@ -428,7 +428,7 @@ select LAST_INSERT_ID();", _dbConnection))
     C.name City_name,
     U.SurName,U.FirstName,U.PatrName,
     entrance,floor,
-    rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc
+    rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,R.from_time,R.to_time
      FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.RequestTypes RT on RT.id = R.type_id
@@ -461,6 +461,8 @@ select LAST_INSERT_ID();", _dbConnection))
                                 Entrance = dataReader.GetNullableString("entrance"),
                                 Floor = dataReader.GetNullableString("floor"),
                                 ExecuteDate = dataReader.GetNullableDateTime("execute_date"),
+                                FromTime = dataReader.GetNullableDateTime("from_time"),
+                                ToTime = dataReader.GetNullableDateTime("to_time"),
                                 Type = new RequestTypeDto
                                 {
                                     Id = dataReader.GetInt32("type_id"),
@@ -555,7 +557,7 @@ select LAST_INSERT_ID();", _dbConnection))
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones,
     rating.Name Rating,
-    RS.Description Req_Status
+    RS.Description Req_Status, TIMEDIFF(R.to_time,R.from_time) spend_time
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.Addresses a on a.id = R.address_id
@@ -656,6 +658,7 @@ select LAST_INSERT_ID();", _dbConnection))
                             ExecutePeriod = dataReader.GetNullableString("Period_Name"),
                             Rating = dataReader.GetNullableString("Rating"),
                             Status = dataReader.GetNullableString("Req_Status"),
+                            SpendTime = dataReader.GetNullableString("spend_time"),
                         });
                     }
                     dataReader.Close();
@@ -1730,7 +1733,7 @@ select LAST_INSERT_ID();", _dbConnection))
             }
             else
             {
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.Workers(sur_name,first_name,patr_name,phone,service_company_id,speciality_id,can_assign, parent_worker_id) values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,canAssign,@parentWorkerId);", _dbConnection))
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.Workers(sur_name,first_name,patr_name,phone,service_company_id,speciality_id,can_assign, parent_worker_id) values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@canAssign,@parentWorkerId);", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@surName", surName);
                     cmd.Parameters.AddWithValue("@firstName", firstName);
@@ -1937,6 +1940,27 @@ select LAST_INSERT_ID();", _dbConnection))
             using (var cmd = new MySqlCommand(@"update asterisk.RedirectPhone set Phone = @PhoneNumber where id = 1;", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@PhoneNumber", phoneNumber);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void SetRequestWorkingTimes(int requestId, DateTime fromTime, DateTime toTime, int userId)
+        {
+            using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestTimesHistory(from_time,to_time,user_id,request_id)
+ values(@fromTime,@toTime,@userId,@requestId);", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@userId", userId);
+                cmd.Parameters.AddWithValue("@requestId", requestId);
+                cmd.Parameters.AddWithValue("@fromTime", fromTime);
+                cmd.Parameters.AddWithValue("@toTime", toTime);
+                cmd.ExecuteNonQuery();
+            }
+
+            using (var cmd = new MySqlCommand(@"update CallCenter.Requests set from_time = @fromTime, to_time = @toTime where id = @requestId;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@requestId", requestId);
+                cmd.Parameters.AddWithValue("@fromTime", fromTime);
+                cmd.Parameters.AddWithValue("@toTime", toTime);
                 cmd.ExecuteNonQuery();
             }
         }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
+using CRMPhone.Controls;
 using CRMPhone.ViewModel;
 using RequestServiceImpl.Dto;
 
@@ -42,9 +43,12 @@ namespace CRMPhone
         private ICommand _saveCommand;
         public ICommand SaveCommand { get { return _saveCommand ?? (_saveCommand = new RelayCommand(Save)); } }
 
+        public DateTime FromTime { get; set; }
+
         private void Save(object sender)
         {
-            if(_oldExecuterId == SelectedWorker.Id)
+            var t = FromTime;
+            if (_oldExecuterId == SelectedWorker.Id)
                 return;
             _requestService.AddNewWorker(_requestId,SelectedWorker.Id);
             _oldExecuterId = SelectedWorker.Id;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
+using CRMPhone.Dialogs;
 using CRMPhone.ViewModel;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
@@ -203,6 +204,9 @@ namespace CRMPhone
         private ICommand _changeWorkerCommand;
         public ICommand ChangeWorkerCommand { get { return _changeWorkerCommand ?? (_changeWorkerCommand = new RelayCommand(ChangeWorker)); } }
 
+        private ICommand _setWorkingTimesCommand;
+        public ICommand SetWorkingTimesCommand { get { return _setWorkingTimesCommand ?? (_setWorkingTimesCommand = new RelayCommand(SetWorkingTimes)); } }
+
         private ICommand _changeDateCommand;
         public ICommand ChangeDateCommand { get { return _changeDateCommand ?? (_changeDateCommand = new RelayCommand(ChangeDate)); } }
 
@@ -242,6 +246,27 @@ namespace CRMPhone
             if (view.ShowDialog()==true)
             {
                 requestModel.SelectedWorker = requestModel.WorkerList.SingleOrDefault(w => w.Id == model.ExecuterId);
+            }
+        }
+        private void SetWorkingTimes(object sender)
+        {
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            if(!requestModel.RequestId.HasValue)
+                return;
+            var model = new SetWorkingTimesDialogViewModel(FromTime,ToTime);
+            var view = new SetWorkingTimesDialog();
+            model.SetView(view);
+            view.Owner = _view;
+            view.DataContext = model;
+            if (view.ShowDialog()==true)
+            {
+                var fromTime = DateTime.ParseExact($"01.01.0001 {model.FromHour}:{model.FromMinute}", "dd.MM.yyyy HH:mm", null);
+                var toTime = DateTime.ParseExact($"01.01.0001 {model.ToHour}:{model.ToMinute}", "dd.MM.yyyy HH:mm", null);
+                if (toTime < fromTime)
+                    toTime = toTime.AddDays(1);
+                _requestService.SetRequestWorkingTimes(requestModel.RequestId.Value,fromTime,toTime,AppSettings.CurrentUser.Id);
             }
         }
         private void ChangeStatus(object sender)
@@ -398,6 +423,9 @@ namespace CRMPhone
         {
             _view = view;
         }
+        public DateTime? FromTime { get; set; }
+        public DateTime? ToTime { get; set; }
+
 
         public RequestDialogViewModel()
         {

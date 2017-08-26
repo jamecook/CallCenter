@@ -77,6 +77,7 @@ namespace CRMPhone.ViewModel
                                     new XElement("Дата", request.ExecuteTime?.Date.ToString("dd.MM.yyyy") ?? ""),
                                     new XElement("Время", request.ExecutePeriod),
                                     new XElement("Исполнитель", request.Worker?.ShortName),
+                                    new XElement("ПотраченоВремени", request.SpendTime),
                                 }));
 
 
@@ -283,6 +284,8 @@ namespace CRMPhone.ViewModel
             viewModel.SelectedFlat =  viewModel.FlatList.SingleOrDefault(i=>i.Id == request.Address.Id);
             viewModel.Floor = request.Floor;
             viewModel.Entrance = request.Entrance;
+            viewModel.FromTime = request.FromTime;
+            viewModel.ToTime = request.ToTime;
             var requestModel = viewModel.RequestList.FirstOrDefault();
             requestModel.SelectedParentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
             requestModel.SelectedService = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);

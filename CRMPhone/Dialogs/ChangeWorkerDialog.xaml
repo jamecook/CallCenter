@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CRMPhone"
+        xmlns:controls="clr-namespace:CRMPhone.Controls"
         mc:Ignorable="d"
         Title="Исполнитель заявки" Height="300" Width="420" MinWidth ="420" MinHeight="300"
         WindowStartupLocation="CenterOwner"

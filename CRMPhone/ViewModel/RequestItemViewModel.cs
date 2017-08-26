@@ -32,6 +32,8 @@ namespace CRMPhone.ViewModel
         private string _requestCreator;
         private string _requestState;
         private RequestRatingDto _rating;
+        private DateTime? _fromDate;
+        private DateTime? _toDate;
 
 
         public RequestItemViewModel()

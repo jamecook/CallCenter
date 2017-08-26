@@ -36,7 +36,7 @@
             <ComboBox Margin="3" Width="80" VerticalAlignment="Center" DisplayMemberPath="Description" SelectedItem="{Binding SelectedStatus}" ItemsSource="{Binding StatusList}" IsEditable="True" />
 
             <TextBlock Margin="3" VerticalAlignment="Center" Text="бригада:"/>
-            <ComboBox Margin="3" Width="120" VerticalAlignment="Center" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedWorker}" ItemsSource="{Binding WorkerList}" IsEditable="True" />
+            <ComboBox Margin="3" Width="200" VerticalAlignment="Center" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedWorker}" ItemsSource="{Binding WorkerList}" IsEditable="True" />
             <WrapPanel>
                 <StackPanel>
                     <DockPanel>
@@ -190,6 +190,16 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
+                <DataGridTextColumn Header="Потрачено времени" Width="80"
+                                    Binding="{Binding Path=SpendTime}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
                 <DataGridTextColumn Header="Оценка" Width="40"
                              Binding="{Binding Path=Rating}">
                     <DataGridTextColumn.ElementStyle>

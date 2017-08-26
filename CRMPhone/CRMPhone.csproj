@@ -51,6 +51,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -82,6 +83,9 @@
     <Compile Include="Controls\Admins\WorkerAdminControl.xaml.cs">
       <DependentUpon>WorkerAdminControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TimeControl.xaml.cs">
+      <DependentUpon>TimeControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\AddRatingDialog.xaml.cs">
       <DependentUpon>AddRatingDialog.xaml</DependentUpon>
     </Compile>
@@ -105,6 +109,9 @@
     </Compile>
     <Compile Include="Dialogs\Admins\WorkerAddOrEditDialog.xaml.cs">
       <DependentUpon>WorkerAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\SetWorkingTimesDialog.xaml.cs">
+      <DependentUpon>SetWorkingTimesDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
     <Compile Include="BooleanToVisibilityConverter.cs" />
@@ -160,6 +167,7 @@
     </Compile>
     <Compile Include="ViewModel\Admins\ServiceCompanyDialogViewModel.cs" />
     <Compile Include="ViewModel\ServiceAdminControlContext.cs" />
+    <Compile Include="ViewModel\SetWorkingTimesDialogViewModel.cs" />
     <Compile Include="ViewModel\SpecialityControlContext.cs" />
     <Compile Include="ViewModel\TrasferDialogViewModel.cs" />
     <Compile Include="ViewModel\ServiceCompanyControlContext.cs" />
@@ -181,6 +189,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\Admins\WorkerAdminControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TimeControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -237,6 +249,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\Admins\ServiceCompanyAddOrEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\SetWorkingTimesDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
