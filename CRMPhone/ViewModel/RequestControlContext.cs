@@ -33,7 +33,11 @@ namespace CRMPhone.ViewModel
             SelectedStreet = null;
             SelectedParentService = null;
             SelectedStatus = null;
-            SelectedWorker = null;
+            //foreach (var worker in FilterWorkerList)
+            //{
+            //    worker.Selected = false;
+            //}
+            //OnPropertyChanged(nameof(FilterWorkerList));
             RefreshRequest();
         }
 
@@ -104,8 +108,6 @@ namespace CRMPhone.ViewModel
         private HouseDto _selectedHouse;
         private ObservableCollection<FlatDto> _flatList;
         private FlatDto _selectedFlat;
-        private ObservableCollection<WorkerDto> _workerList;
-        private WorkerDto _selectedWorker;
         private ObservableCollection<ServiceDto> _parentServiceList;
         private ServiceDto _selectedParentService;
         private ObservableCollection<ServiceDto> _serviceList;
@@ -117,6 +119,7 @@ namespace CRMPhone.ViewModel
         private DateTime _executeFromDate;
         private DateTime _executeToDate;
         private bool _filterByCreateDate;
+        private ObservableCollection<WorkerForFilterDto> _filterWorkerList;
 
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
@@ -212,18 +215,11 @@ namespace CRMPhone.ViewModel
             set { _selectedService = value; OnPropertyChanged(nameof(SelectedService)); }
         }
 
-        public ObservableCollection<WorkerDto> WorkerList
+        public ObservableCollection<WorkerForFilterDto> FilterWorkerList
         {
-            get { return _workerList; }
-            set { _workerList = value; OnPropertyChanged(nameof(WorkerList)); }
+            get { return _filterWorkerList; }
+            set { _filterWorkerList = value; OnPropertyChanged(nameof(FilterWorkerList));}
         }
-
-        public WorkerDto SelectedWorker
-        {
-            get { return _selectedWorker; }
-            set { _selectedWorker = value; OnPropertyChanged(nameof(SelectedWorker)); }
-        }
-
         private void ChangeParentService(int? parentServiceId)
         {
             ServiceList.Clear();
@@ -316,7 +312,7 @@ namespace CRMPhone.ViewModel
             RequestList.Clear();
             var requests = _requestService.GetRequestList(RequestNum, FilterByCreateDate, FromDate, ToDate, ExecuteFromDate,ExecuteToDate, SelectedStreet?.Id,
                 _selectedHouse?.Id, SelectedFlat?.Id, SelectedParentService?.Id, SelectedService?.Id,
-                SelectedStatus?.Id, SelectedWorker?.Id);
+                SelectedStatus?.Id, FilterWorkerList.Where(w=>w.Selected).Select(x=>x.Id).ToArray());
             foreach (var request in requests)
             {
                 RequestList.Add(request);
@@ -348,7 +344,15 @@ namespace CRMPhone.ViewModel
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
             ServiceList = new ObservableCollection<ServiceDto>();
-            WorkerList = new ObservableCollection<WorkerDto>(_requestService.GetWorkers(null));
+            FilterWorkerList = new ObservableCollection<WorkerForFilterDto>(_requestService.GetWorkers(null).Select(
+                w => new WorkerForFilterDto()
+                {
+                    Id = w.Id,
+                    SurName = w.SurName,
+                    FirstName = w.FirstName,
+                    PatrName = w.PatrName,
+                    Selected = false
+                }));
             StatusList = new ObservableCollection<StatusDto>(_requestService.GetRequestStatuses());
             ParentServiceList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
 

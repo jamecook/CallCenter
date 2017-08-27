@@ -83,6 +83,7 @@
     <Compile Include="Dto\WebStatusDto.cs" />
     <Compile Include="Dto\WebUserDto.cs" />
     <Compile Include="Dto\WorkerDto.cs" />
+    <Compile Include="Dto\WorkerForFilterDto.cs" />
     <Compile Include="Dto\WorkerHistoryDto.cs" />
     <Compile Include="MysqlDecorator.cs" />
     <Compile Include="RequestService.cs" />

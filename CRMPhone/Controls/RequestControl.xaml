@@ -36,7 +36,18 @@
             <ComboBox Margin="3" Width="80" VerticalAlignment="Center" DisplayMemberPath="Description" SelectedItem="{Binding SelectedStatus}" ItemsSource="{Binding StatusList}" IsEditable="True" />
 
             <TextBlock Margin="3" VerticalAlignment="Center" Text="бригада:"/>
-            <ComboBox Margin="3" Width="200" VerticalAlignment="Center" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedWorker}" ItemsSource="{Binding WorkerList}" IsEditable="True" />
+            <ComboBox Name ="CbWorkers" Margin="3" Width="200" VerticalAlignment="Center" ItemsSource="{Binding FilterWorkerList}" IsEditable="True"
+                      IsReadOnly="True" SelectionChanged="OnCbSelectionChanged" DropDownClosed="CbWorkers_OnDropDownClosed">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="2">
+                            <CheckBox IsChecked="{Binding Selected}" Checked="OnCbObjectCheckBoxChecked" Unchecked="OnCbObjectCheckBoxChecked"
+                                      Width="20" />
+                            <TextBlock Text="{Binding FullName}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
             <WrapPanel>
                 <StackPanel>
                     <DockPanel>

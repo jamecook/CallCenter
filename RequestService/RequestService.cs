@@ -548,7 +548,7 @@ select LAST_INSERT_ID();", _dbConnection))
             return null;
         }
 
-        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId)
+        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int[] workersId)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -599,8 +599,8 @@ select LAST_INSERT_ID();", _dbConnection))
                     sqlQuery += $" and rt2.id = {parentServiceId.Value}";
                 if (statusId.HasValue)
                     sqlQuery += $" and R.state_id = {statusId.Value}";
-                if (workerId.HasValue)
-                    sqlQuery += $" and w.id = {workerId.Value}";
+                if (workersId.Length>0)
+                    sqlQuery += $" and w.id in ({workersId.Select(x=>x.ToString()).Aggregate((x,y)=>x+","+y)})";
             }
             else
             {

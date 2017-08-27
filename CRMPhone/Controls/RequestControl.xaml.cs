@@ -1,8 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using RequestServiceImpl.Dto;
 
 namespace CRMPhone.Controls
 {
@@ -41,6 +44,45 @@ namespace CRMPhone.Controls
                     (sender as FrameworkElement).MoveFocus(request);
                 }
             }
+        }
+
+        private void OnCbObjectCheckBoxChecked(object sender, RoutedEventArgs e)
+        {
+            var count = CbWorkers.Items.Cast<WorkerForFilterDto>().Count(w => w.Selected);
+            if (count > 1)
+            {
+                CbWorkers.Text = "Выбрано несколько";
+            }
+            else if (count == 1)
+            {
+                var item = CbWorkers.Items.Cast<WorkerForFilterDto>().FirstOrDefault(w => w.Selected);
+                CbWorkers.Text = item?.FullName;
+            }
+            else
+                CbWorkers.Text = "";
+        }
+
+        private void OnCbSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox comboBox = (ComboBox)sender;
+            comboBox.SelectedItem = null;
+        }
+
+        private void CbWorkers_OnDropDownClosed(object sender, EventArgs e)
+        {
+            var count = CbWorkers.Items.Cast<WorkerForFilterDto>().Count(w => w.Selected);
+            if (count > 1)
+            {
+                CbWorkers.Text = "Выбрано несколько";
+            }
+            else if (count == 1)
+            {
+                var item = CbWorkers.Items.Cast<WorkerForFilterDto>().FirstOrDefault(w => w.Selected);
+                CbWorkers.Text = item?.FullName;
+            }
+            else
+                CbWorkers.Text = "";
+
         }
     }
 }
