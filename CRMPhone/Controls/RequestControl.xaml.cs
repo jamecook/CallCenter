@@ -84,5 +84,31 @@ namespace CRMPhone.Controls
                 CbWorkers.Text = "";
 
         }
+
+        private void RequestsGrid_OnLoadingRow(object sender, DataGridRowEventArgs e)
+        {
+                try
+                {
+                    switch (((RequestForListDto)e.Row.DataContext).Status)
+                    {
+                    case "Закрыта":
+                    case "Выполнена(обзвон)":
+                        e.Row.Background = new SolidColorBrush(Colors.PaleGreen);
+                        break;
+                    case "Аннулирована":
+                            e.Row.Background = new SolidColorBrush(Colors.DarkKhaki);
+                            break;
+                    case "В работе":
+                            e.Row.Background = new SolidColorBrush(Colors.LightSkyBlue);
+                            break;
+                    default:
+                        e.Row.Background = new SolidColorBrush(Colors.White);
+                        break;
+                }
+            }
+                catch
+                {
+                }
+        }
     }
 }

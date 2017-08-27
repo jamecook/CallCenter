@@ -79,7 +79,7 @@
                           SelectionUnit="FullRow"
                           IsReadOnly="True"
                           HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Auto">
+                          VerticalScrollBarVisibility="Auto" LoadingRow="RequestsGrid_OnLoadingRow">
             <DataGrid.InputBindings>
                 <MouseBinding MouseAction="LeftDoubleClick"
                   Command="{Binding Path=OpenRequestCommand}"
