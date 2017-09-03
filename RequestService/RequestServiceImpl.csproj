@@ -56,6 +56,7 @@
     <Compile Include="Dto\AddressTypeDto.cs" />
     <Compile Include="Dto\CallsListDto.cs" />
     <Compile Include="Dto\CityDto.cs" />
+    <Compile Include="Dto\ClientAddressInfoDto.cs" />
     <Compile Include="Dto\ContactDto.cs" />
     <Compile Include="Dto\ExecuteDateHistoryDto.cs" />
     <Compile Include="Dto\FlatDto.cs" />

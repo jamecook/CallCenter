@@ -942,6 +942,40 @@ select LAST_INSERT_ID();", _dbConnection))
                 return types;
             }
         }
+        public ClientAddressInfoDto GetLastAddressByClientPhone(string phone)
+        {
+            ClientAddressInfoDto result = null;
+            var query = @"SELECT h.street_id,h.building,h.corps,a.flat,sur_name,first_name,patr_name FROM CallCenter.ClientPhones cp
+            join CallCenter.RequestContacts rc on rc.ClientPhone_id = cp.id
+            join CallCenter.Requests r on r.id = rc.request_id
+            join CallCenter.Addresses a on a.id = r.address_id
+            join CallCenter.Houses h on h.id = a.house_id
+            where cp.Number = @phone
+            order by r.id desc limit 1";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@phone", phone);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        result = new ClientAddressInfoDto
+                        {
+                            StreetId = dataReader.GetInt32("street_id"),
+                            Building = dataReader.GetString("building"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            Flat = dataReader.GetString("flat"),
+                            SurName = dataReader.GetNullableString("sur_name"),
+                            FirstName = dataReader.GetNullableString("first_name"),
+                            PatrName = dataReader.GetNullableString("patr_name"),
+                        };
+                    }
+                    dataReader.Close();
+                }
+                return result;
+            }
+        }
+
 
         public List<StatusDto> GetRequestStatuses()
         {
@@ -1679,7 +1713,8 @@ select LAST_INSERT_ID();", _dbConnection))
             }
             else
             {
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.Streets(name,prefix_id,city_id) values(@StreetName, @PrefixId, @CityId);", _dbConnection))
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.Streets(name,prefix_id,city_id) values(@StreetName, @PrefixId, @CityId)
+ ON DUPLICATE KEY UPDATE enabled = 1;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@StreetName", streetName);
                     cmd.Parameters.AddWithValue("@CityId", cityId);

@@ -430,7 +430,7 @@ namespace CRMPhone
         public RequestDialogViewModel()
         {
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
-
+            var contactInfo = new ContactDto {Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall};
             _callUniqueId = _requestService.GetActiveCallUniqueId();
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
@@ -440,13 +440,27 @@ namespace CRMPhone
             //{
             //    SelectedAddressType = AddressTypeList.FirstOrDefault();
             //}
-            ContactList = new ObservableCollection<ContactDto>(new [] {new ContactDto {Id = 1,IsMain = true,PhoneNumber = AppSettings.LastIncomingCall}});
             CityList = new ObservableCollection<CityDto>(_requestService.GetCities());
             if (CityList.Count > 0)
             {
                 SelectedCity = CityList.FirstOrDefault();
             }
-            RequestList = new ObservableCollection<RequestItemViewModel> {new RequestItemViewModel()};
+            RequestList = new ObservableCollection<RequestItemViewModel> { new RequestItemViewModel() };
+            //AppSettings.LastIncomingCall = "9224704495";
+            if (!string.IsNullOrEmpty(AppSettings.LastIncomingCall))
+            {
+                var clientInfoDto = _requestService.GetLastAddressByClientPhone(AppSettings.LastIncomingCall);
+                if (clientInfoDto != null)
+                {
+                    SelectedStreet = StreetList.FirstOrDefault(s => s.Id == clientInfoDto.StreetId);
+                    SelectedHouse = HouseList.FirstOrDefault(h => h.Building == clientInfoDto.Building &&
+                                                      h.Corpus == clientInfoDto.Corpus);
+                    SelectedFlat = FlatList.FirstOrDefault(f => f.Flat == clientInfoDto.Flat);
+                    contactInfo = new ContactDto { Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall, SurName = clientInfoDto.SurName,FirstName = clientInfoDto.FirstName,PatrName = clientInfoDto.PatrName};
+                }
+            }
+            ContactList = new ObservableCollection<ContactDto>(new[] {contactInfo});
+
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
