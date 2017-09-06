@@ -520,6 +520,15 @@
                             </TabItem.Header>
                             <admins:RedirectAdminControl DataContext="{Binding RedirectAdminContext}"/>
                         </TabItem>
+                        <TabItem Name="BlackListTaab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Черный список"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:BlackListControl DataContext="{Binding BlackListContext}"/>
+                        </TabItem>
                     </TabControl>
                 </Grid>
             </TabItem>

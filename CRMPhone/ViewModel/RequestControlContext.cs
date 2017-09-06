@@ -81,10 +81,10 @@ namespace CRMPhone.ViewModel
                                     new XElement("Дата", request.ExecuteTime?.Date.ToString("dd.MM.yyyy") ?? ""),
                                     new XElement("Время", request.ExecutePeriod),
                                     new XElement("Исполнитель", request.Worker?.ShortName),
+                                    new XElement("ВыполнениеС", request.FromTime?.ToString("HH:mm:ss") ?? ""),
+                                    new XElement("ВыполнениеПо", request.ToTime?.ToString("HH:mm:ss") ?? ""),
                                     new XElement("ПотраченоВремени", request.SpendTime),
                                 }));
-
-
                     }
                     var saver = new FileStream(fileName, FileMode.Create);
                     root.Save(saver);

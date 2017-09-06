@@ -93,6 +93,7 @@ namespace CRMPhone.ViewModel
             ServiceAdminContext = new ServiceAdminControlContext();
             HouseAdminContext = new HouseAdminControlContext();
             RedirectAdminContext = new RedirectAdminControlContext();
+            BlackListContext = new BlackListControlContext();
         }
 
         public void InitMysqlAndSip()
@@ -111,6 +112,7 @@ namespace CRMPhone.ViewModel
             ServiceAdminContext.RefreshParentServiceList();
             HouseAdminContext.RefreshCities();
             RedirectAdminContext.Refresh();
+            BlackListContext.RefreshList();
             OnPropertyChanged(nameof(IsAdminRoleExist));
         }
         public DateTime FromDate
@@ -287,6 +289,7 @@ namespace CRMPhone.ViewModel
         private ServiceAdminControlContext _serviceAdminContext;
         private HouseAdminControlContext _houseAdminContext;
         private RedirectAdminControlContext _redirectAdminContext;
+        private BlackListControlContext _blackListContext;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
 
         public bool IsMuted
@@ -340,6 +343,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _redirectAdminContext; }
             set { _redirectAdminContext = value; OnPropertyChanged(nameof(RedirectAdminContext)); }
+        }
+
+        public BlackListControlContext BlackListContext
+        {
+            get { return _blackListContext; }
+            set { _blackListContext = value; OnPropertyChanged(nameof(BlackListContext));}
         }
 
         public SpecialityControlContext SpecialityAdminContext

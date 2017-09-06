@@ -23,6 +23,8 @@ namespace RequestServiceImpl.Dto
         public string Rating { get; set; }
         public string Status { get; set; }
         public string SpendTime { get; set; }
+        public DateTime? FromTime { get; set; }
+        public DateTime? ToTime { get; set; }
 
 
         public string FullAddress

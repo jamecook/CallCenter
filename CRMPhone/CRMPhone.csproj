@@ -105,6 +105,9 @@
     <Compile Include="Controls\Admins\ServiceAdminControl.xaml.cs">
       <DependentUpon>ServiceAdminControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Admins\BlackListControl.xaml.cs">
+      <DependentUpon>BlackListControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Admins\SpecialityAdminControl.xaml.cs">
       <DependentUpon>SpecialityAdminControl.xaml</DependentUpon>
     </Compile>
@@ -119,6 +122,9 @@
     </Compile>
     <Compile Include="Dialogs\Admins\HouseAddOrEditDialog.xaml.cs">
       <DependentUpon>HouseAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\BlackListPhoneAddDialog.xaml.cs">
+      <DependentUpon>BlackListPhoneAddDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\Admins\PhoneAddOrUpdateDialog.xaml.cs">
       <DependentUpon>PhoneAddOrUpdateDialog.xaml</DependentUpon>
@@ -146,12 +152,14 @@
     <Compile Include="Dialogs\ChangeExecuteDateDialog.xaml.cs">
       <DependentUpon>ChangeExecuteDateDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\Admins\BlackListPhoneDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\HouseAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\PhoneDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\ServiceDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\SpecialityDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\StreetAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
+    <Compile Include="ViewModel\BlackListControlContext.cs" />
     <Compile Include="ViewModel\ChangeExecuteDateDialogViewModel.cs" />
     <Compile Include="Dialogs\ChangeStatusDialog.xaml.cs">
       <DependentUpon>ChangeStatusDialog.xaml</DependentUpon>
@@ -212,6 +220,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\Admins\BlackListControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\Admins\SpecialityAdminControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -231,6 +243,10 @@
     <Page Include="Dialogs\Admins\HouseAddOrEditDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\BlackListPhoneAddDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\Admins\PhoneAddOrUpdateDialog.xaml">
       <SubType>Designer</SubType>

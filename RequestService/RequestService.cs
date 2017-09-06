@@ -557,7 +557,7 @@ select LAST_INSERT_ID();", _dbConnection))
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones,
     rating.Name Rating,
-    RS.Description Req_Status, TIMEDIFF(R.to_time,R.from_time) spend_time
+    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.Addresses a on a.id = R.address_id
@@ -659,6 +659,8 @@ select LAST_INSERT_ID();", _dbConnection))
                             Rating = dataReader.GetNullableString("Rating"),
                             Status = dataReader.GetNullableString("Req_Status"),
                             SpendTime = dataReader.GetNullableString("spend_time"),
+                            FromTime = dataReader.GetNullableDateTime("from_time"),
+                            ToTime = dataReader.GetNullableDateTime("to_time"),
                         });
                     }
                     dataReader.Close();
@@ -1066,6 +1068,46 @@ select LAST_INSERT_ID();", _dbConnection))
                 return companies.OrderBy(i => i.Name).ToList();
             }
         }
+        public List<BlackListPhoneDto> GetBlackListPhones()
+        {
+            var query = "SELECT id,phone FROM asterisk.BlackList where enabled = 1 order by phone";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var phones = new List<BlackListPhoneDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        phones.Add(new BlackListPhoneDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Phone = dataReader.GetString("phone")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return phones.OrderBy(i => i.Phone).ToList();
+            }
+        }
+
+        public void AddPhoneToBlackList(string phone)
+        {
+            using (var cmd = new MySqlCommand(@"insert into asterisk.BlackList(phone,enabled) values(@Phone,1)
+ ON DUPLICATE KEY UPDATE enabled = 1;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Phone", phone);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void DeletePhoneFromBlackList(BlackListPhoneDto phoneDto)
+        {
+            using (var cmd = new MySqlCommand(@"update asterisk.BlackList set enabled = 0 where phone = @Phone;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Phone", phoneDto.Phone);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         public List<SpecialityDto> GetSpecialities()
         {
             var query = "SELECT id,name FROM CallCenter.Speciality S order by S.name";
