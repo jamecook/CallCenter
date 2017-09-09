@@ -104,5 +104,14 @@ namespace RequestWcfService
         {
             return _requestService.GetMeiaByRequestId(requestId);
         }
+
+        public StatInfoDto[] GetRequestByUsersInto()
+        {
+            return _requestService.GetRequestByUsersInto();
+        }
+        public StatInfoDto[] GetRequestByWorkersInto()
+        {
+            return _requestService.GetRequestByWorkersInto();
+        }
     }
 }

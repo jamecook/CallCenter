@@ -7,7 +7,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
     <_NewBackgroundProfile>True</_NewBackgroundProfile>
-    <_PublishTargetUrl>c:\Users\zerg\Google Диск\CallCenter\CallCenter\RequestWcfService\bin\Release\PublishOutput</_PublishTargetUrl>
+    <_PublishTargetUrl>C:\Users\zerg\Google Диск\CallCenter\CallCenter\RequestWcfService\bin\Release\PublishOutput</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
     <File Include="bin/MySql.Data.dll">
@@ -17,16 +17,16 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>05/31/2017 19:01:20</publishTime>
     </File>
     <File Include="bin/RequestServiceImpl.dll">
-      <publishTime>07/30/2017 01:33:09</publishTime>
+      <publishTime>09/09/2017 20:54:10</publishTime>
     </File>
     <File Include="bin/RequestServiceImpl.dll.config">
       <publishTime>06/03/2017 17:56:35</publishTime>
     </File>
     <File Include="bin/RequestWcfService.dll">
-      <publishTime>07/30/2017 01:33:09</publishTime>
+      <publishTime>09/09/2017 20:54:10</publishTime>
     </File>
     <File Include="bin/Stimulsoft.Base.dll">
-      <publishTime>07/25/2017 10:24:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="bin/Stimulsoft.Controls.Win.dll">
       <publishTime>07/25/2017 10:24:11</publishTime>
