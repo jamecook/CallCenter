@@ -113,5 +113,10 @@ namespace RequestWcfService
         {
             return _requestService.GetRequestByWorkersInto();
         }
+
+        public WebCallsDto[] GetWebCallsByRequestId(int requestId)
+        {
+            return _requestService.GetWebCallsByRequestId(requestId);
+        }
     }
 }

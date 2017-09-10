@@ -40,6 +40,9 @@ namespace RequestWcfService
         StatInfoDto[] GetRequestByUsersInto();
 
         [OperationContract]
+        WebCallsDto[] GetWebCallsByRequestId(int requestId);
+
+        [OperationContract]
         StatInfoDto[] GetRequestByWorkersInto();
 
         [OperationContract]

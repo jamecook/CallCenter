@@ -7,5 +7,4 @@
         public bool IsDefault { get; set; }
 
     }
-
 }

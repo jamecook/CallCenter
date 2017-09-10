@@ -17,13 +17,13 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>05/31/2017 19:01:20</publishTime>
     </File>
     <File Include="bin/RequestServiceImpl.dll">
-      <publishTime>09/09/2017 20:54:10</publishTime>
+      <publishTime>09/10/2017 08:20:59</publishTime>
     </File>
     <File Include="bin/RequestServiceImpl.dll.config">
       <publishTime>06/03/2017 17:56:35</publishTime>
     </File>
     <File Include="bin/RequestWcfService.dll">
-      <publishTime>09/09/2017 20:54:10</publishTime>
+      <publishTime>09/10/2017 08:20:59</publishTime>
     </File>
     <File Include="bin/Stimulsoft.Base.dll">
       <publishTime>01/01/0001 00:00:00</publishTime>
