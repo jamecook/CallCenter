@@ -207,6 +207,9 @@ namespace CRMPhone
         private ICommand _setWorkingTimesCommand;
         public ICommand SetWorkingTimesCommand { get { return _setWorkingTimesCommand ?? (_setWorkingTimesCommand = new RelayCommand(SetWorkingTimes)); } }
 
+        private ICommand _openAttachmentDialogCommand;
+        public ICommand OpenAttachmentDialogCommand { get { return _openAttachmentDialogCommand ?? (_openAttachmentDialogCommand = new RelayCommand(OpenAttachmentDialog)); } }
+
         private ICommand _changeDateCommand;
         public ICommand ChangeDateCommand { get { return _changeDateCommand ?? (_changeDateCommand = new RelayCommand(ChangeDate)); } }
 
@@ -229,6 +232,20 @@ namespace CRMPhone
                 return;
             _requestService.ChangeDescription(requestModel.RequestId.Value, requestModel.Description);
             MessageBox.Show("Примечание сохранено!");
+        }
+        private void OpenAttachmentDialog(object sender)
+        {
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            if (!requestModel.RequestId.HasValue)
+                return;
+            var model = new AttachmentDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var view = new AttachmentDialog();
+            model.SetView(view);
+            view.Owner = _view;
+            view.DataContext = model;
+            view.ShowDialog();
         }
 
         private void ChangeWorker(object sender)

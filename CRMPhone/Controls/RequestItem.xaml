@@ -108,6 +108,10 @@
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Оценка качества</Button>
                     <Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.SetWorkingTimesCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Период выполнения</Button>
+                    <Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.OpenAttachmentDialogCommand}"
+             CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Документы</Button>
+                    <!--<Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.OpeтRecordsDialogCommand}"
+                            CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Запись разговоров</Button>-->
                     <!--<Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeNoteCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Примечание</Button>-->
                 </StackPanel>

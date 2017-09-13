@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestWcfService", "Reques
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevinoSmsService", "DevinoSmsService\DevinoSmsService.csproj", "{43299614-92D9-43E4-93AC-7D078BB94E46}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveWcfService", "SaveWcfService\SaveWcfService.csproj", "{4FF1EFDF-FC04-47B3-AC88-5C6F6F8F905F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{43299614-92D9-43E4-93AC-7D078BB94E46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43299614-92D9-43E4-93AC-7D078BB94E46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43299614-92D9-43E4-93AC-7D078BB94E46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FF1EFDF-FC04-47B3-AC88-5C6F6F8F905F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FF1EFDF-FC04-47B3-AC88-5C6F6F8F905F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FF1EFDF-FC04-47B3-AC88-5C6F6F8F905F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FF1EFDF-FC04-47B3-AC88-5C6F6F8F905F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

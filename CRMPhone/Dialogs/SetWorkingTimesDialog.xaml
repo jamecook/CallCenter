@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:crmPhone="clr-namespace:CRMPhone"
+        xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance crmPhone:SetWorkingTimesDialogViewModel}"
+        d:DataContext="{d:DesignInstance viewModel:SetWorkingTimesDialogViewModel}"
         Title="Время выполнения заявки" Height="120" Width="440" MinWidth ="440" MinHeight="120"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow">

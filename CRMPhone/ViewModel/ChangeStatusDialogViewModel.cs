@@ -1,13 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
-using CRMPhone.ViewModel;
-using System.Linq;
 using RequestServiceImpl.Dto;
 
-namespace CRMPhone
+namespace CRMPhone.ViewModel
 {
     public class ChangeStatusDialogViewModel : INotifyPropertyChanged
     {

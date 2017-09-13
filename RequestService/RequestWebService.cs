@@ -83,15 +83,16 @@ namespace RequestServiceImpl
             return result.ToArray();
         }
 
-        public RequestForListDto[] WebRequestList(int currentWorkerId, string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId)
+        public RequestForListDto[] WebRequestList(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
             var sqlQuery =
                 @"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
-    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones,
+    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
     rating.Name Rating,
+    RS.id req_status_id,
     RS.Description Req_Status
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
@@ -110,7 +111,7 @@ namespace RequestServiceImpl
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
     left join CallCenter.RequestRating rtype on rtype.request_id = R.id
     left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id";
-            if (string.IsNullOrEmpty(requestId))
+            if (!requestId.HasValue)
             {
                 if (filterByCreateDate)
                 {
@@ -149,14 +150,14 @@ namespace RequestServiceImpl
                 new MySqlCommand(sqlQuery, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
-                if (string.IsNullOrEmpty(requestId))
+                if (!requestId.HasValue)
                 {
                     cmd.Parameters.AddWithValue("@FromDate", findFromDate);
                     cmd.Parameters.AddWithValue("@ToDate", findToDate);
                 }
                 else
                 {
-                    cmd.Parameters.AddWithValue("@RequestId", requestId.Trim());
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
                 }
 
                 var requests = new List<RequestForListDto>();
@@ -195,6 +196,7 @@ namespace RequestServiceImpl
                             ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
                             ExecutePeriod = dataReader.GetNullableString("Period_Name"),
                             Rating = dataReader.GetNullableString("Rating"),
+                            StatusId = dataReader.GetInt32("req_status_id"),
                             Status = dataReader.GetNullableString("Req_Status"),
                         });
                     }
@@ -376,5 +378,28 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 return states.ToArray();
             }
         }
+        public StatusDto[] GetStatusesAllowedInWeb()
+        {
+            var query = "SELECT id, name, Description FROM CallCenter.RequestState R order by id";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var types = new List<StatusDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        types.Add(new StatusDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                            Description = dataReader.GetString("Description")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return types.ToArray();
+            }
+        }
+
     }
 }

@@ -24,6 +24,16 @@ namespace RequestWcfService
             _requestService = new RequestService(_connection);
         }
 
+        public StatusDto[] GetStatusesAllowedInWeb()
+        {
+            return _requestService.GetStatusesAllowedInWeb();
+        }
+
+        public void ChangeState(int requestId, int stateId, int userId)
+        {
+            _requestService.AddNewState(requestId, stateId, userId);
+        }
+
         public byte[] GetRequestActs(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId)
         {
             var requests = _requestService.WebRequestList(workerId, null, false, DateTime.Now, DateTime.Now, fromDate, toDate, FilterStreetId, FilterHouseId, FilterAddressId, FilterParrentServiceId, FilterServiceId, FilterStatusId, FirlerWorkerId);
@@ -58,9 +68,10 @@ namespace RequestWcfService
             return _requestService.WebRequestList(workerId,null,false,DateTime.Now,DateTime.Now, fromDate, toDate, FilterStreetId, FilterHouseId, FilterAddressId, FilterParrentServiceId, FilterServiceId, FilterStatusId, FirlerWorkerId);
         }
 
-        public RequestInfoDto GetRequestById(int requestId)
+        public RequestForListDto GetRequestById(int requestId)
         {
-            return _requestService.GetRequest(requestId);
+            var request =_requestService.WebRequestList(0, requestId, false, DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, null, null, null, null, null, null, null).FirstOrDefault();
+            return request;
         }
 
         public WorkerDto[] GetWorkers(int workerId)
@@ -117,6 +128,11 @@ namespace RequestWcfService
         public WebCallsDto[] GetWebCallsByRequestId(int requestId)
         {
             return _requestService.GetWebCallsByRequestId(requestId);
+        }
+
+        public string SaveFile(int requestId,string fileExtension, byte[] fileStream)
+        {
+            return _requestService.SaveFile(requestId, fileExtension, fileStream);
         }
     }
 }

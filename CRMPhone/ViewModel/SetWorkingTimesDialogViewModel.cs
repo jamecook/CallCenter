@@ -5,9 +5,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
-using CRMPhone.ViewModel;
 
-namespace CRMPhone
+namespace CRMPhone.ViewModel
 {
     public class SetWorkingTimesDialogViewModel : INotifyPropertyChanged
     {

@@ -5,11 +5,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
-using CRMPhone.Controls;
-using CRMPhone.ViewModel;
 using RequestServiceImpl.Dto;
 
-namespace CRMPhone
+namespace CRMPhone.ViewModel
 {
     public class ChangeWorkerDialogViewModel :INotifyPropertyChanged
     {

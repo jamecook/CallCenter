@@ -19,7 +19,7 @@ namespace RequestWcfService
         RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId);
 
         [OperationContract]
-        RequestInfoDto GetRequestById(int requestId);
+        RequestForListDto GetRequestById(int requestId);
 
         [OperationContract]
         WorkerDto[] GetWorkers(int workerId);
@@ -44,6 +44,15 @@ namespace RequestWcfService
 
         [OperationContract]
         StatInfoDto[] GetRequestByWorkersInto();
+
+        [OperationContract]
+        string SaveFile(int requestId, string fileExtension, byte[] fileStream);
+
+        [OperationContract]
+        StatusDto[] GetStatusesAllowedInWeb();
+
+        [OperationContract]
+        void ChangeState(int requestId, int stateId, int userId);
 
         [OperationContract]
         byte[] GetRequestActs(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId);

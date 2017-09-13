@@ -10,5 +10,6 @@ namespace RequestServiceImpl.Dto
         public string FirstName { get; set; }
         public string PatrName { get; set; }
         public List<RoleDto> Roles { get; set; }
+        public string FullName => $"{SurName} {FirstName} {PatrName}".TrimEnd();
     }
 }

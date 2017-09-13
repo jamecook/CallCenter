@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Text;
 using MySql.Data.MySqlClient;
 using NLog;
+using NLog.LayoutRenderers;
 using RequestServiceImpl.Dto;
 
 namespace RequestServiceImpl
@@ -254,7 +256,7 @@ select LAST_INSERT_ID();", _dbConnection))
 
         }
 
-        public void AddNewState(int requestId, int stateId)
+        public void AddNewState(int requestId, int stateId,int userId = 0)
         {
             _logger.Debug($"RequestService.AddNewState({requestId},{stateId})");
             try
@@ -267,7 +269,7 @@ select LAST_INSERT_ID();", _dbConnection))
     values(@RequestId,sysdate(),@UserId,@StatusId);", _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
-                        cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                        cmd.Parameters.AddWithValue("@UserId", userId==0 ? AppSettings.CurrentUser.Id : userId);
                         cmd.Parameters.AddWithValue("@StatusId", stateId);
                         cmd.ExecuteNonQuery();
                     }
@@ -1747,6 +1749,85 @@ select LAST_INSERT_ID();", _dbConnection))
                 cmd.Parameters.AddWithValue("@requestId", requestId);
                 cmd.Parameters.AddWithValue("@fromTime", fromTime);
                 cmd.Parameters.AddWithValue("@toTime", toTime);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public string SaveFile(int requestId,string fileExtension, byte[] fileStream)
+        {
+            using (var saveService = new SaveWcfService.SaveServiceClient())
+            {
+                return saveService.SaveFile(requestId, fileExtension, fileStream);
+            }
+        }
+
+        public byte[] GetFile(int requestId, string fileName)
+        {
+            using (var saveService = new SaveWcfService.SaveServiceClient())
+            {
+                return saveService.GetFile(requestId, fileName);
+            }
+
+        }
+        public List<AttachmentDto> GetAttachments(int requestId)
+        {
+            using (
+                var cmd = new MySqlCommand(@"SELECT a.id,a.request_id,a.name,a.file_name,a.create_date,u.id user_id,u.SurName,u.FirstName,u.PatrName FROM CallCenter.RequestAttachments a
+ join CallCenter.Users u on u.id = a.user_id where a.deleted = 0 and a.request_id = @requestId",
+                    AppSettings.DbConnection))
+            {
+                cmd.Parameters.AddWithValue("@requestId", requestId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var attachments = new List<AttachmentDto>();
+                    while (dataReader.Read())
+                    {
+                        attachments.Add(new AttachmentDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                            FileName = dataReader.GetString("file_name"),
+                            CreateDate = dataReader.GetDateTime("create_date"),
+                            RequestId = dataReader.GetInt32("request_id"),
+                            User = new UserDto() {
+                                Id = dataReader.GetInt32("user_id"),
+                                SurName = dataReader.GetNullableString("SurName"),
+                                FirstName = dataReader.GetNullableString("FirstName"),
+                                PatrName = dataReader.GetNullableString("PatrName"),
+                            }
+                        });
+                    }
+                    dataReader.Close();
+                    return attachments;
+                }
+            }
+        }
+
+        public void DeleteAttachment(int attachmentId)
+        {
+            using (var cmd = new MySqlCommand(@"update CallCenter.RequestAttachments set deleted = 1 where id = @attachId;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@attachId", attachmentId);
+                cmd.ExecuteNonQuery();
+            }
+
+        }
+        public void AddAttachmentToRequest(int requestId, string fileName, string name = "")
+        {
+            if (!File.Exists(fileName))
+                return;
+            if (string.IsNullOrEmpty(name))
+                name = Path.GetFileName(fileName);
+            var fileExtension = Path.GetExtension(fileName);
+            var newFile = SaveFile(requestId, fileExtension.TrimStart('.'), File.ReadAllBytes(fileName));
+            using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id)
+ values(@RequestId,@Name,@FileName,sysdate(),@userId);", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@userId", AppSettings.CurrentUser.Id);
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+                cmd.Parameters.AddWithValue("@Name", name);
+                cmd.Parameters.AddWithValue("@FileName", newFile);
                 cmd.ExecuteNonQuery();
             }
         }

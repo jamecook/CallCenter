@@ -3,11 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CRMPhone"
+        xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         mc:Ignorable="d"
         WindowStartupLocation="CenterOwner"
         FontSize="14"
-        d:DataContext="{d:DesignInstance local:TrasferDialogViewModel}"
+        d:DataContext="{d:DesignInstance viewModel:TrasferDialogViewModel}"
         Title="Перевести звонок" Height="100" Width="260" ResizeMode="NoResize">
     <Grid>
         <StackPanel>

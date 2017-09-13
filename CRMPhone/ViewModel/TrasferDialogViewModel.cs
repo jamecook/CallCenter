@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Resources;
-using conaito;
 using CRMPhone.Annotations;
 
-namespace CRMPhone
+namespace CRMPhone.ViewModel
 {
     public class TrasferDialogViewModel : INotifyPropertyChanged
     {
