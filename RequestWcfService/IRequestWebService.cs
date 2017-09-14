@@ -46,9 +46,6 @@ namespace RequestWcfService
         StatInfoDto[] GetRequestByWorkersInto();
 
         [OperationContract]
-        string SaveFile(int requestId, string fileExtension, byte[] fileStream);
-
-        [OperationContract]
         StatusDto[] GetStatusesAllowedInWeb();
 
         [OperationContract]

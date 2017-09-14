@@ -100,6 +100,9 @@ namespace RequestServiceImpl
     join CallCenter.Addresses a on a.id = R.address_id
     join CallCenter.AddressesTypes at on at.id = a.type_id
     join CallCenter.Houses h on h.id = house_id
+
+    join CallCenter.Workers lw on lw.service_company_id = h.service_company_id
+
     join CallCenter.Streets s on s.id = street_id
     join CallCenter.StreetPrefixes sp on sp.id = s.prefix_id
     join CallCenter.RequestTypes rt on rt.id = R.type_id
@@ -113,18 +116,19 @@ namespace RequestServiceImpl
     left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id";
             if (!requestId.HasValue)
             {
+                sqlQuery +=
+                    " where lw.id = @CurWorker";
+                    //" where R.worker_id in (select id from CallCenter.Workers where id = @CurWorker union SELECT dependent_worker_id FROM CallCenter.WorkersRelations W where parent_worker_id =  @CurWorker and can_view = 1)";
                 if (filterByCreateDate)
                 {
-                    sqlQuery += " where R.worker_id in (select id from CallCenter.Workers where id = @CurWorker union SELECT dependent_worker_id FROM CallCenter.WorkersRelations W where parent_worker_id =  @CurWorker and can_view = 1)" +
-                                " and R.create_time between @FromDate and @ToDate";
+                    sqlQuery += " and R.create_time between @FromDate and @ToDate";
                 }
                 else
                 {
                     findFromDate = executeFromDate.Date;
                     findToDate = executeToDate.Date.AddDays(1).AddSeconds(-1);
 
-                    sqlQuery += " where R.worker_id in (select id from CallCenter.Workers where id = @CurWorker union SELECT dependent_worker_id FROM CallCenter.WorkersRelations W where parent_worker_id =  @CurWorker and can_view = 1)" +
-                                " and R.execute_date between @FromDate and @ToDate";
+                    sqlQuery += " and R.execute_date between @FromDate and @ToDate";
                 }
                 if (streetId.HasValue)
                     sqlQuery += $" and s.id = {streetId.Value}";
