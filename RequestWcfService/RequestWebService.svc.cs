@@ -130,7 +130,7 @@ namespace RequestWcfService
             return _requestService.GetWebCallsByRequestId(requestId);
         }
 
-        public string SaveFile(int requestId,string fileExtension, byte[] fileStream)
+        public string SaveFile(int requestId,string fileExtension, Stream fileStream)
         {
             return _requestService.SaveFile(requestId, fileExtension, fileStream);
         }

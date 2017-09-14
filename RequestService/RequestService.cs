@@ -1753,19 +1753,19 @@ select LAST_INSERT_ID();", _dbConnection))
             }
         }
 
-        public string SaveFile(int requestId,string fileExtension, byte[] fileStream)
+        public string SaveFile(int requestId,string fileName, Stream fileStream)
         {
-            using (var saveService = new SaveWcfService.SaveServiceClient())
+            using (var saveService = new WcfSaveService.SaveServiceClient())
             {
-                return saveService.SaveFile(requestId, fileExtension, fileStream);
+                return saveService.UploadFile(FileName: fileName, RequestId:requestId,  FileStream: fileStream);
             }
         }
 
         public byte[] GetFile(int requestId, string fileName)
         {
-            using (var saveService = new SaveWcfService.SaveServiceClient())
+            using (var saveService = new WcfSaveService.SaveServiceClient())
             {
-                return saveService.GetFile(requestId, fileName);
+                return saveService.DownloadFile(requestId, fileName);
             }
 
         }
@@ -1820,7 +1820,11 @@ select LAST_INSERT_ID();", _dbConnection))
             if (string.IsNullOrEmpty(name))
                 name = Path.GetFileName(fileName);
             var fileExtension = Path.GetExtension(fileName);
-            var newFile = SaveFile(requestId, fileExtension.TrimStart('.'), File.ReadAllBytes(fileName));
+            string newFile;
+            using (var fileStream = File.OpenRead(fileName))
+            {
+                newFile = SaveFile(requestId, fileExtension, fileStream);
+            }
             using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id)
  values(@RequestId,@Name,@FileName,sysdate(),@userId);", _dbConnection))
             {

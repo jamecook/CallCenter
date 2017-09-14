@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
-    <Compile Include="Connected Services\SaveWcfService\Reference.cs">
+    <Compile Include="Connected Services\WcfSaveService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -104,11 +104,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Connected Services\SaveWcfService\SaveService.wsdl" />
-    <None Include="Connected Services\SaveWcfService\SaveService.xsd">
+    <None Include="Connected Services\WcfSaveService\SaveService.wsdl" />
+    <None Include="Connected Services\WcfSaveService\SaveService.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Connected Services\SaveWcfService\SaveService1.xsd">
+    <None Include="Connected Services\WcfSaveService\SaveService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\WcfSaveService\SaveService2.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
@@ -117,19 +120,19 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Connected Services\SaveWcfService\" />
+    <WCFMetadataStorage Include="Connected Services\WcfSaveService\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Connected Services\SaveWcfService\SaveService.disco" />
+    <None Include="Connected Services\WcfSaveService\SaveService.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Connected Services\SaveWcfService\configuration91.svcinfo" />
+    <None Include="Connected Services\WcfSaveService\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Connected Services\SaveWcfService\configuration.svcinfo" />
+    <None Include="Connected Services\WcfSaveService\configuration.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Connected Services\SaveWcfService\Reference.svcmap">
+    <None Include="Connected Services\WcfSaveService\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>

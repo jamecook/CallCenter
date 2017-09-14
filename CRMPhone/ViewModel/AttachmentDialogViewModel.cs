@@ -82,6 +82,7 @@ namespace CRMPhone.ViewModel
             if (SelectedAttachmentItem != null)
             {
                 _requestService.DeleteAttachment(SelectedAttachmentItem.Id);
+                Refresh();
             }
         }
 

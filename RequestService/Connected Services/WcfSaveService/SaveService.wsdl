@@ -4,34 +4,39 @@
     <xsd:schema targetNamespace="http://tempuri.org/Imports">
       <xsd:import schemaLocation="http://192.168.1.124:24801/SaveService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
       <xsd:import schemaLocation="http://192.168.1.124:24801/SaveService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://192.168.1.124:24801/SaveService.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/Message" />
     </xsd:schema>
   </wsdl:types>
-  <wsdl:message name="ISaveService_SaveFile_InputMessage">
-    <wsdl:part name="parameters" element="tns:SaveFile" />
+  <wsdl:message name="ISaveService_DownloadFile_InputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadFile" />
   </wsdl:message>
-  <wsdl:message name="ISaveService_SaveFile_OutputMessage">
-    <wsdl:part name="parameters" element="tns:SaveFileResponse" />
+  <wsdl:message name="ISaveService_DownloadFile_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadFileResponse" />
   </wsdl:message>
-  <wsdl:message name="ISaveService_GetFile_InputMessage">
-    <wsdl:part name="parameters" element="tns:GetFile" />
+  <wsdl:message name="FileUploadRequest">
+    <wsdl:part name="parameters" element="tns:FileUploadRequest" />
   </wsdl:message>
-  <wsdl:message name="ISaveService_GetFile_OutputMessage">
-    <wsdl:part name="parameters" element="tns:GetFileResponse" />
+  <wsdl:message name="FileUploadRequest_Headers">
+    <wsdl:part name="FileName" element="tns:FileName" />
+    <wsdl:part name="RequestId" element="tns:RequestId" />
+  </wsdl:message>
+  <wsdl:message name="FileUploadResponse">
+    <wsdl:part name="parameters" element="tns:FileUploadResponse" />
   </wsdl:message>
   <wsdl:portType name="ISaveService">
-    <wsdl:operation name="SaveFile">
-      <wsdl:input wsaw:Action="http://tempuri.org/ISaveService/SaveFile" message="tns:ISaveService_SaveFile_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/ISaveService/SaveFileResponse" message="tns:ISaveService_SaveFile_OutputMessage" />
+    <wsdl:operation name="DownloadFile">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISaveService/DownloadFile" message="tns:ISaveService_DownloadFile_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISaveService/DownloadFileResponse" message="tns:ISaveService_DownloadFile_OutputMessage" />
     </wsdl:operation>
-    <wsdl:operation name="GetFile">
-      <wsdl:input wsaw:Action="http://tempuri.org/ISaveService/GetFile" message="tns:ISaveService_GetFile_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/ISaveService/GetFileResponse" message="tns:ISaveService_GetFile_OutputMessage" />
+    <wsdl:operation name="UploadFile">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISaveService/UploadFile" name="FileUploadRequest" message="tns:FileUploadRequest" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISaveService/UploadFileResponse" name="FileUploadResponse" message="tns:FileUploadResponse" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="BasicHttpBinding_ISaveService" type="tns:ISaveService">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
-    <wsdl:operation name="SaveFile">
-      <soap:operation soapAction="http://tempuri.org/ISaveService/SaveFile" style="document" />
+    <wsdl:operation name="DownloadFile">
+      <soap:operation soapAction="http://tempuri.org/ISaveService/DownloadFile" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -39,12 +44,14 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetFile">
-      <soap:operation soapAction="http://tempuri.org/ISaveService/GetFile" style="document" />
-      <wsdl:input>
+    <wsdl:operation name="UploadFile">
+      <soap:operation soapAction="http://tempuri.org/ISaveService/UploadFile" style="document" />
+      <wsdl:input name="FileUploadRequest">
+        <soap:header message="tns:FileUploadRequest_Headers" part="FileName" use="literal" />
+        <soap:header message="tns:FileUploadRequest_Headers" part="RequestId" use="literal" />
         <soap:body use="literal" />
       </wsdl:input>
-      <wsdl:output>
+      <wsdl:output name="FileUploadResponse">
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
@@ -12,11 +13,31 @@ namespace SaveWcfService
     [ServiceContract]
     public interface ISaveService
     {
+        [OperationContract]
+        byte[] DownloadFile(int requestId, string fileName);
 
         [OperationContract]
-        string SaveFile(int requestId, string fileExtension, byte[] fileArray);
-
-        [OperationContract]
-        byte[] GetFile(int requestId, string fileName);
+        FileUploadResponse UploadFile(FileUploadRequest input);
     }
+
+    [MessageContract]
+    public class FileUploadRequest
+    {
+        [MessageHeader(MustUnderstand = true)]
+        public long RequestId;
+        [MessageHeader(MustUnderstand = true)]
+        public string FileName;
+        [MessageBodyMember]
+        public Stream FileStream;
+
+    }
+
+    [MessageContract]
+    public class FileUploadResponse
+    {
+        [MessageBodyMember]
+        public string RetFileName { get; set; }
+
+    }
+
 }
