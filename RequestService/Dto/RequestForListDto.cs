@@ -5,6 +5,7 @@ namespace RequestServiceImpl.Dto
     public class RequestForListDto
     {
         public int Id { get; set; }
+        public bool HasAttachment { get; set; }
         public DateTime CreateTime { get; set; }
         public string StreetPrefix { get; set; }
         public string StreetName { get; set; }

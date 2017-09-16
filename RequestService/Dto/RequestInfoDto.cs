@@ -17,6 +17,7 @@ namespace RequestServiceImpl.Dto
         public DateTime? ExecuteDate { get; set; }
         public int? PeriodId { get; set; }
         public int? ExecutorId { get; set; }
+        public int? ServiceCompanyId { get; set; }
         public bool IsImmediate { get; set; }
         public bool IsChargeable { get; set; }
         public RequestRatingDto Rating { get; set; }

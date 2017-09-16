@@ -23,7 +23,7 @@ namespace RequestServiceImpl
         }
 
         public int? SaveNewRequest(int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
-            bool chargeable, bool immediate, string callUniqueId, string entrance, string floor)
+            bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, int serviceCompanyId)
         {
             int newId;
             _logger.Debug(
@@ -37,8 +37,8 @@ namespace RequestServiceImpl
 
                     using (
                         var cmd = new MySqlCommand(
-                            @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_chargeable,create_user_id,state_id,is_immediate, entrance, floor)
-values(@AddressId, @TypeId, @Message, sysdate(),@IsChargeable,@UserId,@State,@IsImmediate,@Entrance,@Floor);
+                            @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_chargeable,create_user_id,state_id,is_immediate, entrance, floor, service_company_id)
+values(@AddressId, @TypeId, @Message, sysdate(),@IsChargeable,@UserId,@State,@IsImmediate,@Entrance,@Floor,@ServiceCompanyId);
 select LAST_INSERT_ID();", _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@AddressId", addressId);
@@ -50,6 +50,7 @@ select LAST_INSERT_ID();", _dbConnection))
                         cmd.Parameters.AddWithValue("@Floor", floor);
                         cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
                         cmd.Parameters.AddWithValue("@State", 1);
+                        cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
                         newId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 
@@ -421,7 +422,7 @@ select LAST_INSERT_ID();", _dbConnection))
             try
             {
                 using (var cmd =
-                    new MySqlCommand(@"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_chargeable,R.is_immediate,R.period_time_id,R.Create_user_id,R.state_id,R.worker_id,R.execute_date,
+                    new MySqlCommand(@"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_chargeable,R.is_immediate,R.period_time_id,R.Create_user_id,R.state_id,R.worker_id,R.execute_date,R.service_company_id,
     RS.name state_name,RS.description state_descript,
     RT.parrent_id,RT.name as rt_name,RT2.name rt_parrent_name,
     A.type_id address_type_id,A.house_id,A.flat,
@@ -459,6 +460,7 @@ select LAST_INSERT_ID();", _dbConnection))
                                 CreateTime = dataReader.GetDateTime("create_time"),
                                 PeriodId = dataReader.GetNullableInt("period_time_id"),
                                 ExecutorId = dataReader.GetNullableInt("worker_id"),
+                                ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
                                 IsChargeable = dataReader.GetBoolean("is_chargeable"),
                                 IsImmediate = dataReader.GetBoolean("is_immediate"),
                                 Description = dataReader.GetNullableString("description"),
@@ -557,7 +559,7 @@ select LAST_INSERT_ID();", _dbConnection))
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
             var sqlQuery =
-                @"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
+                @"SELECT R.id,case when count(ra.id)=0 then false else true end has_attach,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones,
     rating.Name Rating,
@@ -571,6 +573,7 @@ select LAST_INSERT_ID();", _dbConnection))
     join CallCenter.StreetPrefixes sp on sp.id = s.prefix_id
     join CallCenter.RequestTypes rt on rt.id = R.type_id
     join CallCenter.RequestTypes rt2 on rt2.id = rt.parrent_id
+    left join CallCenter.RequestAttachments ra on ra.request_id = R.id
     left join CallCenter.Workers w on w.id = R.worker_id
     left join CallCenter.RequestContacts rc on rc.request_id = R.id
     left join CallCenter.ClientPhones cp on cp.id = rc.clientPhone_id
@@ -633,6 +636,7 @@ select LAST_INSERT_ID();", _dbConnection))
                         requests.Add(new RequestForListDto
                         {
                             Id = dataReader.GetInt32("id"),
+                            HasAttachment = dataReader.GetBoolean("has_attach"),
                             StreetPrefix = dataReader.GetString("prefix_name"),
                             StreetName = dataReader.GetString("street_name"),
                             AddressType = dataReader.GetString("address_type"),

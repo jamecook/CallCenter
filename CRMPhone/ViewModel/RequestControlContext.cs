@@ -294,6 +294,10 @@ namespace CRMPhone.ViewModel
             requestModel.SelectedWorker = requestModel.WorkerList.SingleOrDefault(w => w.Id == request.ExecutorId);
             requestModel.RequestId = request.Id;
             requestModel.Rating = request.Rating;
+            if (request.ServiceCompanyId.HasValue)
+            {
+                requestModel.SelectedCompany = requestModel.CompanyList.FirstOrDefault(c => c.Id == request.ServiceCompanyId.Value);
+            }
             if (request.ExecuteDate.HasValue && request.ExecuteDate.Value.Date > DateTime.MinValue)
             {
                 requestModel.SelectedDateTime = request.ExecuteDate.Value.Date;

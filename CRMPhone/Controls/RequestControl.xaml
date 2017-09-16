@@ -4,9 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
+             xmlns:dto="clr-namespace:RequestServiceImpl.Dto;assembly=RequestServiceImpl"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="900"
              d:DataContext="{d:DesignInstance viewModel:RequestControlContext}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -86,6 +90,25 @@
                   CommandParameter="{Binding ElementName=RequestsGrid, Path=SelectedItem}" />
             </DataGrid.InputBindings>
             <DataGrid.Columns>
+                <DataGridTemplateColumn Width="30" >
+                    <DataGridTemplateColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <Image Source="pack://application:,,,/Images/attach.png" Height="24" HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate DataType="dto:RequestForListDto">
+                            <Image Source="pack://application:,,,/Images/attach.png" Height="24" Visibility="{Binding HasAttachment, Converter={StaticResource BooleanToVisibility} }"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
                 <DataGridTextColumn Header="№" Width="60"
                              Binding="{Binding Path=Id}">
                     <DataGridTextColumn.ElementStyle>
