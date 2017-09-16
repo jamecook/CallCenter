@@ -1773,12 +1773,17 @@ select LAST_INSERT_ID();", _dbConnection))
             }
 
         }
+
         public List<AttachmentDto> GetAttachments(int requestId)
+        {
+            return GetAttachmentsCore(requestId, AppSettings.DbConnection);
+        }
+
+        public List<AttachmentDto> GetAttachmentsCore(int requestId,MySqlConnection dbConnection)
         {
             using (
                 var cmd = new MySqlCommand(@"SELECT a.id,a.request_id,a.name,a.file_name,a.create_date,u.id user_id,u.SurName,u.FirstName,u.PatrName FROM CallCenter.RequestAttachments a
- join CallCenter.Users u on u.id = a.user_id where a.deleted = 0 and a.request_id = @requestId",
-                    AppSettings.DbConnection))
+ join CallCenter.Users u on u.id = a.user_id where a.deleted = 0 and a.request_id = @requestId", dbConnection))
             {
                 cmd.Parameters.AddWithValue("@requestId", requestId);
 

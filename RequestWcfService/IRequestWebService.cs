@@ -49,6 +49,12 @@ namespace RequestWcfService
         StatusDto[] GetStatusesAllowedInWeb();
 
         [OperationContract]
+        byte[] DownloadFile(int requestId, string fileName);
+
+        [OperationContract]
+        AttachmentDto[] GetAttachmentList(int requestId);
+
+        [OperationContract]
         void ChangeState(int requestId, int stateId, int userId);
 
         [OperationContract]

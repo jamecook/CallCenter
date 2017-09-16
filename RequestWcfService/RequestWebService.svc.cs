@@ -29,6 +29,23 @@ namespace RequestWcfService
             return _requestService.GetStatusesAllowedInWeb();
         }
 
+        public AttachmentDto[] GetAttachmentList(int requestId)
+        {
+            return _requestService.GetAttachmentsWeb(requestId);
+        }
+
+        public byte[] DownloadFile(int requestId, string fileName)
+        {
+            var rootDir = ConfigurationManager.AppSettings["rootFolder"].TrimEnd('\\');
+            if (string.IsNullOrEmpty(rootDir))
+                throw new ConfigurationErrorsException("rootFolder is not set!");
+            if (Directory.Exists($"{rootDir}\\{requestId}"))
+            {
+                return File.ReadAllBytes($"{rootDir}\\{requestId}\\{fileName}");
+            }
+            return null;
+        }
+
         public void ChangeState(int requestId, int stateId, int userId)
         {
             _requestService.AddNewState(requestId, stateId, userId);

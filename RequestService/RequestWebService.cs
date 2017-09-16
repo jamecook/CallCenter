@@ -32,6 +32,11 @@ namespace RequestServiceImpl
             }
             return null;
         }
+        public AttachmentDto[] GetAttachmentsWeb(int requestId)
+        {
+            return GetAttachmentsCore(requestId,_dbConnection).ToArray();
+        }
+
         public StatInfoDto[] GetRequestByUsersInto()
         {
             var result = new List<StatInfoDto>();
