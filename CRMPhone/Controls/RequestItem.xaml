@@ -9,7 +9,7 @@
              d:DataContext="{d:DesignInstance viewModel:RequestItemViewModel}">
     <Grid>
         <Border BorderBrush="Black" CornerRadius="5" BorderThickness="1">
-            <Grid>
+            <Grid >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -95,7 +95,7 @@
                     <TextBlock Margin="3" Text="Комментарий:"/>
                     <TextBlock Margin="3" Text="{Binding Rating.Description}" TextWrapping="Wrap" Width="460"/>
                 </WrapPanel>
-                <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="3">
+                <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="5">
             <Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanSave}" Command="{Binding ElementName=RequestGrid, Path=DataContext.SaveRequestCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Сохранить</Button>
                     <Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeWorkerCommand}"

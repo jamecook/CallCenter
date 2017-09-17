@@ -22,6 +22,19 @@ namespace RequestServiceImpl
             _dbConnection = dbConnection;
         }
 
+        public DateTime GetCurrentDate()
+        {
+            using (var cmd =
+                new MySqlCommand(@"select sysdate() curdate", _dbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    dataReader.Read();
+                    return dataReader.GetDateTime("curdate");
+                }
+            }
+        }
+
         public int? SaveNewRequest(int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
             bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, int serviceCompanyId)
         {
@@ -561,7 +574,7 @@ select LAST_INSERT_ID();", _dbConnection))
             var sqlQuery =
                 @"SELECT R.id,case when count(ra.id)=0 then false else true end has_attach,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
-    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(cp.Number order by rc.IsMain desc separator ', ') client_phones,
+    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
     rating.Name Rating,
     RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time
     FROM CallCenter.Requests R

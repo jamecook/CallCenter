@@ -36,6 +36,12 @@ namespace CRMPhone
             set { _cityList = value; OnPropertyChanged(nameof(CityList));}
         }
 
+        public ObservableCollection<RequestForListDto> AddressRequestList
+        {
+            get { return _addressRequestList; }
+            set { _addressRequestList = value; OnPropertyChanged(nameof(AddressRequestList)); }
+        }
+
         public int RequestId
         {
             get { return _requestId; }
@@ -148,8 +154,25 @@ namespace CRMPhone
         public FlatDto SelectedFlat
         {
             get { return _selectedFlat; }
-            set { _selectedFlat = value; OnPropertyChanged(nameof(SelectedFlat));}
+            set { _selectedFlat = value;
+                if (_selectedFlat != null)
+                {
+                    LoadRequestsBySelectedAddress(_selectedFlat.Id);
+                }
+                else
+                {
+                    AddressRequestList.Clear();
+                }
+                OnPropertyChanged(nameof(SelectedFlat));}
         }
+
+        private void LoadRequestsBySelectedAddress(int addressId)
+        {
+            var currentDate = _requestService.GetCurrentDate();
+            AddressRequestList = new ObservableCollection<RequestForListDto>(_requestService.GetRequestList(null, true, currentDate.AddDays(-30), currentDate, DateTime.Today,
+                DateTime.Today, null, null, addressId, null, null,null,new int[0]));
+        }
+
         public string Entrance
         {
             get { return _entrance; }
@@ -391,6 +414,7 @@ namespace CRMPhone
         private ObservableCollection<RequestItemViewModel> _requestList;
         private string _entrance;
         private string _floor;
+        private ObservableCollection<RequestForListDto> _addressRequestList;
 
         public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new CommandHandler(Close, true)); } }
 
