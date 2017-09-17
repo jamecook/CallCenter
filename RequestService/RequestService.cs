@@ -369,7 +369,7 @@ select LAST_INSERT_ID();", _dbConnection))
         {
             string retVal = null;
             var query = @"SELECT case when A.MonitorFile is null then A2.UniqueId else A.UniqueId end uniqueId FROM asterisk.ActiveChannels A
- left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID<> A.UniqueID
+ left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
  where A.UserID = @UserId";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
