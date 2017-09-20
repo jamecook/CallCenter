@@ -15,14 +15,12 @@ namespace DevinoSmsService.Devino {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MessageStateInfo", Namespace="http://ws.devinosms.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SmsMessageStateInfo", Namespace="http://ws.devinosms.com")]
     [System.SerializableAttribute()]
-    public partial class MessageStateInfo : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    public partial class SmsMessageStateInfo : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        private int StateField;
         
         private System.Nullable<System.DateTime> CreationDateUtcField;
         
@@ -31,6 +29,8 @@ namespace DevinoSmsService.Devino {
         private System.Nullable<System.DateTime> ReportedDateUtcField;
         
         private System.DateTime TimeStampUtcField;
+        
+        private int StateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string StateDescriptionField;
@@ -48,19 +48,6 @@ namespace DevinoSmsService.Devino {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
-        public int State {
-            get {
-                return this.StateField;
-            }
-            set {
-                if ((this.StateField.Equals(value) != true)) {
-                    this.StateField = value;
-                    this.RaisePropertyChanged("State");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true, Order=1)]
         public System.Nullable<System.DateTime> CreationDateUtc {
             get {
                 return this.CreationDateUtcField;
@@ -73,7 +60,7 @@ namespace DevinoSmsService.Devino {
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true, Order=2)]
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
         public System.Nullable<System.DateTime> SubmittedDateUtc {
             get {
                 return this.SubmittedDateUtcField;
@@ -86,7 +73,7 @@ namespace DevinoSmsService.Devino {
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true, Order=3)]
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true, Order=2)]
         public System.Nullable<System.DateTime> ReportedDateUtc {
             get {
                 return this.ReportedDateUtcField;
@@ -99,7 +86,7 @@ namespace DevinoSmsService.Devino {
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true, Order=4)]
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true, Order=3)]
         public System.DateTime TimeStampUtc {
             get {
                 return this.TimeStampUtcField;
@@ -108,6 +95,19 @@ namespace DevinoSmsService.Devino {
                 if ((this.TimeStampUtcField.Equals(value) != true)) {
                     this.TimeStampUtcField = value;
                     this.RaisePropertyChanged("TimeStampUtc");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true, Order=4)]
+        public int State {
+            get {
+                return this.StateField;
+            }
+            set {
+                if ((this.StateField.Equals(value) != true)) {
+                    this.StateField = value;
+                    this.RaisePropertyChanged("State");
                 }
             }
         }
@@ -717,12 +717,12 @@ namespace DevinoSmsService.Devino {
     public partial class GetMessageStateResponseBody {
         
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
-        public DevinoSmsService.Devino.MessageStateInfo GetMessageStateResult;
+        public DevinoSmsService.Devino.SmsMessageStateInfo GetMessageStateResult;
         
         public GetMessageStateResponseBody() {
         }
         
-        public GetMessageStateResponseBody(DevinoSmsService.Devino.MessageStateInfo GetMessageStateResult) {
+        public GetMessageStateResponseBody(DevinoSmsService.Devino.SmsMessageStateInfo GetMessageStateResult) {
             this.GetMessageStateResult = GetMessageStateResult;
         }
     }
@@ -1299,7 +1299,7 @@ namespace DevinoSmsService.Devino {
             return base.Channel.GetMessageState(request);
         }
         
-        public DevinoSmsService.Devino.MessageStateInfo GetMessageState(string sessionID, long messageID) {
+        public DevinoSmsService.Devino.SmsMessageStateInfo GetMessageState(string sessionID, long messageID) {
             DevinoSmsService.Devino.GetMessageStateRequest inValue = new DevinoSmsService.Devino.GetMessageStateRequest();
             inValue.Body = new DevinoSmsService.Devino.GetMessageStateRequestBody();
             inValue.Body.sessionID = sessionID;

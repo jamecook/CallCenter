@@ -232,6 +232,34 @@ namespace CRMPhone
 
         private ICommand _openAttachmentDialogCommand;
         public ICommand OpenAttachmentDialogCommand { get { return _openAttachmentDialogCommand ?? (_openAttachmentDialogCommand = new RelayCommand(OpenAttachmentDialog)); } }
+        private ICommand _addCallCommand;
+        public ICommand AddCallCommand { get { return _addCallCommand ?? (_addCallCommand = new RelayCommand(AddCall)); } }
+        private ICommand _callsHistoryCommand;
+        public ICommand CallsHistoryCommand { get { return _callsHistoryCommand ?? (_callsHistoryCommand = new RelayCommand(CallsHistory)); } }
+
+        private void CallsHistory(object sender)
+        {
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            if (!requestModel.RequestId.HasValue)
+                return;
+            var model = new CallsHistoryDialogViewModel();
+            model.CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallListByRequestId(requestModel.RequestId.Value));
+            var view = new CallsHistoryDialog();
+            model.SetView(view);
+            view.Owner = _view;
+            view.DataContext = model;
+            view.ShowDialog();
+        }
+
+        private void AddCall(object obj)
+        {
+            var callUniqueId = _requestService.GetActiveCallUniqueId();
+            _requestService.AddCallToRequest(RequestId,callUniqueId);
+            if(!string.IsNullOrEmpty(callUniqueId))
+                MessageBox.Show("Текущий разговор прикреплен к заявке!");
+        }
 
         private ICommand _changeDateCommand;
         public ICommand ChangeDateCommand { get { return _changeDateCommand ?? (_changeDateCommand = new RelayCommand(ChangeDate)); } }
@@ -491,7 +519,7 @@ namespace CRMPhone
                 SelectedCity = CityList.FirstOrDefault();
             }
             RequestList = new ObservableCollection<RequestItemViewModel> { new RequestItemViewModel() };
-            //AppSettings.LastIncomingCall = "9224704495";
+            //AppSettings.LastIncomingCall = "9829388873";
             if (!string.IsNullOrEmpty(AppSettings.LastIncomingCall))
             {
                 var clientInfoDto = _requestService.GetLastAddressByClientPhone(AppSettings.LastIncomingCall);
@@ -501,7 +529,7 @@ namespace CRMPhone
                     SelectedHouse = HouseList.FirstOrDefault(h => h.Building == clientInfoDto.Building &&
                                                       h.Corpus == clientInfoDto.Corpus);
                     SelectedFlat = FlatList.FirstOrDefault(f => f.Flat == clientInfoDto.Flat);
-                    contactInfo = new ContactDto { Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall, SurName = clientInfoDto.SurName,FirstName = clientInfoDto.FirstName,PatrName = clientInfoDto.PatrName};
+                    contactInfo = new ContactDto { Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall,FullName = $"{clientInfoDto.SurName} {clientInfoDto.FirstName} {clientInfoDto.PatrName}",SurName = clientInfoDto.SurName,FirstName = clientInfoDto.FirstName,PatrName = clientInfoDto.PatrName};
                 }
             }
             ContactList = new ObservableCollection<ContactDto>(new[] {contactInfo});

@@ -66,5 +66,9 @@ namespace CRMPhone
             }
         }
 
- }
+        private void RequestList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+    }
 }

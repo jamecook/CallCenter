@@ -155,6 +155,9 @@
     <Compile Include="Dialogs\AttachmentDialog.xaml.cs">
       <DependentUpon>AttachmentDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\CallsHistoryDialog.xaml.cs">
+      <DependentUpon>CallsHistoryDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\SetWorkingTimesDialog.xaml.cs">
       <DependentUpon>SetWorkingTimesDialog.xaml</DependentUpon>
     </Compile>
@@ -183,6 +186,7 @@
     <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\AttachmentDialogViewModel.cs" />
     <Compile Include="ViewModel\BlackListControlContext.cs" />
+    <Compile Include="ViewModel\CallsHistoryDialogViewModel.cs" />
     <Compile Include="ViewModel\ChangeExecuteDateDialogViewModel.cs" />
     <Compile Include="Dialogs\ChangeStatusDialog.xaml.cs">
       <DependentUpon>ChangeStatusDialog.xaml</DependentUpon>
@@ -292,6 +296,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\AttachmentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\CallsHistoryDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
