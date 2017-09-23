@@ -108,6 +108,21 @@ select LAST_INSERT_ID();", _dbConnection))
                         }
                         if (clientPhoneId == 0)
                         {
+                            if (!string.IsNullOrEmpty(contact.FullName))
+                            {
+                                var names = contact.FullName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                                if (names.Length > 0)
+                                    contact.SurName = names[0];
+                                if (names.Length > 1)
+                                    contact.FirstName = names[1];
+                                if (names.Length > 2)
+                                {
+                                    var patrName = string.Empty;
+                                    for (int i = 2; i < names.Length; i++)
+                                        patrName += names[i] + " ";
+                                    contact.PatrName = patrName.TrimEnd();
+                                }
+                            }
                             using (
                                 var cmd = new MySqlCommand(@"insert into CallCenter.ClientPhones(Number,sur_name,first_name,patr_name) values(@Phone,@SurName,@FirstName,@PatrName);
     select LAST_INSERT_ID();", _dbConnection))
@@ -550,6 +565,7 @@ select LAST_INSERT_ID();", _dbConnection))
                                             SurName = contactReader.GetNullableString("sur_name"),
                                             FirstName = contactReader.GetNullableString("first_name"),
                                             PatrName = contactReader.GetNullableString("patr_name"),
+                                            FullName = $"{contactReader.GetNullableString("sur_name")} {contactReader.GetNullableString("first_name")} {contactReader.GetNullableString("patr_name")}"
                                         });
                                     }
                                 }
@@ -1374,6 +1390,46 @@ select LAST_INSERT_ID();", _dbConnection))
                     return callList;
                 }
             }
+        }        public List<CallsListDto> GetCallListByRequestId(int requestId)
+        {
+            var sqlQuery = @"SELECT ch.UniqueID,Direction,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime,
+ MonitorFile, timestampdiff(SECOND,ch.BridgedTime,ch.EndTime) AS TalkTime,
+(timestampdiff(SECOND,ch.CreateTime,ch.EndTime) - ifnull(timestampdiff(SECOND,ch.BridgedTime,ch.EndTime),0)) AS WaitingTime,
+ rc.request_Id
+ FROM asterisk.ChannelHistory ch
+ join CallCenter.RequestCalls rc on ch.UniqueId = rc.UniqueId
+ where rc.request_id = @RequestNum
+ order by UniqueId";
+
+            using (
+            var cmd = new MySqlCommand(sqlQuery, AppSettings.DbConnection))
+            {
+                    cmd.Parameters.AddWithValue("@RequestNum", requestId);
+                    using (var dataReader = cmd.ExecuteReader())
+                {
+                    var callList = new List<CallsListDto>();
+                    while (dataReader.Read())
+                    {
+                        callList.Add(new CallsListDto
+                        {
+                            UniqueId = dataReader.GetNullableString("UniqueID"),
+                            CallerId = dataReader.GetNullableString("CallerIDNum"),
+                            Direction = dataReader.GetNullableString("Direction"),
+                            AnswerTime = dataReader.GetNullableDateTime("AnswerTime"),
+                            CreateTime = dataReader.GetNullableDateTime("CreateTime"),
+                            BridgedTime = dataReader.GetNullableDateTime("BridgedTime"),
+                            EndTime = dataReader.GetNullableDateTime("EndTime"),
+                            TalkTime = dataReader.GetNullableInt("TalkTime"),
+                            WaitingTime = dataReader.GetNullableInt("WaitingTime"),
+                            MonitorFileName = dataReader.GetNullableString("MonitorFile"),
+                            RequestId = dataReader.GetNullableInt("request_Id"),
+                            User = null
+                        });
+                    }
+                    dataReader.Close();
+                    return callList;
+                }
+            }
         }
 
         public List<RequestUserDto> GetOperators()
@@ -1856,6 +1912,20 @@ select LAST_INSERT_ID();", _dbConnection))
                 cmd.Parameters.AddWithValue("@FileName", newFile);
                 cmd.ExecuteNonQuery();
             }
+        }
+
+        public void AddCallToRequest(int requestId, string callUniqueId)
+        {
+            if(requestId<=0 || string.IsNullOrEmpty(callUniqueId))
+                return;
+                using (var cmd =
+                    new MySqlCommand("insert into CallCenter.RequestCalls(request_id,uniqueID) values(@Request, @UniqueId) ON DUPLICATE KEY UPDATE uniqueID = @UniqueId", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Request", requestId);
+                    cmd.Parameters.AddWithValue("@UniqueId", callUniqueId);
+                    cmd.ExecuteNonQuery();
+                }
+
         }
     }
 

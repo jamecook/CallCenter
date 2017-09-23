@@ -103,9 +103,6 @@
     <None Include="Connected Services\Devino\DevinoSmsService.Devino.IncomingMessage.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Connected Services\Devino\DevinoSmsService.Devino.MessageStateInfo.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
     <None Include="Connected Services\Devino\DevinoSmsService.Devino.SendMessageByTimeZoneResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -113,6 +110,9 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Connected Services\Devino\DevinoSmsService.Devino.SendMessageResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\Devino\DevinoSmsService.Devino.SmsMessageStateInfo.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Connected Services\Devino\SmsService.wsdl" />

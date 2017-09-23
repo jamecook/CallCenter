@@ -29,7 +29,7 @@ namespace DevinoSmsService
             //sender.SendMessage(sessionID, mess);
             var t = sender.GetBalance(sessionID);
             //var eee = sender.GetStatistics(sessionID, DateTime.Today, DateTime.Now);
-            var ttt = sender.SendMessageByTimeZone(sessionID, "DTSMS", "79044942492", "Проверка связи! Видешь какое у нас имя интересное", DateTime.Now, 240);
+            var ttt = sender.SendMessageByTimeZone(sessionID, "dispetcher", "79323232177", "Проверка связи! Видешь какое у нас имя интересное", DateTime.Now, 240);
             var e = 650820277025898515;
             var ееее = sender.GetMessageState(sessionID, e);
             return sessionID;

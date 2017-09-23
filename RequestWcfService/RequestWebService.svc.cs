@@ -34,6 +34,16 @@ namespace RequestWcfService
             return _requestService.GetAttachmentsWeb(requestId);
         }
 
+        public string GetRedirectPhone()
+        {
+            return _requestService.GetRedirectPhone();
+        }
+
+        public void SaveRedirectPhone(string secret, string phoneNumber)
+        {
+            if (secret == "savenewphone")
+                _requestService.SaveRedirectPhone(phoneNumber);
+        }
         public byte[] DownloadFile(int requestId, string fileName)
         {
             var rootDir = ConfigurationManager.AppSettings["rootFolder"].TrimEnd('\\');

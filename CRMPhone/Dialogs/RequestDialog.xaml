@@ -6,10 +6,10 @@
         xmlns:crmPhone="clr-namespace:CRMPhone"
         xmlns:controls="clr-namespace:CRMPhone.Controls"
         mc:Ignorable="d"
-        Title="Заявка" MinHeight="900" MaxHeight="900" MinWidth ="1000" MaxWidth="1000" Height="900" Width="1000"
+        Title="Заявка" MinHeight="750" MaxHeight="750" MinWidth ="960" MaxWidth="960" Height="750" Width="960"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
-        FontSize="14"
+        FontSize="12"
         d:DataContext="{d:DesignInstance crmPhone:RequestDialogViewModel}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
@@ -40,7 +40,8 @@
             <TextBox Margin="3" Width="45" TabIndex ="6" Text="{Binding Path=Entrance}"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="этаж:"/>
             <TextBox Margin="3" Width="45" TabIndex ="7" Text="{Binding Path=Floor}" />
-        </WrapPanel>
+            <Button Content="Закрыть" Margin="25,3,15,3" Width="120" Command="{Binding CloseCommand}"/>
+            </WrapPanel>
             <StackPanel Visibility ="{Binding CanEdit, Converter={StaticResource BooleanToVisibility}}">
             <TextBlock Margin ="3" Text="История заявок по адресу за последние 30 дней:"/>
                 <DataGrid Name="OldRequestsGrid"
@@ -50,7 +51,7 @@
                           SelectionUnit="FullRow"
                           IsReadOnly="True"
                           HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Auto" Height="140">
+                          VerticalScrollBarVisibility="Auto" Height="120">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="№" Width="60"
                                             Binding="{Binding Path=Id}">
@@ -137,56 +138,53 @@
         <StackPanel Grid.Row="1">
             <TextBlock Margin ="3" Text="Контактные телефоны:"/>
             <Button Margin ="3" Content="Добавить" Width="120" Command="{Binding AddContactCommand}" HorizontalAlignment="Left"/>
-            <ListBox Name="ContactListBox"
+            <ListBox x:Name="ContactListBox"
                      HorizontalAlignment="Left" 
-                     ItemsSource="{Binding Path=ContactList}" 
-                     SelectedItem="{Binding Path=SelectedContact}"
-                     Margin="3">
-                
+                     ItemsSource="{Binding ContactList}" 
+                     SelectedItem="{Binding SelectedContact}"
+                     Margin="3,3,0,3">
+
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
                 <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <EventSetter Event="PreviewMouseUp" Handler="SelectCurrentContact"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True" >
-                                <!--<Setter Property="FontWeight" Value="Bold" />-->
-                                <Setter Property="Background" Value="Transparent" />
-                                <Setter Property="Foreground" Value="Black" />
-                                <!--<Setter Property="Margin" Value="5" />-->
-                            </Trigger>
-                        </Style.Triggers>
+                    <Style TargetType="{x:Type ListBoxItem}">
                         <Style.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
                             <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent" />
                         </Style.Resources>
+                        <EventSetter Event="UIElement.PreviewMouseUp" Handler="SelectCurrentContact"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True" >
+                                <!--<Setter Property="Margin" Value="5" />-->
+                                <!--<Setter Property="FontWeight" Value="Bold" />-->
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Foreground" Value="Black" />
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel>
-                        <DockPanel>
-                                <CheckBox Margin="3" Content="Основной" IsEnabled="{Binding ElementName=RequestGrid, Path=DataContext.CanEdit}" IsChecked="{Binding Path=IsMain}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeCheckedStateCommand}"/>
-                                <TextBox Margin ="3" Width="125" Text="{Binding Path=PhoneNumber}" IsReadOnly="{Binding ElementName=RequestGrid, Path=DataContext.ReadOnly}"/>
-                                <Button Margin="3" IsEnabled ="{Binding ElementName=RequestGrid, Path=DataContext.CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.DeleteCommand}">
+                            <DockPanel>
+                                <CheckBox Margin="3" VerticalAlignment="Center" Content="Основной" IsEnabled="{Binding DataContext.CanEdit, ElementName=RequestGrid}" IsChecked="{Binding IsMain}" Command="{Binding DataContext.ChangeCheckedStateCommand, ElementName=RequestGrid}"/>
+                                <TextBox Margin ="3" Width="125" Text="{Binding PhoneNumber}" IsReadOnly="{Binding DataContext.ReadOnly, ElementName=RequestGrid}"/>
+                                <Button Margin="3"  Width="32" HorizontalAlignment="Right" IsEnabled ="{Binding DataContext.CanEdit, ElementName=RequestGrid}" Command="{Binding DataContext.DeleteCommand, ElementName=RequestGrid}">
                                     <Image Source="pack://application:,,,/Images/button_delete.png" Width="16" Height="16" />
                                 </Button>
                             </DockPanel>
-                            <CheckBox Margin="3" Content="Собственник" IsEnabled="{Binding ElementName=RequestGrid, Path=DataContext.CanEdit}" IsChecked="{Binding Path=IsOwner}"/>
                             <DockPanel>
-                            <TextBlock Margin="3" VerticalAlignment="Center" Text="Фамилия"/>
-                                <TextBox Margin ="0,3,33,0" Width="125" IsReadOnly="{Binding ElementName=RequestGrid, Path=DataContext.ReadOnly}" HorizontalAlignment="Right" Text="{Binding Path=SurName}" />
+                                <CheckBox Margin="3" VerticalAlignment="Center" Content="Собственник" IsEnabled="{Binding DataContext.CanEdit, ElementName=RequestGrid}" IsChecked="{Binding IsOwner}"/>
                             </DockPanel>
                             <DockPanel>
-                                <TextBlock Margin="3" VerticalAlignment="Center" Text="Имя"/>
-                                <TextBox Margin ="0,3,33,0" Width="125" IsReadOnly="{Binding ElementName=RequestGrid, Path=DataContext.ReadOnly}" HorizontalAlignment="Right" Text="{Binding Path=FirstName}" />
-                            </DockPanel>
-                            <DockPanel>
-                                <TextBlock Margin="3" VerticalAlignment="Center" Text="Отчество"/>
-                                <TextBox Margin ="0,3,33,5" Width="125" IsReadOnly="{Binding ElementName=RequestGrid, Path=DataContext.ReadOnly}" HorizontalAlignment="Right" Text="{Binding Path=PatrName}" />
+                                <TextBlock Margin="3" VerticalAlignment="Center" Text="ФИО"/>
+                                <TextBox Margin ="3" Width="225" IsReadOnly="{Binding DataContext.ReadOnly, ElementName=RequestGrid}" HorizontalAlignment="Left" Text="{Binding FullName}" />
+                                <!--<TextBox Margin ="3" Width="125" IsReadOnly="{Binding DataContext.ReadOnly, ElementName=RequestGrid}" HorizontalAlignment="Right" Text="{Binding SurName}" />
+                                <TextBox Margin ="3" Width="125" IsReadOnly="{Binding DataContext.ReadOnly, ElementName=RequestGrid}" HorizontalAlignment="Right" Text="{Binding FirstName}" />
+                                <TextBox Margin ="3" Width="125" IsReadOnly="{Binding DataContext.ReadOnly, ElementName=RequestGrid}" HorizontalAlignment="Right" Text="{Binding PatrName}" />-->
                             </DockPanel>
                         </StackPanel>
                     </DataTemplate>
@@ -201,7 +199,7 @@
                      ScrollViewer.CanContentScroll="False"
                      ItemsSource="{Binding Path=RequestList}" 
                      SelectedItem ="{Binding Path=SelectedRequest}"
-                     Margin="5">
+                     Margin="5" SelectionChanged="RequestList_SelectionChanged">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <EventSetter Event="PreviewMouseUp" Handler="SelectCurrentRequest"/>
@@ -230,9 +228,6 @@
             </StackPanel>
         </Grid>
         <DockPanel Grid.Row="3">
-            <DockPanel Margin="3" HorizontalAlignment="Right">
-                <Button Content="Закрыть" Margin="3,3,15,3" Width="120" Command="{Binding CloseCommand}"/>
-            </DockPanel>
         </DockPanel>
     </Grid>
 </Window>

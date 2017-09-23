@@ -58,6 +58,11 @@ namespace RequestWcfService
         void ChangeState(int requestId, int stateId, int userId);
 
         [OperationContract]
+        void SaveRedirectPhone(string secret, string phoneNumber);
+
+        [OperationContract]
+        string GetRedirectPhone();
+        [OperationContract]
         byte[] GetRequestActs(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId);
     }
 }
