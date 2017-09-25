@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CRMPhone.Dialogs"
         mc:Ignorable="d"
-        Title="Управляющая компания" Height="120" Width="420" MinWidth ="420" MinHeight="120"
+        Title="Управляющая компания" Height="320" Width="420" MinWidth ="420" MinHeight="320"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow">
     <Grid>
@@ -14,11 +14,15 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-    <DockPanel Grid.Row="1">
+    <DockPanel Grid.Row="0">
             <TextBlock Margin="5" VerticalAlignment="Center" Text="Название:"/>
             <TextBox Margin="5" HorizontalAlignment="Right" Width="300" MaxLength="255" TextWrapping="Wrap" Text="{Binding ServiceName}">
             </TextBox>
         </DockPanel>
+        <StackPanel Grid.Row="1" Margin="5">
+            <TextBlock Margin="5" VerticalAlignment="Center" Text="Информация:"/>
+            <TextBox Height="180" Text="{Binding ServiceCompanyInfo}"/>
+        </StackPanel>
         <StackPanel Grid.Row="2" HorizontalAlignment="Right">
             <Button Margin="5" Width="120" Height="24" Command="{Binding Path=SaveCommand}">Сохранить</Button>
         </StackPanel>

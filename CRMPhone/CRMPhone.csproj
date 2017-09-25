@@ -158,6 +158,9 @@
     <Compile Include="Dialogs\CallsHistoryDialog.xaml.cs">
       <DependentUpon>CallsHistoryDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\ServiceCompanyInfoDialog.xaml.cs">
+      <DependentUpon>ServiceCompanyInfoDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\SetWorkingTimesDialog.xaml.cs">
       <DependentUpon>SetWorkingTimesDialog.xaml</DependentUpon>
     </Compile>
@@ -230,6 +233,7 @@
     </Compile>
     <Compile Include="ViewModel\Admins\ServiceCompanyDialogViewModel.cs" />
     <Compile Include="ViewModel\ServiceAdminControlContext.cs" />
+    <Compile Include="ViewModel\ServiceCompanyInfoDialogViewModel.cs" />
     <Compile Include="ViewModel\SetWorkingTimesDialogViewModel.cs" />
     <Compile Include="ViewModel\SpecialityControlContext.cs" />
     <Compile Include="ViewModel\TrasferDialogViewModel.cs" />
@@ -331,6 +335,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Dialogs\ServiceCompanyInfoDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\SetWorkingTimesDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -382,6 +390,8 @@
     </None>
     <Resource Include="Images\edit_small.png" />
     <Resource Include="Images\attach.png" />
+    <Resource Include="Images\delete-24.png" />
+    <Resource Include="Images\info_24.png" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

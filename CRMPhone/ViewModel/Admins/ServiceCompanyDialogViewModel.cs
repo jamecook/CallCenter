@@ -13,11 +13,17 @@ namespace CRMPhone.ViewModel.Admins
         private int? _serviceCompanyId;
         private ICommand _saveCommand;
         private string _serviceName;
+        private string _serviceCompanyInfo;
 
         public string ServiceName
         {
             get { return _serviceName; }
             set { _serviceName = value; OnPropertyChanged(nameof(ServiceName));}
+        }
+        public string ServiceCompanyInfo
+        {
+            get { return _serviceCompanyInfo; }
+            set { _serviceCompanyInfo = value; OnPropertyChanged(nameof(ServiceCompanyInfo)); }
         }
 
         public ServiceCompanyDialogViewModel(RequestServiceImpl.RequestService requestService, int? serviceCompanyId)
@@ -28,6 +34,7 @@ namespace CRMPhone.ViewModel.Admins
             {
                 var serviceCompany = _requestService.GetServiceCompanyById(serviceCompanyId.Value);
                 ServiceName = serviceCompany.Name;
+                ServiceCompanyInfo = serviceCompany.Info;
             }
         }
 
@@ -39,7 +46,7 @@ namespace CRMPhone.ViewModel.Admins
 
         private void Save(object sender)
         {
-            _requestService.SaveServiceCompany(_serviceCompanyId,ServiceName);
+            _requestService.SaveServiceCompany(_serviceCompanyId,ServiceName,ServiceCompanyInfo);
             _view.DialogResult = true;
         }
 

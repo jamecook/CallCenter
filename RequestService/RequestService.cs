@@ -1198,7 +1198,7 @@ select LAST_INSERT_ID();", _dbConnection))
         public ServiceCompanyDto GetServiceCompanyById(int id)
         {
             ServiceCompanyDto serviceCompany = null;
-            var query = "SELECT id,name FROM CallCenter.ServiceCompanies S where Enabled = 1 and id = @ID";
+            var query = "SELECT id,name,info FROM CallCenter.ServiceCompanies S where Enabled = 1 and id = @ID";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@ID", id);
@@ -1207,10 +1207,11 @@ select LAST_INSERT_ID();", _dbConnection))
                     if (dataReader.Read())
                     {
                         serviceCompany =  new ServiceCompanyDto
-                                            {
-                                                Id = dataReader.GetInt32("id"),
-                                                Name = dataReader.GetString("name")
-                                            };
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                            Info = dataReader.GetNullableString("info"),
+                        };
                     }
                     dataReader.Close();
                 }
@@ -1489,7 +1490,7 @@ select LAST_INSERT_ID();", _dbConnection))
             }
         }
 
-        public string ServiceCompanyByIncommingPhoneNumber(string phoneNumber)
+        public ServiceCompanyDto ServiceCompanyByIncommingPhoneNumber(string phoneNumber)
         {
             using (var cmd = new MySqlCommand(@"SELECT S.id,S.Name FROM asterisk.ActiveChannels A
             join CallCenter.ServiceCompanies S on S.trunk_name = A.context where A.CallerIDNum = @phoneNumber", AppSettings.DbConnection))
@@ -1499,23 +1500,27 @@ select LAST_INSERT_ID();", _dbConnection))
                 {
                     if (dataReader.Read())
                     {
-                        return dataReader.GetNullableString("Name");
+                        return new ServiceCompanyDto {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetNullableString("Name")
+                        };
                     }
                     dataReader.Close();
                 }
 
             }
-            return "неизвестная УК";
+            return new ServiceCompanyDto { Id = -1, Name = "неизвестная УК" };
         }
 
-        public void SaveServiceCompany(int? serviceCompanyId, string serviceCompanyName)
+        public void SaveServiceCompany(int? serviceCompanyId, string serviceCompanyName,string info)
         {
             if (serviceCompanyId.HasValue)
             {
-                using (var cmd = new MySqlCommand(@"update CallCenter.ServiceCompanies set Name = @ServiceCompanyName where id = @ID;", _dbConnection))
+                using (var cmd = new MySqlCommand(@"update CallCenter.ServiceCompanies set Name = @ServiceCompanyName,info=@Info where id = @ID;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@ID", serviceCompanyId.Value);
                     cmd.Parameters.AddWithValue("@ServiceCompanyName", serviceCompanyName);
+                    cmd.Parameters.AddWithValue("@Info", info);
                     cmd.ExecuteNonQuery();
                 }
 
@@ -1944,6 +1949,14 @@ select LAST_INSERT_ID();", _dbConnection))
                 cmd.Parameters.AddWithValue("@Sender", sender);
                 cmd.Parameters.AddWithValue("@Phone", phone);
                 cmd.Parameters.AddWithValue("@Message", message);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void DeleteNotAnswered()
+        {
+            using (var cmd =
+                new MySqlCommand("delete FROM asterisk.NotAnsweredQueue where CreateTime < sysdate() - interval 1 day", _dbConnection))
+            {
                 cmd.ExecuteNonQuery();
             }
         }

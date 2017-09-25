@@ -16,6 +16,7 @@ using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 using System.Diagnostics;
 using System.Security.RightsManagement;
+using CRMPhone.Dialogs;
 
 namespace CRMPhone.ViewModel
 {
@@ -150,7 +151,7 @@ namespace CRMPhone.ViewModel
             }
         }
 
-        public string CallFromServiceCompany
+        public ServiceCompanyDto CallFromServiceCompany
         {
             get { return _callFromServiceCompany; }
             set
@@ -250,6 +251,31 @@ namespace CRMPhone.ViewModel
         private ICommand _callCommand;
         public ICommand CallCommand { get {return _callCommand ?? (_callCommand = new CommandHandler(Call, _canExecute));}}
 
+        private ICommand _serviceCompanyInfoCommand;
+        public ICommand ServiceCompanyInfoCommand { get { return _serviceCompanyInfoCommand ?? (_serviceCompanyInfoCommand = new CommandHandler(ServiceCompanyInfo, _canExecute)); } }
+
+        private void ServiceCompanyInfo()
+        {
+            if(CallFromServiceCompany!=null)
+            {
+                var info = _requestService.GetServiceCompanyInfo(CallFromServiceCompany.Id);
+                var view = new ServiceCompanyInfoDialog();
+                var model = new ServiceCompanyInfoDialogViewModel(CallFromServiceCompany.Name,info);
+                view.DataContext = model;
+                view.Owner = mainWindow;
+                view.ShowDialog();
+
+            }
+        }
+
+        private ICommand _deleteNotAnsweredCommand;
+        public ICommand DeleteNotAnsweredCommand { get { return _deleteNotAnsweredCommand ?? (_deleteNotAnsweredCommand = new CommandHandler(DeleteNotAnswered, _canExecute)); } }
+
+        private void DeleteNotAnswered()
+        {
+            _requestService.DeleteNotAnswered();
+        }
+
         private ICommand _holdCommand;
         public ICommand HoldCommand { get {return _holdCommand ?? (_holdCommand = new CommandHandler(Hold, _canExecute));}}
 
@@ -281,7 +307,7 @@ namespace CRMPhone.ViewModel
         private string _requestNum;
         private RequestUserDto _selectedUser;
         private ObservableCollection<RequestUserDto> _userList;
-        private string _callFromServiceCompany;
+        private ServiceCompanyDto _callFromServiceCompany;
         private string _lastAnsweredPhoneNumber;
         private ServiceCompanyControlContext _serviceCompanyDataContext;
         private WorkerAdminControlContext _workerAdminDataContext;
@@ -607,7 +633,7 @@ namespace CRMPhone.ViewModel
         {
             _sipAgent.CallMaker.HangupAll();
             IncomingCallFrom = "";
-            CallFromServiceCompany = "";
+            CallFromServiceCompany = null;
         }
 
         public void Unregister()

@@ -215,6 +215,24 @@ namespace RequestServiceImpl
             }
         }
 
+        public string GetServiceCompanyInfo(int id)
+        {
+            var info = string.Empty;
+            var sqlQuery = @"SELECT info from CallCenter.ServiceCompanies where id = @Id";
+            using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Id", id);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        info = dataReader.GetNullableString("info");
+                    }
+                }
+                return info;
+            };
+        }
+
         public WorkerDto[] GetWorkersByWorkerId(int workerId)
         {
             var sqlQuery = @"SELECT id, service_company_id, sur_name, first_name, patr_name, speciality_id FROM CallCenter.Workers w where(w.id = @WorkerId or
