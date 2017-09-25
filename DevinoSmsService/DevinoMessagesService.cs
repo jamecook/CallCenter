@@ -16,21 +16,10 @@ namespace DevinoSmsService
             //return string.Format("You entered: {0}", value);
             var sender = new Devino.SmsServiceSoapClient();
             var sessionID = sender.GetSessionID("cmscms", "p57w(.O|8P");
-            //var phones = new ArrayOfString();
-            //phones.Add("79323232177");
-            //var mess = new Devino.Message
-            //{
-            //    DelayUntilUtc = DateTime.Now.AddMinutes(1),
-            //    Data = "Test",
-            //    DestinationAddresses = phones,
-            //    SourceAddress = "DTSMS",
-            //    ReceiptRequested = false
-            //};
-            //sender.SendMessage(sessionID, mess);
             var t = sender.GetBalance(sessionID);
             //var eee = sender.GetStatistics(sessionID, DateTime.Today, DateTime.Now);
-            var ttt = sender.SendMessageByTimeZone(sessionID, "dispetcher", "79323232177", "Проверка связи! Видешь какое у нас имя интересное", DateTime.Now, 240);
-            var e = 650820277025898515;
+            var ttt = sender.SendMessageByTimeZone(sessionID, "CMS24", "79323232177", "Проверка связи! Видешь какое у нас имя интересное", DateTime.Now.AddMinutes(2), 240);
+            var e = 659352979031195648;
             var ееее = sender.GetMessageState(sessionID, e);
             return sessionID;
 

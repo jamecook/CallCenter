@@ -29,6 +29,13 @@ namespace CRMPhone.ViewModel
         }
         private ICommand _playCommand;
         public ICommand PlayCommand { get { return _playCommand ?? (_playCommand = new RelayCommand(PlayRecord)); } }
+        private ICommand _closeCommand;
+        public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new RelayCommand(Close)); } }
+
+        private void Close(object sender)
+        {
+            _view.DialogResult = true;
+        }
 
         private void PlayRecord(object obj)
         {

@@ -100,20 +100,22 @@
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Сохранить</Button>
                     <Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeWorkerCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Исполнитель</Button>
-                    <Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeDateCommand}"
+                    <DockPanel>
+                    <Button Margin="5" Width="65" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeDateCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Время</Button>
-                    <Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeStatusCommand}"
+                    <Button Margin="5" Width="65" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeStatusCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Статус</Button>
+                    </DockPanel>
                     <Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanAddRating}" Command="{Binding ElementName=RequestGrid, Path=DataContext.RatingCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Оценка качества</Button>
                     <Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.SetWorkingTimesCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Период выполнения</Button>
                     <Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.OpenAttachmentDialogCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Документы</Button>
-                    <Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.AddCallCommand}"
-             CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Прикрепить звонок</Button>
                     <Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.CallsHistoryCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">История звонков</Button>
+                    <Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.AddCallCommand}"
+                            CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Прикрепить звонок</Button>
                     <!--<Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.OpeтRecordsDialogCommand}"
                             CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Запись разговоров</Button>-->
                     <!--<Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeNoteCommand}"

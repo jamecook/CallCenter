@@ -412,7 +412,6 @@ namespace CRMPhone.ViewModel
                 _sipAgent.OnIncomingCall += IncomingCall;
                 _sipAgent.OnTerminated += TerminateCall;
                 _sipAgent.OnRegistrationFailed += SIPRegError;
-                _sipAgent.OnRxRequest +=  SipAgentOnOnRxRequest;
                 _sipAgent.OnUnregistered += SipAgentOnUnregistered;
 
                 _sipAgent.AddTransport(1, 5060);
@@ -444,11 +443,6 @@ namespace CRMPhone.ViewModel
             }
 
             #endregion
-        }
-
-        private void SipAgentOnOnRxRequest(string remoteHost, int remotePort, string message)
-        {
-            var t = 0;
         }
 
         public void RefreshList()

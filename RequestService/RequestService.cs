@@ -249,6 +249,13 @@ select LAST_INSERT_ID();", _dbConnection))
         public void AddNewWorker(int requestId, int workerId)
         {
             _logger.Debug($"RequestService.AddNewWorker({requestId},{workerId})");
+
+            var request = GetRequest(requestId);
+            var worker = GetWorkerById(workerId);
+            string phones="";
+            if (request.Contacts != null && request.Contacts.Length > 0)
+                phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}").Aggregate((i, j) => i + ";" + j);
+            SendSms(requestId,"CMS24",worker.Phone,$"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())
@@ -1925,8 +1932,22 @@ select LAST_INSERT_ID();", _dbConnection))
                     cmd.Parameters.AddWithValue("@UniqueId", callUniqueId);
                     cmd.ExecuteNonQuery();
                 }
-
         }
+        public void SendSms(int requestId, string sender, string phone, string message)
+        {
+            if (requestId <= 0 || string.IsNullOrEmpty(phone))
+                return;
+            using (var cmd =
+                new MySqlCommand("insert into CallCenter.SMSRequest(request_id,sender,phone,message,create_date) values(@Request, @Sender, @Phone,@Message,sysdate())", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Request", requestId);
+                cmd.Parameters.AddWithValue("@Sender", sender);
+                cmd.Parameters.AddWithValue("@Phone", phone);
+                cmd.Parameters.AddWithValue("@Message", message);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
     }
 
 }

@@ -16,5 +16,18 @@ namespace RequestServiceImpl.Dto
         public string StreetPrefix { get; set; }
         public int CityId { get; set; }
         public string City { get; set; }
+        public string FullAddress
+        {
+            get
+            {
+                var address = StreetName;
+                if (string.IsNullOrEmpty(Corpus))
+                    address+= " " + Building;
+                else
+                    address += " " + Building + "/" + Corpus;
+                address += " " + Flat;
+                return address;
+            }
+        }
     }
 }
