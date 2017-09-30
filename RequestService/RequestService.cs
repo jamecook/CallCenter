@@ -1490,6 +1490,91 @@ select LAST_INSERT_ID();", _dbConnection))
             }
         }
 
+        public List<MetersDto> GetMetersByAddressId(int addressId)
+        {
+            var sqlQuery = @"select meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id  from CallCenter.MeterDeviceValues
+ where address_id = @AddressId and meters_date > sysdate() - INTERVAL 3 month
+ order by meters_date desc";
+
+            using (
+            var cmd = new MySqlCommand(sqlQuery, AppSettings.DbConnection))
+            {
+                cmd.Parameters.AddWithValue("@AddressId", addressId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var metersDtos = new List<MetersDto>();
+                    while (dataReader.Read())
+                    {
+                        metersDtos.Add(new MetersDto
+                        {
+                            Date = dataReader.GetDateTime("meters_date"),
+                            Electro1 = dataReader.GetDouble("electro_t1"),
+                            Electro2 = dataReader.GetDouble("electro_t2"),
+                            ColdWater1 = dataReader.GetDouble("cool_water1"),
+                            HotWater1 = dataReader.GetDouble("hot_water1"),
+                            ColdWater2 = dataReader.GetDouble("cool_water2"),
+                            HotWater2 = dataReader.GetDouble("hot_water2"),
+                            Heating = dataReader.GetDouble("heating"),
+                        });
+                    }
+                    dataReader.Close();
+                    return metersDtos;
+                }
+            }
+        }
+        public void SaveMeterValues(string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1, double hotWater2, double coldWater2, double heating)
+        {
+            using (var transaction = _dbConnection.BeginTransaction())
+            {
+                var clientPhoneId = (int?)null;
+                if (!string.IsNullOrEmpty(phoneNumber))
+                {
+                    using (var cmd = new MySqlCommand(
+                        "SELECT id FROM CallCenter.ClientPhones C where Number = @Phone", _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@Phone", phoneNumber);
+
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            if (dataReader.Read())
+                            {
+                                clientPhoneId = dataReader.GetInt32("id");
+                            }
+                            dataReader.Close();
+                        }
+                    }
+                    if (clientPhoneId == 0)
+                    {
+                        using (
+                            var cmd = new MySqlCommand(@"insert into CallCenter.ClientPhones(Number) values(@Phone);
+    select LAST_INSERT_ID();", _dbConnection))
+                        {
+                            cmd.Parameters.AddWithValue("@Phone", phoneNumber);
+                            clientPhoneId = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+                    }
+                }
+                using (var cmd = new MySqlCommand(
+                    "insert into CallCenter.MeterDeviceValues(address_id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id )" +
+                    " values(@AddressId,sysdate(),@Electro1,@Electrio2,@Cool1,@Hot1,@Cool2,@Hot2,@UserId,@Heating,@ClentPhoneId)", _dbConnection))
+                {
+
+                    cmd.Parameters.AddWithValue("@AddressId", addressId);
+                    cmd.Parameters.AddWithValue("@Electro1", electro1);
+                    cmd.Parameters.AddWithValue("@Electrio2", electro2);
+                    cmd.Parameters.AddWithValue("@Cool1", coldWater1);
+                    cmd.Parameters.AddWithValue("@Cool2", coldWater2);
+                    cmd.Parameters.AddWithValue("@Hot1", hotWater1);
+                    cmd.Parameters.AddWithValue("@Hot2", hotWater2);
+                    cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                    cmd.Parameters.AddWithValue("@Heating", heating);
+                    cmd.Parameters.AddWithValue("@ClentPhoneId", clientPhoneId);
+                    cmd.ExecuteNonQuery();
+                }
+                transaction.Commit();
+            }
+        }
+
         public ServiceCompanyDto ServiceCompanyByIncommingPhoneNumber(string phoneNumber)
         {
             using (var cmd = new MySqlCommand(@"SELECT S.id,S.Name FROM asterisk.ActiveChannels A

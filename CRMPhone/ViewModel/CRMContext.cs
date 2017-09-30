@@ -287,6 +287,20 @@ namespace CRMPhone.ViewModel
 
         private ICommand _transferCommand;
         public ICommand TransferCommand { get { return _transferCommand ?? (_transferCommand = new CommandHandler(Transfer, _canExecute)); } }
+        
+        private ICommand _addMeterCommand;
+        public ICommand AddMeterCommand { get { return _addMeterCommand ?? (_addMeterCommand = new CommandHandler(AddMeters, _canExecute)); } }
+
+        private void AddMeters()
+        {
+            var model = new MeterDeviceViewModel();
+            var view = new MeterDeviceDialog();
+            model.SetView(view);
+            model.PhoneNumber = LastAnsweredPhoneNumber;
+            view.DataContext = model;
+            view.ShowDialog();
+
+        }
 
         private ICommand _muteCommand;
         public ICommand MuteCommand { get { return _muteCommand ?? (_muteCommand = new CommandHandler(Mute, _canExecute)); } }

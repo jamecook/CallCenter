@@ -113,6 +113,17 @@
             </TabItem>
             <TabItem>
                 <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Приборы учёта"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <StackPanel HorizontalAlignment="Left">
+                <Button  Margin="5" Content="Принять показания" Padding="3" Command="{Binding AddMeterCommand}"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
                     <StackPanel Orientation="Horizontal" >
                         <Image  Source="pack://application:,,,/Images/PhoneList_small.png" Stretch="UniformToFill" Height="28" />
                         <TextBlock Margin="3" Text ="История звонков"/>

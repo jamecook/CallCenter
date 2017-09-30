@@ -544,4 +544,5 @@ namespace CRMPhone
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
+
 }

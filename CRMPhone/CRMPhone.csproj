@@ -158,6 +158,9 @@
     <Compile Include="Dialogs\CallsHistoryDialog.xaml.cs">
       <DependentUpon>CallsHistoryDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\MeterDeviceDialog.xaml.cs">
+      <DependentUpon>MeterDeviceDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\ServiceCompanyInfoDialog.xaml.cs">
       <DependentUpon>ServiceCompanyInfoDialog.xaml</DependentUpon>
     </Compile>
@@ -209,6 +212,7 @@
       <DependentUpon>UsersControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\HouseAdminControlContext.cs" />
+    <Compile Include="ViewModel\MeterDeviceViewModel.cs" />
     <Compile Include="ViewModel\RedirectAdminControlContext.cs" />
     <Compile Include="ViewModel\RequestItemViewModel.cs" />
     <Compile Include="LoginView.xaml.cs">
@@ -332,6 +336,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\Admins\ServiceCompanyAddOrEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\MeterDeviceDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
