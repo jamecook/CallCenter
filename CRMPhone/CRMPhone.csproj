@@ -400,6 +400,7 @@
     <Resource Include="Images\attach.png" />
     <Resource Include="Images\delete-24.png" />
     <Resource Include="Images\info_24.png" />
+    <Resource Include="Images\prib_ucheta_small.png" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

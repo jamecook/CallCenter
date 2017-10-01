@@ -1490,6 +1490,38 @@ select LAST_INSERT_ID();", _dbConnection))
             }
         }
 
+        public List<MetersDto> GetMetersByPeriod(int addressId)
+        {
+            var sqlQuery = @"select meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id  from CallCenter.MeterDeviceValues
+ where address_id = @AddressId and meters_date > sysdate() - INTERVAL 3 month
+ order by meters_date desc";
+
+            using (
+            var cmd = new MySqlCommand(sqlQuery, AppSettings.DbConnection))
+            {
+                cmd.Parameters.AddWithValue("@AddressId", addressId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var metersDtos = new List<MetersDto>();
+                    while (dataReader.Read())
+                    {
+                        metersDtos.Add(new MetersDto
+                        {
+                            Date = dataReader.GetDateTime("meters_date"),
+                            Electro1 = dataReader.GetDouble("electro_t1"),
+                            Electro2 = dataReader.GetDouble("electro_t2"),
+                            ColdWater1 = dataReader.GetDouble("cool_water1"),
+                            HotWater1 = dataReader.GetDouble("hot_water1"),
+                            ColdWater2 = dataReader.GetDouble("cool_water2"),
+                            HotWater2 = dataReader.GetDouble("hot_water2"),
+                            Heating = dataReader.GetDouble("heating"),
+                        });
+                    }
+                    dataReader.Close();
+                    return metersDtos;
+                }
+            }
+        }
         public List<MetersDto> GetMetersByAddressId(int addressId)
         {
             var sqlQuery = @"select meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id  from CallCenter.MeterDeviceValues
@@ -1507,6 +1539,56 @@ select LAST_INSERT_ID();", _dbConnection))
                     {
                         metersDtos.Add(new MetersDto
                         {
+                            Date = dataReader.GetDateTime("meters_date"),
+                            Electro1 = dataReader.GetDouble("electro_t1"),
+                            Electro2 = dataReader.GetDouble("electro_t2"),
+                            ColdWater1 = dataReader.GetDouble("cool_water1"),
+                            HotWater1 = dataReader.GetDouble("hot_water1"),
+                            ColdWater2 = dataReader.GetDouble("cool_water2"),
+                            HotWater2 = dataReader.GetDouble("hot_water2"),
+                            Heating = dataReader.GetDouble("heating"),
+                        });
+                    }
+                    dataReader.Close();
+                    return metersDtos;
+                }
+            }
+        }
+        public List<MeterListDto> GetMetersByDate(int? serviceCompanyId, DateTime fromDate, DateTime toDate)
+        {
+            var sqlQuery =
+                @"select meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating,
+ a.flat,h.building, h.corps, s.name street_name, sc.name company_name
+ from CallCenter.MeterDeviceValues m
+  join CallCenter.Addresses a on a.id = m.address_id
+  join CallCenter.Houses h on h.id = house_id
+  join CallCenter.Streets s on s.id = street_id
+  left join CallCenter.ServiceCompanies sc on sc.id = h.service_company_id
+ where meters_date between @FromDate and @ToDate";
+            if (serviceCompanyId.HasValue)
+                sqlQuery += " and sc.id = @ServiceCompanyId";
+
+            sqlQuery += " order by meters_date desc";
+
+            using (
+            var cmd = new MySqlCommand(sqlQuery, AppSettings.DbConnection))
+            {
+                if(serviceCompanyId.HasValue)
+                    cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+                cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                cmd.Parameters.AddWithValue("@ToDate", toDate.AddDays(1).AddSeconds(-1));
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var metersDtos = new List<MeterListDto>();
+                    while (dataReader.Read())
+                    {
+                        metersDtos.Add(new MeterListDto
+                        {
+                            ServiceCompany = dataReader.GetNullableString("company_name"),
+                            StreetName = dataReader.GetString("street_name"),
+                            Flat = dataReader.GetString("flat"),
+                            Building = dataReader.GetString("building"),
+                            Corpus = dataReader.GetNullableString("corps"),
                             Date = dataReader.GetDateTime("meters_date"),
                             Electro1 = dataReader.GetDouble("electro_t1"),
                             Electro2 = dataReader.GetDouble("electro_t2"),

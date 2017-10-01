@@ -81,11 +81,11 @@ namespace CRMPhone.ViewModel
             _refreshTimer = new DispatcherTimer();
             ActiveChannels = new ObservableCollection<ActiveChannelsDto>();
             NotAnsweredCalls = new ObservableCollection<NotAnsweredDto>();
+            MetersHistoryList = new ObservableCollection<MeterListDto>();
             CallsList = new ObservableCollection<CallsListDto>();
             var uri = new Uri(@"pack://application:,,,/Resources/ringin.wav");
             _ringPlayer = new SoundPlayer(Application.GetResourceStream(uri).Stream);
-            FromDate = DateTime.Now.Date;
-            ToDate = FromDate.AddDays(1);
+
             EnablePhone = false;
             RequestDataContext = new RequestControlContext();
             ServiceCompanyDataContext = new ServiceCompanyControlContext();
@@ -276,6 +276,36 @@ namespace CRMPhone.ViewModel
             _requestService.DeleteNotAnswered();
         }
 
+        public DateTime MetersToDate
+        {
+            get { return _metersToDate; }
+            set { _metersToDate = value; OnPropertyChanged(nameof(MetersToDate)); }
+        }
+
+        public DateTime MetersFromDate
+        {
+            get { return _metersFromDate; }
+            set { _metersFromDate = value; OnPropertyChanged(nameof(MetersFromDate));}
+        }
+
+        public ObservableCollection<MeterListDto> MetersHistoryList
+        {
+            get { return _metersHistoryList; }
+            set { _metersHistoryList = value; OnPropertyChanged(nameof(MetersHistoryList));}
+        }
+
+        public ObservableCollection<ServiceCompanyDto> MetersSCList
+        {
+            get { return _metersScList; }
+            set { _metersScList = value; OnPropertyChanged(nameof(MetersSCList));}
+        }
+
+        public ServiceCompanyDto SelectedMetersSC
+        {
+            get { return _selectedMetersSc; }
+            set { _selectedMetersSc = value; OnPropertyChanged(nameof(SelectedMetersSC));}
+        }
+
         private ICommand _holdCommand;
         public ICommand HoldCommand { get {return _holdCommand ?? (_holdCommand = new CommandHandler(Hold, _canExecute));}}
 
@@ -291,6 +321,21 @@ namespace CRMPhone.ViewModel
         private ICommand _addMeterCommand;
         public ICommand AddMeterCommand { get { return _addMeterCommand ?? (_addMeterCommand = new CommandHandler(AddMeters, _canExecute)); } }
 
+        private ICommand _refreshMeterCommand;
+
+        public ICommand RefreshMeterCommand { get { return _refreshMeterCommand ?? (_refreshMeterCommand = new CommandHandler(RefreshMeters, _canExecute)); } }
+
+        private void RefreshMeters()
+        {
+            MetersHistoryList.Clear();
+            var meters = _requestService.GetMetersByDate(SelectedMetersSC?.Id, MetersFromDate, MetersToDate);
+            foreach (var meter in meters)
+            {
+                MetersHistoryList.Add(meter);
+            }
+        }
+
+
         private void AddMeters()
         {
             var model = new MeterDeviceViewModel();
@@ -298,6 +343,7 @@ namespace CRMPhone.ViewModel
             model.SetView(view);
             model.PhoneNumber = LastAnsweredPhoneNumber;
             view.DataContext = model;
+            view.Owner = mainWindow;
             view.ShowDialog();
 
         }
@@ -330,6 +376,11 @@ namespace CRMPhone.ViewModel
         private HouseAdminControlContext _houseAdminContext;
         private RedirectAdminControlContext _redirectAdminContext;
         private BlackListControlContext _blackListContext;
+        private DateTime _metersToDate;
+        private DateTime _metersFromDate;
+        private ObservableCollection<MeterListDto> _metersHistoryList;
+        private ObservableCollection<ServiceCompanyDto> _metersScList;
+        private ServiceCompanyDto _selectedMetersSc;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
 
         public bool IsMuted
@@ -424,6 +475,12 @@ namespace CRMPhone.ViewModel
                 _dbRefreshConnection.Open();
                 _requestService = new RequestService(_dbRefreshConnection);
                 UserList = new ObservableCollection<RequestUserDto>(_requestService.GetOperators());
+                MetersSCList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
+                var curDate = _requestService.GetCurrentDate().Date;
+                FromDate = curDate;
+                ToDate = FromDate.AddDays(1);
+                MetersToDate = curDate;
+                MetersFromDate = curDate.AddDays(-30);
 
                 if (EnablePhone)
                 {
