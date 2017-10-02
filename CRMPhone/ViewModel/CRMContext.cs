@@ -95,6 +95,7 @@ namespace CRMPhone.ViewModel
             HouseAdminContext = new HouseAdminControlContext();
             RedirectAdminContext = new RedirectAdminControlContext();
             BlackListContext = new BlackListControlContext();
+            AlertRequestDataContext = new AlertRequestControlContext();
         }
 
         public void InitMysqlAndSip()
@@ -106,6 +107,7 @@ namespace CRMPhone.ViewModel
             }
             InitMySql();
             AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser})";
+            AlertRequestDataContext.InitCollections();
             RequestDataContext.InitCollections();
             ServiceCompanyDataContext.RefreshList();
             WorkerAdminDataContext.RefreshList();
@@ -381,6 +383,7 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<MeterListDto> _metersHistoryList;
         private ObservableCollection<ServiceCompanyDto> _metersScList;
         private ServiceCompanyDto _selectedMetersSc;
+        private AlertRequestControlContext _alertRequestDataContext;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
 
         public bool IsMuted
@@ -404,6 +407,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _requestDataContext; }
             set { _requestDataContext = value; OnPropertyChanged(nameof(RequestDataContext)); }
+        }
+
+        public AlertRequestControlContext AlertRequestDataContext
+        {
+            get { return _alertRequestDataContext; }
+            set { _alertRequestDataContext = value; OnPropertyChanged(nameof(AlertRequestDataContext));}
         }
 
         public ServiceCompanyControlContext ServiceCompanyDataContext

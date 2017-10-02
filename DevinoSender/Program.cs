@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using DevinoSender.DevinoSms;
 
 
 namespace DevinoSender
@@ -37,7 +38,15 @@ namespace DevinoSender
             }
             foreach (var sms in smsList)
             {
-                var messageIds = sender.SendMessageByTimeZone(sessionID, sms.Sender, sms.Phone, sms.Message, DateTime.Now.AddMinutes(2), 240);
+                var message = new Message
+                {
+                    Data = sms.Message,
+                    SourceAddress = sms.Sender,
+                    DestinationAddresses = new ArrayOfString() {sms.Phone}
+                };
+                var messageIds = sender.SendMessage(sessionID, message);
+
+                //var messageIds = sender.SendMessageByTimeZone(sessionID, sms.Sender, sms.Phone, sms.Message, DateTime.Now.AddMinutes(2), 240);
                 if(messageIds!=null && messageIds.Count>0)
                 {
                     using (var cmd = new MySqlCommand(@"update CallCenter.SMSRequest set message_id = @MessageId,sms_count=@SmsCount where id = @smsId;", dbConnection))

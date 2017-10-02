@@ -122,6 +122,9 @@
     <Compile Include="Controls\Admins\WorkerAdminControl.xaml.cs">
       <DependentUpon>WorkerAdminControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\AlertRequestControl.xaml.cs">
+      <DependentUpon>AlertRequestControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TimeControl.xaml.cs">
       <DependentUpon>TimeControl.xaml</DependentUpon>
     </Compile>
@@ -214,6 +217,7 @@
     <Compile Include="ViewModel\HouseAdminControlContext.cs" />
     <Compile Include="ViewModel\MeterDeviceViewModel.cs" />
     <Compile Include="ViewModel\RedirectAdminControlContext.cs" />
+    <Compile Include="ViewModel\AlertRequestControlContext.cs" />
     <Compile Include="ViewModel\RequestItemViewModel.cs" />
     <Compile Include="LoginView.xaml.cs">
       <DependentUpon>LoginView.xaml</DependentUpon>
@@ -266,6 +270,10 @@
     <Page Include="Controls\Admins\WorkerAdminControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\AlertRequestControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\TimeControl.xaml">
       <SubType>Designer</SubType>
@@ -401,6 +409,7 @@
     <Resource Include="Images\delete-24.png" />
     <Resource Include="Images\info_24.png" />
     <Resource Include="Images\prib_ucheta_small.png" />
+    <Resource Include="Images\danger_small.png" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

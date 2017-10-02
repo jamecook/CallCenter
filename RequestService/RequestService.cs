@@ -712,6 +712,88 @@ select LAST_INSERT_ID();", _dbConnection))
                 return requests;
             }
         }
+        public IList<RequestForListDto> GetAlertRequestList(int? serviceCompanyId,bool showDoned)
+        {
+            var sqlQuery =
+                @"SELECT R.id,case when count(ra.id)=0 then false else true end has_attach,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
+    R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
+    R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
+    rating.Name Rating,
+    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time
+    FROM CallCenter.Requests R
+    join CallCenter.RequestState RS on RS.id = R.state_id
+    join CallCenter.Addresses a on a.id = R.address_id
+    join CallCenter.AddressesTypes at on at.id = a.type_id
+    join CallCenter.Houses h on h.id = house_id
+    join CallCenter.Streets s on s.id = street_id
+    join CallCenter.StreetPrefixes sp on sp.id = s.prefix_id
+    join CallCenter.RequestTypes rt on rt.id = R.type_id
+    join CallCenter.RequestTypes rt2 on rt2.id = rt.parrent_id
+    left join CallCenter.RequestAttachments ra on ra.request_id = R.id
+    left join CallCenter.Workers w on w.id = R.worker_id
+    left join CallCenter.RequestContacts rc on rc.request_id = R.id
+    left join CallCenter.ClientPhones cp on cp.id = rc.clientPhone_id
+    join CallCenter.Users u on u.id = create_user_id
+    left join CallCenter.PeriodTimes p on p.id = R.period_time_id
+    left join CallCenter.RequestRating rtype on rtype.request_id = R.id
+    left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
+    where is_immediate = 1";
+                if (serviceCompanyId.HasValue)
+                    sqlQuery += $" and h.service_company_id = {serviceCompanyId.Value}";
+                if(!showDoned)
+                sqlQuery += " and R.state_id in (1,2,5)";
+            sqlQuery += " group by R.id order by id desc";
+            using (var cmd =
+                new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                var requests = new List<RequestForListDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        requests.Add(new RequestForListDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            HasAttachment = dataReader.GetBoolean("has_attach"),
+                            StreetPrefix = dataReader.GetString("prefix_name"),
+                            StreetName = dataReader.GetString("street_name"),
+                            AddressType = dataReader.GetString("address_type"),
+                            Flat = dataReader.GetString("flat"),
+                            Building = dataReader.GetString("building"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            CreateTime = dataReader.GetDateTime("create_time"),
+                            Description = dataReader.GetNullableString("description"),
+                            ContactPhones = dataReader.GetNullableString("client_phones"),
+                            ParentService = dataReader.GetNullableString("parent_name"),
+                            Service = dataReader.GetNullableString("service_name"),
+                            Worker = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("worker_id"),
+                                SurName = dataReader.GetNullableString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                            } : null,
+                            CreateUser = new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("create_user_id"),
+                                SurName = dataReader.GetNullableString("surname"),
+                                FirstName = dataReader.GetNullableString("firstname"),
+                                PatrName = dataReader.GetNullableString("patrname"),
+                            },
+                            ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                            ExecutePeriod = dataReader.GetNullableString("Period_Name"),
+                            Rating = dataReader.GetNullableString("Rating"),
+                            Status = dataReader.GetNullableString("Req_Status"),
+                            SpendTime = dataReader.GetNullableString("spend_time"),
+                            FromTime = dataReader.GetNullableDateTime("from_time"),
+                            ToTime = dataReader.GetNullableDateTime("to_time"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return requests;
+            }
+        }
 
         public IList<WorkerDto> GetWorkers(int? serviceCompanyId, bool showOnlyExecutors = true)
         {
