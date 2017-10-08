@@ -2210,6 +2210,139 @@ select LAST_INSERT_ID();", _dbConnection))
             }
         }
 
+        public List<AlertTypeDto> GetAlertTypes()
+        {
+            using (
+                var cmd = new MySqlCommand("select id,name from CallCenter.AlertType where enabled = 1", _dbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var alertTypeDtos = new List<AlertTypeDto>();
+                    while (dataReader.Read())
+                    {
+                        alertTypeDtos.Add(new AlertTypeDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                        });
+                    }
+                    dataReader.Close();
+                    return alertTypeDtos;
+                }
+            }
+        }
+        public List<AlertServiceTypeDto> GetAlertServiceTypes()
+        {
+            using (
+                var cmd = new MySqlCommand("select id,name from CallCenter.AlertServiceType where enabled = 1 order by order_num", _dbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var serviceTypeDtos = new List<AlertServiceTypeDto>();
+                    while (dataReader.Read())
+                    {
+                        serviceTypeDtos.Add(new AlertServiceTypeDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                        });
+                    }
+                    dataReader.Close();
+                    return serviceTypeDtos;
+                }
+            }
+        }
+        public List<AlertDto> GetAlerts(DateTime fromDate, DateTime toDate, bool onlyActive = true)
+        {
+            var sqlQuery = @"SELECT a.id alert_id,s.id street_id, s.name street_name,h.id house_id, h.building,h.corps,a.start_date,a.end_date,a.description,
+ at.id alert_type_id, at.name alert_type_name, a.alert_service_type_id,ast.name alert_service_type_name
+ FROM CallCenter.Alerts a
+ join CallCenter.Houses h on h.id = a.house_id
+ join CallCenter.Streets s on s.id = h.street_id
+ join CallCenter.AlertType at on at.id = a.alert_type_id
+ join CallCenter.AlertServiceType ast on ast.id = a.alert_service_type_id
+ where 1 = 1";
+            if (onlyActive)
+                sqlQuery += " and (end_date is null or a.end_date > sysdate())";
+            else
+            {
+                sqlQuery += @" and (end_date is null or a.end_date between @FromDate and @ToDate)
+ and (start_date between @FromDate and @ToDate)";
+            }
+            using (
+                var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                if (!onlyActive)
+                {
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate);
+
+                }
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var alertDtos = new List<AlertDto>();
+                    while (dataReader.Read())
+                    {
+                        alertDtos.Add(new AlertDto
+                        {
+                            Id = dataReader.GetInt32("alert_id"),
+                            StreetId = dataReader.GetInt32("street_id"),
+                            HouseId = dataReader.GetInt32("house_id"),
+                            StreetName = dataReader.GetString("street_name"),
+                            Building = dataReader.GetString("building"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            StartDate = dataReader.GetDateTime("start_date"),
+                            EndDate = dataReader.GetNullableDateTime("end_date"),
+                            Description = dataReader.GetNullableString("description"),
+                            Type = new AlertTypeDto
+                            {
+                                Id = dataReader.GetInt32("alert_type_id"),
+                                Name = dataReader.GetString("alert_type_name")
+                            },
+                            ServiceType = new AlertServiceTypeDto
+                            {
+                                Id = dataReader.GetInt32("alert_service_type_id"),
+                                Name = dataReader.GetString("alert_service_type_name")
+                            }
+                        });
+                    }
+                    dataReader.Close();
+                    return alertDtos;
+                }
+            }
+        }
+        public void SaveAlert(AlertDto alert)
+        {
+            if (alert.Id == 0)
+            {
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.Alerts(house_id, alert_type_id, alert_service_type_id, create_date, create_user_id, start_date, end_date, description)
+ values(@HouseId,@TypeId,@ServiceId,sysdate(),@UserId,@StartDate,@EndDate,@Desc);", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@HouseId", alert.HouseId);
+                    cmd.Parameters.AddWithValue("@TypeId", alert.Type.Id);
+                    cmd.Parameters.AddWithValue("@ServiceId", alert.ServiceType.Id);
+                    cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                    cmd.Parameters.AddWithValue("@StartDate", alert.StartDate);
+                    cmd.Parameters.AddWithValue("@EndDate", alert.EndDate);
+                    cmd.Parameters.AddWithValue("@Desc", alert.Description);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            else
+            {
+                using (var cmd = new MySqlCommand(@"update CallCenter.Alerts set start_date = @StartDate, end_date = @EndDate, description = @Desc where id = @alertId;", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@alertId", alert.Id);
+                    cmd.Parameters.AddWithValue("@StartDate", alert.StartDate);
+                    cmd.Parameters.AddWithValue("@EndDate", alert.EndDate);
+                    cmd.Parameters.AddWithValue("@Desc", alert.Description);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+
     }
 
 }

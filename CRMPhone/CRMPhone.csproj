@@ -122,6 +122,9 @@
     <Compile Include="Controls\Admins\WorkerAdminControl.xaml.cs">
       <DependentUpon>WorkerAdminControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\AlertAndWorkControl.xaml.cs">
+      <DependentUpon>AlertAndWorkControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\AlertRequestControl.xaml.cs">
       <DependentUpon>AlertRequestControl.xaml</DependentUpon>
     </Compile>
@@ -154,6 +157,9 @@
     </Compile>
     <Compile Include="Dialogs\Admins\WorkerAddOrEditDialog.xaml.cs">
       <DependentUpon>WorkerAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\AlertAndWorkDialog.xaml.cs">
+      <DependentUpon>AlertAndWorkDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\AttachmentDialog.xaml.cs">
       <DependentUpon>AttachmentDialog.xaml</DependentUpon>
@@ -193,6 +199,8 @@
     <Compile Include="ViewModel\Admins\SpecialityDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\StreetAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
+    <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
+    <Compile Include="ViewModel\AlertAndWorkDialogViewModel.cs" />
     <Compile Include="ViewModel\AttachmentDialogViewModel.cs" />
     <Compile Include="ViewModel\BlackListControlContext.cs" />
     <Compile Include="ViewModel\CallsHistoryDialogViewModel.cs" />
@@ -271,6 +279,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\AlertAndWorkControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\AlertRequestControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -308,6 +320,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\Admins\WorkerAddOrEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\AlertAndWorkDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -410,6 +426,7 @@
     <Resource Include="Images\info_24.png" />
     <Resource Include="Images\prib_ucheta_small.png" />
     <Resource Include="Images\danger_small.png" />
+    <Resource Include="Images\tech_work_small.png" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -6,11 +6,10 @@ using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
 using CRMPhone.Dialogs;
-using CRMPhone.ViewModel;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 
-namespace CRMPhone
+namespace CRMPhone.ViewModel
 {
     public class RequestDialogViewModel : INotifyPropertyChanged
     {
@@ -544,5 +543,4 @@ namespace CRMPhone
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-
 }

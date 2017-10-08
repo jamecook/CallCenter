@@ -123,6 +123,16 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/tech_work_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Отключения"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <controls:AlertAndWorkControl DataContext="{Binding AlertAndWorkContext}"/>
+            </TabItem>
+
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
                         <Image  Source="pack://application:,,,/Images/prib_ucheta_small.png" Stretch="UniformToFill" Height="28" />
                         <TextBlock Margin="3" Text="Приборы учёта"/>
                     </StackPanel>

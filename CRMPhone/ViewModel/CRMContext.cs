@@ -96,6 +96,7 @@ namespace CRMPhone.ViewModel
             RedirectAdminContext = new RedirectAdminControlContext();
             BlackListContext = new BlackListControlContext();
             AlertRequestDataContext = new AlertRequestControlContext();
+            AlertAndWorkContext = new AlertAndWorkControlContext();
         }
 
         public void InitMysqlAndSip()
@@ -116,6 +117,7 @@ namespace CRMPhone.ViewModel
             HouseAdminContext.RefreshCities();
             RedirectAdminContext.Refresh();
             BlackListContext.RefreshList();
+            AlertAndWorkContext.InitCollections();
             OnPropertyChanged(nameof(IsAdminRoleExist));
         }
         public DateTime FromDate
@@ -384,6 +386,7 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<ServiceCompanyDto> _metersScList;
         private ServiceCompanyDto _selectedMetersSc;
         private AlertRequestControlContext _alertRequestDataContext;
+        private AlertAndWorkControlContext _alertAndWorkContext;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
 
         public bool IsMuted
@@ -407,6 +410,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _requestDataContext; }
             set { _requestDataContext = value; OnPropertyChanged(nameof(RequestDataContext)); }
+        }
+
+        public AlertAndWorkControlContext AlertAndWorkContext
+        {
+            get { return _alertAndWorkContext; }
+            set { _alertAndWorkContext = value; OnPropertyChanged(nameof(AlertAndWorkContext));}
         }
 
         public AlertRequestControlContext AlertRequestDataContext

@@ -5,17 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:crmPhone="clr-namespace:CRMPhone"
         xmlns:controls="clr-namespace:CRMPhone.Controls"
+        xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         mc:Ignorable="d"
         Title="Заявка" MinHeight="750" MaxHeight="750" MinWidth ="960" MaxWidth="960" Height="750" Width="960"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         FontSize="12"
-        d:DataContext="{d:DesignInstance crmPhone:RequestDialogViewModel}">
+        d:DataContext="{d:DesignInstance viewModel:RequestDialogViewModel}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     </Window.Resources>
-
-
     <Grid Name ="RequestGrid" >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
