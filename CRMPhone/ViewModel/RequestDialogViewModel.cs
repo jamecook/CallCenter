@@ -94,6 +94,8 @@ namespace CRMPhone.ViewModel
             FlatList.Clear();
             if (!houseId.HasValue)
                 return;
+            if(CanEdit)
+                AlertExists = _requestService.AlertCountByHouseId(houseId.Value)>0;
             foreach (var flat in _requestService.GetFlats(houseId.Value).OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6,'0')))
             {
                 FlatList.Add(flat);
@@ -139,9 +141,16 @@ namespace CRMPhone.ViewModel
             set
             {
                 _selectedHouse = value;
+                
                 ChangeHouse(value?.Id);
                 OnPropertyChanged(nameof(SelectedHouse));
             }
+        }
+
+        public bool AlertExists
+        {
+            get { return _alertExists; }
+            set { _alertExists = value; OnPropertyChanged(nameof(AlertExists)); }
         }
 
         public ObservableCollection<FlatDto> FlatList
@@ -219,6 +228,19 @@ namespace CRMPhone.ViewModel
         private ICommand _changeCheckedStateCommand;
         public ICommand ChangeCheckedStateCommand { get { return _changeCheckedStateCommand ?? (_changeCheckedStateCommand = new CommandHandler(ChangeChekedState, true)); } }
 
+        private ICommand _openAlertsCommand;
+        public ICommand OpenAlertsCommand { get { return _openAlertsCommand ?? (_openAlertsCommand = new CommandHandler(OpenAlerts, true)); } }
+
+        private void OpenAlerts()
+        {
+            var alerts = _requestService.GetAlerts(DateTime.Now, DateTime.Now, SelectedHouse.Id);
+            var model = new AlertForHouseDialogViewModel(alerts);
+            var view = new AlertByHouseListDialog();
+            view.DataContext = model;
+            view.Owner = Application.Current.MainWindow;
+            model.SetView(view);
+            view.ShowDialog();
+        }
 
         private ICommand _saveRequestCommand;
         public ICommand SaveRequestCommand { get { return _saveRequestCommand ?? (_saveRequestCommand = new RelayCommand(SaveRequest)); } }
@@ -442,6 +464,7 @@ namespace CRMPhone.ViewModel
         private string _entrance;
         private string _floor;
         private ObservableCollection<RequestForListDto> _addressRequestList;
+        private bool _alertExists;
 
         public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new CommandHandler(Close, true)); } }
 
@@ -501,6 +524,7 @@ namespace CRMPhone.ViewModel
 
         public RequestDialogViewModel()
         {
+            AlertExists = false;
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             var contactInfo = new ContactDto {Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall};
             _callUniqueId = _requestService.GetActiveCallUniqueId();

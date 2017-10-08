@@ -2252,7 +2252,30 @@ select LAST_INSERT_ID();", _dbConnection))
                 }
             }
         }
-        public List<AlertDto> GetAlerts(DateTime fromDate, DateTime toDate, bool onlyActive = true)
+
+        public int AlertCountByHouseId(int housId)
+        {
+            int result = 0;
+            var sqlQuery = @"SELECT count(1) alert_count FROM CallCenter.Alerts a
+ where a.house_id = @HouseId and (end_date is null or a.end_date > sysdate())";
+            using (
+                var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@HouseId", housId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        result = dataReader.GetInt32("alert_count");
+                    }
+                    dataReader.Close();
+                    return result;
+                }
+            }
+        }
+
+        public List<AlertDto> GetAlerts(DateTime fromDate, DateTime toDate,int? houseId, bool onlyActive = true)
         {
             var sqlQuery = @"SELECT a.id alert_id,s.id street_id, s.name street_name,h.id house_id, h.building,h.corps,a.start_date,a.end_date,a.description,
  at.id alert_type_id, at.name alert_type_name, a.alert_service_type_id,ast.name alert_service_type_name
@@ -2269,6 +2292,8 @@ select LAST_INSERT_ID();", _dbConnection))
                 sqlQuery += @" and (end_date is null or a.end_date between @FromDate and @ToDate)
  and (start_date between @FromDate and @ToDate)";
             }
+            if(houseId.HasValue)
+                sqlQuery += " and h.id = @HauseId";
             using (
                 var cmd = new MySqlCommand(sqlQuery, _dbConnection))
             {
@@ -2278,6 +2303,8 @@ select LAST_INSERT_ID();", _dbConnection))
                     cmd.Parameters.AddWithValue("@ToDate", toDate);
 
                 }
+                if (houseId.HasValue)
+                    cmd.Parameters.AddWithValue("@HauseId", houseId.Value);
 
                 using (var dataReader = cmd.ExecuteReader())
                 {

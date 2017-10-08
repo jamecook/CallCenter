@@ -161,6 +161,9 @@
     <Compile Include="Dialogs\AlertAndWorkDialog.xaml.cs">
       <DependentUpon>AlertAndWorkDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\AlertByHouseListDialog.xaml.cs">
+      <DependentUpon>AlertByHouseListDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\AttachmentDialog.xaml.cs">
       <DependentUpon>AttachmentDialog.xaml</DependentUpon>
     </Compile>
@@ -201,6 +204,7 @@
     <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
     <Compile Include="ViewModel\AlertAndWorkDialogViewModel.cs" />
+    <Compile Include="ViewModel\AlertForHouseDialogViewModel.cs" />
     <Compile Include="ViewModel\AttachmentDialogViewModel.cs" />
     <Compile Include="ViewModel\BlackListControlContext.cs" />
     <Compile Include="ViewModel\CallsHistoryDialogViewModel.cs" />
@@ -324,6 +328,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\AlertAndWorkDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\AlertByHouseListDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

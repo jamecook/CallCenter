@@ -63,7 +63,7 @@ namespace CRMPhone.ViewModel
         private void RefreshAlerts()
         {
             AlertList.Clear();
-            var alerts = _requestService.GetAlerts(FromDate,ToDate,OnlyActive);
+            var alerts = _requestService.GetAlerts(FromDate,ToDate,null,OnlyActive);
             foreach (var alert in alerts)
             {
                 AlertList.Add(alert);

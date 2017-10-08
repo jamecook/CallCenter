@@ -274,6 +274,7 @@ namespace CRMPhone.ViewModel
             var viewModel = new RequestDialogViewModel();
             var view = new RequestDialog(viewModel);
             viewModel.SetView(view);
+            viewModel.RequestId = request.Id;
             viewModel.SelectedCity = viewModel.CityList.SingleOrDefault(i=>i.Id == request.Address.CityId);
             viewModel.SelectedStreet = viewModel.StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
             viewModel.SelectedHouse = viewModel.HouseList.SingleOrDefault(i=>i.Id == request.Address.HouseId);
@@ -303,7 +304,6 @@ namespace CRMPhone.ViewModel
                 requestModel.SelectedDateTime = request.ExecuteDate.Value.Date;
                 requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
             }
-            viewModel.RequestId = request.Id;
             viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
             view.Show();
 

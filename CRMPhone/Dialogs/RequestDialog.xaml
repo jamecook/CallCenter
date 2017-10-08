@@ -7,7 +7,7 @@
         xmlns:controls="clr-namespace:CRMPhone.Controls"
         xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         mc:Ignorable="d"
-        Title="Заявка" MinHeight="750" MaxHeight="750" MinWidth ="960" MaxWidth="960" Height="750" Width="960"
+        Title="Заявка" MinHeight="750" MaxHeight="750" MinWidth ="980" MaxWidth="980" Height="750" Width="980"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         FontSize="12"
@@ -34,7 +34,11 @@
             <ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="NameWithPrefix" SelectedItem="{Binding SelectedStreet}" ItemsSource="{Binding StreetList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="дом:"/>
             <ComboBox Margin="3" Width="65" TabIndex ="3" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
-            <!--<ComboBox Margin="3" Width="100" TabIndex ="4" DisplayMemberPath="Name" SelectedItem="{Binding SelectedAddressType}" ItemsSource="{Binding AddressTypeList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>-->
+            <Button Margin="3" Width="32" TabIndex ="3" Visibility="{Binding AlertExists, Converter={StaticResource BooleanToVisibility}}" 
+                    Command="{Binding OpenAlertsCommand}" ToolTip="Есть активные работы по выбранному дому!">
+               <Image Source="pack://application:,,,/Images/danger_small.png" Width="24"/>
+            </Button>
+                   <!--<ComboBox Margin="3" Width="100" TabIndex ="4" DisplayMemberPath="Name" SelectedItem="{Binding SelectedAddressType}" ItemsSource="{Binding AddressTypeList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>-->
             <ComboBox Margin="3" Width="100" TabIndex ="5" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFlat}" ItemsSource="{Binding FlatList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="подъезд:"/>
             <TextBox Margin="3" Width="45" TabIndex ="6" Text="{Binding Path=Entrance}"/>
