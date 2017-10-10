@@ -88,7 +88,7 @@ namespace RequestServiceImpl
             return result.ToArray();
         }
 
-        public RequestForListDto[] WebRequestList(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId)
+        public RequestForListDto[] WebRequestList(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -149,6 +149,8 @@ namespace RequestServiceImpl
                     sqlQuery += $" and WS.Web_State_Id = {statusId.Value}";
                 if (workerId.HasValue)
                     sqlQuery += $" and w.id = {workerId.Value}";
+                if(!string.IsNullOrEmpty(clientPhone))
+                    sqlQuery += $" and cp.Number = '{clientPhone}'";
             }
             else
             {

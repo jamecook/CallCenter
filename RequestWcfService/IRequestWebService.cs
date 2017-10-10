@@ -16,7 +16,7 @@ namespace RequestWcfService
         WebUserDto Login(string login, string password);
 
         [OperationContract]
-        RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId);
+        RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId, string clientPhone);
 
         [OperationContract]
         RequestForListDto GetRequestById(int requestId);
