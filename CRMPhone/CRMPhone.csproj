@@ -164,6 +164,9 @@
     <Compile Include="Dialogs\AlertByHouseListDialog.xaml.cs">
       <DependentUpon>AlertByHouseListDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\NotesDialog.xaml.cs">
+      <DependentUpon>NotesDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\AttachmentDialog.xaml.cs">
       <DependentUpon>AttachmentDialog.xaml</DependentUpon>
     </Compile>
@@ -228,6 +231,7 @@
     </Compile>
     <Compile Include="ViewModel\HouseAdminControlContext.cs" />
     <Compile Include="ViewModel\MeterDeviceViewModel.cs" />
+    <Compile Include="ViewModel\NoteDialogViewModel.cs" />
     <Compile Include="ViewModel\RedirectAdminControlContext.cs" />
     <Compile Include="ViewModel\AlertRequestControlContext.cs" />
     <Compile Include="ViewModel\RequestItemViewModel.cs" />
@@ -334,6 +338,10 @@
     <Page Include="Dialogs\AlertByHouseListDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\NotesDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\AttachmentDialog.xaml">
       <SubType>Designer</SubType>

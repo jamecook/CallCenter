@@ -454,6 +454,10 @@ select LAST_INSERT_ID();", _dbConnection))
         {
             return GetNotesCore(requestId, _dbConnection);
         }
+        public List<NoteDto> GetNotes(int requestId)
+        {
+            return GetNotesCore(requestId, AppSettings.DbConnection);
+        }
 
         public List<NoteDto> GetNotesCore(int requestId, MySqlConnection dbConnection)
         {

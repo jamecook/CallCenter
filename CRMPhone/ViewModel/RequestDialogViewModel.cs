@@ -253,6 +253,9 @@ namespace CRMPhone.ViewModel
 
         private ICommand _openAttachmentDialogCommand;
         public ICommand OpenAttachmentDialogCommand { get { return _openAttachmentDialogCommand ?? (_openAttachmentDialogCommand = new RelayCommand(OpenAttachmentDialog)); } }
+
+        private ICommand _noteCommand;
+        public ICommand OpenNoteDialogCommand { get { return _noteCommand ?? (_noteCommand = new RelayCommand(OpenNotesDialog)); } }
         private ICommand _addCallCommand;
         public ICommand AddCallCommand { get { return _addCallCommand ?? (_addCallCommand = new RelayCommand(AddCall)); } }
         private ICommand _callsHistoryCommand;
@@ -314,6 +317,20 @@ namespace CRMPhone.ViewModel
                 return;
             var model = new AttachmentDialogViewModel(_requestService, requestModel.RequestId.Value);
             var view = new AttachmentDialog();
+            model.SetView(view);
+            view.Owner = _view;
+            view.DataContext = model;
+            view.ShowDialog();
+        }
+        private void OpenNotesDialog(object sender)
+        {
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            if (!requestModel.RequestId.HasValue)
+                return;
+            var model = new NoteDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var view = new NotesDialog();
             model.SetView(view);
             view.Owner = _view;
             view.DataContext = model;
