@@ -186,7 +186,7 @@ select LAST_INSERT_ID();", _dbConnection))
             return null;
         }
 
-        public byte[] GetMeiaByRequestId(int requestId)
+        public byte[] GetMediaByRequestId(int requestId)
         {
             using (var cmd =
                     new MySqlCommand(@"SELECT MonitorFile FROM CallCenter.RequestCalls r
@@ -421,20 +421,21 @@ select LAST_INSERT_ID();", _dbConnection))
             }
         }
 
-        public void AddNewNote(int requestId, string note)
+        public void AddNewNote(int requestId, string note, int? userId = null)
         {
-            _logger.Debug($"RequestService.AddNewNote({requestId},{note})");
+            //_logger.Debug($"RequestService.AddNewNote({requestId},{note})");
+            var currentUserId = userId ?? AppSettings.CurrentUser.Id;
             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"insert into CallCenter.RequestNoteHistory (request_id,operation_date,user_id,note) 
-    values(@RequestId,sysdate(),@UserId,@Note);", _dbConnection))
+                            new MySqlCommand(@"insert into CallCenter.RequestNoteHistory (request_id,operation_date,user_id,note)
+ values(@RequestId,sysdate(),@UserId,@Note);", _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
-                        cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                        cmd.Parameters.AddWithValue("@UserId", currentUserId);
                         cmd.Parameters.AddWithValue("@Note", note);
                         cmd.ExecuteNonQuery();
                     }
@@ -448,6 +449,46 @@ select LAST_INSERT_ID();", _dbConnection))
             }
 
         }
+
+        public List<NoteDto> GetNotesWeb(int requestId)
+        {
+            return GetNotesCore(requestId, _dbConnection);
+        }
+
+        public List<NoteDto> GetNotesCore(int requestId, MySqlConnection dbConnection)
+        {
+            var sqlQuery = @"SELECT n.id,n.operation_date,n.request_id,n.user_id,n.note,u.SurName,u.FirstName,u.PatrName from CallCenter.RequestNoteHistory n
+join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order by operation_date";
+            using (
+            var cmd = new MySqlCommand(sqlQuery, dbConnection))
+            {
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var noteList = new List<NoteDto>();
+                    while (dataReader.Read())
+                    {
+                        noteList.Add(new NoteDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Date = dataReader.GetDateTime("operation_date"),
+                            Note = dataReader.GetNullableString("note"),
+                            User = new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("user_id"),
+                                SurName = dataReader.GetNullableString("SurName"),
+                                FirstName = dataReader.GetNullableString("FirstName"),
+                                PatrName = dataReader.GetNullableString("PatrName"),
+                            },
+                        });
+                    }
+                    dataReader.Close();
+                    return noteList;
+                }
+            }
+
+        }
+
 
         public RequestInfoDto GetRequest(int requestId)
         {
@@ -1480,7 +1521,8 @@ select LAST_INSERT_ID();", _dbConnection))
                     return callList;
                 }
             }
-        }        public List<CallsListDto> GetCallListByRequestId(int requestId)
+        }
+        public List<CallsListDto> GetCallListByRequestId(int requestId)
         {
             var sqlQuery = @"SELECT ch.UniqueID,Direction,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime,
  MonitorFile, timestampdiff(SECOND,ch.BridgedTime,ch.EndTime) AS TalkTime,

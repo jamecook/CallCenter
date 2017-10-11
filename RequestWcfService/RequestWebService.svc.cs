@@ -140,7 +140,7 @@ namespace RequestWcfService
 
         public byte[] GetMediaByRequestId(int requestId)
         {
-            return _requestService.GetMeiaByRequestId(requestId);
+            return _requestService.GetMediaByRequestId(requestId);
         }
 
         public StatInfoDto[] GetRequestByUsersInto()
@@ -155,6 +155,16 @@ namespace RequestWcfService
         public WebCallsDto[] GetWebCallsByRequestId(int requestId)
         {
             return _requestService.GetWebCallsByRequestId(requestId);
+        }
+
+        public void AddNote(int requestId, string note, int userId)
+        {
+            _requestService.AddNewNote(requestId,note,userId);
+        }
+
+        public NoteDto[] GetNotes(int requestId)
+        {
+            return _requestService.GetNotesWeb(requestId).ToArray();
         }
     }
 }

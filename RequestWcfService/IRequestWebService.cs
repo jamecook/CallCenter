@@ -55,6 +55,12 @@ namespace RequestWcfService
         AttachmentDto[] GetAttachmentList(int requestId);
 
         [OperationContract]
+        void AddNote(int requestId, string note, int userId);
+
+        [OperationContract]
+        NoteDto[] GetNotes(int requestId);
+
+        [OperationContract]
         void ChangeState(int requestId, int stateId, int userId);
 
         [OperationContract]
