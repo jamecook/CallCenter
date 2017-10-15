@@ -181,7 +181,7 @@ namespace CRMPhone.ViewModel
         private void LoadRequestsBySelectedAddress(int addressId)
         {
             var currentDate = _requestService.GetCurrentDate();
-            AddressRequestList = new ObservableCollection<RequestForListDto>(_requestService.GetRequestList(null, true, currentDate.AddDays(-30), currentDate, DateTime.Today,
+            AddressRequestList = new ObservableCollection<RequestForListDto>(_requestService.GetRequestList(null, true, currentDate.AddDays(-90), currentDate.AddDays(1), DateTime.Today,
                 DateTime.Today, null, null, addressId, null, null,null,new int[0],null,null,null));
         }
 

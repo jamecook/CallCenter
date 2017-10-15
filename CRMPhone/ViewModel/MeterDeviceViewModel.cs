@@ -198,11 +198,13 @@ namespace CRMPhone
         {
             if (SelectedFlat == null)
             {
-                MessageBox.Show("Ошибка", "Необходимо выбрать правильный адрес!");
+                MessageBox.Show("Необходимо выбрать правильный адрес!", "Ошибка");
                 return;
             }
             _requestService.SaveMeterValues(PhoneNumber,SelectedFlat.Id,Electro1,Electro2,HotWater1,ColdWater1,HotWater2,ColdWater2,Heating, _meterId);
             LoadRequestsBySelectedAddress(SelectedFlat.Id);
+            MessageBox.Show("Данные успешно сохранены!", "Приборы учёта");
+
         }
 
         private ICommand _closeCommand;

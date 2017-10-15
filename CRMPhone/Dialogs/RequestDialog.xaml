@@ -47,8 +47,9 @@
             <Button Content="Закрыть" Margin="25,3,15,3" Width="120" Command="{Binding CloseCommand}"/>
             </WrapPanel>
             </WrapPanel>
-            <StackPanel Visibility ="{Binding CanEdit, Converter={StaticResource BooleanToVisibility}}">
-            <TextBlock Margin ="3" Text="История заявок по адресу за последние 30 дней:"/>
+            <StackPanel>
+            <!--<StackPanel Visibility ="{Binding CanEdit, Converter={StaticResource BooleanToVisibility}}">-->
+            <TextBlock Margin ="3" Text="История заявок по адресу за последние 90 дней:"/>
                 <DataGrid Name="OldRequestsGrid"
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding Path=AddressRequestList}"
