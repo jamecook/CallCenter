@@ -37,6 +37,9 @@ namespace RequestWcfService
         byte[] GetMediaByRequestId(int requestId);
 
         [OperationContract]
+        byte[] GetRecordById(int recordId);
+
+        [OperationContract]
         StatInfoDto[] GetRequestByUsersInto();
 
         [OperationContract]

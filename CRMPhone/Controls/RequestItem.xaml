@@ -31,16 +31,17 @@
                     <TextBlock Margin = "3" VerticalAlignment="Center" Text="Статус:"/>
                     <TextBlock Margin = "3" VerticalAlignment="Center" Text="{Binding RequestState}"/>
                 </WrapPanel>
-                    <WrapPanel IsEnabled="{Binding CanSave}" Grid.Row="1" Grid.Column="0">
+                    <WrapPanel Grid.Row="1" Grid.Column="0">
+                    <!--<WrapPanel IsEnabled="{Binding CanSave}" Grid.Row="1" Grid.Column="0">-->
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="УК:"/>
-                    <ComboBox Margin="3" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCompany}" ItemsSource="{Binding CompanyList}" IsEditable="True" >
+                    <ComboBox IsEnabled ="{Binding CanSave}" Margin="3" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCompany}" ItemsSource="{Binding CompanyList}" IsEditable="True" >
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
                     </ComboBox>
 
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Услуга:"/>
-                    <ComboBox Margin="3" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedParentService}" ItemsSource="{Binding ParentServiceList}" IsEditable="True" >
+                    <ComboBox IsEnabled ="{Binding CanSave}" Margin="3" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedParentService}" ItemsSource="{Binding ParentServiceList}" IsEditable="True" >
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
@@ -52,18 +53,19 @@
                         </ComboBox.Resources>
                     </ComboBox>
                 </WrapPanel>
-                <WrapPanel Grid.Row="2" Grid.Column="0" IsEnabled="{Binding CanSave}">
+                <WrapPanel Grid.Row="2" Grid.Column="0">
+                <!--<WrapPanel Grid.Row="2" Grid.Column="0" IsEnabled="{Binding CanSave}">-->
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Исполнитель:"/>
-                    <ComboBox Margin="3"  Width="125" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedWorker}" ItemsSource="{Binding WorkerList}" IsEditable="True">
+                    <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedWorker}" ItemsSource="{Binding WorkerList}" IsEditable="True">
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
                     </ComboBox>
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата:"/>
-                    <DatePicker  Margin="3" Width="140" SelectedDate="{Binding SelectedDateTime}">
+                    <DatePicker  Margin="3" IsEnabled="{Binding CanSave}" Width="140" SelectedDate="{Binding SelectedDateTime}">
                     </DatePicker>
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Время:"/>
-                    <ComboBox Margin="3"  Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedPeriod}" ItemsSource="{Binding PeriodList}" IsEditable="True">
+                    <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedPeriod}" ItemsSource="{Binding PeriodList}" IsEditable="True">
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
@@ -96,8 +98,10 @@
                     <TextBlock Margin="3" Text="{Binding Rating.Description}" TextWrapping="Wrap" Width="460"/>
                 </WrapPanel>
                 <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="5">
-                    <Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanSave}" Command="{Binding ElementName=RequestGrid, Path=DataContext.SaveRequestCommand}"
+                    <Button Margin="5" Width="140" Height="24" Command="{Binding ElementName=RequestGrid, Path=DataContext.SaveRequestCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Сохранить</Button>
+                    <!--<Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanSave}" Command="{Binding ElementName=RequestGrid, Path=DataContext.SaveRequestCommand}"
+                    CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Сохранить</Button>-->
                     <Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeWorkerCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Исполнитель</Button>
                     <DockPanel>

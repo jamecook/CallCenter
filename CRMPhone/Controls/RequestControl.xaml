@@ -30,30 +30,47 @@
             <ComboBox Margin="3" Width="65" TabIndex ="3" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
             <ComboBox Margin="3" Width="100" TabIndex ="5" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFlat}" ItemsSource="{Binding FlatList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
             </WrapPanel>
-            <WrapPanel >
-                <TextBlock Margin="3" VerticalAlignment="Center" Text="услуга:"/>
-                <ComboBox Margin="3" Width="125" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedParentService}" ItemsSource="{Binding ParentServiceList}" IsEditable="True" />
-                <TextBlock Margin="3" VerticalAlignment="Center" Text="причина:"/>
-                <ComboBox Margin="3" Width="240" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedService}" ItemsSource="{Binding ServiceList}" IsEditable="True" />
-            </WrapPanel>
-            <TextBlock Margin="3" VerticalAlignment="Center" Text="статус:"/>
-            <ComboBox Margin="3" Width="80" VerticalAlignment="Center" DisplayMemberPath="Description" SelectedItem="{Binding SelectedStatus}" ItemsSource="{Binding StatusList}" IsEditable="True" />
+            <Expander Header="Доп. фильтры">
+                <WrapPanel>
+                    <WrapPanel >
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="услуга:"/>
+                        <ComboBox Margin="3" Width="125" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedParentService}" ItemsSource="{Binding ParentServiceList}" IsEditable="True" />
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="причина:"/>
+                        <ComboBox Margin="3" Width="240" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedService}" ItemsSource="{Binding ServiceList}" IsEditable="True" />
+                    </WrapPanel>
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="статус:"/>
+                    <ComboBox Margin="3" Width="80" VerticalAlignment="Center" DisplayMemberPath="Description" SelectedItem="{Binding SelectedStatus}" ItemsSource="{Binding StatusList}" IsEditable="True" />
 
-            <TextBlock Margin="3" VerticalAlignment="Center" Text="бригада:"/>
-            <ComboBox Name ="CbWorkers" Margin="3" Width="200" VerticalAlignment="Center" ItemsSource="{Binding FilterWorkerList}" IsEditable="True"
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="бригада:"/>
+                    <ComboBox Name ="CbWorkers" Margin="3" Width="200" VerticalAlignment="Center" ItemsSource="{Binding FilterWorkerList}" IsEditable="True"
                       IsReadOnly="True" SelectionChanged="OnCbSelectionChanged" DropDownClosed="CbWorkers_OnDropDownClosed">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Margin="2">
-                            <CheckBox IsChecked="{Binding Selected}" Checked="OnCbObjectCheckBoxChecked" Unchecked="OnCbObjectCheckBoxChecked"
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="2">
+                                    <CheckBox IsChecked="{Binding Selected}" Checked="OnCbObjectCheckBoxChecked" Unchecked="OnCbObjectCheckBoxChecked"
                                       Width="20" />
-                            <TextBlock Text="{Binding FullName}"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
+                                    <TextBlock Text="{Binding FullName}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <DockPanel>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="УК:"/>
+                        <ComboBox Margin="3" Width="120" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedServiceCompany}" ItemsSource="{Binding ServiceCompanyList}" IsEditable="True" />
+                    </DockPanel>
+                    <DockPanel>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="Диспетчер:"/>
+                        <ComboBox Margin="3" Width="120" VerticalAlignment="Center" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedUser}" ItemsSource="{Binding UserList}" IsEditable="True" />
+                    </DockPanel>
+                    <DockPanel>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="Платная:"/>
+                        <ComboBox Margin="3" Width="120" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedPayment}" ItemsSource="{Binding PaymentList}" IsEditable="True" />
+                    </DockPanel>
+                </WrapPanel>
+            </Expander>
+
             <WrapPanel>
-                <StackPanel>
+            <StackPanel>
                     <DockPanel>
                         <RadioButton Margin="3" GroupName="DateFind" IsChecked ="{Binding FilterByCreateDate}" VerticalAlignment="Center" Content="По дате заявки"  Width="140"/>
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="с:"/>

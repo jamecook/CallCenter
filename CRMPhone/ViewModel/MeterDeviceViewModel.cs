@@ -201,7 +201,7 @@ namespace CRMPhone
                 MessageBox.Show("Ошибка", "Необходимо выбрать правильный адрес!");
                 return;
             }
-            _requestService.SaveMeterValues(PhoneNumber,SelectedFlat.Id,Electro1,Electro2,HotWater1,ColdWater1,HotWater2,ColdWater2,Heating);
+            _requestService.SaveMeterValues(PhoneNumber,SelectedFlat.Id,Electro1,Electro2,HotWater1,ColdWater1,HotWater2,ColdWater2,Heating, _meterId);
             LoadRequestsBySelectedAddress(SelectedFlat.Id);
         }
 
@@ -214,6 +214,7 @@ namespace CRMPhone
         private double _coldWater2;
         private double _heating;
         private ObservableCollection<MetersDto> _metersHistoryList;
+        private int? _meterId;
 
         public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new CommandHandler(Close, true)); } }
 
@@ -233,8 +234,11 @@ namespace CRMPhone
             _view = view;
         }
 
-        public MeterDeviceViewModel()
+        public bool CanEdit => !_meterId.HasValue;
+
+        public MeterDeviceViewModel(MeterListDto meter = null)
         {
+            _meterId = meter?.Id;
             _requestService = new RequestService(AppSettings.DbConnection);
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
@@ -256,6 +260,19 @@ namespace CRMPhone
                                                       h.Corpus == clientInfoDto.Corpus);
                     SelectedFlat = FlatList.FirstOrDefault(f => f.Flat == clientInfoDto.Flat);
                 }
+            }
+            if (meter!=null)
+            {
+                SelectedStreet = StreetList.FirstOrDefault(s => s.Id == meter.StreetId);
+                SelectedHouse = HouseList.FirstOrDefault(h => h.Id == meter.HouseId);
+                SelectedFlat = FlatList.FirstOrDefault(f => f.Id == meter.AddressId);
+                ColdWater1 = meter.ColdWater1;
+                HotWater1 = meter.HotWater1;
+                ColdWater2 = meter.ColdWater2;
+                HotWater2 = meter.HotWater2;
+                Electro1 = meter.Electro1;
+                Electro2 = meter.Electro2;
+                Heating = meter.Heating;
             }
         }
 

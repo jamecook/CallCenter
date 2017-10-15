@@ -383,7 +383,7 @@ namespace RequestServiceImpl
         public WebCallsDto[] GetWebCallsByRequestId(int requestId)
         {
 
-            var sqlQuery = @"SELECT r.id,c.CallerIdNum,c.CreateTime,c.MonitorFile FROM CallCenter.Requests r
+            var sqlQuery = @"SELECT rc.id,c.CallerIdNum,c.CreateTime,c.MonitorFile FROM CallCenter.Requests r
 join CallCenter.RequestCalls rc on rc.request_id = r.id
 join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId order by c.CreateTime";
             using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
@@ -396,7 +396,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     {
                         states.Add(new WebCallsDto
                         {
-                            RequestId = dataReader.GetInt32("id"),
+                            Id = dataReader.GetInt32("id"),
                             PhoneNumber = dataReader.GetNullableString("CallerIdNum"),
                             CreateTime = dataReader.GetDateTime("CreateTime"),
                             MonitorFile = dataReader.GetNullableString("MonitorFile"),

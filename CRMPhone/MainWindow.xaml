@@ -137,8 +137,7 @@
                         <TextBlock Margin="3" Text="Приборы учёта"/>
                     </StackPanel>
                 </TabItem.Header>
-                <StackPanel HorizontalAlignment="Left">
-                    <Grid>
+                   <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
@@ -153,15 +152,21 @@
                             <DatePicker  Margin="3" Width="110" SelectedDate="{Binding MetersToDate}"/>
                             <Button  Margin="15,3" Content="Обновить" Padding="3" Command="{Binding RefreshMeterCommand}"/>
                         </WrapPanel>
-                        <DataGrid Grid.Row="1"
-                AutoGenerateColumns="False"
+                    <DataGrid Name="MetersGrid" Grid.Row="1"
+                          AutoGenerateColumns="False"
                           ItemsSource="{Binding Path=MetersHistoryList}"
                           SelectionMode="Single"
                           SelectionUnit="FullRow"
                           IsReadOnly="True"
                           HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Auto">
-                            <DataGrid.Columns>
+                        <DataGrid.InputBindings>
+                            <MouseBinding MouseAction="LeftDoubleClick"
+                  Command="{Binding Path=OpenMetersCommand}"
+                  CommandParameter="{Binding ElementName=MetersGrid, Path=SelectedItem}" />
+                        </DataGrid.InputBindings>
+
+                        <DataGrid.Columns>
                                 <DataGridTextColumn Header="УК" Width="2*"
                                             Binding="{Binding Path=ServiceCompany}">
                                     <DataGridTextColumn.ElementStyle>
@@ -207,7 +212,7 @@
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
-                                <DataGridTextColumn Header="Кухня ГВС" Width="80"
+                                <DataGridTextColumn Header="ГВС" Width="80"
                                             Binding="{Binding Path=HotWater1}">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="{x:Type TextBlock}">
@@ -217,7 +222,7 @@
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
-                                <DataGridTextColumn Header="Кухня ХВС" Width="80"
+                                <DataGridTextColumn Header="ХВС" Width="80"
                                             Binding="{Binding Path=ColdWater1}">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="{x:Type TextBlock}">
@@ -227,7 +232,7 @@
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
-                                <DataGridTextColumn Header="Ванна ГВС" Width="80"
+                            <!--<DataGridTextColumn Header="Ванна ГВС" Width="80"
                                             Binding="{Binding Path=HotWater2}">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="{x:Type TextBlock}">
@@ -246,7 +251,7 @@
 
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
+                                </DataGridTextColumn>-->
                                 <DataGridTextColumn Header="Отопление" Width="80"
                                             Binding="{Binding Path=Heating}">
                                     <DataGridTextColumn.ElementStyle>
@@ -260,7 +265,6 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
-                </StackPanel>
             </TabItem>
             <TabItem>
                 <TabItem.Header>

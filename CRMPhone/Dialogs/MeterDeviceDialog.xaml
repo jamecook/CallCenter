@@ -49,7 +49,7 @@
                           HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Дата" Width="90"
+                    <DataGridTextColumn Header="Дата" Width="120"
                                             Binding="{Binding Path=Date, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -58,7 +58,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Электро Т1" Width="80"
+                    <DataGridTextColumn Header="Электро Т1" Width="100"
                                             Binding="{Binding Path=Electro1}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -67,7 +67,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Электро Т2" Width="80"
+                    <DataGridTextColumn Header="Электро Т2" Width="100"
                                             Binding="{Binding Path=Electro2}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -76,7 +76,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Кухня ГВС" Width="80"
+                    <DataGridTextColumn Header="ГВС" Width="100"
                                             Binding="{Binding Path=HotWater1}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -86,7 +86,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Кухня ХВС" Width="80"
+                    <DataGridTextColumn Header="ХВС" Width="100"
                                             Binding="{Binding Path=ColdWater1}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -96,7 +96,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Ванна ГВС" Width="80"
+                    <!--<DataGridTextColumn Header="Ванна ГВС" Width="80"
                                             Binding="{Binding Path=HotWater2}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -115,8 +115,8 @@
 
                             </Style>
                         </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="Отопление" Width="80"
+                    </DataGridTextColumn>-->
+                    <DataGridTextColumn Header="Отопление" Width="100"
                                             Binding="{Binding Path=Heating}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -139,21 +139,21 @@
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Electro2}"/>
                 </StackPanel>
                 <StackPanel>
-                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Кухня ГВС"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ГВС" MinWidth="60"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater1}"/>
                 </StackPanel>
                 <StackPanel>
-                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Кухня ХВС"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ХВС" MinWidth="60"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater1}"/>
                 </StackPanel>
-                <StackPanel>
+                <!--<StackPanel>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Ванна ГВС"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater2}"/>
                 </StackPanel>
                 <StackPanel>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Ванна ХВС"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater2}"/>
-                </StackPanel>
+                </StackPanel>-->
                 <StackPanel>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating}"/>

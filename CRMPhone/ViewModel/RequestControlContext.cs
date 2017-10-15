@@ -33,6 +33,9 @@ namespace CRMPhone.ViewModel
             SelectedStreet = null;
             SelectedParentService = null;
             SelectedStatus = null;
+            SelectedServiceCompany = null;
+            SelectedPayment = null;
+            SelectedUser = null;
             //foreach (var worker in FilterWorkerList)
             //{
             //    worker.Selected = false;
@@ -120,6 +123,12 @@ namespace CRMPhone.ViewModel
         private DateTime _executeToDate;
         private bool _filterByCreateDate;
         private ObservableCollection<WorkerForFilterDto> _filterWorkerList;
+        private ObservableCollection<UserDto> _userList;
+        private UserDto _selectedUser;
+        private ObservableCollection<ServiceCompanyDto> _serviceCompanyList;
+        private ServiceCompanyDto _selectedServiceCompany;
+        private ObservableCollection<PaymentDto> _paymentList;
+        private PaymentDto _selectedPayment;
 
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
@@ -220,6 +229,43 @@ namespace CRMPhone.ViewModel
             get { return _filterWorkerList; }
             set { _filterWorkerList = value; OnPropertyChanged(nameof(FilterWorkerList));}
         }
+
+        public ObservableCollection<UserDto> UserList
+        {
+            get { return _userList; }
+            set { _userList = value; OnPropertyChanged(nameof(UserList));}
+        }
+
+        public UserDto SelectedUser
+        {
+            get { return _selectedUser; }
+            set { _selectedUser = value; OnPropertyChanged(nameof(SelectedUser));}
+        }
+
+        public ObservableCollection<ServiceCompanyDto> ServiceCompanyList
+        {
+            get { return _serviceCompanyList; }
+            set { _serviceCompanyList = value; OnPropertyChanged(nameof(ServiceCompanyList));}
+        }
+
+        public ServiceCompanyDto SelectedServiceCompany
+        {
+            get { return _selectedServiceCompany; }
+            set { _selectedServiceCompany = value; OnPropertyChanged(nameof(SelectedServiceCompany));}
+        }
+
+        public ObservableCollection<PaymentDto> PaymentList
+        {
+            get { return _paymentList; }
+            set { _paymentList = value; OnPropertyChanged(nameof(PaymentList));}
+        }
+
+        public PaymentDto SelectedPayment
+        {
+            get { return _selectedPayment; }
+            set { _selectedPayment = value; OnPropertyChanged(nameof(SelectedPayment));}
+        }
+
         private void ChangeParentService(int? parentServiceId)
         {
             ServiceList.Clear();
@@ -314,9 +360,11 @@ namespace CRMPhone.ViewModel
             if(_requestService == null)
                 _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             RequestList.Clear();
-            var requests = _requestService.GetRequestList(RequestNum, FilterByCreateDate, FromDate, ToDate, ExecuteFromDate,ExecuteToDate, SelectedStreet?.Id,
-                _selectedHouse?.Id, SelectedFlat?.Id, SelectedParentService?.Id, SelectedService?.Id,
-                SelectedStatus?.Id, FilterWorkerList.Where(w=>w.Selected).Select(x=>x.Id).ToArray());
+            var requests = _requestService.GetRequestList(RequestNum, FilterByCreateDate, FromDate, ToDate,
+                ExecuteFromDate, ExecuteToDate, SelectedStreet?.Id, _selectedHouse?.Id, SelectedFlat?.Id,
+                SelectedParentService?.Id, SelectedService?.Id, SelectedStatus?.Id,
+                FilterWorkerList.Where(w => w.Selected).Select(x => x.Id).ToArray(), SelectedServiceCompany?.Id,
+                SelectedUser?.Id, SelectedPayment?.Id);
             foreach (var request in requests)
             {
                 RequestList.Add(request);
@@ -359,6 +407,9 @@ namespace CRMPhone.ViewModel
                 }));
             StatusList = new ObservableCollection<StatusDto>(_requestService.GetRequestStatuses());
             ParentServiceList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
+            PaymentList = new ObservableCollection<PaymentDto>(new [] {new PaymentDto{Id=0,Name="Бесплатные"}, new PaymentDto{Id = 1, Name = "Платные"}});
+            ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
+            UserList = new ObservableCollection<UserDto>(_requestService.GetUsers());
 
             ChangeCity(_requestService.GetCities().FirstOrDefault().Id);
         }

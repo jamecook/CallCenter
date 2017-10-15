@@ -75,6 +75,7 @@
     <Compile Include="Dto\HouseDto.cs" />
     <Compile Include="Dto\NotAnsweredDto.cs" />
     <Compile Include="Dto\NoteDto.cs" />
+    <Compile Include="Dto\PaymentDto.cs" />
     <Compile Include="Dto\PeriodDto.cs" />
     <Compile Include="Dto\RecuestRatingDto.cs" />
     <Compile Include="Dto\RequestForListDto.cs" />

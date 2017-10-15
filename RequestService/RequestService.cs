@@ -35,12 +35,27 @@ namespace RequestServiceImpl
             }
         }
 
+        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable)
+        {
+            using (var cmd = new MySqlCommand(
+                   @"call CallCenter.AddOrUpdateRequest(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable);",
+                   _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@userId", AppSettings.CurrentUser.Id);
+                cmd.Parameters.AddWithValue("@requestId", requestId);
+                cmd.Parameters.AddWithValue("@requestTypeId", requestTypeId);
+                cmd.Parameters.AddWithValue("@requestMessage", requestMessage);
+                cmd.Parameters.AddWithValue("@immediate", immediate);
+                cmd.Parameters.AddWithValue("@chargeable", chargeable);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         public int? SaveNewRequest(int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
             bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, int serviceCompanyId)
         {
             int newId;
-            _logger.Debug(
-                $"RequestService.SaveNewRequest({addressId},{requestTypeId},[{contactList.Select(x => $"{x.PhoneNumber}").Aggregate((f1, f2) => f1 + ";" + f2)}],{requestMessage},{chargeable},{immediate},{callUniqueId})");
+            //_logger.Debug($"RequestService.SaveNewRequest({addressId},{requestTypeId},[{contactList.Select(x => $"{x.PhoneNumber}").Aggregate((f1, f2) => f1 + ";" + f2)}],{requestMessage},{chargeable},{immediate},{callUniqueId})");
             try
             {
 
@@ -194,6 +209,27 @@ select LAST_INSERT_ID();", _dbConnection))
     where request_id = @reqId", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@reqId", requestId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        var fileName = dataReader.GetNullableString("MonitorFile");
+                        var serverIpAddress = _dbConnection.DataSource;
+                        var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\");
+                        return File.ReadAllBytes(localFileName);
+                    }
+                }
+            }
+            return new byte[0];
+        }
+        public byte[] GetRecordById(int recordId)
+        {
+            using (var cmd =
+                    new MySqlCommand(@"SELECT MonitorFile FROM CallCenter.RequestCalls r
+    join asterisk.ChannelHistory c on c.UniqueID = r.uniqueID
+    where r.id = @reqId", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@reqId", recordId);
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     if (dataReader.Read())
@@ -635,7 +671,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             return null;
         }
 
-        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int[] workersId)
+        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int[] workersId,int? serviceCompanyId,int? userId,int? payment)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -689,6 +725,12 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     sqlQuery += $" and R.state_id = {statusId.Value}";
                 if (workersId.Length>0)
                     sqlQuery += $" and w.id in ({workersId.Select(x=>x.ToString()).Aggregate((x,y)=>x+","+y)})";
+                if (serviceCompanyId.HasValue)
+                    sqlQuery += $" and R.service_company_id = {serviceCompanyId.Value}";
+                if (userId.HasValue)
+                    sqlQuery += $" and R.create_user_id = {userId.Value}";
+                if (payment.HasValue)
+                    sqlQuery += $" and R.is_chargeable = {payment.Value}";
             }
             else
             {
@@ -1685,7 +1727,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         public List<MeterListDto> GetMetersByDate(int? serviceCompanyId, DateTime fromDate, DateTime toDate)
         {
             var sqlQuery =
-                @"select meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating,
+                @"select m.id, meters_date,house_id, m.address_id, street_id, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating,
  a.flat,h.building, h.corps, s.name street_name, sc.name company_name
  from CallCenter.MeterDeviceValues m
   join CallCenter.Addresses a on a.id = m.address_id
@@ -1712,6 +1754,10 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     {
                         metersDtos.Add(new MeterListDto
                         {
+                            Id = dataReader.GetInt32("id"),
+                            StreetId = dataReader.GetInt32("street_id"),
+                            HouseId = dataReader.GetInt32("house_id"),
+                            AddressId = dataReader.GetInt32("address_id"),
                             ServiceCompany = dataReader.GetNullableString("company_name"),
                             StreetName = dataReader.GetString("street_name"),
                             Flat = dataReader.GetString("flat"),
@@ -1732,7 +1778,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 }
             }
         }
-        public void SaveMeterValues(string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1, double hotWater2, double coldWater2, double heating)
+        public void SaveMeterValues(string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1, double hotWater2, double coldWater2, double heating, int? meterId)
         {
             using (var transaction = _dbConnection.BeginTransaction())
             {
@@ -1764,22 +1810,47 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                         }
                     }
                 }
-                using (var cmd = new MySqlCommand(
-                    "insert into CallCenter.MeterDeviceValues(address_id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id )" +
-                    " values(@AddressId,sysdate(),@Electro1,@Electrio2,@Cool1,@Hot1,@Cool2,@Hot2,@UserId,@Heating,@ClentPhoneId)", _dbConnection))
+                if (meterId.HasValue)
                 {
+                    using (var cmd = new MySqlCommand(
+                        "update CallCenter.MeterDeviceValues" +
+                        " set electro_t1 = @Electro1, electro_t2 = @Electro2, cool_water1 = @Cool1," +
+                        " hot_water1 = @Hot1, cool_water2 = @Cool2, hot_water2 = @Hot2, heating = @Heating" +
+                        " where id = @MeterId",
+                        _dbConnection))
+                    {
 
-                    cmd.Parameters.AddWithValue("@AddressId", addressId);
-                    cmd.Parameters.AddWithValue("@Electro1", electro1);
-                    cmd.Parameters.AddWithValue("@Electrio2", electro2);
-                    cmd.Parameters.AddWithValue("@Cool1", coldWater1);
-                    cmd.Parameters.AddWithValue("@Cool2", coldWater2);
-                    cmd.Parameters.AddWithValue("@Hot1", hotWater1);
-                    cmd.Parameters.AddWithValue("@Hot2", hotWater2);
-                    cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
-                    cmd.Parameters.AddWithValue("@Heating", heating);
-                    cmd.Parameters.AddWithValue("@ClentPhoneId", clientPhoneId);
-                    cmd.ExecuteNonQuery();
+                        cmd.Parameters.AddWithValue("@Electro1", electro1);
+                        cmd.Parameters.AddWithValue("@Electro2", electro2);
+                        cmd.Parameters.AddWithValue("@Cool1", coldWater1);
+                        cmd.Parameters.AddWithValue("@Cool2", coldWater2);
+                        cmd.Parameters.AddWithValue("@Hot1", hotWater1);
+                        cmd.Parameters.AddWithValue("@Hot2", hotWater2);
+                        cmd.Parameters.AddWithValue("@Heating", heating);
+                        cmd.Parameters.AddWithValue("@MeterId", meterId.Value);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                else
+                {
+                    using (var cmd = new MySqlCommand(
+                        "insert into CallCenter.MeterDeviceValues(address_id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id )" +
+                        " values(@AddressId,sysdate(),@Electro1,@Electrio2,@Cool1,@Hot1,@Cool2,@Hot2,@UserId,@Heating,@ClentPhoneId)",
+                        _dbConnection))
+                    {
+
+                        cmd.Parameters.AddWithValue("@AddressId", addressId);
+                        cmd.Parameters.AddWithValue("@Electro1", electro1);
+                        cmd.Parameters.AddWithValue("@Electrio2", electro2);
+                        cmd.Parameters.AddWithValue("@Cool1", coldWater1);
+                        cmd.Parameters.AddWithValue("@Cool2", coldWater2);
+                        cmd.Parameters.AddWithValue("@Hot1", hotWater1);
+                        cmd.Parameters.AddWithValue("@Hot2", hotWater2);
+                        cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                        cmd.Parameters.AddWithValue("@Heating", heating);
+                        cmd.Parameters.AddWithValue("@ClentPhoneId", clientPhoneId);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
                 transaction.Commit();
             }
@@ -2416,6 +2487,30 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         }
 
 
+        public List<UserDto> GetUsers()
+        {
+            using (
+                 var cmd = new MySqlCommand("SELECT U.id, U.SurName, U.FirstName, U.PatrName, U.Login FROM CallCenter.Users U where ShowInForm = 1", AppSettings.DbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var users = new List<UserDto>();
+                    while (dataReader.Read())
+                    {
+                        users.Add(new UserDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            SurName = dataReader.GetString("SurName"),
+                            FirstName = dataReader.GetNullableString("FirstName"),
+                            PatrName = dataReader.GetNullableString("PatrName"),
+                            Login = dataReader.GetString("Login"),
+                        });
+                    }
+                    dataReader.Close();
+                    return users;
+                }
+            }
+        }
     }
 
 }

@@ -166,6 +166,10 @@ namespace CRMPhone.ViewModel
                 if (_selectedFlat != null)
                 {
                     LoadRequestsBySelectedAddress(_selectedFlat.Id);
+                    if (string.IsNullOrEmpty(_callUniqueId))
+                    {
+                        _callUniqueId = _requestService.GetActiveCallUniqueId();
+                    }
                 }
                 else
                 {
@@ -178,7 +182,7 @@ namespace CRMPhone.ViewModel
         {
             var currentDate = _requestService.GetCurrentDate();
             AddressRequestList = new ObservableCollection<RequestForListDto>(_requestService.GetRequestList(null, true, currentDate.AddDays(-30), currentDate, DateTime.Today,
-                DateTime.Today, null, null, addressId, null, null,null,new int[0]));
+                DateTime.Today, null, null, addressId, null, null,null,new int[0],null,null,null));
         }
 
         public string Entrance
@@ -449,6 +453,14 @@ namespace CRMPhone.ViewModel
                 MessageBox.Show("Необходимо выбрать верный адрес!");
                 return;
             }
+            if (requestModel.RequestId.HasValue)
+            {
+                _requestService.EditRequest(requestModel.RequestId.Value, requestModel.SelectedService.Id,
+                    requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable);
+                MessageBox.Show($"Данные успешно сохранены!", "Заявка", MessageBoxButton.OK);
+                return;
+            }
+
             if (string.IsNullOrEmpty(_callUniqueId))
             {
                 _callUniqueId = _requestService.GetActiveCallUniqueId();

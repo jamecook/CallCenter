@@ -258,6 +258,10 @@ namespace CRMPhone.ViewModel
         private ICommand _serviceCompanyInfoCommand;
         public ICommand ServiceCompanyInfoCommand { get { return _serviceCompanyInfoCommand ?? (_serviceCompanyInfoCommand = new CommandHandler(ServiceCompanyInfo, _canExecute)); } }
 
+        private ICommand _openMetersCommand;
+        public ICommand OpenMetersCommand { get { return _openMetersCommand ?? (_openMetersCommand = new RelayCommand(OpenMeters)); } }
+
+
         private void ServiceCompanyInfo()
         {
             if(CallFromServiceCompany!=null)
@@ -339,7 +343,22 @@ namespace CRMPhone.ViewModel
             }
         }
 
+        private void OpenMeters(object sender)
+        {
+            var selectedItem = sender as MeterListDto;
+            if (selectedItem == null)
+                return;
+            if (_requestService == null)
+                _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
 
+            var model = new MeterDeviceViewModel(selectedItem);
+            var view = new MeterDeviceDialog();
+            model.SetView(view);
+            model.PhoneNumber = LastAnsweredPhoneNumber;
+            view.DataContext = model;
+            view.Owner = mainWindow;
+            view.ShowDialog();
+        }
         private void AddMeters()
         {
             var model = new MeterDeviceViewModel();

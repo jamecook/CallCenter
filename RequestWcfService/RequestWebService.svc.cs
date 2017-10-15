@@ -143,6 +143,11 @@ namespace RequestWcfService
             return _requestService.GetMediaByRequestId(requestId);
         }
 
+        public byte[] GetRecordById(int recordId)
+        {
+            return _requestService.GetRecordById(recordId);
+        }
+
         public StatInfoDto[] GetRequestByUsersInto()
         {
             return _requestService.GetRequestByUsersInto();
