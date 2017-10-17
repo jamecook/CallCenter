@@ -308,6 +308,12 @@ namespace CRMPhone.ViewModel
             set { _metersScList = value; OnPropertyChanged(nameof(MetersSCList));}
         }
 
+        public MeterListDto SelectedMeter
+        {
+            get { return _selectedMeter; }
+            set { _selectedMeter = value; OnPropertyChanged(nameof(SelectedMeter)); }
+        }
+
         public ServiceCompanyDto SelectedMetersSC
         {
             get { return _selectedMetersSc; }
@@ -330,8 +336,19 @@ namespace CRMPhone.ViewModel
         public ICommand AddMeterCommand { get { return _addMeterCommand ?? (_addMeterCommand = new CommandHandler(AddMeters, _canExecute)); } }
 
         private ICommand _refreshMeterCommand;
-
         public ICommand RefreshMeterCommand { get { return _refreshMeterCommand ?? (_refreshMeterCommand = new CommandHandler(RefreshMeters, _canExecute)); } }
+
+        private ICommand _deleteCommand;
+        public ICommand DeleteCommand { get { return _deleteCommand ?? (_deleteCommand = new CommandHandler(Delete, _canExecute)); } }
+
+        private void Delete()
+        {
+            if (SelectedMeter != null)
+            {
+                _requestService.DeleteMeter(SelectedMeter.Id);
+                RefreshMeters();
+            }
+        }
 
         private void RefreshMeters()
         {
@@ -406,6 +423,7 @@ namespace CRMPhone.ViewModel
         private ServiceCompanyDto _selectedMetersSc;
         private AlertRequestControlContext _alertRequestDataContext;
         private AlertAndWorkControlContext _alertAndWorkContext;
+        private MeterListDto _selectedMeter;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
 
         public bool IsMuted

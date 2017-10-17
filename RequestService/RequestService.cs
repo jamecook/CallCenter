@@ -1662,7 +1662,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
 
         public List<MetersDto> GetMetersByPeriod(int addressId)
         {
-            var sqlQuery = @"select meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id  from CallCenter.MeterDeviceValues
+            var sqlQuery = @"select id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id  from CallCenter.MeterDeviceValues
  where address_id = @AddressId and meters_date > sysdate() - INTERVAL 3 month
  order by meters_date desc";
 
@@ -1677,6 +1677,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     {
                         metersDtos.Add(new MetersDto
                         {
+                            Id = dataReader.GetInt32("id"),
                             Date = dataReader.GetDateTime("meters_date"),
                             Electro1 = dataReader.GetDouble("electro_t1"),
                             Electro2 = dataReader.GetDouble("electro_t2"),
@@ -1694,7 +1695,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         }
         public List<MetersDto> GetMetersByAddressId(int addressId)
         {
-            var sqlQuery = @"select meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id  from CallCenter.MeterDeviceValues
+            var sqlQuery = @"select id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id  from CallCenter.MeterDeviceValues
  where address_id = @AddressId and meters_date > sysdate() - INTERVAL 3 month
  order by meters_date desc";
 
@@ -1709,6 +1710,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     {
                         metersDtos.Add(new MetersDto
                         {
+                            Id = dataReader.GetInt32("id"),
                             Date = dataReader.GetDateTime("meters_date"),
                             Electro1 = dataReader.GetDouble("electro_t1"),
                             Electro2 = dataReader.GetDouble("electro_t2"),
@@ -1776,6 +1778,15 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     dataReader.Close();
                     return metersDtos;
                 }
+            }
+        }
+
+        public void DeleteMeter(int meterId)
+        {
+            using (var cmd = new MySqlCommand(@"delete from CallCenter.MeterDeviceValues where id = @ID and send_date is null;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ID", meterId);
+                cmd.ExecuteNonQuery();
             }
         }
         public void SaveMeterValues(string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1, double hotWater2, double coldWater2, double heating, int? meterId)
@@ -2120,7 +2131,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
  left join CallCenter.ServiceCompanies s on s.id = h.service_company_id where h.enabled = 1 and h.street_id = @streetId and building = @buildingNumber";
             if (!string.IsNullOrEmpty(corpus))
                 sqlQuery += " and corps = @corpus";
-
+            else
+                sqlQuery += " and corps is null";
             using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@streetId", streetId);

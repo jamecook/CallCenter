@@ -4,6 +4,7 @@ namespace RequestServiceImpl
 {
     public class MetersDto
     {
+        public int Id { get; set; }
         public DateTime Date { get; set; }
         public double Electro1 { get; set; }
         public double Electro2 { get; set; }

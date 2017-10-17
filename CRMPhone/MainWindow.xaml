@@ -151,7 +151,8 @@
                             <TextBlock Margin="3" VerticalAlignment="Center" Text="по:"/>
                             <DatePicker  Margin="3" Width="110" SelectedDate="{Binding MetersToDate}"/>
                             <Button  Margin="15,3" Content="Обновить" Padding="3" Command="{Binding RefreshMeterCommand}"/>
-                        </WrapPanel>
+                            <Button  Margin="15,3" Content="Удалить" Padding="3" Command="{Binding DeleteCommand}"/>
+                    </WrapPanel>
                     <DataGrid Name="MetersGrid" Grid.Row="1"
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding Path=MetersHistoryList}"
@@ -159,7 +160,8 @@
                           SelectionUnit="FullRow"
                           IsReadOnly="True"
                           HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Auto">
+                          VerticalScrollBarVisibility="Auto"
+                          SelectedItem="{Binding Path=SelectedMeter}">
                         <DataGrid.InputBindings>
                             <MouseBinding MouseAction="LeftDoubleClick"
                   Command="{Binding Path=OpenMetersCommand}"
