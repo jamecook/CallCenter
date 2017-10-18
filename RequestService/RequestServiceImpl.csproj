@@ -87,6 +87,7 @@
     <Compile Include="Dto\ServiceCompanyDto.cs" />
     <Compile Include="Dto\ServiceDto.cs" />
     <Compile Include="Dto\SipDto.cs" />
+    <Compile Include="Dto\SmsSettingDto.cs" />
     <Compile Include="Dto\SpecialityDto.cs" />
     <Compile Include="Dto\StatInfoDto.cs" />
     <Compile Include="Dto\StatusDto.cs" />

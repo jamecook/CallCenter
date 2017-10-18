@@ -281,17 +281,19 @@ select LAST_INSERT_ID();", _dbConnection))
                 throw;
             }
         }
-
         public void AddNewWorker(int requestId, int workerId)
         {
             _logger.Debug($"RequestService.AddNewWorker({requestId},{workerId})");
 
             var request = GetRequest(requestId);
             var worker = GetWorkerById(workerId);
+            var smsSettings = GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
             string phones="";
             if (request.Contacts != null && request.Contacts.Length > 0)
                 phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}").Aggregate((i, j) => i + ";" + j);
-            SendSms(requestId,"CMS24",worker.Phone,$"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
+
+            if(smsSettings.SendToWorker)
+                SendSms(requestId, smsSettings.Sender, worker.Phone,$"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())
@@ -919,6 +921,34 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 return workers;
             }
         }
+
+        public SmsSettingDto GetSmsSettingsForServiceCompany(int? serviceCompanyId)
+        {
+            var result = new SmsSettingDto { SendToClient = false, SendToWorker = false };
+            if (serviceCompanyId.HasValue)
+            {
+                using (var cmd = new MySqlCommand(
+                            "SELECT S.sms_to_worker, S.sms_to_abonent, S.sms_sender FROM CallCenter.ServiceCompanies S where id = @ID",
+                            _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@ID", serviceCompanyId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            return new SmsSettingDto
+                            {
+                                SendToClient = dataReader.GetBoolean("sms_to_abonent"),
+                                SendToWorker = dataReader.GetBoolean("sms_to_worker"),
+                                Sender = dataReader.GetNullableString("sms_sender")
+                            };
+                        }
+                        dataReader.Close();
+                    }
+                }
+            }
+            return result;
+        }
         public WorkerDto GetWorkerById(int workerId)
         {
             WorkerDto worker = null;
@@ -1367,7 +1397,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         public ServiceCompanyDto GetServiceCompanyById(int id)
         {
             ServiceCompanyDto serviceCompany = null;
-            var query = "SELECT id,name,info FROM CallCenter.ServiceCompanies S where Enabled = 1 and id = @ID";
+            var query = "SELECT id,name,info, sms_to_worker, sms_to_abonent, sms_sender FROM CallCenter.ServiceCompanies S where Enabled = 1 and id = @ID";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@ID", id);
@@ -1380,6 +1410,9 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             Id = dataReader.GetInt32("id"),
                             Name = dataReader.GetString("name"),
                             Info = dataReader.GetNullableString("info"),
+                            SendToClient = dataReader.GetBoolean("sms_to_abonent"),
+                            SendToWorker = dataReader.GetBoolean("sms_to_worker"),
+                            Sender = dataReader.GetNullableString("sms_sender")
                         };
                     }
                     dataReader.Close();
@@ -1889,15 +1922,19 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             return new ServiceCompanyDto { Id = -1, Name = "неизвестная УК" };
         }
 
-        public void SaveServiceCompany(int? serviceCompanyId, string serviceCompanyName,string info)
+        public void SaveServiceCompany(int? serviceCompanyId, string serviceCompanyName,string info,bool sendSmsToClient,bool sendSmsToWorker,string smsSenderName)
         {
             if (serviceCompanyId.HasValue)
             {
-                using (var cmd = new MySqlCommand(@"update CallCenter.ServiceCompanies set Name = @ServiceCompanyName,info=@Info where id = @ID;", _dbConnection))
+                using (var cmd = new MySqlCommand(@"update CallCenter.ServiceCompanies set Name = @ServiceCompanyName,info=@Info,
+ sms_to_worker = @SmsToWorker, sms_to_abonent = @SmsToClient, sms_sender = @SmsSender where id = @ID;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@ID", serviceCompanyId.Value);
                     cmd.Parameters.AddWithValue("@ServiceCompanyName", serviceCompanyName);
                     cmd.Parameters.AddWithValue("@Info", info);
+                    cmd.Parameters.AddWithValue("@SmsToClient", sendSmsToClient);
+                    cmd.Parameters.AddWithValue("@SmsToWorker", sendSmsToWorker);
+                    cmd.Parameters.AddWithValue("@SmsSender", smsSenderName);
                     cmd.ExecuteNonQuery();
                 }
 

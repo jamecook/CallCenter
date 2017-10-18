@@ -471,6 +471,13 @@ namespace CRMPhone.ViewModel
                 MessageBox.Show("Произошла непредвиденная ошибка!");
                 return;
             }
+            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(requestModel.SelectedCompany.Id);
+            if (smsSettings.SendToClient && ContactList.Any(c => c.IsMain))
+            {
+                var mainClient = ContactList.FirstOrDefault(c => c.IsMain);
+                _requestService.SendSms(request.Value, smsSettings.Sender,
+                    mainClient.PhoneNumber, $"Заявка № {request.Value}. {requestModel.SelectedParentService.Name} - {requestModel.SelectedService.Name}");
+            }
             requestModel.RequestId = request;
             if (requestModel.SelectedWorker != null && requestModel.SelectedWorker.Id > 0)
                 _requestService.AddNewWorker(request.Value, requestModel.SelectedWorker.Id);

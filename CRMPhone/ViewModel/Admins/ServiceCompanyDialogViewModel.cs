@@ -14,6 +14,9 @@ namespace CRMPhone.ViewModel.Admins
         private ICommand _saveCommand;
         private string _serviceName;
         private string _serviceCompanyInfo;
+        private bool _sendSmsToClient;
+        private bool _sendSmsToWorker;
+        private string _smsSenderName;
 
         public string ServiceName
         {
@@ -26,6 +29,24 @@ namespace CRMPhone.ViewModel.Admins
             set { _serviceCompanyInfo = value; OnPropertyChanged(nameof(ServiceCompanyInfo)); }
         }
 
+        public bool SendSmsToClient
+        {
+            get { return _sendSmsToClient; }
+            set { _sendSmsToClient = value; OnPropertyChanged(nameof(SendSmsToClient));}
+        }
+
+        public bool SendSmsToWorker
+        {
+            get { return _sendSmsToWorker; }
+            set { _sendSmsToWorker = value; OnPropertyChanged(nameof(SendSmsToWorker));}
+        }
+
+        public string SmsSenderName
+        {
+            get { return _smsSenderName; }
+            set { _smsSenderName = value; OnPropertyChanged(nameof(SmsSenderName)); }
+        }
+
         public ServiceCompanyDialogViewModel(RequestServiceImpl.RequestService requestService, int? serviceCompanyId)
         {
             _requestService = requestService;
@@ -35,6 +56,9 @@ namespace CRMPhone.ViewModel.Admins
                 var serviceCompany = _requestService.GetServiceCompanyById(serviceCompanyId.Value);
                 ServiceName = serviceCompany.Name;
                 ServiceCompanyInfo = serviceCompany.Info;
+                SmsSenderName = serviceCompany.Sender;
+                SendSmsToClient = serviceCompany.SendToClient;
+                SendSmsToWorker = serviceCompany.SendToWorker;
             }
         }
 
@@ -46,7 +70,7 @@ namespace CRMPhone.ViewModel.Admins
 
         private void Save(object sender)
         {
-            _requestService.SaveServiceCompany(_serviceCompanyId,ServiceName,ServiceCompanyInfo);
+            _requestService.SaveServiceCompany(_serviceCompanyId,ServiceName,ServiceCompanyInfo,SendSmsToClient,SendSmsToWorker,SmsSenderName);
             _view.DialogResult = true;
         }
 
