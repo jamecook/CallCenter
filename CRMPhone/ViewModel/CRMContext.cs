@@ -222,6 +222,12 @@ namespace CRMPhone.ViewModel
             }
         }
 
+        public CallsListDto SelectedRecordCall
+        {
+            get { return _selectedRecordCall; }
+            set { _selectedRecordCall = value; OnPropertyChanged(nameof(SelectedRecordCall));}
+        }
+
         private ICommand _playCommand;
         public ICommand PlayCommand { get { return _playCommand ?? (_playCommand = new RelayCommand(PlayRecord)); } }
 
@@ -394,7 +400,6 @@ namespace CRMPhone.ViewModel
         private ICommand _deleteNumberFromListCommand;
         public ICommand DeleteNumberFromListCommand { get { return _deleteNumberFromListCommand ?? (_deleteNumberFromListCommand = new CommandHandler(DeleteNumberFromList, _canExecute)); } }
 
-        private ICommand _refreshCommand;
         private DateTime _fromDate;
         private DateTime _toDate;
         private int _callsCount;
@@ -424,7 +429,29 @@ namespace CRMPhone.ViewModel
         private AlertRequestControlContext _alertRequestDataContext;
         private AlertAndWorkControlContext _alertAndWorkContext;
         private MeterListDto _selectedMeter;
+        private ICommand _refreshCommand;
+
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
+
+        private ICommand _addRequestToCallCommand;
+        private CallsListDto _selectedRecordCall;
+
+        public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
+
+        private void AddRequestToCall()
+        {
+            if(SelectedRecordCall == null)
+                return;
+            var model = new AddRequestToCallDialogViewModel();
+            var view = new AddRequestToCallDialog();
+            view.DataContext = model;
+            model.SetView(view);
+            view.Owner = mainWindow;
+            if (view.ShowDialog()??false)
+            {
+                _requestService.AddCallToRequest(model.RequestId,SelectedRecordCall.UniqueId);
+            }
+        }
 
         public bool IsMuted
         {

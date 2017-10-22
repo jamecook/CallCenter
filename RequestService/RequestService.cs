@@ -1533,22 +1533,42 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
 
         public List<CallsListDto> GetCallList(DateTime fromDate, DateTime toDate, string requestId, int? operatorId)
         {
-            var sqlQuery = @"SELECT UniqueId,CallDirection,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime, 
- MonitorFile,TalkTime,WaitingTime, userId, SurName, FirstName, PatrName, RequestId FROM asterisk.CallsHistory C";
+ //           var sqlQuery = @"SELECT UniqueId,CallDirection,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime, 
+ //MonitorFile,TalkTime,WaitingTime, userId, SurName, FirstName, PatrName, RequestId FROM asterisk.CallsHistory C";
+
+            var sqlQuery = @"select C.UniqueID AS UniqueId,C.Direction AS CallDirection,
+            (case when(C.CallerIDNum = 'scvip500415') then C.Exten else C.CallerIDNum end) AS CallerIDNum,
+C.CreateTime AS CreateTime,
+C.AnswerTime AS AnswerTime,
+C.EndTime AS EndTime,
+C.BridgedTime AS BridgedTime,
+C.MonitorFile AS MonitorFile,
+timestampdiff(SECOND, C.BridgedTime, C.EndTime) AS TalkTime,
+  (timestampdiff(SECOND, C.CreateTime, C.EndTime) - ifnull(timestampdiff(SECOND, C.BridgedTime, C.EndTime), 0)) AS WaitingTime,
+       u.id AS userId,
+u.SurName AS SurName,
+u.FirstName AS FirstName,
+u.PatrName AS PatrName,
+group_concat(r.request_id order by r.request_id separator ', ') AS RequestId from
+(((asterisk.ChannelHistory C left join asterisk.ChannelHistory C2 on(((C2.BridgeId = C.BridgeId) and(C.UniqueID <> C2.UniqueID))))
+left join CallCenter.Users u on((u.id = ifnull(C.UserId, C2.UserId))))
+left join CallCenter.RequestCalls r on((r.uniqueID = C.UniqueID)))
+where(((C.Context = 'from-trunk') and(C.Exten = 's')) or((C.Context = 'localphones') and(C.CallerIDNum = 'scvip500415')))";
+
             if (!string.IsNullOrEmpty(requestId))
             {
-                sqlQuery += " where RequestId = @RequestNum";
+                sqlQuery += " and r.id = @RequestNum";
             }
             else
             {
-                sqlQuery += " where CreateTime between @fromdate and @todate";
+                sqlQuery += " and C.CreateTime between @fromdate and @todate";
                 if (operatorId.HasValue)
                 {
-                    sqlQuery += " and userId = @UserNum";
+                    sqlQuery += " and u.id = @UserNum";
 
                 }
             }
-            sqlQuery += " order by UniqueId";
+            sqlQuery += " group by C.UniqueID order by UniqueId";
 
             using (
             var cmd = new MySqlCommand(sqlQuery, AppSettings.DbConnection))
@@ -1584,7 +1604,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             TalkTime = dataReader.GetNullableInt("TalkTime"),
                             WaitingTime = dataReader.GetNullableInt("WaitingTime"),
                             MonitorFileName = dataReader.GetNullableString("MonitorFile"),
-                            RequestId = dataReader.GetNullableInt("RequestId"),
+                            Requests = dataReader.GetNullableString("RequestId"),
                             User = dataReader.GetNullableInt("userId").HasValue
                                 ? new RequestUserDto
                                 {
@@ -1606,11 +1626,11 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             var sqlQuery = @"SELECT ch.UniqueID,Direction,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime,
  MonitorFile, timestampdiff(SECOND,ch.BridgedTime,ch.EndTime) AS TalkTime,
 (timestampdiff(SECOND,ch.CreateTime,ch.EndTime) - ifnull(timestampdiff(SECOND,ch.BridgedTime,ch.EndTime),0)) AS WaitingTime,
- rc.request_Id
+ group_concat(rc.request_id order by rc.request_id separator ', ') AS RequestId
  FROM asterisk.ChannelHistory ch
  join CallCenter.RequestCalls rc on ch.UniqueId = rc.UniqueId
  where rc.request_id = @RequestNum
- order by UniqueId";
+ group by UniqueId";
 
             using (
             var cmd = new MySqlCommand(sqlQuery, AppSettings.DbConnection))
@@ -1633,7 +1653,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             TalkTime = dataReader.GetNullableInt("TalkTime"),
                             WaitingTime = dataReader.GetNullableInt("WaitingTime"),
                             MonitorFileName = dataReader.GetNullableString("MonitorFile"),
-                            RequestId = dataReader.GetNullableInt("request_Id"),
+                            Requests = dataReader.GetNullableString("RequestId"),
                             User = null
                         });
                     }

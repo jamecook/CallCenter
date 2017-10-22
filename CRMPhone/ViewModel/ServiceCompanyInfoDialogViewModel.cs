@@ -14,6 +14,10 @@ namespace CRMPhone.ViewModel
         private Window _view;
         public string ServiceCompanyName { get; set; }
         public string ServiceCompanyInfo { get; set; }
+        public void SetView(Window view)
+        {
+            _view = view;
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         [NotifyPropertyChangedInvocator]

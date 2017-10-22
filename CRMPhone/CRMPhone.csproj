@@ -128,8 +128,8 @@
     <Compile Include="Controls\AlertRequestControl.xaml.cs">
       <DependentUpon>AlertRequestControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TimeControl.xaml.cs">
-      <DependentUpon>TimeControl.xaml</DependentUpon>
+    <Compile Include="Dialogs\AddRequestToCallDialog.xaml.cs">
+      <DependentUpon>AddRequestToCallDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\AddRatingDialog.xaml.cs">
       <DependentUpon>AddRatingDialog.xaml</DependentUpon>
@@ -198,6 +198,7 @@
     <Compile Include="Dialogs\ChangeExecuteDateDialog.xaml.cs">
       <DependentUpon>ChangeExecuteDateDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\AddRequestToCallDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\BlackListPhoneDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\HouseAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\PhoneDialogViewModel.cs" />
@@ -295,9 +296,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\TimeControl.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="Dialogs\AddRequestToCallDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\AddRatingDialog.xaml">
       <SubType>Designer</SubType>

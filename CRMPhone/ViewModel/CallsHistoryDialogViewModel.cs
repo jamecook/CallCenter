@@ -13,8 +13,6 @@ namespace CRMPhone.ViewModel
     {
         private Window _view;
 
-        private RequestServiceImpl.RequestService _requestService;
-        private int _requestId;
         private ObservableCollection<CallsListDto> _callsList;
         public event PropertyChangedEventHandler PropertyChanged;
 

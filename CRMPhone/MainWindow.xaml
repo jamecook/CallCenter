@@ -289,17 +289,19 @@
                         <TextBlock Margin="5" VerticalAlignment="Center" Text="№ заявки:"/>
                         <TextBox Margin="5" Width="50" Text="{Binding RequestNum}"/>
                         <TextBlock Margin="10,5" VerticalAlignment="Center" Text="Дата с:"/>
-                        <DatePicker Height="24" SelectedDate="{Binding FromDate}"/>
+                        <DatePicker Height="24" Width="120" SelectedDate="{Binding FromDate}"/>
                         <TextBlock Margin="10,5" VerticalAlignment="Center" Text="по:"/>
-                        <DatePicker Height="24" SelectedDate="{Binding ToDate}"/>
+                        <DatePicker Height="24" Width="120" SelectedDate="{Binding ToDate}"/>
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="Оператор:"/>
-                        <ComboBox Margin="3" Width="125" DisplayMemberPath="ShortName" SelectedItem="{Binding SelectedUser}" ItemsSource="{Binding UserList}" IsEditable="True" />
+                        <ComboBox Margin="3" Width="110" DisplayMemberPath="ShortName" SelectedItem="{Binding SelectedUser}" ItemsSource="{Binding UserList}" IsEditable="True" />
 
-                        <Button  Margin="5" Width="80" Height="24" Content="Обновить" Command="{Binding RefreshCommand}"/>
+                        <Button  Margin="5" Padding ="5,0" Height="24" Content="Обновить" Command="{Binding RefreshCommand}"/>
+                        <Button  Margin="5" Padding ="5,0" Height="24" Content="Привязать заявку" Command="{Binding AddRequestToCallCommand}"/>
                     </WrapPanel>
                     <DataGrid Name="RecordGrid"
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding Path=CallsList}"
+                          SelectedItem="{Binding SelectedRecordCall}"
                           SelectionMode="Single"
                           SelectionUnit="FullRow"
                           IsReadOnly="True"
@@ -386,7 +388,7 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate DataType="dto:CallsListDto">
                                         <DockPanel>
-                                            <TextBlock Margin ="5,0" Text="{Binding Path=RequestId}"/>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=Requests}"/>
                                         </DockPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
