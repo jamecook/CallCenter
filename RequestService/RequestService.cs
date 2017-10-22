@@ -293,7 +293,9 @@ select LAST_INSERT_ID();", _dbConnection))
                 phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}").Aggregate((i, j) => i + ";" + j);
 
             if(smsSettings.SendToWorker)
-                SendSms(requestId, smsSettings.Sender, worker.Phone,$"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
+                SendSms(requestId, smsSettings.Sender, worker.Phone,$"№ {requestId}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.");
+            //SendSms(requestId, smsSettings.Sender, worker.Phone, $"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
+
             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())
@@ -682,7 +684,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
     rating.Name Rating,
-    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time
+    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,
+    min(rcalls.uniqueID) recordId
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.Addresses a on a.id = R.address_id
@@ -699,7 +702,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     join CallCenter.Users u on u.id = create_user_id
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
     left join CallCenter.RequestRating rtype on rtype.request_id = R.id
-    left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id";
+    left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
+    left join CallCenter.RequestCalls rcalls on rcalls.request_id = R.id";
             if (string.IsNullOrEmpty(requestId))
             {
                 if (filterByCreateDate)
@@ -758,10 +762,13 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 {
                     while (dataReader.Read())
                     {
+                        var recordUniqueId = dataReader.GetNullableString("recordId");
                         requests.Add(new RequestForListDto
                         {
                             Id = dataReader.GetInt32("id"),
                             HasAttachment = dataReader.GetBoolean("has_attach"),
+                            HasRecord = !string.IsNullOrEmpty(recordUniqueId),
+                            RecordUniqueId = recordUniqueId,
                             StreetPrefix = dataReader.GetString("prefix_name"),
                             StreetName = dataReader.GetString("street_name"),
                             AddressType = dataReader.GetString("address_type"),
@@ -808,7 +815,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
     rating.Name Rating,
-    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time
+    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,
+    min(rcalls.uniqueID) recordId
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.Addresses a on a.id = R.address_id
@@ -826,6 +834,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
     left join CallCenter.RequestRating rtype on rtype.request_id = R.id
     left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
+    left join CallCenter.RequestCalls rcalls on rcalls.request_id = R.id
     where is_immediate = 1";
                 if (serviceCompanyId.HasValue)
                     sqlQuery += $" and h.service_company_id = {serviceCompanyId.Value}";
@@ -840,10 +849,13 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 {
                     while (dataReader.Read())
                     {
+                        var recordUniqueId = dataReader.GetNullableString("recordId");
                         requests.Add(new RequestForListDto
                         {
                             Id = dataReader.GetInt32("id"),
                             HasAttachment = dataReader.GetBoolean("has_attach"),
+                            HasRecord = !string.IsNullOrEmpty(recordUniqueId),
+                            RecordUniqueId = recordUniqueId,
                             StreetPrefix = dataReader.GetString("prefix_name"),
                             StreetName = dataReader.GetString("street_name"),
                             AddressType = dataReader.GetString("address_type"),
@@ -884,6 +896,26 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             }
         }
 
+        public string GetRecordFileNameByUniqueId(string uniqueId)
+        {
+            var sqlQuery = @"select MonitorFile FROM asterisk.ChannelHistory ch
+ join CallCenter.RequestCalls rc on ch.UniqueId = rc.UniqueId
+ where rc.uniqueID = @UniqueID";
+            var result = string.Empty;
+            using (var cmd = new MySqlCommand(sqlQuery, AppSettings.DbConnection))
+            {
+                cmd.Parameters.AddWithValue("@UniqueID", uniqueId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        result = dataReader.GetNullableString("MonitorFile");
+                        }
+                    dataReader.Close();
+                    return result;
+                }
+            }
+        }
         public IList<WorkerDto> GetWorkers(int? serviceCompanyId, bool showOnlyExecutors = true)
         {
             var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id FROM CallCenter.Workers w
@@ -1537,7 +1569,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
  //MonitorFile,TalkTime,WaitingTime, userId, SurName, FirstName, PatrName, RequestId FROM asterisk.CallsHistory C";
 
             var sqlQuery = @"select C.UniqueID AS UniqueId,C.Direction AS CallDirection,
-            (case when(C.CallerIDNum = 'scvip500415') then C.Exten else C.CallerIDNum end) AS CallerIDNum,
+            (case when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) AS CallerIDNum,
 C.CreateTime AS CreateTime,
 C.AnswerTime AS AnswerTime,
 C.EndTime AS EndTime,
@@ -1553,7 +1585,8 @@ group_concat(r.request_id order by r.request_id separator ', ') AS RequestId fro
 (((asterisk.ChannelHistory C left join asterisk.ChannelHistory C2 on(((C2.BridgeId = C.BridgeId) and(C.UniqueID <> C2.UniqueID))))
 left join CallCenter.Users u on((u.id = ifnull(C.UserId, C2.UserId))))
 left join CallCenter.RequestCalls r on((r.uniqueID = C.UniqueID)))
-where(((C.Context = 'from-trunk') and(C.Exten = 's')) or((C.Context = 'localphones') and(C.CallerIDNum = 'scvip500415')))";
+where C.Direction is not null";
+//where(((C.Context = 'from-trunk') and(C.Exten = 's')) or((C.Context = 'localphones') and(C.CallerIDNum = 'scvip500415')))";
 
             if (!string.IsNullOrEmpty(requestId))
             {

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -26,6 +28,22 @@ namespace CRMPhone.ViewModel
         public ICommand ExportRequestCommand { get { return _exportRequestCommand ?? (_exportRequestCommand = new CommandHandler(ExportRequest, true)); } }
         private ICommand _clearFiltersCommand;
         public ICommand ClearFiltersCommand { get { return _clearFiltersCommand ?? (_clearFiltersCommand = new CommandHandler(ClearFilters, true)); } }
+
+        private ICommand _playCommand;
+        public ICommand PlayCommand { get { return _playCommand ?? (_playCommand = new RelayCommand(RecordPlay)); } }
+
+        private void RecordPlay(object obj)
+        {
+            var item = obj as RequestForListDto;
+            if (item == null)
+                return;
+            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
+            var fileName = _requestService.GetRecordFileNameByUniqueId(item.RecordUniqueId);
+            var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\");
+            Process.Start(localFileName);
+
+        }
+
 
         private void ClearFilters()
         {

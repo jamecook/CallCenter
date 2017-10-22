@@ -6,6 +6,8 @@ namespace RequestServiceImpl.Dto
     {
         public int Id { get; set; }
         public bool HasAttachment { get; set; }
+        public bool HasRecord { get; set; }
+        public string RecordUniqueId { get; set; }
         public DateTime CreateTime { get; set; }
         public string StreetPrefix { get; set; }
         public string StreetName { get; set; }
