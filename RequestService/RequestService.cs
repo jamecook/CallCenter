@@ -1060,14 +1060,27 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         }
 
 
-        public IList<StreetDto> GetStreets(int cityId)
+        public IList<StreetDto> GetStreets(int cityId, int? serviceCompanyId = null)
         {
+            var sqlQuery = @"SELECT S.id,S.city_id,S.name,P.id as Prefix_id,P.Name as Prefix_Name,P.ShortName FROM CallCenter.Streets S
+    join CallCenter.StreetPrefixes P on P.id = S.prefix_id
+    where S.enabled = 1;";
+            if (serviceCompanyId.HasValue)
+            {
+                sqlQuery = @"SELECT S.id,S.city_id,S.name,P.id as Prefix_id,P.Name as Prefix_Name,P.ShortName FROM CallCenter.Streets S
+    join CallCenter.StreetPrefixes P on P.id = S.prefix_id
+    join CallCenter.Houses h on h.street_id = S.id and h.service_company_id = @ServiceCompanyId
+    where S.enabled = 1;";
+            }
+                
             using (
                 var cmd =
-                    new MySqlCommand(@"SELECT S.id,S.city_id,S.name,P.id as Prefix_id,P.Name as Prefix_Name,P.ShortName FROM CallCenter.Streets S
-    join CallCenter.StreetPrefixes P on P.id = S.prefix_id
-    where S.enabled = 1;", _dbConnection))
+                    new MySqlCommand(sqlQuery, _dbConnection))
             {
+                if (serviceCompanyId.HasValue)
+                {
+                    cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId.Value);
+                }
                 var streets = new List<StreetDto>();
                 using (var dataReader = cmd.ExecuteReader())
                 {
@@ -1967,7 +1980,7 @@ where C.Direction is not null";
         public ServiceCompanyDto ServiceCompanyByIncommingPhoneNumber(string phoneNumber)
         {
             using (var cmd = new MySqlCommand(@"SELECT S.id,S.Name FROM asterisk.ActiveChannels A
-            join CallCenter.ServiceCompanies S on S.trunk_name = A.context where A.CallerIDNum = @phoneNumber", AppSettings.DbConnection))
+            join CallCenter.ServiceCompanies S on S.trunk_name = A.ServiceComp where A.CallerIDNum = @phoneNumber", AppSettings.DbConnection))
             {
                 cmd.Parameters.AddWithValue("@phoneNumber", phoneNumber);
                 using (var dataReader = cmd.ExecuteReader())

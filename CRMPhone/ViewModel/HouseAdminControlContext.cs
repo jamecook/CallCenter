@@ -29,6 +29,7 @@ namespace CRMPhone.ViewModel
             CityList = new ObservableCollection<CityDto>();
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
+            CompanyList = new ObservableCollection<ServiceCompanyDto>();
         }
 
         public ObservableCollection<CityDto> CityList
@@ -44,16 +45,36 @@ namespace CRMPhone.ViewModel
             {
                 _selectedCity = value;
                 OnPropertyChanged(nameof(SelectedCity));
-                RefreshStreets(value);
+                RefreshStreets(value, SelectedCompany);
             }
         }
 
-    private void RefreshStreets(CityDto city)
+        public ObservableCollection<ServiceCompanyDto> CompanyList
+        {
+            get { return _companyList; }
+            set { _companyList = value; OnPropertyChanged(nameof(CompanyList));}
+        }
+
+        public ServiceCompanyDto SelectedCompany
+        {
+            get { return _selectedCompany; }
+            set
+            {
+                _selectedCompany = value;
+                if (_selectedCompany != null)
+                {
+                    RefreshStreets(SelectedCity, _selectedCompany);
+                }
+                OnPropertyChanged(nameof(SelectedCompany));
+            }
+        }
+
+        private void RefreshStreets(CityDto city, ServiceCompanyDto company)
         {
             StreetList.Clear();
             if (city == null)
                 return;
-            RequestService.GetStreets(city.Id).ToList().ForEach(s => StreetList.Add(s)); 
+            RequestService.GetStreets(city.Id,company?.Id).ToList().ForEach(s => StreetList.Add(s)); 
         }
 
         public ObservableCollection<StreetDto> StreetList
@@ -106,6 +127,10 @@ namespace CRMPhone.ViewModel
             RequestService.GetCities().ToList().ForEach(c=>CityList.Add(c));
             OnPropertyChanged(nameof(CityList));
             SelectedCity = CityList.FirstOrDefault();
+
+            CompanyList.Clear();
+            RequestService.GetServiceCompanies().ToList().ForEach(c => CompanyList.Add(c));
+            OnPropertyChanged(nameof(CompanyList));
         }
 
         private void RefreshAddress(HouseDto house)
@@ -127,7 +152,7 @@ namespace CRMPhone.ViewModel
                         MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     RequestService.DeleteStreet(SelectedStreet.Id);
-                    RefreshStreets(SelectedCity);
+                    RefreshStreets(SelectedCity,SelectedCompany);
                 }
             }
         }
@@ -154,7 +179,7 @@ namespace CRMPhone.ViewModel
             view.DataContext = model;
             if (view.ShowDialog() == true)
             {
-                RefreshStreets(SelectedCity);
+                RefreshStreets(SelectedCity,SelectedCompany);
             }
         }
 
@@ -165,6 +190,8 @@ namespace CRMPhone.ViewModel
         private ICommand _editHouseCommand;
         public ICommand EditHouseCommand { get { return _editHouseCommand ?? (_editHouseCommand = new RelayCommand(EditHouse)); } }
         private ICommand _deleteHouseCommand;
+        private ObservableCollection<ServiceCompanyDto> _companyList;
+        private ServiceCompanyDto _selectedCompany;
         public ICommand DeleteHouseCommand { get { return _deleteHouseCommand ?? (_deleteHouseCommand = new CommandHandler(DeleteHouse, true)); } }
 
         private void AddHouse()
