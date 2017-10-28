@@ -435,6 +435,8 @@ namespace CRMPhone.ViewModel
 
         private ICommand _addRequestToCallCommand;
         private CallsListDto _selectedRecordCall;
+        private ServiceCompanyDto _selectedCompany;
+        private ObservableCollection<ServiceCompanyDto> _companyList;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 
@@ -548,6 +550,18 @@ namespace CRMPhone.ViewModel
             set { _selectedUser = value; OnPropertyChanged(nameof(SelectedUser)); }
         }
 
+        public ServiceCompanyDto SelectedCompany
+        {
+            get { return _selectedCompany; }
+            set { _selectedCompany = value; OnPropertyChanged(nameof(SelectedCompany)); }
+        }
+
+        public ObservableCollection<ServiceCompanyDto> CompanyList
+        {
+            get { return _companyList; }
+            set { _companyList = value; OnPropertyChanged(nameof(CompanyList));}
+        }
+
         private void InitMySql()
         {
             var connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", _serverIP, "asterisk", "mysqlasterisk", "asterisk");
@@ -557,6 +571,7 @@ namespace CRMPhone.ViewModel
                 _dbRefreshConnection.Open();
                 _requestService = new RequestService(_dbRefreshConnection);
                 UserList = new ObservableCollection<RequestUserDto>(_requestService.GetOperators());
+                CompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
                 MetersSCList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
                 var curDate = _requestService.GetCurrentDate().Date;
                 FromDate = curDate;
@@ -626,7 +641,7 @@ namespace CRMPhone.ViewModel
 
         public void RefreshList()
         {
-            CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallList(FromDate, ToDate, RequestNum, SelectedUser?.Id));
+            CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallList(FromDate, ToDate, RequestNum, SelectedUser?.Id, SelectedCompany?.Id));
             CallsCount = CallsList.Count;
         }
 

@@ -276,16 +276,12 @@
                     </StackPanel>
                 </TabItem.Header>
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*"/>
-                        <ColumnDefinition Width="71*"/>
-                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <WrapPanel Grid.Row ="0" Margin="3,3,3,228" Grid.ColumnSpan="2">
+                    <WrapPanel Grid.Row ="0">
                         <TextBlock Margin="5" VerticalAlignment="Center" Text="№ заявки:"/>
                         <TextBox Margin="5" Width="50" Text="{Binding RequestNum}"/>
                         <TextBlock Margin="10,5" VerticalAlignment="Center" Text="Дата с:"/>
@@ -294,22 +290,26 @@
                         <DatePicker Height="24" Width="120" SelectedDate="{Binding ToDate}"/>
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="Оператор:"/>
                         <ComboBox Margin="3" Width="110" DisplayMemberPath="ShortName" SelectedItem="{Binding SelectedUser}" ItemsSource="{Binding UserList}" IsEditable="True" />
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="УК:"/>
+                        <ComboBox Margin="3" Width="110" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCompany}" ItemsSource="{Binding CompanyList}" IsEditable="True" />
 
                         <Button  Margin="5" Padding ="5,0" Height="24" Content="Обновить" Command="{Binding RefreshCommand}"/>
                         <Button  Margin="5" Padding ="5,0" Height="24" Content="Привязать заявку" Command="{Binding AddRequestToCallCommand}"/>
                     </WrapPanel>
-                    <DataGrid Name="RecordGrid"
+                    <DataGrid Name="RecordGrid" Grid.Row ="1"
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding Path=CallsList}"
                           SelectedItem="{Binding SelectedRecordCall}"
                           SelectionMode="Single"
                           SelectionUnit="FullRow"
                           IsReadOnly="True"
-                          HorizontalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Margin="0,41,0,0" Grid.RowSpan="2">
+                          HorizontalScrollBarVisibility="Disabled">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Время звонка" Width="120"
-                             Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"></DataGridTextColumn>
-                            <DataGridTemplateColumn Width="*" >
+                             Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
+                            <DataGridTextColumn Header="УК" Width="160"
+                             Binding="{Binding Path=ServiceCompany}"/>
+                            <DataGridTemplateColumn Width="140" >
                                 <DataGridTemplateColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="ContentTemplate">
@@ -373,7 +373,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Width="110" >
+                            <DataGridTemplateColumn Width="90" >
                                 <DataGridTemplateColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="ContentTemplate">
@@ -393,7 +393,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Width="110" >
+                            <DataGridTemplateColumn Width="*" >
                                 <DataGridTemplateColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="ContentTemplate">
@@ -438,7 +438,7 @@
 
                         </DataGrid.Columns>
                     </DataGrid>
-                    <DockPanel Grid.Row="2" HorizontalAlignment="Right" Grid.Column="1">
+                    <DockPanel Grid.Row="2" HorizontalAlignment="Right">
                         <TextBlock Margin="3" Text="Всего записей:"/>
                         <TextBlock Margin="3" MinWidth="45" TextAlignment="Right"  Text="{Binding CallsCount}"/>
                     </DockPanel>

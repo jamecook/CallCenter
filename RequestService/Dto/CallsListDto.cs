@@ -9,6 +9,7 @@ namespace RequestServiceImpl.Dto
         public string CallerId { get; set; }
 
         public string Direction { get; set; }
+        public string ServiceCompany { get; set; }
 
         public string MonitorFileName { get; set; }
 

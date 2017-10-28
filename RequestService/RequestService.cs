@@ -1563,13 +1563,13 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             }
         }
 
-        public List<CallsListDto> GetCallList(DateTime fromDate, DateTime toDate, string requestId, int? operatorId)
+        public List<CallsListDto> GetCallList(DateTime fromDate, DateTime toDate, string requestId, int? operatorId, int? serviceCompanyId)
         {
  //           var sqlQuery = @"SELECT UniqueId,CallDirection,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime, 
  //MonitorFile,TalkTime,WaitingTime, userId, SurName, FirstName, PatrName, RequestId FROM asterisk.CallsHistory C";
 
             var sqlQuery = @"select C.UniqueID AS UniqueId,C.Direction AS CallDirection,
-            (case when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) AS CallerIDNum,
+            (case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) AS CallerIDNum,
 C.CreateTime AS CreateTime,
 C.AnswerTime AS AnswerTime,
 C.EndTime AS EndTime,
@@ -1581,10 +1581,11 @@ timestampdiff(SECOND, C.BridgedTime, C.EndTime) AS TalkTime,
 u.SurName AS SurName,
 u.FirstName AS FirstName,
 u.PatrName AS PatrName,
-group_concat(r.request_id order by r.request_id separator ', ') AS RequestId from
+group_concat(r.request_id order by r.request_id separator ', ') AS RequestId, sc.Name ServiceCompanyName from
 (((asterisk.ChannelHistory C left join asterisk.ChannelHistory C2 on(((C2.BridgeId = C.BridgeId) and(C.UniqueID <> C2.UniqueID))))
 left join CallCenter.Users u on((u.id = ifnull(C.UserId, C2.UserId))))
 left join CallCenter.RequestCalls r on((r.uniqueID = C.UniqueID)))
+left join CallCenter.ServiceCompanies sc on sc.trunk_name = C.ServiceComp
 where C.Direction is not null";
 //where(((C.Context = 'from-trunk') and(C.Exten = 's')) or((C.Context = 'localphones') and(C.CallerIDNum = 'scvip500415')))";
 
@@ -1598,6 +1599,11 @@ where C.Direction is not null";
                 if (operatorId.HasValue)
                 {
                     sqlQuery += " and u.id = @UserNum";
+
+                }
+                if (serviceCompanyId.HasValue)
+                {
+                    sqlQuery += " and sc.id = @ServiceCompanyId";
 
                 }
             }
@@ -1619,6 +1625,10 @@ where C.Direction is not null";
                     {
                         cmd.Parameters.AddWithValue("@UserNum", operatorId);
                     }
+                    if (serviceCompanyId.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+                    }
                 }
                     using (var dataReader = cmd.ExecuteReader())
                 {
@@ -1638,6 +1648,7 @@ where C.Direction is not null";
                             WaitingTime = dataReader.GetNullableInt("WaitingTime"),
                             MonitorFileName = dataReader.GetNullableString("MonitorFile"),
                             Requests = dataReader.GetNullableString("RequestId"),
+                            ServiceCompany = dataReader.GetNullableString("ServiceCompanyName"),
                             User = dataReader.GetNullableInt("userId").HasValue
                                 ? new RequestUserDto
                                 {
