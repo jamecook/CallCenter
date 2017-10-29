@@ -371,7 +371,7 @@ select LAST_INSERT_ID();", _dbConnection))
 
         }
 
-        public void SetRating(int requestId, int ratingId, string description)
+        public void SetRating(int requestId, int ratingId, string description, bool badWork)
         {
             _logger.Debug($"RequestService.SetRating({requestId},{ratingId},{description})");
             try
@@ -380,13 +380,14 @@ select LAST_INSERT_ID();", _dbConnection))
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"insert into CallCenter.RequestRating(request_id,create_date,rating_id,Description,user_id)
- values(@RequestId,sysdate(),@RatingId,@Desc,@UserId);", _dbConnection))
+                            new MySqlCommand(@"insert into CallCenter.RequestRating(request_id,create_date,rating_id,Description,user_id,bad_work)
+ values(@RequestId,sysdate(),@RatingId,@Desc,@UserId,@BadWork);", _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
                         cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
                         cmd.Parameters.AddWithValue("@RatingId", ratingId);
                         cmd.Parameters.AddWithValue("@Desc", description);
+                        cmd.Parameters.AddWithValue("@BadWork", badWork);
                         cmd.ExecuteNonQuery();
                     }
                     transaction.Commit();
@@ -675,7 +676,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             return null;
         }
 
-        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int[] workersId,int? serviceCompanyId,int? userId,int? payment)
+        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int[] workersId,int? serviceCompanyId,int? userId,int? payment, bool onlyBadWork)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -737,6 +738,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     sqlQuery += $" and R.create_user_id = {userId.Value}";
                 if (payment.HasValue)
                     sqlQuery += $" and R.is_chargeable = {payment.Value}";
+                if (onlyBadWork)
+                    sqlQuery += " and rtype.bad_work = 1";
             }
             else
             {
@@ -1064,13 +1067,15 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         {
             var sqlQuery = @"SELECT S.id,S.city_id,S.name,P.id as Prefix_id,P.Name as Prefix_Name,P.ShortName FROM CallCenter.Streets S
     join CallCenter.StreetPrefixes P on P.id = S.prefix_id
-    where S.enabled = 1;";
+    where S.enabled = 1
+    group by S.id;";
             if (serviceCompanyId.HasValue)
             {
                 sqlQuery = @"SELECT S.id,S.city_id,S.name,P.id as Prefix_id,P.Name as Prefix_Name,P.ShortName FROM CallCenter.Streets S
     join CallCenter.StreetPrefixes P on P.id = S.prefix_id
     join CallCenter.Houses h on h.street_id = S.id and h.service_company_id = @ServiceCompanyId
-    where S.enabled = 1;";
+    where S.enabled = 1
+    group by S.id;";
             }
                 
             using (
@@ -1105,16 +1110,24 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             }
         }
 
-        public IList<HouseDto> GetHouses(int streetId)
+        public IList<HouseDto> GetHouses(int streetId,int? serviceCompanyId = null)
         {
-            using (
-                var cmd =
-                    new MySqlCommand(
-                        @"SELECT h.id,h.street_id,h.building,h.corps,h.entrance_count,h.flat_count,h.floor_count,service_company_id,s.Name service_company_name FROM CallCenter.Houses h
-    left join CallCenter.ServiceCompanies s on s.id = h.service_company_id where h.street_id = @StreetId and h.enabled = 1;",
-                        _dbConnection))
+            var sqlQuery = @"SELECT h.id,h.street_id,s.Name street_name,h.building,h.corps,h.entrance_count,h.flat_count,h.floor_count,service_company_id,sс.Name service_company_name FROM CallCenter.Houses h
+    join CallCenter.Streets s on s.id = h.street_id
+    left join CallCenter.ServiceCompanies sс on sс.id = h.service_company_id where h.street_id = @StreetId and h.enabled = 1";
+            if (serviceCompanyId.HasValue)
+            {
+                sqlQuery += @" and h.service_company_id = @ServiceCompanyId";
+            }
+
+
+            using (var cmd = new MySqlCommand(sqlQuery,_dbConnection))
             {
                 cmd.Parameters.AddWithValue("@StreetId", streetId);
+                if (serviceCompanyId.HasValue)
+                {
+                    cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId.Value);
+                }
                 var houses = new List<HouseDto>();
                 using (var dataReader = cmd.ExecuteReader())
                 {
@@ -1125,6 +1138,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             Id = dataReader.GetInt32("id"),
                             Building = dataReader.GetString("building"),
                             StreetId = dataReader.GetInt32("street_id"),
+                            StreetName = dataReader.GetNullableString("street_name"),
                             Corpus = dataReader.GetNullableString("corps"),
                             ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
                             ServiceCompanyName = dataReader.GetNullableString("service_company_name"),
@@ -1139,6 +1153,41 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             }
         }
 
+        public IList<HouseDto> GetHousesByServiceCompany(int serviceCompanyId)
+        {
+            using (
+                var cmd =
+                    new MySqlCommand(
+                        @"SELECT h.id,h.street_id,s.Name street_name,h.building,h.corps,h.entrance_count,h.flat_count,h.floor_count,service_company_id,sc.Name service_company_name FROM CallCenter.Houses h
+    join CallCenter.Streets s on s.id = h.street_id
+    join CallCenter.ServiceCompanies sc on sc.id = h.service_company_id where h.service_company_id = @ServiceCompanyId and h.enabled = 1;",
+                        _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+                var houses = new List<HouseDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        houses.Add(new HouseDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Building = dataReader.GetString("building"),
+                            StreetId = dataReader.GetInt32("street_id"),
+                            StreetName = dataReader.GetNullableString("street_name"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
+                            ServiceCompanyName = dataReader.GetNullableString("service_company_name"),
+                            EntranceCount = dataReader.GetNullableInt("entrance_count"),
+                            FlatCount = dataReader.GetNullableInt("flat_count"),
+                            FloorCount = dataReader.GetNullableInt("floor_count"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return houses;
+            }
+        }
         public IList<FlatDto> GetFlats(int houseId)
         {
             using (var cmd = new MySqlCommand(@"SELECT A.id,A.type_id,A.flat,T.Name FROM CallCenter.Addresses A

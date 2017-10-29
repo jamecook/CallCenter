@@ -24,6 +24,8 @@ namespace CRMPhone.ViewModel
             var request = _requestService.GetRequest(_requestId);
         }
 
+        public bool ServiceCompanyBadWork { get; set; }
+
         public void SetView(Window view)
         {
             _view = view;
@@ -33,7 +35,7 @@ namespace CRMPhone.ViewModel
 
         private void Save(object sender)
         {
-            _requestService.SetRating(_requestId, SelectedRating.Id, Description);
+            _requestService.SetRating(_requestId, SelectedRating.Id, Description, ServiceCompanyBadWork);
             _view.DialogResult = true;
         }
 

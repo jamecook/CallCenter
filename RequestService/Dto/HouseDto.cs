@@ -5,6 +5,7 @@ namespace RequestServiceImpl.Dto
         public int Id { get; set; }
         public string Building { get; set; }
         public string Corpus { get; set; }
+        public string StreetName { get; set; }
         public int StreetId { get; set; }
         public int? ServiceCompanyId { get; set; }
         public string ServiceCompanyName { get; set; }

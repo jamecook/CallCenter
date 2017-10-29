@@ -182,7 +182,7 @@ namespace CRMPhone.ViewModel
         {
             var currentDate = _requestService.GetCurrentDate();
             AddressRequestList = new ObservableCollection<RequestForListDto>(_requestService.GetRequestList(null, true, currentDate.AddDays(-90), currentDate.AddDays(1), DateTime.Today,
-                DateTime.Today, null, null, addressId, null, null,null,new int[0],null,null,null));
+                DateTime.Today, null, null, addressId, null, null,null,new int[0],null,null,null,false));
         }
 
         public string Entrance

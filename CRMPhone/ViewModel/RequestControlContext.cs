@@ -54,6 +54,7 @@ namespace CRMPhone.ViewModel
             SelectedServiceCompany = null;
             SelectedPayment = null;
             SelectedUser = null;
+            ServiceCompanyBadWork = false;
             //foreach (var worker in FilterWorkerList)
             //{
             //    worker.Selected = false;
@@ -147,6 +148,7 @@ namespace CRMPhone.ViewModel
         private ServiceCompanyDto _selectedServiceCompany;
         private ObservableCollection<PaymentDto> _paymentList;
         private PaymentDto _selectedPayment;
+        private bool _serviceCompanyBadWork;
 
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
@@ -278,6 +280,12 @@ namespace CRMPhone.ViewModel
             set { _paymentList = value; OnPropertyChanged(nameof(PaymentList));}
         }
 
+        public bool ServiceCompanyBadWork
+        {
+            get { return _serviceCompanyBadWork; }
+            set { _serviceCompanyBadWork = value; OnPropertyChanged(nameof(ServiceCompanyBadWork));}
+        }
+
         public PaymentDto SelectedPayment
         {
             get { return _selectedPayment; }
@@ -382,7 +390,7 @@ namespace CRMPhone.ViewModel
                 ExecuteFromDate, ExecuteToDate, SelectedStreet?.Id, _selectedHouse?.Id, SelectedFlat?.Id,
                 SelectedParentService?.Id, SelectedService?.Id, SelectedStatus?.Id,
                 FilterWorkerList.Where(w => w.Selected).Select(x => x.Id).ToArray(), SelectedServiceCompany?.Id,
-                SelectedUser?.Id, SelectedPayment?.Id);
+                SelectedUser?.Id, SelectedPayment?.Id, ServiceCompanyBadWork);
             foreach (var request in requests)
             {
                 RequestList.Add(request);
