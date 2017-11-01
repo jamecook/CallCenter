@@ -22,9 +22,6 @@
                     </ComboBox.Resources>
                 </ComboBox>
             </DockPanel>
-        <DockPanel Grid.Row="1">
-            <CheckBox Margin="5" VerticalAlignment="Center" Content="Плохая работа исполнителя!" Foreground="Red" IsChecked="{Binding ServiceCompanyBadWork}"/>
-        </DockPanel>
         <DockPanel Grid.Row="2">
             <TextBlock Margin="5" VerticalAlignment="Center" Text="Комментарий:"/>
             <TextBox Margin="5" HorizontalAlignment="Right" Width="300" Height="100" MaxLength="255" TextWrapping="Wrap" Text="{Binding Description}">

@@ -35,10 +35,10 @@ namespace RequestServiceImpl
             }
         }
 
-        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable)
+        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork)
         {
             using (var cmd = new MySqlCommand(
-                   @"call CallCenter.AddOrUpdateRequest(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable);",
+                   @"call CallCenter.AddOrUpdateRequest(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable,@badWork);",
                    _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@userId", AppSettings.CurrentUser.Id);
@@ -47,6 +47,7 @@ namespace RequestServiceImpl
                 cmd.Parameters.AddWithValue("@requestMessage", requestMessage);
                 cmd.Parameters.AddWithValue("@immediate", immediate);
                 cmd.Parameters.AddWithValue("@chargeable", chargeable);
+                cmd.Parameters.AddWithValue("@badWork", isBadWork);
                 cmd.ExecuteNonQuery();
             }
         }
@@ -371,7 +372,7 @@ select LAST_INSERT_ID();", _dbConnection))
 
         }
 
-        public void SetRating(int requestId, int ratingId, string description, bool badWork)
+        public void SetRating(int requestId, int ratingId, string description)
         {
             _logger.Debug($"RequestService.SetRating({requestId},{ratingId},{description})");
             try
@@ -380,14 +381,13 @@ select LAST_INSERT_ID();", _dbConnection))
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"insert into CallCenter.RequestRating(request_id,create_date,rating_id,Description,user_id,bad_work)
- values(@RequestId,sysdate(),@RatingId,@Desc,@UserId,@BadWork);", _dbConnection))
+                            new MySqlCommand(@"insert into CallCenter.RequestRating(request_id,create_date,rating_id,Description,user_id)
+ values(@RequestId,sysdate(),@RatingId,@Desc,@UserId);", _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
                         cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
                         cmd.Parameters.AddWithValue("@RatingId", ratingId);
                         cmd.Parameters.AddWithValue("@Desc", description);
-                        cmd.Parameters.AddWithValue("@BadWork", badWork);
                         cmd.ExecuteNonQuery();
                     }
                     transaction.Commit();
@@ -554,7 +554,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     C.name City_name,
     U.SurName,U.FirstName,U.PatrName,
     entrance,floor,
-    rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,R.from_time,R.to_time
+    rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,R.from_time,R.to_time,R.bad_work
      FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.RequestTypes RT on RT.id = R.type_id
@@ -584,6 +584,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                                 ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
                                 IsChargeable = dataReader.GetBoolean("is_chargeable"),
                                 IsImmediate = dataReader.GetBoolean("is_immediate"),
+                                IsBadWork = dataReader.GetBoolean("bad_work"),
                                 Description = dataReader.GetNullableString("description"),
                                 Entrance = dataReader.GetNullableString("entrance"),
                                 Floor = dataReader.GetNullableString("floor"),
@@ -685,7 +686,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
     rating.Name Rating,
-    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,
+    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,R.bad_work,
     min(rcalls.uniqueID) recordId
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
@@ -739,7 +740,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 if (payment.HasValue)
                     sqlQuery += $" and R.is_chargeable = {payment.Value}";
                 if (onlyBadWork)
-                    sqlQuery += " and rtype.bad_work = 1";
+                    sqlQuery += " and R.bad_work = 1";
             }
             else
             {
@@ -770,6 +771,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                         {
                             Id = dataReader.GetInt32("id"),
                             HasAttachment = dataReader.GetBoolean("has_attach"),
+                            IsBadWork = dataReader.GetBoolean("bad_work"),
                             HasRecord = !string.IsNullOrEmpty(recordUniqueId),
                             RecordUniqueId = recordUniqueId,
                             StreetPrefix = dataReader.GetString("prefix_name"),

@@ -88,7 +88,7 @@ namespace RequestServiceImpl
             return result.ToArray();
         }
 
-        public RequestForListDto[] WebRequestList(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId, string clientPhone = null)
+        public RequestForListDto[] WebRequestList(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId, bool badWork = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -96,7 +96,7 @@ namespace RequestServiceImpl
                 @"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
-    rating.Name Rating,
+    rating.Name Rating,R.bad_work,
     RS.id req_status_id,
     RS.Description Req_Status
     FROM CallCenter.Requests R
@@ -149,6 +149,8 @@ namespace RequestServiceImpl
                     sqlQuery += $" and WS.Web_State_Id = {statusId.Value}";
                 if (workerId.HasValue)
                     sqlQuery += $" and w.id = {workerId.Value}";
+                if (badWork)
+                    sqlQuery += " and R.bad_work = 1";
                 if(!string.IsNullOrEmpty(clientPhone))
                     sqlQuery += $" and cp.Number = '{clientPhone}'";
             }
@@ -207,6 +209,7 @@ namespace RequestServiceImpl
                             ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
                             ExecutePeriod = dataReader.GetNullableString("Period_Name"),
                             Rating = dataReader.GetNullableString("Rating"),
+                            BadWork = dataReader.GetBoolean("bad_work"),
                             StatusId = dataReader.GetInt32("req_status_id"),
                             Status = dataReader.GetNullableString("Req_Status"),
                         });

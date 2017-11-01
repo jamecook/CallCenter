@@ -32,6 +32,7 @@ namespace CRMPhone.ViewModel
         private string _requestCreator;
         private string _requestState;
         private RequestRatingDto _rating;
+        private bool _isBadWork;
 
 
         public RequestItemViewModel()
@@ -93,6 +94,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _isChargeable; }
             set { _isChargeable = value; OnPropertyChanged(nameof(IsChargeable)); }
+        }
+
+        public bool IsBadWork
+        {
+            get { return _isBadWork; }
+            set { _isBadWork = value; OnPropertyChanged(nameof(IsBadWork));}
         }
 
         public bool IsImmediate

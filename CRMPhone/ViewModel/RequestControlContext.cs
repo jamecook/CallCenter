@@ -361,6 +361,7 @@ namespace CRMPhone.ViewModel
             requestModel.Description = request.Description;
             requestModel.IsChargeable = request.IsChargeable;
             requestModel.IsImmediate = request.IsImmediate;
+            requestModel.IsBadWork = request.IsBadWork;
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
             requestModel.RequestState = request.State.Description;

@@ -20,6 +20,7 @@ namespace RequestServiceImpl.Dto
         public int? ServiceCompanyId { get; set; }
         public bool IsImmediate { get; set; }
         public bool IsChargeable { get; set; }
+        public bool IsBadWork { get; set; }
         public RequestRatingDto Rating { get; set; }
         public DateTime? FromTime { get; set; }
         public DateTime? ToTime { get; set; }

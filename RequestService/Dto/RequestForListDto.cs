@@ -7,6 +7,7 @@ namespace RequestServiceImpl.Dto
         public int Id { get; set; }
         public bool HasAttachment { get; set; }
         public bool HasRecord { get; set; }
+        public bool IsBadWork { get; set; }
         public string RecordUniqueId { get; set; }
         public DateTime CreateTime { get; set; }
         public string StreetPrefix { get; set; }
@@ -24,6 +25,7 @@ namespace RequestServiceImpl.Dto
         public string Service { get; set; }
         public string ContactPhones { get; set; }
         public string Rating { get; set; }
+        public bool BadWork { get; set; }
         public int StatusId { get; set; }
         public string Status { get; set; }
         public string SpendTime { get; set; }
