@@ -8,7 +8,7 @@
         xmlns:dto="clr-namespace:RequestServiceImpl.Dto;assembly=RequestServiceImpl"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModel:CallsHistoryDialogViewModel}"
-        Title="История звонков" Height="300" Width="620" MinWidth ="620" MinHeight="300"
+        Title="История звонков и сообщений" Height="450" Width="620" MinWidth ="620" MinHeight="450"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow">
     <Window.Resources>
@@ -17,6 +17,7 @@
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -28,7 +29,7 @@
                   IsReadOnly="True"
                   HorizontalScrollBarVisibility="Disabled">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Время звонка" Width="120"
+                <DataGridTextColumn Header="Время звонка" Width="110"
                                     Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"></DataGridTextColumn>
                 <DataGridTemplateColumn Width="*" >
                     <DataGridTemplateColumn.HeaderStyle>
@@ -117,8 +118,34 @@
 
             </DataGrid.Columns>
         </DataGrid>
-        <StackPanel Grid.Row="1">
-            <Button Width="120" Margin="5" HorizontalAlignment="Right" Command="{Binding Path=CloseCommand}">Закрыть</Button>
-        </StackPanel>
+        <DataGrid Name="SmsGrid" Margin="3" Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  ItemsSource="{Binding Path=SmsList}"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  IsReadOnly="True"
+                  HorizontalScrollBarVisibility="Disabled">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Время отправки" Width="100"
+                                    Binding="{Binding Path=SendTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
+                <DataGridTextColumn Header="Псевданим" Width="75"
+                                    Binding="{Binding Path=Sender}"/>
+                <DataGridTextColumn Header="Телефон" Width="85"
+                                    Binding="{Binding Path=Phone}"/>
+                <DataGridTextColumn Header="Сообщение" Width="*"
+                                    Binding="{Binding Path=Message}"/>
+                <DataGridTextColumn Header="Кому" Width="50"
+                                    Binding="{Binding Path=ClientOrWorker}"/>
+                <DataGridTextColumn Header="Состояние" Width="80"
+                                    Binding="{Binding Path=State}"/>
+                <DataGridTextColumn Header="Цена" Width="40"
+                                    Binding="{Binding Path=Price}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <DockPanel Grid.Row="2">
+            <Button Margin="5,10" Padding="15,3" HorizontalAlignment="Right" Command="{Binding Path=SendSmsToCitizenCommand}">Отправить СМС жильцу</Button>
+            <Button Margin="5,10" Padding="15,3" HorizontalAlignment="Right" Command="{Binding Path=SendSmsToWorkerCommand}">Отправить СМС исполнителю</Button>
+            <Button Margin="5,10" Padding="15,3" HorizontalAlignment="Right" Command="{Binding Path=CloseCommand}">Закрыть</Button>
+        </DockPanel>
     </Grid>
 </Window>

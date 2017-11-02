@@ -294,7 +294,7 @@ select LAST_INSERT_ID();", _dbConnection))
                 phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}").Aggregate((i, j) => i + ";" + j);
 
             if(smsSettings.SendToWorker)
-                SendSms(requestId, smsSettings.Sender, worker.Phone,$"№ {requestId}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.");
+                SendSms(requestId, smsSettings.Sender, worker.Phone,$"№ {requestId}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.", false);
             //SendSms(requestId, smsSettings.Sender, worker.Phone, $"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
 
             try
@@ -2481,19 +2481,50 @@ where C.Direction is not null";
                     cmd.ExecuteNonQuery();
                 }
         }
-        public void SendSms(int requestId, string sender, string phone, string message)
+        public void SendSms(int requestId, string sender, string phone, string message,bool isClient)
         {
-            if (requestId <= 0 || string.IsNullOrEmpty(phone))
+            if (requestId <= 0 || string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(sender))
                 return;
             using (var cmd =
-                new MySqlCommand("insert into CallCenter.SMSRequest(request_id,sender,phone,message,create_date) values(@Request, @Sender, @Phone,@Message,sysdate())", _dbConnection))
+                new MySqlCommand("insert into CallCenter.SMSRequest(request_id,sender,phone,message,create_date, is_client) values(@Request, @Sender, @Phone,@Message,sysdate(),@IsClient)", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@Request", requestId);
                 cmd.Parameters.AddWithValue("@Sender", sender);
                 cmd.Parameters.AddWithValue("@Phone", phone);
                 cmd.Parameters.AddWithValue("@Message", message);
+                cmd.Parameters.AddWithValue("@IsClient", isClient);
                 cmd.ExecuteNonQuery();
             }
+        }
+
+        public List<SmsListDto> GetSmsByRequestId(int requestId)
+        {
+            using (var cmd = new MySqlCommand("select id,sender,phone,message,create_date,state_desc, is_client,price*sms_count price from CallCenter.SMSRequest where request_id = @RequestId order by id", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var alertTypeDtos = new List<SmsListDto>();
+                    while (dataReader.Read())
+                    {
+                        alertTypeDtos.Add(new SmsListDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Sender = dataReader.GetNullableString("sender"),
+                            SendTime = dataReader.GetDateTime("create_date"),
+                            Phone = dataReader.GetNullableString("phone"),
+                            Message = dataReader.GetNullableString("message"),
+                            State = dataReader.GetNullableString("state_desc"),
+                            Price = dataReader.GetNullableDouble("price"),
+                            ClientOrWorker = dataReader.GetBoolean("is_client")?"Жилец":"Испол."
+                        });
+                    }
+                    dataReader.Close();
+                    return alertTypeDtos;
+                }
+            }
+
         }
         public void DeleteNotAnswered()
         {

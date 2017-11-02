@@ -14,6 +14,15 @@ namespace RequestServiceImpl
             }
             return null;
         }
+        public static double? GetNullableDouble(this MySqlDataReader reader, string fieldName)
+        {
+            var index = reader.GetOrdinal(fieldName);
+            if (!reader.IsDBNull(index))
+            {
+                return reader.GetDouble(index);
+            }
+            return null;
+        }
         public static int? GetNullableInt(this MySqlDataReader reader, string fieldName)
         {
             var index = reader.GetOrdinal(fieldName);

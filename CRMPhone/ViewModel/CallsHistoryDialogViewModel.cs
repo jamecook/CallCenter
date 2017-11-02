@@ -1,7 +1,9 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
@@ -13,8 +15,28 @@ namespace CRMPhone.ViewModel
     {
         private Window _view;
 
+        private int _requestId;
         private ObservableCollection<CallsListDto> _callsList;
         public event PropertyChangedEventHandler PropertyChanged;
+        private readonly RequestServiceImpl.RequestService _requestService;
+
+        public CallsHistoryDialogViewModel(RequestServiceImpl.RequestService requestService, int requestId)
+        {
+            _requestId = requestId;
+            _requestService = requestService;
+            RefreshLists();
+        }
+
+        public void RefreshLists()
+        {
+            CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallListByRequestId(_requestId));
+            SmsList = new ObservableCollection<SmsListDto>(_requestService.GetSmsByRequestId(_requestId));
+        }
+        public ObservableCollection<SmsListDto> SmsList
+        {
+            get { return _smsList; }
+            set { _smsList = value; OnPropertyChanged(nameof(SmsList));}
+        }
 
         public ObservableCollection<CallsListDto> CallsList
         {
@@ -28,7 +50,49 @@ namespace CRMPhone.ViewModel
         private ICommand _playCommand;
         public ICommand PlayCommand { get { return _playCommand ?? (_playCommand = new RelayCommand(PlayRecord)); } }
         private ICommand _closeCommand;
+        private ObservableCollection<SmsListDto> _smsList;
         public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new RelayCommand(Close)); } }
+
+        private ICommand _sendSmsToCitizenCommand;
+        public ICommand SendSmsToCitizenCommand { get { return _sendSmsToCitizenCommand ?? (_sendSmsToCitizenCommand = new RelayCommand(SendSmsToCitizen)); } }
+
+        private void SendSmsToCitizen(object obj)
+        {
+            var request = _requestService.GetRequest(_requestId);
+            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
+            if (smsSettings.SendToClient && request.Contacts.Any(c => c.IsMain))
+            {
+                _requestService.SendSms(request.Id, smsSettings.Sender,
+                    request.Contacts.FirstOrDefault(c => c.IsMain)?.PhoneNumber,
+                    $"Заявка № {request.Id}. {request.Type.ParentName} - {request.Type.Name}", true);
+                MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
+                RefreshLists();
+            }
+        }
+
+        private ICommand _sendSmsToWorkerCommand;
+        public ICommand SendSmsToWorkerCommand { get { return _sendSmsToWorkerCommand ?? (_sendSmsToWorkerCommand = new RelayCommand(SendSmsToWorker)); } }
+
+        private void SendSmsToWorker(object obj)
+        {
+            var request = _requestService.GetRequest(_requestId);
+            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
+            if (!request.ExecutorId.HasValue)
+                return;
+            var worker = _requestService.GetWorkerById(request.ExecutorId.Value);
+            string phones = "";
+            if (request.Contacts != null && request.Contacts.Length > 0)
+                phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}")
+                        .Aggregate((i, j) => i + ";" + j);
+            if (smsSettings.SendToWorker)
+            {
+                _requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone,
+                    $"№ {request.Id}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
+                    false);
+                MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
+                RefreshLists();
+            }
+        }
 
         private void Close(object sender)
         {

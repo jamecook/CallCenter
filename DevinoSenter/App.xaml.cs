@@ -122,9 +122,9 @@ namespace DevinoSender
             var sql = @"SELECT S.id, S.request_id, S.sender, S.phone, S.message, S.state_id, S.state_desc,
     S.price, S.message_id, S.date_utc, S.create_date FROM CallCenter.SMSRequest S ";
             if (inWork)
-                sql += "where message_id is not null and message_id > -1 and (state_id is null or (state_id < 0 or state_id > 100)) and create_date > sysdate() - interval 5 Day";
+                sql += "where sender is not null and phone is not null and message_id is not null and message_id > -1 and (state_id is null or (state_id < 0 or state_id > 100)) and create_date > sysdate() - interval 5 Day";
             else
-                sql += "where message_id is null and S.create_date > sysdate() - interval 1 hour";
+                sql += "where sender is not null and phone is not null and message_id is null and S.create_date > sysdate() - interval 1 hour";
             using (
                 var cmd = new MySqlCommand(sql, dbConnection))
             {

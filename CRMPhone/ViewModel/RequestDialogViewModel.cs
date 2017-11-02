@@ -272,8 +272,7 @@ namespace CRMPhone.ViewModel
             var requestModel = sender as RequestItemViewModel;
             if (!requestModel.RequestId.HasValue)
                 return;
-            var model = new CallsHistoryDialogViewModel();
-            model.CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallListByRequestId(requestModel.RequestId.Value));
+            var model = new CallsHistoryDialogViewModel(_requestService, requestModel.RequestId.Value);
             var view = new CallsHistoryDialog();
             model.SetView(view);
             view.Owner = _view;
@@ -476,7 +475,7 @@ namespace CRMPhone.ViewModel
             {
                 var mainClient = ContactList.FirstOrDefault(c => c.IsMain);
                 _requestService.SendSms(request.Value, smsSettings.Sender,
-                    mainClient.PhoneNumber, $"Заявка № {request.Value}. {requestModel.SelectedParentService.Name} - {requestModel.SelectedService.Name}");
+                    mainClient.PhoneNumber, $"Заявка № {request.Value}. {requestModel.SelectedParentService.Name} - {requestModel.SelectedService.Name}", true);
             }
             requestModel.RequestId = request;
             if (requestModel.SelectedWorker != null && requestModel.SelectedWorker.Id > 0)
