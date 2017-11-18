@@ -64,6 +64,9 @@
     <Compile Include="Dto\AlertDto.cs" />
     <Compile Include="Dto\AlertServiceTypeDto.cs" />
     <Compile Include="Dto\AlertTypeDto.cs" />
+    <Compile Include="Dto\AppAddressDto.cs" />
+    <Compile Include="Dto\AppRequestDto.cs" />
+    <Compile Include="Dto\AppTypeDto.cs" />
     <Compile Include="Dto\AttachmentDto.cs" />
     <Compile Include="Dto\BlackListPhoneDto.cs" />
     <Compile Include="Dto\CallsListDto.cs" />

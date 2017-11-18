@@ -107,9 +107,10 @@ select LAST_INSERT_ID();", _dbConnection))
                                 .OrderByDescending(c => c.IsMain))
                     {
                         var clientPhoneId = 0;
+                        ContactDto currentInfo = null;
                         using (
                             var cmd = new MySqlCommand(
-                                "SELECT id FROM CallCenter.ClientPhones C where Number = @Phone", _dbConnection))
+                                "SELECT id,sur_name,first_name,patr_name FROM CallCenter.ClientPhones C where Number = @Phone", _dbConnection))
                         {
                             cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
 
@@ -117,12 +118,19 @@ select LAST_INSERT_ID();", _dbConnection))
                             {
                                 if (dataReader.Read())
                                 {
-                                    clientPhoneId = dataReader.GetInt32("id");
+                                    currentInfo = new ContactDto
+                                    {
+                                        Id = dataReader.GetInt32("id"),
+                                        FirstName = dataReader.GetNullableString("first_name"),
+                                        SurName = dataReader.GetNullableString("sur_name"),
+                                        PatrName = dataReader.GetNullableString("patr_name"),
+                                    };
+                                    clientPhoneId = currentInfo.Id;
                                 }
                                 dataReader.Close();
                             }
                         }
-                        if (clientPhoneId == 0)
+                        if (currentInfo == null)
                         {
                             if (!string.IsNullOrEmpty(contact.FullName))
                             {
@@ -153,12 +161,12 @@ select LAST_INSERT_ID();", _dbConnection))
                         else
                         {
                             using (
-    var cmd = new MySqlCommand(@"update CallCenter.ClientPhones set sur_name = @SurName,first_name = @FirstName,patr_name = @PatrName where Number = @Phone;", _dbConnection))
+    var cmd = new MySqlCommand(@"update CallCenter.ClientPhones set sur_name = @SurName,first_name = @FirstName,patr_name = @PatrName where id = @Id;", _dbConnection))
                             {
-                                cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
-                                cmd.Parameters.AddWithValue("@SurName", contact.SurName);
-                                cmd.Parameters.AddWithValue("@FirstName", contact.FirstName);
-                                cmd.Parameters.AddWithValue("@PatrName", contact.PatrName);
+                                cmd.Parameters.AddWithValue("@Id", currentInfo.Id);
+                                cmd.Parameters.AddWithValue("@SurName",string.IsNullOrEmpty(contact.SurName) ? currentInfo.SurName : contact.SurName);
+                                cmd.Parameters.AddWithValue("@FirstName", string.IsNullOrEmpty(contact.SurName) ? currentInfo.FirstName : contact.FirstName);
+                                cmd.Parameters.AddWithValue("@PatrName", string.IsNullOrEmpty(contact.SurName) ? currentInfo.PatrName : contact.PatrName);
                                 cmd.ExecuteNonQuery();
                             }
                         }

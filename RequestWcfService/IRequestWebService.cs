@@ -70,6 +70,18 @@ namespace RequestWcfService
         void SaveRedirectPhone(string secret, string phoneNumber);
 
         [OperationContract]
+        AppRequestDto[] GetRequestsByPhone(string phone, string code);
+
+        [OperationContract]
+        AppTypeDto[] GetTypesByPhone(string phone, string code);
+
+        [OperationContract]
+        AppAddressDto[] GetAddressesByPhone(string phone, string code);
+
+        [OperationContract]
+        void CreateRequestFromPhone(string phone, string code, int addressId, int typeId, string description);
+
+        [OperationContract]
         string GetRedirectPhone();
         [OperationContract]
         byte[] GetRequestActs(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId);

@@ -433,5 +433,105 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
         }
 
+        public AppRequestDto[] GetRequestsByPhone(string phone, string code)
+        {
+            var query = "call CallCenter.GetRequestsByPhone(@Phone,@Code)";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Phone", phone);
+                cmd.Parameters.AddWithValue("@Code", code);
+
+                var result = new List<AppRequestDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        result.Add(new AppRequestDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            CreateTime = dataReader.GetDateTime("create_time"),
+                            StreetName = dataReader.GetNullableString("street_name"),
+                            Description = dataReader.GetNullableString("Description"),
+                            State = dataReader.GetNullableString("state"),
+                            PrimaryType = dataReader.GetNullableString("primary_type"),
+                            ServiceType = dataReader.GetNullableString("service_type"),
+                            Building = dataReader.GetNullableString("building"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            Flat = dataReader.GetNullableString("flat"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return result.ToArray();
+            }
+        }
+        public AppAddressDto[] GetAddressesByPhone(string phone, string code)
+        {
+            var query = "call CallCenter.GetAddressesByPhone(@Phone,@Code)";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Phone", phone);
+                cmd.Parameters.AddWithValue("@Code", code);
+
+                var result = new List<AppAddressDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        result.Add(new AppAddressDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            StreetName = dataReader.GetNullableString("street_name"),
+                            Building = dataReader.GetNullableString("building"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            Flat = dataReader.GetNullableString("flat"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return result.ToArray();
+            }
+        }
+        public AppTypeDto[] GetTypesByPhone(string phone, string code)
+        {
+            var query = "call CallCenter.GetTypesByPhone(@Phone,@Code)";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Phone", phone);
+                cmd.Parameters.AddWithValue("@Code", code);
+
+                var result = new List<AppTypeDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        result.Add(new AppTypeDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            ParrentId = dataReader.GetNullableInt("parrent_id"),
+                            Name = dataReader.GetNullableString("name"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return result.ToArray();
+            }
+        }
+
+        public void CreateRequestFromPhone(string phone, string code, int addressId, int typeId, string description)
+        {
+            var query = "call CallCenter.CreateRequestFromPhone(@Phone,@Code,@AddressId,@TypeId,@Desc)";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Phone", phone);
+                cmd.Parameters.AddWithValue("@Code", code);
+                cmd.Parameters.AddWithValue("@AddressId", addressId);
+                cmd.Parameters.AddWithValue("@TypeId", typeId);
+                cmd.Parameters.AddWithValue("@Desc", description);
+                cmd.ExecuteNonQuery();
+            }
+
+        }
+
     }
 }

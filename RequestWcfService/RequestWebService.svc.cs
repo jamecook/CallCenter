@@ -171,5 +171,21 @@ namespace RequestWcfService
         {
             return _requestService.GetNotesWeb(requestId).ToArray();
         }
+        public AppAddressDto[] GetAddressesByPhone(string phone,string code)
+        {
+            return _requestService.GetAddressesByPhone(phone, code).ToArray();
+        }
+        public AppRequestDto[] GetRequestsByPhone(string phone,string code)
+        {
+            return _requestService.GetRequestsByPhone(phone, code).ToArray();
+        }
+        public AppTypeDto[] GetTypesByPhone(string phone, string code)
+        {
+            return _requestService.GetTypesByPhone(phone, code).ToArray();
+        }
+        public void CreateRequestFromPhone(string phone,string code, int addressId, int typeId, string description)
+        {
+            _requestService.CreateRequestFromPhone(phone, code, addressId, typeId, description);
+        }
     }
 }
