@@ -1246,8 +1246,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         public IList<ServiceDto> GetServices(long? parentId)
         {
             var query = parentId.HasValue
-                ? @"SELECT id,name FROM CallCenter.RequestTypes R where parrent_id = @ParentId and enabled = 1 order by name"
-                : @"SELECT id,name FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
+                ? @"SELECT id,name,can_send_sms FROM CallCenter.RequestTypes R where parrent_id = @ParentId and enabled = 1 order by name"
+                : @"SELECT id,name,can_send_sms FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 if (parentId.HasValue)
@@ -1261,7 +1261,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                         services.Add(new ServiceDto
                         {
                             Id = dataReader.GetInt32("id"),
-                            Name = dataReader.GetString("name")
+                            Name = dataReader.GetString("name"),
+                            CanSendSms = dataReader.GetBoolean("can_send_sms")
                         });
                     }
                     dataReader.Close();
@@ -2202,7 +2203,7 @@ where C.Direction is not null";
         public ServiceDto GetServiceById(int serviceId)
         {
             ServiceDto service = null;
-            var query = "SELECT id,name FROM CallCenter.RequestTypes  where enabled = 1 and id = @ID";
+            var query = "SELECT id,name,can_send_sms FROM CallCenter.RequestTypes  where enabled = 1 and id = @ID";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@ID", serviceId);
@@ -2213,7 +2214,8 @@ where C.Direction is not null";
                         service = new ServiceDto
                         {
                             Id = dataReader.GetInt32("id"),
-                            Name = dataReader.GetString("name")
+                            Name = dataReader.GetString("name"),
+                            CanSendSms = dataReader.GetBoolean("can_send_sms")
                         };
                     }
                     dataReader.Close();

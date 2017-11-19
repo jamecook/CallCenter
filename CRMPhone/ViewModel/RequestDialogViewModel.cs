@@ -471,7 +471,7 @@ namespace CRMPhone.ViewModel
                 return;
             }
             var smsSettings = _requestService.GetSmsSettingsForServiceCompany(requestModel.SelectedCompany.Id);
-            if (smsSettings.SendToClient && ContactList.Any(c => c.IsMain))
+            if (smsSettings.SendToClient && ContactList.Any(c => c.IsMain) && requestModel.SelectedParentService.CanSendSms && requestModel.SelectedService.CanSendSms)
             {
                 var mainClient = ContactList.FirstOrDefault(c => c.IsMain);
                 _requestService.SendSms(request.Value, smsSettings.Sender,

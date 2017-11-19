@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using System.ServiceModel.Web;
 using RequestServiceImpl.Dto;
 
 namespace RequestWcfService
@@ -70,12 +71,15 @@ namespace RequestWcfService
         void SaveRedirectPhone(string secret, string phoneNumber);
 
         [OperationContract]
+        [WebGet]
         AppRequestDto[] GetRequestsByPhone(string phone, string code);
 
         [OperationContract]
+        [WebGet]
         AppTypeDto[] GetTypesByPhone(string phone, string code);
 
         [OperationContract]
+        [WebGet]
         AppAddressDto[] GetAddressesByPhone(string phone, string code);
 
         [OperationContract]
