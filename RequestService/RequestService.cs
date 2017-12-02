@@ -2820,6 +2820,17 @@ where C.Direction is not null";
                 }
             }
         }
+
+        public void SendAlive()
+        {
+            using (
+                var cmd =
+                    new MySqlCommand(@"call CallCenter.SendAlive(@UserId)", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                cmd.ExecuteNonQuery();
+            }
+        }
     }
 
 }

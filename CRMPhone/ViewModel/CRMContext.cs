@@ -691,7 +691,7 @@ namespace CRMPhone.ViewModel
 
         private void SendAlive()
         {
-            
+            _requestService.SendAlive();
         }
         private void RefreshActiveChannels()
         {

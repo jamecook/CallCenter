@@ -37,7 +37,7 @@ namespace RequestServiceImpl
             return GetAttachmentsCore(requestId,_dbConnection).ToArray();
         }
 
-        public StatInfoDto[] GetRequestByUsersInto()
+        public StatInfoDto[] GetRequestByUsersInfo()
         {
             var result = new List<StatInfoDto>();
             using (var cmd = new MySqlCommand(@"SELECT dat stat_date,U.id user_id,concat(U.SurName,' ',U.FirstName,' ',U.PatrName) user_name,count(R.id) request_count FROM
@@ -62,7 +62,7 @@ namespace RequestServiceImpl
             }
             return result.ToArray();
         }
-        public StatInfoDto[] GetRequestByWorkersInto()
+        public StatInfoDto[] GetRequestByWorkersInfo()
         {
             var result = new List<StatInfoDto>();
             using (var cmd = new MySqlCommand(@"SELECT dat stat_date,W.id user_id,trim(concat(W.sur_name,' ',IFNULL(W.first_name,''),' ',IFNULL(W.patr_name,''))) user_name,count(R.id) request_count FROM
@@ -532,6 +532,45 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
 
         }
+
+        public StatInfoDto[] GetWorkerStat(int currentWorkerId, DateTime fromDate, DateTime toDate)
+        {
+        
+                    var result = new List<StatInfoDto>();
+            using (var cmd = new MySqlCommand("CALL CallCenter.WebGetWorkerStat(@fromDate,@toDate,@userId)", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@fromDate", fromDate);
+                cmd.Parameters.AddWithValue("@toDate", toDate);
+                cmd.Parameters.AddWithValue("@userId", currentWorkerId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        var surName = dataReader.GetNullableString("sur_name");
+                        var firstName = dataReader.GetNullableString("first_name");
+                        var patrName = dataReader.GetNullableString("patr_name");
+                        var operType = dataReader.GetNullableString("oper_type");
+                        var name = surName + " " + (string.IsNullOrEmpty(firstName)
+                            ? ""
+                            : firstName.Substring(0, 1)+".")
+                            + " " + (string.IsNullOrEmpty(patrName)
+                            ? ""
+                            : patrName.Substring(0, 1) + ".")
+                            + " " + (operType== "Altered" ? "Назначено": "Выполнено");
+
+                        result.Add(new StatInfoDto
+                        {
+                            StatDate = dataReader.GetDateTime("rep_date"),
+                            Name = name,
+                            Count = dataReader.GetInt32("item_count")
+                        });
+                    }
+                    dataReader.Close();
+                }
+            }
+            return result.ToArray();
+        }
+
 
     }
 }

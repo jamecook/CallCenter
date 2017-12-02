@@ -17,13 +17,13 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>05/31/2017 19:01:20</publishTime>
     </File>
     <File Include="bin/RequestServiceImpl.dll">
-      <publishTime>11/18/2017 19:15:41</publishTime>
+      <publishTime>12/02/2017 22:33:39</publishTime>
     </File>
     <File Include="bin/RequestServiceImpl.dll.config">
       <publishTime>09/14/2017 20:36:44</publishTime>
     </File>
     <File Include="bin/RequestWcfService.dll">
-      <publishTime>11/18/2017 20:18:56</publishTime>
+      <publishTime>12/02/2017 22:33:40</publishTime>
     </File>
     <File Include="bin/Stimulsoft.Base.dll">
       <publishTime>01/01/0001 00:00:00</publishTime>
@@ -38,16 +38,16 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>07/27/2017 21:21:05</publishTime>
     </File>
     <File Include="packages.config">
-      <publishTime>03/06/2017 23:41:57</publishTime>
+      <publishTime>06/03/2017 23:41:57</publishTime>
     </File>
     <File Include="RequestWebService.svc">
-      <publishTime>03/06/2017 23:39:03</publishTime>
+      <publishTime>06/03/2017 23:39:03</publishTime>
     </File>
     <File Include="templates/act.mrt">
       <publishTime>07/27/2017 21:21:05</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>11/18/2017 19:51:44</publishTime>
+      <publishTime>12/02/2017 22:04:38</publishTime>
     </File>
   </ItemGroup>
 </Project>

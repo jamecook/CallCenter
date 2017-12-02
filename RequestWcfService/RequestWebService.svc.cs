@@ -148,13 +148,13 @@ namespace RequestWcfService
             return _requestService.GetRecordById(recordId);
         }
 
-        public StatInfoDto[] GetRequestByUsersInto()
+        public StatInfoDto[] GetRequestByUsersInfo()
         {
-            return _requestService.GetRequestByUsersInto();
+            return _requestService.GetRequestByUsersInfo();
         }
-        public StatInfoDto[] GetRequestByWorkersInto()
+        public StatInfoDto[] GetRequestByWorkersInfo()
         {
-            return _requestService.GetRequestByWorkersInto();
+            return _requestService.GetRequestByWorkersInfo();
         }
 
         public WebCallsDto[] GetWebCallsByRequestId(int requestId)
@@ -186,6 +186,11 @@ namespace RequestWcfService
         public void CreateRequestFromPhone(string phone,string code, int addressId, int typeId, string description)
         {
             _requestService.CreateRequestFromPhone(phone, code, addressId, typeId, description);
+        }
+
+        public StatInfoDto[] GetWorkerStat(int currentWorkerId, DateTime fromDate, DateTime toDate)
+        {
+            return _requestService.GetWorkerStat(currentWorkerId, fromDate, toDate);
         }
     }
 }

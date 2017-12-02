@@ -41,13 +41,13 @@ namespace RequestWcfService
         byte[] GetRecordById(int recordId);
 
         [OperationContract]
-        StatInfoDto[] GetRequestByUsersInto();
+        StatInfoDto[] GetRequestByUsersInfo();
 
         [OperationContract]
         WebCallsDto[] GetWebCallsByRequestId(int requestId);
 
         [OperationContract]
-        StatInfoDto[] GetRequestByWorkersInto();
+        StatInfoDto[] GetRequestByWorkersInfo();
 
         [OperationContract]
         StatusDto[] GetStatusesAllowedInWeb();
@@ -87,6 +87,10 @@ namespace RequestWcfService
 
         [OperationContract]
         string GetRedirectPhone();
+
+        [OperationContract]
+        StatInfoDto[] GetWorkerStat(int currentWorkerId, DateTime fromDate, DateTime toDate);
+
         [OperationContract]
         byte[] GetRequestActs(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId);
     }
