@@ -8,5 +8,4 @@ namespace RequestServiceImpl.Dto
         public RequestUserDto Worker { get; set; }
         public RequestUserDto CreateUser { get; set; }
     }
-
 }

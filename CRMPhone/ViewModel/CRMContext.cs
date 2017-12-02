@@ -25,7 +25,9 @@ namespace CRMPhone.ViewModel
         private readonly DispatcherTimer _refreshTimer;
         private MySqlConnection _dbRefreshConnection;
         private UserAgent _sipAgent;
+        //public MainWindow mainWindow;
 
+        private DateTime _lastAliveTime;
         private string _sipUser;
         private string _sipSecret;
         private string _serverIP;
@@ -40,7 +42,7 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<NotAnsweredDto> _notAnsweredCalls;
         private ObservableCollection<CallsListDto> _callsList;
         private SoundPlayer _ringPlayer;
-        public Window mainWindow { get; set; }
+        public MainWindow mainWindow { get; set; }
 
         public string AppTitle
         {
@@ -85,7 +87,7 @@ namespace CRMPhone.ViewModel
             CallsList = new ObservableCollection<CallsListDto>();
             var uri = new Uri(@"pack://application:,,,/Resources/ringin.wav");
             _ringPlayer = new SoundPlayer(Application.GetResourceStream(uri).Stream);
-
+            _lastAliveTime = DateTime.Today;
             EnablePhone = false;
             RequestDataContext = new RequestControlContext();
             ServiceCompanyDataContext = new ServiceCompanyControlContext();
@@ -97,6 +99,13 @@ namespace CRMPhone.ViewModel
             BlackListContext = new BlackListControlContext();
             AlertRequestDataContext = new AlertRequestControlContext();
             AlertAndWorkContext = new AlertAndWorkControlContext();
+            AlertRequestControlModel = new AlertRequestControlModel();
+        }
+
+        public AlertRequestControlModel AlertRequestControlModel
+        {
+            get { return _alertRequestControlModel; }
+            set { _alertRequestControlModel = value; OnPropertyChanged(nameof(AlertRequestControlModel));}
         }
 
         public void InitMysqlAndSip()
@@ -234,8 +243,8 @@ namespace CRMPhone.ViewModel
         private void PlayRecord(object obj)
         {
             var record = obj as CallsListDto;
-            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"]; ;
-            var localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\");
+            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
+            var localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/","\\");
             Process.Start(localFileName);
         }
 
@@ -437,6 +446,8 @@ namespace CRMPhone.ViewModel
         private CallsListDto _selectedRecordCall;
         private ServiceCompanyDto _selectedCompany;
         private ObservableCollection<ServiceCompanyDto> _companyList;
+        private Color _alertRequestColor;
+        private AlertRequestControlModel _alertRequestControlModel;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 
@@ -470,6 +481,12 @@ namespace CRMPhone.ViewModel
                     MuteButtonBackground = null;
                 }
             }
+        }
+
+        public Color AlertRequestColor
+        {
+            get { return _alertRequestColor; }
+            set { _alertRequestColor = value; OnPropertyChanged(nameof(AlertRequestColor));}
         }
 
         public RequestControlContext RequestDataContext
@@ -644,14 +661,38 @@ namespace CRMPhone.ViewModel
             CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallList(FromDate, ToDate, RequestNum, SelectedUser?.Id, SelectedCompany?.Id));
             CallsCount = CallsList.Count;
         }
-
-
         private void RefreshTimerOnTick(object sender, EventArgs eventArgs)
         {
             RefreshActiveChannels();
             RefreshNotAnsweredCalls();
+            TimeSpan t = DateTime.Now - _lastAliveTime;
+            if (t.TotalSeconds > 30)
+            {
+                SendAlive();
+                RefreshAlertRequest();
+                _lastAliveTime = DateTime.Now;
+            }
         }
 
+        private void RefreshAlertRequest()
+        {
+            var alertedRequests = _requestService.GetAlertedRequests();
+            if (alertedRequests.Count > 0 && _sipAgent.CallMaker.callStatus[0] < 0)
+            {
+                AlertRequestControlModel.RequestList.Clear();
+                foreach (var request in alertedRequests)
+                {
+                    AlertRequestControlModel.RequestList.Add(request);
+                }
+                AlertRequestControlModel.RequestCount = alertedRequests.Count;
+                mainWindow.ShowNotify("Напоминалка!", "Обнаружены заявки требующие контроля");
+            }
+        }
+
+        private void SendAlive()
+        {
+            
+        }
         private void RefreshActiveChannels()
         {
             var readedChannels = new List<ActiveChannelsDto>();
@@ -733,7 +774,6 @@ namespace CRMPhone.ViewModel
 
         public void Call()
         {
-            var t = _sipAgent.CallMaker.callStatus[0];
             if (_sipAgent.CallMaker.callStatus[0] == 180)
             {
                 //if (DisableIncomingCalls)
@@ -761,6 +801,8 @@ namespace CRMPhone.ViewModel
 
         public void CallFromList()
         {
+            if (SelectedCall == null)
+                return;
             SipPhone = SelectedCall.CallerId;
             string callId = string.Format("sip:{0}@{1}", SelectedCall.CallerId, _serverIP);
             _sipAgent.CallMaker.Invite(callId);

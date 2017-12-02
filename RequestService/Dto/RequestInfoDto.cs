@@ -24,6 +24,7 @@ namespace RequestServiceImpl.Dto
         public RequestRatingDto Rating { get; set; }
         public DateTime? FromTime { get; set; }
         public DateTime? ToTime { get; set; }
+        public DateTime? AlertTime { get; set; }
 
     }
 }

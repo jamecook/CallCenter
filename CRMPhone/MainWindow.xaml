@@ -81,7 +81,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
             <DockPanel Grid.Row="2" Margin="3">
-            <TextBlock  Margin ="3" FontWeight="Bold" TextAlignment="Center" Text="Непринятые звонки:"/>
+                <TextBlock  Margin ="3" FontWeight="Bold" TextAlignment="Center" Text="Непринятые звонки:"/>
                 <Button HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" ToolTip="Удаление пропущенных звонков исключая звонки за сегодня!" Command="{Binding DeleteNotAnsweredCommand}">
                     <Image Source="pack://application:,,,/Images/delete-24.png" Stretch="UniformToFill" Height="24"/>
                 </Button>
@@ -111,6 +111,15 @@
                 </TabItem.Header>
                 <controls:RequestControl DataContext="{Binding RequestDataContext}"/>
             </TabItem>
+            <TabItem Name="NotifyRequest">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Напоминалки"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <controls:NotifyRequestControl DataContext="{Binding AlertRequestControlModel}"/>
+            </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
@@ -137,21 +146,21 @@
                         <TextBlock Margin="3" Text="Приборы учёта"/>
                     </StackPanel>
                 </TabItem.Header>
-                   <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <WrapPanel Grid.Row="0">
-                            <Button  Margin="25,3" Content="Принять показания" Padding="3" Command="{Binding AddMeterCommand}"/>
-                            <TextBlock Margin="3" VerticalAlignment="Center" Text="УК:"/>
-                            <ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="Name" SelectedItem="{Binding SelectedMetersSC}" ItemsSource="{Binding MetersSCList}" IsEditable="True"/>
-                            <TextBlock Margin="3" VerticalAlignment="Center" Text="с:"/>
-                            <DatePicker  Margin="3" Width="110" SelectedDate="{Binding MetersFromDate}"/>
-                            <TextBlock Margin="3" VerticalAlignment="Center" Text="по:"/>
-                            <DatePicker  Margin="3" Width="110" SelectedDate="{Binding MetersToDate}"/>
-                            <Button  Margin="15,3" Content="Обновить" Padding="3" Command="{Binding RefreshMeterCommand}"/>
-                            <Button  Margin="15,3" Content="Удалить" Padding="3" Command="{Binding DeleteCommand}"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <WrapPanel Grid.Row="0">
+                        <Button  Margin="25,3" Content="Принять показания" Padding="3" Command="{Binding AddMeterCommand}"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="УК:"/>
+                        <ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="Name" SelectedItem="{Binding SelectedMetersSC}" ItemsSource="{Binding MetersSCList}" IsEditable="True"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="с:"/>
+                        <DatePicker  Margin="3" Width="110" SelectedDate="{Binding MetersFromDate}"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="по:"/>
+                        <DatePicker  Margin="3" Width="110" SelectedDate="{Binding MetersToDate}"/>
+                        <Button  Margin="15,3" Content="Обновить" Padding="3" Command="{Binding RefreshMeterCommand}"/>
+                        <Button  Margin="15,3" Content="Удалить" Padding="3" Command="{Binding DeleteCommand}"/>
                     </WrapPanel>
                     <DataGrid Name="MetersGrid" Grid.Row="1"
                           AutoGenerateColumns="False"
@@ -169,104 +178,104 @@
                         </DataGrid.InputBindings>
 
                         <DataGrid.Columns>
-                                <DataGridTextColumn Header="УК" Width="2*"
+                            <DataGridTextColumn Header="УК" Width="2*"
                                             Binding="{Binding Path=ServiceCompany}">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="TextWrapping" Value="Wrap"/>
-                                            <Setter Property="Margin" Value="3"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Адрес" Width="3*"
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Адрес" Width="3*"
                                             Binding="{Binding Path=FullAddress}">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="TextWrapping" Value="Wrap"/>
-                                            <Setter Property="Margin" Value="3"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Дата" Width="2*"
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Дата" Width="2*"
                                             Binding="{Binding Path=Date, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="TextWrapping" Value="Wrap"/>
-                                            <Setter Property="Margin" Value="3"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Электро Т1" Width="80"
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Электро Т1" Width="80"
                                             Binding="{Binding Path=Electro1}">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="TextWrapping" Value="Wrap"/>
-                                            <Setter Property="Margin" Value="3"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Электро Т2" Width="80"
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Электро Т2" Width="80"
                                             Binding="{Binding Path=Electro2}">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="TextWrapping" Value="Wrap"/>
-                                            <Setter Property="Margin" Value="3"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="ГВС стояк1" Width="80"
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="ГВС стояк1" Width="80"
                                             Binding="{Binding Path=HotWater1}">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="TextWrapping" Value="Wrap"/>
-                                            <Setter Property="Margin" Value="3"/>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
 
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="ХВС стояк1" Width="80"
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="ХВС стояк1" Width="80"
                                             Binding="{Binding Path=ColdWater1}">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="TextWrapping" Value="Wrap"/>
-                                            <Setter Property="Margin" Value="3"/>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
 
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                             <DataGridTextColumn Header="ГВС стояк2" Width="80"
                                             Binding="{Binding Path=HotWater2}">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="TextWrapping" Value="Wrap"/>
-                                            <Setter Property="Margin" Value="3"/>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
 
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="ХВС стояк2" Width="80"
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="ХВС стояк2" Width="80"
                                             Binding="{Binding Path=ColdWater2}">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="TextWrapping" Value="Wrap"/>
-                                            <Setter Property="Margin" Value="3"/>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
 
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Отопление" Width="80"
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Отопление" Width="80"
                                             Binding="{Binding Path=Heating}">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="TextWrapping" Value="Wrap"/>
-                                            <Setter Property="Margin" Value="3"/>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
 
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </Grid>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
             </TabItem>
             <TabItem>
                 <TabItem.Header>

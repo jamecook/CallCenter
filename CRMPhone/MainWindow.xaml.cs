@@ -1,6 +1,7 @@
 ﻿using System;
-
+using System.Resources;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using CRMPhone.ViewModel;
 using RequestServiceImpl;
@@ -12,9 +13,14 @@ namespace CRMPhone
     /// </summary>
     public partial class MainWindow : Window
     {
+        private NotifyIcon _notify;
         public MainWindow()
         {
             InitializeComponent();
+            _notify = new NotifyIcon();
+            _notify.Icon = new System.Drawing.Icon("PhoneIco.ico");
+            _notify.Visible = true;
+
             notAnsweredListBox.Items.SortDescriptions.Add(
                 new System.ComponentModel.SortDescription("CreateTime",
                 System.ComponentModel.ListSortDirection.Ascending));
@@ -35,6 +41,10 @@ namespace CRMPhone
             mainContext.InitMysqlAndSip();
         }
 
+        public void ShowNotify(string message, string header)
+        {
+            _notify.ShowBalloonTip(1000, message, header, ToolTipIcon.None);
+        }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             (DataContext as CRMContext)?.Unregister();

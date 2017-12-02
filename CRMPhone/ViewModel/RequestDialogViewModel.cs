@@ -300,6 +300,27 @@ namespace CRMPhone.ViewModel
         public ICommand RatingCommand { get { return _ratingCommand ?? (_ratingCommand = new RelayCommand(AddRating)); } }
         private ICommand _saveDescCommand;
         public ICommand SaveDescCommand { get { return _saveDescCommand ?? (_saveDescCommand = new RelayCommand(SaveDesc)); } }
+        private ICommand _changeAlertTimeCommand;
+        public ICommand ChangeAlertTimeCommand { get { return _changeAlertTimeCommand ?? (_changeAlertTimeCommand = new RelayCommand(ChangeAlertTime)); } }
+
+        private void ChangeAlertTime(object sender)
+        {
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            var times = _requestService.GetAlertTimes(requestModel.IsImmediate);
+            var model = new ChangeAlertTimeDialogViewModel(times);
+            var view = new ChangeAlertTimeDialog();
+            model.SetView(view);
+            view.Owner = _view;
+            view.DataContext = model;
+            if(view.ShowDialog() ?? false)
+            {
+                var currentTime = _requestService.GetCurrentDate().AddMinutes(model.SelectedTime.AddMinutes);
+                requestModel.AlertTime = currentTime;
+            }
+
+        }
 
         private void SaveDesc(object sender)
         {
@@ -455,7 +476,7 @@ namespace CRMPhone.ViewModel
             if (requestModel.RequestId.HasValue)
             {
                 _requestService.EditRequest(requestModel.RequestId.Value, requestModel.SelectedService.Id,
-                    requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork);
+                    requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork, requestModel.AlertTime);
                 MessageBox.Show($"Данные успешно сохранены!", "Заявка", MessageBoxButton.OK);
                 return;
             }
@@ -464,7 +485,7 @@ namespace CRMPhone.ViewModel
             {
                 _callUniqueId = _requestService.GetActiveCallUniqueId();
             }
-            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.SelectedCompany.Id);
+            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.SelectedCompany.Id, requestModel.AlertTime);
             if (!request.HasValue)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");

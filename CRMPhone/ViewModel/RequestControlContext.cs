@@ -39,7 +39,7 @@ namespace CRMPhone.ViewModel
                 return;
             var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
             var fileName = _requestService.GetRecordFileNameByUniqueId(item.RecordUniqueId);
-            var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\");
+            var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/","\\");
             Process.Start(localFileName);
 
         }
@@ -106,6 +106,8 @@ namespace CRMPhone.ViewModel
                                     new XElement("ВыполнениеС", request.FromTime?.ToString("HH:mm:ss") ?? ""),
                                     new XElement("ВыполнениеПо", request.ToTime?.ToString("HH:mm:ss") ?? ""),
                                     new XElement("ПотраченоВремени", request.SpendTime),
+                                    new XElement("Оценка", request.Rating),
+                                    new XElement("Комментарий_К_Оценке", request.RatingDescription),
                                 }));
                     }
                     var saver = new FileStream(fileName, FileMode.Create);
@@ -368,6 +370,7 @@ namespace CRMPhone.ViewModel
             requestModel.SelectedWorker = requestModel.WorkerList.SingleOrDefault(w => w.Id == request.ExecutorId);
             requestModel.RequestId = request.Id;
             requestModel.Rating = request.Rating;
+            requestModel.AlertTime = request.AlertTime;
             if (request.ServiceCompanyId.HasValue)
             {
                 requestModel.SelectedCompany = requestModel.CompanyList.FirstOrDefault(c => c.Id == request.ServiceCompanyId.Value);

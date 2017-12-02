@@ -20,6 +20,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <WrapPanel Grid.Row="0" Grid.Column="0">
                     <TextBlock Margin = "3" FontWeight ="Bold" VerticalAlignment="Center" Text="Номер заявки:"/>
@@ -47,7 +48,7 @@
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
                     </ComboBox>
-                    <TextBlock Margin="3" VerticalAlignment="Center" Text="Причина:"/>
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="/"/>
                     <ComboBox Margin="3" Width="240" DisplayMemberPath="Name" SelectedItem="{Binding SelectedService}" ItemsSource="{Binding ServiceList}" IsEditable="True" >
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
@@ -63,7 +64,7 @@
                         </ComboBox.Resources>
                     </ComboBox>
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата:"/>
-                    <DatePicker  Margin="3" IsEnabled="{Binding CanSave}" Width="140" SelectedDate="{Binding SelectedDateTime}">
+                    <DatePicker  Margin="3" IsEnabled="{Binding CanSave}" Width="100" SelectedDate="{Binding SelectedDateTime}">
                     </DatePicker>
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Время:"/>
                     <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedPeriod}" ItemsSource="{Binding PeriodList}" IsEditable="True">
@@ -78,7 +79,7 @@
                 </WrapPanel>
                 <WrapPanel Grid.Row="3" Grid.Column="0">
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Примечание:"/>
-                    <TextBox Margin="3" Width="510" Height="48"
+                    <TextBox Margin="3" Width="600" Height="48"
                              MaxLength="1000" 
                              TextWrapping="Wrap"
                              AcceptsReturn="True"
@@ -89,10 +90,18 @@
                             CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">
                         <Image Source="pack://application:,,,/Images/edit_small.png"/>
                     </Button>
+                </WrapPanel>
+                <WrapPanel Grid.Row="4" Grid.Column="0">
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="Напоминанить в:"/>
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="{Binding AlertTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
+                    <Button Margin="5" Width="32" Height="32" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeAlertTimeCommand}"
+                            CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">
+                        <Image Source="pack://application:,,,/Images/edit_small.png"/>
+                    </Button>
 
 
                 </WrapPanel>
-                <WrapPanel Grid.Row="4" Grid.Column="0" Visibility="{Binding ShowRating}">
+                <WrapPanel Grid.Row="5" Grid.Column="0" Visibility="{Binding ShowRating}">
                     <TextBlock Margin="3" Text="Оценка:"/>
                     <TextBlock Margin="3" Text="{Binding Rating.Name}"/>
                     <TextBlock Margin="3" Text="Комментарий:"/>

@@ -84,6 +84,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.Extensions" />
@@ -128,6 +129,9 @@
     <Compile Include="Controls\AlertRequestControl.xaml.cs">
       <DependentUpon>AlertRequestControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\NotifyRequestControl.xaml.cs">
+      <DependentUpon>NotifyRequestControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\AddRequestToCallDialog.xaml.cs">
       <DependentUpon>AddRequestToCallDialog.xaml</DependentUpon>
     </Compile>
@@ -163,6 +167,9 @@
     </Compile>
     <Compile Include="Dialogs\AlertByHouseListDialog.xaml.cs">
       <DependentUpon>AlertByHouseListDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ChangeAlertTimeDialog.xaml.cs">
+      <DependentUpon>ChangeAlertTimeDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\NotesDialog.xaml.cs">
       <DependentUpon>NotesDialog.xaml</DependentUpon>
@@ -220,6 +227,7 @@
     <Compile Include="Dialogs\ChangeWorkerDialog.xaml.cs">
       <DependentUpon>ChangeWorkerDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\ChangeAlertTimeDialogViewModel.cs" />
     <Compile Include="ViewModel\ChangeWorkerDialogViewModel.cs" />
     <Compile Include="Controls\RequestItem.xaml.cs">
       <DependentUpon>RequestItem.xaml</DependentUpon>
@@ -235,6 +243,7 @@
     <Compile Include="ViewModel\NoteDialogViewModel.cs" />
     <Compile Include="ViewModel\RedirectAdminControlContext.cs" />
     <Compile Include="ViewModel\AlertRequestControlContext.cs" />
+    <Compile Include="ViewModel\AlertRequestControlModel.cs" />
     <Compile Include="ViewModel\RequestItemViewModel.cs" />
     <Compile Include="LoginView.xaml.cs">
       <DependentUpon>LoginView.xaml</DependentUpon>
@@ -296,6 +305,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\NotifyRequestControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Dialogs\AddRequestToCallDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -339,6 +352,10 @@
     <Page Include="Dialogs\AlertByHouseListDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ChangeAlertTimeDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\NotesDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -492,7 +509,9 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="PhoneIco.ico" />
+    <Content Include="PhoneIco.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Resources\ringin.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

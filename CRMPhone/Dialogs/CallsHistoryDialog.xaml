@@ -128,7 +128,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Время отправки" Width="100"
                                     Binding="{Binding Path=SendTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
-                <DataGridTextColumn Header="Псевданим" Width="75"
+                <DataGridTextColumn Header="Псевдоним" Width="75"
                                     Binding="{Binding Path=Sender}"/>
                 <DataGridTextColumn Header="Телефон" Width="85"
                                     Binding="{Binding Path=Phone}"/>

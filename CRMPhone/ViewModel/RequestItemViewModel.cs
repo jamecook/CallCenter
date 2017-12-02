@@ -33,6 +33,7 @@ namespace CRMPhone.ViewModel
         private string _requestState;
         private RequestRatingDto _rating;
         private bool _isBadWork;
+        private DateTime? _alertTime;
 
 
         public RequestItemViewModel()
@@ -112,6 +113,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _description; }
             set { _description = value; OnPropertyChanged(nameof(Description)); }
+        }
+
+        public DateTime? AlertTime
+        {
+            get { return _alertTime; }
+            set { _alertTime = value; OnPropertyChanged(nameof(AlertTime));}
         }
 
         public ServiceDto SelectedParentService

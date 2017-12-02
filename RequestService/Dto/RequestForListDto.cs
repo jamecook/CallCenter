@@ -25,12 +25,14 @@ namespace RequestServiceImpl.Dto
         public string Service { get; set; }
         public string ContactPhones { get; set; }
         public string Rating { get; set; }
+        public string RatingDescription { get; set; }
         public bool BadWork { get; set; }
         public int StatusId { get; set; }
         public string Status { get; set; }
         public string SpendTime { get; set; }
         public DateTime? FromTime { get; set; }
         public DateTime? ToTime { get; set; }
+        public DateTime? AlertTime { get; set; }
 
 
         public string FullAddress

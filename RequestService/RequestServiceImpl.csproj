@@ -63,6 +63,7 @@
     <Compile Include="Dto\AddressTypeDto.cs" />
     <Compile Include="Dto\AlertDto.cs" />
     <Compile Include="Dto\AlertServiceTypeDto.cs" />
+    <Compile Include="Dto\AlertTimeDto.cs" />
     <Compile Include="Dto\AlertTypeDto.cs" />
     <Compile Include="Dto\AppAddressDto.cs" />
     <Compile Include="Dto\AppRequestDto.cs" />
