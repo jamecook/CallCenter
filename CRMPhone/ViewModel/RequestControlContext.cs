@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
@@ -9,6 +10,9 @@ using System.Windows;
 using System.Windows.Input;
 using System.Xml.Linq;
 using CRMPhone.Annotations;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Win32;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
@@ -75,44 +79,50 @@ namespace CRMPhone.ViewModel
 
                 var saveDialog = new SaveFileDialog();
                 saveDialog.AddExtension = true;
-                saveDialog.DefaultExt = ".xml";
-                saveDialog.Filter = "XML Файл|*.xml";
+                saveDialog.DefaultExt = ".xlsx";
+                saveDialog.Filter = "Excel файл|*.xlsx|XML Файл|*.xml";
                 if (saveDialog.ShowDialog() == true)
                 {
                     var fileName = saveDialog.FileName;
-
-
-                    XElement root = new XElement("Records");
-                    foreach (var request in RequestList)
+                    if (fileName.EndsWith(".xml"))
                     {
-                        root.AddFirst(
-                            new XElement("Record",
-                                new []
-                                {
-                                    new XElement("Заявка", request.Id),
-                                    new XElement("ДатаСоздания", request.CreateTime.ToString("dd.MM.yyyy HH:mm")),
-                                    new XElement("Создатель", request.CreateUser.ShortName),
-                                    new XElement("Улица", request.StreetName),
-                                    new XElement("Дом", request.Building),
-                                    new XElement("Корпус", request.Corpus),
-                                    new XElement("Квартира", request.Flat),
-                                    new XElement("Телефоны", request.ContactPhones),
-                                    new XElement("Услуга", request.ParentService),
-                                    new XElement("Причина", request.Service),
-                                    new XElement("Примечание", request.Description),
-                                    new XElement("Дата", request.ExecuteTime?.Date.ToString("dd.MM.yyyy") ?? ""),
-                                    new XElement("Время", request.ExecutePeriod),
-                                    new XElement("Исполнитель", request.Worker?.ShortName),
-                                    new XElement("ВыполнениеС", request.FromTime?.ToString("HH:mm:ss") ?? ""),
-                                    new XElement("ВыполнениеПо", request.ToTime?.ToString("HH:mm:ss") ?? ""),
-                                    new XElement("ПотраченоВремени", request.SpendTime),
-                                    new XElement("Оценка", request.Rating),
-                                    new XElement("Комментарий_К_Оценке", request.RatingDescription),
-                                }));
+                        XElement root = new XElement("Records");
+                        foreach (var request in RequestList)
+                        {
+                            root.AddFirst(
+                                new XElement("Record",
+                                    new[]
+                                    {
+                                        new XElement("Заявка", request.Id),
+                                        new XElement("ДатаСоздания", request.CreateTime.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("Создатель", request.CreateUser.ShortName),
+                                        new XElement("Улица", request.StreetName),
+                                        new XElement("Дом", request.Building),
+                                        new XElement("Корпус", request.Corpus),
+                                        new XElement("Квартира", request.Flat),
+                                        new XElement("Телефоны", request.ContactPhones),
+                                        new XElement("Услуга", request.ParentService),
+                                        new XElement("Причина", request.Service),
+                                        new XElement("Примечание", request.Description),
+                                        new XElement("Дата", request.ExecuteTime?.Date.ToString("dd.MM.yyyy") ?? ""),
+                                        new XElement("Время", request.ExecutePeriod),
+                                        new XElement("Исполнитель", request.Worker?.ShortName),
+                                        new XElement("ВыполнениеС", request.FromTime?.ToString("HH:mm:ss") ?? ""),
+                                        new XElement("ВыполнениеПо", request.ToTime?.ToString("HH:mm:ss") ?? ""),
+                                        new XElement("ПотраченоВремени", request.SpendTime),
+                                        new XElement("Оценка", request.Rating),
+                                        new XElement("Комментарий_К_Оценке", request.RatingDescription),
+                                    }));
+                        }
+                        var saver = new FileStream(fileName, FileMode.Create);
+                        root.Save(saver);
+                        saver.Close();
                     }
-                    var saver = new FileStream(fileName, FileMode.Create);
-                    root.Save(saver);
-                    saver.Close();
+                    if (fileName.EndsWith(".xlsx"))
+                    {
+                        File.Copy("templates\\requests.xlsx",fileName,true);
+                        CreateExcelDocByTemplate(fileName);
+                    }
                     MessageBox.Show("Данные сохранены в файл\r\n" + fileName);
                 }
             }
@@ -121,6 +131,136 @@ namespace CRMPhone.ViewModel
                 MessageBox.Show("Произошла ошибка:\r\n" + exc.Message);
             }
 
+        }
+
+        public void CreateExcelDoc(string fileName)
+        {
+            using (SpreadsheetDocument document = SpreadsheetDocument.Create(fileName, SpreadsheetDocumentType.Workbook))
+            {
+                WorkbookPart workbookPart = document.AddWorkbookPart();
+                workbookPart.Workbook = new Workbook();
+
+                WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+                worksheetPart.Worksheet = new Worksheet();
+
+                Sheets sheets = workbookPart.Workbook.AppendChild(new Sheets());
+                
+                Sheet sheet = new Sheet() {Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Export"};
+
+                sheets.Append(sheet);
+
+                workbookPart.Workbook.Save();
+
+                SheetData sheetData = worksheetPart.Worksheet.AppendChild(new SheetData());
+
+                // Constructing header
+                Row row = new Row();
+
+                row.Append(
+                    ConstructCell("Заявка", CellValues.String),
+                    ConstructCell("Дата Создания", CellValues.String),
+                    ConstructCell("Создатель", CellValues.String),
+                    ConstructCell("Улица", CellValues.String),
+                    ConstructCell("Дом", CellValues.String),
+                    ConstructCell("Корпус", CellValues.String),
+                    ConstructCell("Квартира", CellValues.String),
+                    ConstructCell("Телефоны", CellValues.String),
+                    ConstructCell("Услуга", CellValues.String),
+                    ConstructCell("Причина", CellValues.String),
+                    ConstructCell("Примечание", CellValues.String),
+                    ConstructCell("Дата", CellValues.String),
+                    ConstructCell("Время", CellValues.String),
+                    ConstructCell("Исполнитель", CellValues.String),
+                    ConstructCell("Выполнение С", CellValues.String),
+                    ConstructCell("Выполнение По", CellValues.String),
+                    ConstructCell("Потрачено Времени", CellValues.String),
+                    ConstructCell("Оценка", CellValues.String),
+                    ConstructCell("Комментарий К Оценке", CellValues.String)
+                );
+                // Insert the header row to the Sheet Data
+                sheetData.AppendChild(row);
+                // Inserting each employee
+                foreach (var request in RequestList)
+                {
+                    {
+                        row = new Row();
+
+                        row.Append(
+                            ConstructCell(request.Id.ToString(), CellValues.Number),
+                            ConstructCell(request.CreateTime.ToString("dd.MM.yyyy HH:mm"), CellValues.String),
+                            ConstructCell(request.CreateUser.ShortName, CellValues.String),
+                            ConstructCell(request.StreetName, CellValues.String),
+                            ConstructCell(request.Building, CellValues.String),
+                            ConstructCell(request.Corpus, CellValues.String),
+                            ConstructCell(request.Flat, CellValues.String),
+                            ConstructCell(request.ContactPhones, CellValues.String),
+                            ConstructCell(request.ParentService, CellValues.String),
+                            ConstructCell(request.Service, CellValues.String),
+                            ConstructCell(request.Description, CellValues.String),
+                            ConstructCell(request.ExecuteTime?.Date.ToString("dd.MM.yyyy") ?? "", CellValues.String),
+                            ConstructCell(request.Worker?.ShortName, CellValues.String),
+                            ConstructCell(request.FromTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
+                            ConstructCell(request.ToTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
+                            ConstructCell(request.SpendTime, CellValues.String),
+                            ConstructCell(request.Rating, CellValues.String),
+                            ConstructCell(request.RatingDescription, CellValues.String));
+
+                        sheetData.AppendChild(row);
+                    }
+                    worksheetPart.Worksheet.Save();
+                }
+            }
+        }
+        public void CreateExcelDocByTemplate(string fileName)
+        {
+            //using (SpreadsheetDocument document = SpreadsheetDocument.Create(fileName, SpreadsheetDocumentType.Workbook)
+            using (SpreadsheetDocument document = SpreadsheetDocument.Open(fileName, true)
+            )
+            {
+                WorkbookPart workbookPart = document.WorkbookPart;
+                WorksheetPart worksheetPart = workbookPart.WorksheetParts.FirstOrDefault();
+                //Sheet sheet = document.WorkbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>().SingleOrDefault(s => s.Name == "Export");
+                var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+
+                // Inserting each rows
+                foreach (var request in RequestList)
+                {
+                    {
+                        var row = new Row();
+                        row.Append(
+                            ConstructCell(request.Id.ToString(), CellValues.Number),
+                            ConstructCell(request.CreateTime.ToString("dd.MM.yyyy HH:mm"), CellValues.String),
+                            ConstructCell(request.CreateUser.ShortName, CellValues.String),
+                            ConstructCell(request.StreetName, CellValues.String),
+                            ConstructCell(request.Building, CellValues.String),
+                            ConstructCell(request.Corpus, CellValues.String),
+                            ConstructCell(request.Flat, CellValues.String),
+                            ConstructCell(request.ContactPhones, CellValues.String),
+                            ConstructCell(request.ParentService, CellValues.String),
+                            ConstructCell(request.Service, CellValues.String),
+                            ConstructCell(request.Description, CellValues.String),
+                            ConstructCell(request.ExecuteTime?.Date.ToString("dd.MM.yyyy") ?? "", CellValues.String),
+                            ConstructCell(request.Worker?.ShortName, CellValues.String),
+                            ConstructCell(request.FromTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
+                            ConstructCell(request.ToTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
+                            ConstructCell(request.SpendTime, CellValues.String),
+                            ConstructCell(request.Rating, CellValues.String),
+                            ConstructCell(request.RatingDescription, CellValues.String));
+
+                        sheetData.AppendChild(row);
+                    }
+                    worksheetPart.Worksheet.Save();
+                }
+            }
+        }
+
+        private Cell ConstructCell(string value, CellValues dataType)
+        {
+            return new Cell()
+            {
+                CellValue = new CellValue(value),
+                DataType = new EnumValue<CellValues>(dataType),
+            };
         }
 
         private ICommand _openRequestCommand;
