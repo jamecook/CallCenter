@@ -167,8 +167,8 @@ select LAST_INSERT_ID();", _dbConnection))
                             {
                                 cmd.Parameters.AddWithValue("@Id", currentInfo.Id);
                                 cmd.Parameters.AddWithValue("@SurName",string.IsNullOrEmpty(contact.SurName) ? currentInfo.SurName : contact.SurName);
-                                cmd.Parameters.AddWithValue("@FirstName", string.IsNullOrEmpty(contact.SurName) ? currentInfo.FirstName : contact.FirstName);
-                                cmd.Parameters.AddWithValue("@PatrName", string.IsNullOrEmpty(contact.SurName) ? currentInfo.PatrName : contact.PatrName);
+                                cmd.Parameters.AddWithValue("@FirstName", string.IsNullOrEmpty(contact.FirstName) ? currentInfo.FirstName : contact.FirstName);
+                                cmd.Parameters.AddWithValue("@PatrName", string.IsNullOrEmpty(contact.PatrName) ? currentInfo.PatrName : contact.PatrName);
                                 cmd.ExecuteNonQuery();
                             }
                         }
@@ -696,6 +696,10 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 @"SELECT R.id,case when count(ra.id)=0 then false else true end has_attach,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
+    (SELECT concat(sur_name,' ',case when first_name is null then '' else first_name end,' ', case when patr_name is null then '' else patr_name end) from CallCenter.RequestContacts rc2
+    join CallCenter.ClientPhones cp2 on cp2.id = rc2.ClientPhone_id
+    where rc2.request_id = R.id
+    order by IsMain desc limit 1) clinet_fio,    
     rating.Name Rating, rtype.Description RatingDesc,
     RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,R.bad_work,
     min(rcalls.uniqueID) recordId, R.alert_time
@@ -819,6 +823,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             FromTime = dataReader.GetNullableDateTime("from_time"),
                             ToTime = dataReader.GetNullableDateTime("to_time"),
                             AlertTime = dataReader.GetNullableDateTime("alert_time"),
+                            MainFio = dataReader.GetNullableString("clinet_fio")
                         });
                     }
                     dataReader.Close();
@@ -2825,9 +2830,22 @@ where C.Direction is not null";
         {
             using (
                 var cmd =
-                    new MySqlCommand(@"call CallCenter.SendAlive(@UserId)", _dbConnection))
+                    new MySqlCommand(@"call CallCenter.SendAliveAndSip(@UserId,@Sip)", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                cmd.Parameters.AddWithValue("@Sip", AppSettings.SipInfo.SipUser);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void RequestChangeAddress(int requestId, int addressId)
+        {
+            using (
+                var cmd =
+                    new MySqlCommand(@"call CallCenter.ChangeAddress(@RequestId,@Address)", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+                cmd.Parameters.AddWithValue("@Address", addressId);
                 cmd.ExecuteNonQuery();
             }
         }

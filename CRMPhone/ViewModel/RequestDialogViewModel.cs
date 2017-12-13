@@ -233,7 +233,28 @@ namespace CRMPhone.ViewModel
         public ICommand ChangeCheckedStateCommand { get { return _changeCheckedStateCommand ?? (_changeCheckedStateCommand = new CommandHandler(ChangeChekedState, true)); } }
 
         private ICommand _openAlertsCommand;
+        private ICommand _editAddressCommand;
         public ICommand OpenAlertsCommand { get { return _openAlertsCommand ?? (_openAlertsCommand = new CommandHandler(OpenAlerts, true)); } }
+
+        public ICommand EditAddressCommand { get { return _editAddressCommand ?? (_editAddressCommand = new CommandHandler(EditAddress, true)); } }
+
+        private void EditAddress()
+        {
+            if (RequestId == 0)
+                return;
+            var model = new EditAddressOnRequestDialogViewModel(RequestId);
+            var view = new EditAddressOnRequestDialog();
+            view.DataContext = model;
+            view.Owner = Application.Current.MainWindow;
+            model.SetView(view);
+            if (view.ShowDialog() != true)
+                return;
+            SelectedCity = CityList.FirstOrDefault(c => c.Id == model.SelectedCity.Id);
+            SelectedStreet = StreetList.FirstOrDefault(s=>s.Id == model.SelectedStreet.Id);
+            SelectedHouse = HouseList.FirstOrDefault(h=>h.Id == model.SelectedHouse.Id);
+            SelectedFlat = FlatList.FirstOrDefault(f=>f.Id == model.SelectedFlat.Id);
+            _requestService.RequestChangeAddress(RequestId,model.SelectedFlat.Id);
+        }
 
         private void OpenAlerts()
         {
@@ -521,6 +542,17 @@ namespace CRMPhone.ViewModel
         private string _floor;
         private ObservableCollection<RequestForListDto> _addressRequestList;
         private bool _alertExists;
+        private bool _canEditAddress;
+
+        public bool CanEditAddress
+        {
+            get { return _canEditAddress; }
+            set
+            {
+                _canEditAddress = value;
+                OnPropertyChanged(nameof(CanEditAddress));
+            }
+        }
 
         public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new CommandHandler(Close, true)); } }
 
@@ -598,7 +630,8 @@ namespace CRMPhone.ViewModel
                 SelectedCity = CityList.FirstOrDefault();
             }
             RequestList = new ObservableCollection<RequestItemViewModel> { new RequestItemViewModel() };
-            //AppSettings.LastIncomingCall = "9829388873";
+            //AppSettings.LastIncomingCall = "932";
+            CanEditAddress = AppSettings.CurrentUser.Roles.Select(r => r.Name).Contains("admin");
             if (!string.IsNullOrEmpty(AppSettings.LastIncomingCall))
             {
                 var clientInfoDto = _requestService.GetLastAddressByClientPhone(AppSettings.LastIncomingCall);

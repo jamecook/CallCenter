@@ -165,6 +165,9 @@
     <Compile Include="Dialogs\Admins\WorkerAddOrEditDialog.xaml.cs">
       <DependentUpon>WorkerAddOrEditDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\EditAddressOnRequestDialog.xaml.cs">
+      <DependentUpon>EditAddressOnRequestDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\AlertAndWorkDialog.xaml.cs">
       <DependentUpon>AlertAndWorkDialog.xaml</DependentUpon>
     </Compile>
@@ -217,6 +220,7 @@
     <Compile Include="ViewModel\Admins\StreetAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
+    <Compile Include="ViewModel\EditAddressOnRequestDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertForHouseDialogViewModel.cs" />
     <Compile Include="ViewModel\AttachmentDialogViewModel.cs" />
@@ -347,6 +351,10 @@
     <Page Include="Dialogs\Admins\WorkerAddOrEditDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\EditAddressOnRequestDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\AlertAndWorkDialog.xaml">
       <SubType>Designer</SubType>

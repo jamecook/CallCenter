@@ -24,6 +24,7 @@ namespace RequestServiceImpl.Dto
         public string ParentService { get; set; }
         public string Service { get; set; }
         public string ContactPhones { get; set; }
+        public string MainFio { get; set; }
         public string Rating { get; set; }
         public string RatingDescription { get; set; }
         public bool BadWork { get; set; }
