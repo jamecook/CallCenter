@@ -24,6 +24,10 @@ namespace RequestWcfService
             _requestService = new RequestService(_connection);
         }
 
+        public DateTime GetCurrentDate()
+        {
+            return _requestService.GetCurrentDate();
+        }
         public StatusDto[] GetStatusesAllowedInWeb()
         {
             return _requestService.GetStatusesAllowedInWeb();

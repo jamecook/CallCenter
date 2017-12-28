@@ -14,6 +14,9 @@ namespace RequestWcfService
         CityDto[] GetData();
 
         [OperationContract]
+        DateTime GetCurrentDate();
+
+        [OperationContract]
         WebUserDto Login(string login, string password);
 
         [OperationContract]
