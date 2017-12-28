@@ -15,6 +15,8 @@ namespace RequestServiceImpl.Dto
         public string Building { get; set; }
         public string Corpus { get; set; }
         public string Flat { get; set; }
+        public string Floor { get; set; }
+        public string Entrance { get; set; }
         public string AddressType { get; set; }
         public RequestUserDto Worker { get; set; }
         public RequestUserDto CreateUser { get; set; }

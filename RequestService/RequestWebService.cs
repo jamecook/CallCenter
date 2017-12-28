@@ -96,7 +96,7 @@ namespace RequestServiceImpl
                 @"SELECT R.id,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
-    rating.Name Rating,R.bad_work,
+    rating.Name Rating,R.bad_work,R.floor,R.entrance,
     RS.id req_status_id,
     RS.Description Req_Status
     FROM CallCenter.Requests R
@@ -187,6 +187,8 @@ namespace RequestServiceImpl
                             Flat = dataReader.GetString("flat"),
                             Building = dataReader.GetString("building"),
                             Corpus = dataReader.GetNullableString("corps"),
+                            Entrance = dataReader.GetNullableString("entrance"),
+                            Floor = dataReader.GetNullableString("floor"),
                             CreateTime = dataReader.GetDateTime("create_time"),
                             Description = dataReader.GetNullableString("description"),
                             ContactPhones = dataReader.GetNullableString("client_phones"),
