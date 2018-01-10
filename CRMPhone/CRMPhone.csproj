@@ -111,6 +111,9 @@
     <Compile Include="Controls\Admins\HouseAdminControl.xaml.cs">
       <DependentUpon>HouseAdminControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Admins\RingUpAdminControl.xaml.cs">
+      <DependentUpon>RingUpAdminControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Admins\RedirectAdminControl.xaml.cs">
       <DependentUpon>RedirectAdminControl.xaml</DependentUpon>
     </Compile>
@@ -248,6 +251,7 @@
     <Compile Include="ViewModel\HouseAdminControlContext.cs" />
     <Compile Include="ViewModel\MeterDeviceViewModel.cs" />
     <Compile Include="ViewModel\NoteDialogViewModel.cs" />
+    <Compile Include="ViewModel\RingUpAdminControlContext.cs" />
     <Compile Include="ViewModel\RedirectAdminControlContext.cs" />
     <Compile Include="ViewModel\AlertRequestControlContext.cs" />
     <Compile Include="ViewModel\AlertRequestControlModel.cs" />
@@ -283,6 +287,10 @@
     <Page Include="Controls\Admins\HouseAdminControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Admins\RingUpAdminControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\Admins\RedirectAdminControl.xaml">
       <SubType>Designer</SubType>

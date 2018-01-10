@@ -2608,6 +2608,35 @@ where C.Direction is not null";
             }
 
         }
+        public List<RingUpHistoryDto> GetRingUpHistory()
+        {
+            using (var cmd = new MySqlCommand("CALL asterisk.GetRingUpHistory()", _dbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var ringUpHistoryDtos = new List<RingUpHistoryDto>();
+                    while (dataReader.Read())
+                    {
+                        ringUpHistoryDtos.Add(new RingUpHistoryDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetNullableString("name"),
+                            FromPhone = dataReader.GetNullableString("phone"),
+                            CallTime = dataReader.GetDateTime("call_time"),
+                            StateId = dataReader.GetInt32("state"),
+                            PhoneCount = dataReader.GetInt32("record_count"),
+                            DoneCalls = dataReader.GetInt32("done_calls"),
+                            NotDoneCalls = dataReader.GetInt32("not_done_calls"),
+                            StartTime = dataReader.GetNullableDateTime("start_time"),
+                            EndTime = dataReader.GetNullableDateTime("end_time"),
+                        });
+                    }
+                    dataReader.Close();
+                    return ringUpHistoryDtos;
+                }
+            }
+
+        }
         public void DeleteNotAnswered()
         {
             using (var cmd =

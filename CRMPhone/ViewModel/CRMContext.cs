@@ -96,6 +96,7 @@ namespace CRMPhone.ViewModel
             ServiceAdminContext = new ServiceAdminControlContext();
             HouseAdminContext = new HouseAdminControlContext();
             RedirectAdminContext = new RedirectAdminControlContext();
+            RingUpAdminContext = new RingUpAdminControlContext();
             BlackListContext = new BlackListControlContext();
             AlertRequestDataContext = new AlertRequestControlContext();
             AlertAndWorkContext = new AlertAndWorkControlContext();
@@ -125,6 +126,7 @@ namespace CRMPhone.ViewModel
             ServiceAdminContext.RefreshParentServiceList();
             HouseAdminContext.RefreshCities();
             RedirectAdminContext.Refresh();
+            RingUpAdminContext.Refresh();
             BlackListContext.RefreshList();
             AlertAndWorkContext.InitCollections();
             OnPropertyChanged(nameof(IsAdminRoleExist));
@@ -448,6 +450,7 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<ServiceCompanyDto> _companyList;
         private Color _alertRequestColor;
         private AlertRequestControlModel _alertRequestControlModel;
+        private RingUpAdminControlContext _ringUpAdminContext;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 
@@ -529,6 +532,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _houseAdminContext; }
             set { _houseAdminContext = value; OnPropertyChanged(nameof(HouseAdminContext)); }
+        }
+
+        public RingUpAdminControlContext RingUpAdminContext
+        {
+            get { return _ringUpAdminContext; }
+            set { _ringUpAdminContext = value; OnPropertyChanged(nameof(RingUpAdminContext));}
         }
 
         public RedirectAdminControlContext RedirectAdminContext

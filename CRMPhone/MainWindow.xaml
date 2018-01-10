@@ -691,10 +691,10 @@
                             <TabItem.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
-                                    <TextBlock Margin="3" Text="Переадресация"/>
+                                    <TextBlock Margin="3" Text="Автообзвон"/>
                                 </StackPanel>
                             </TabItem.Header>
-                            <admins:RedirectAdminControl DataContext="{Binding RedirectAdminContext}"/>
+                            <admins:RingUpAdminControl DataContext="{Binding RingUpAdminContext}"/>
                         </TabItem>
                         <TabItem Name="BlackListTaab">
                             <TabItem.Header>
