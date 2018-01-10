@@ -82,7 +82,7 @@ namespace CRMPhone.ViewModel
             var worker = _requestService.GetWorkerById(request.ExecutorId.Value);
             string phones = "";
             if (request.Contacts != null && request.Contacts.Length > 0)
-                phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}")
+                phones = request.Contacts.Select(c => $"{(c.PhoneNumber.Length == 10 ? "8"+c.PhoneNumber : c.PhoneNumber)} - {c.SurName} {c.FirstName} {c.PatrName}")
                         .Aggregate((i, j) => i + ";" + j);
             if (smsSettings.SendToWorker)
             {

@@ -94,6 +94,7 @@ namespace CRMPhone.ViewModel
                                     new[]
                                     {
                                         new XElement("Заявка", request.Id),
+                                        new XElement("Статус", request.Status),
                                         new XElement("ДатаСоздания", request.CreateTime.ToString("dd.MM.yyyy HH:mm")),
                                         new XElement("Создатель", request.CreateUser.ShortName),
                                         new XElement("Улица", request.StreetName),
@@ -159,6 +160,7 @@ namespace CRMPhone.ViewModel
 
                 row.Append(
                     ConstructCell("Заявка", CellValues.String),
+                    ConstructCell("Статус", CellValues.String),
                     ConstructCell("Дата Создания", CellValues.String),
                     ConstructCell("Создатель", CellValues.String),
                     ConstructCell("Улица", CellValues.String),
@@ -188,6 +190,7 @@ namespace CRMPhone.ViewModel
 
                         row.Append(
                             ConstructCell(request.Id.ToString(), CellValues.Number),
+                            ConstructCell(request.Status, CellValues.String),
                             ConstructCell(request.CreateTime.ToString("dd.MM.yyyy HH:mm"), CellValues.String),
                             ConstructCell(request.CreateUser.ShortName, CellValues.String),
                             ConstructCell(request.StreetName, CellValues.String),
@@ -231,6 +234,7 @@ namespace CRMPhone.ViewModel
                         var row = new Row();
                         row.Append(
                             ConstructCell(request.Id.ToString(), CellValues.Number),
+                            ConstructCell(request.Status, CellValues.String),
                             ConstructCell(request.CreateTime.ToString("dd.MM.yyyy HH:mm"), CellValues.String),
                             ConstructCell(request.CreateUser.ShortName, CellValues.String),
                             ConstructCell(request.StreetName, CellValues.String),
