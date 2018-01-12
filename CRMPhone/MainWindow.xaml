@@ -304,6 +304,7 @@
 
                         <Button  Margin="5" Padding ="5,0" Height="24" Content="Обновить" Command="{Binding RefreshCommand}"/>
                         <Button  Margin="5" Padding ="5,0" Height="24" Content="Привязать заявку" Command="{Binding AddRequestToCallCommand}"/>
+                        <Button  Margin="5" Padding ="5,0" Height="24" Content="Экспорт" Command="{Binding ExportCommand}"/>
                     </WrapPanel>
                     <DataGrid Name="RecordGrid" Grid.Row ="1"
                           AutoGenerateColumns="False"

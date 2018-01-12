@@ -15,8 +15,15 @@ using MySql.Data.MySqlClient;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 using System.Diagnostics;
+using System.IO;
 using System.Security.RightsManagement;
+using System.Xml.Linq;
 using CRMPhone.Dialogs;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.Win32;
+using Color = System.Windows.Media.Color;
 
 namespace CRMPhone.ViewModel
 {
@@ -443,6 +450,103 @@ namespace CRMPhone.ViewModel
         private ICommand _refreshCommand;
 
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
+
+        private ICommand _exportCommand;
+
+        public ICommand ExportCommand { get { return _exportCommand ?? (_exportCommand = new CommandHandler(Export, _canExecute)); } }
+
+        private void Export()
+        {
+            if (CallsList.Count == 0)
+            {
+                MessageBox.Show("Нельзя экспортировать пустой список!", "Ошибка");
+                return;
+            }
+            try
+            {
+
+                var saveDialog = new SaveFileDialog();
+                saveDialog.AddExtension = true;
+                saveDialog.DefaultExt = ".xlsx";
+                saveDialog.Filter = "Excel файл|*.xlsx|XML Файл|*.xml";
+                if (saveDialog.ShowDialog() == true)
+                {
+                    var fileName = saveDialog.FileName;
+                    if (fileName.EndsWith(".xml"))
+                    {
+                        XElement root = new XElement("Records");
+                        foreach (var record in CallsList)
+                        {
+                            root.AddFirst(
+                                new XElement("Record",
+                                    new[]
+                                    {
+                                        new XElement("ВремяЗвонка", record.CreateTime?.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("УК", record.ServiceCompany),
+                                        new XElement("Номер", record.CallerId),
+                                        new XElement("ВремяОжидания", record.WaitingTime),
+                                        new XElement("ВремяРазговора", record.TalkTime),
+                                        new XElement("Заявки", record.Requests),
+                                        new XElement("Оператор", record.User?.ShortName),
+                                    }));
+                        }
+                        var saver = new FileStream(fileName, FileMode.Create);
+                        root.Save(saver);
+                        saver.Close();
+                    }
+                    if (fileName.EndsWith(".xlsx"))
+                    {
+                        File.Copy("templates\\calls.xlsx", fileName, true);
+                        CreateExcelDocByTemplate(fileName);
+                    }
+                    MessageBox.Show("Данные сохранены в файл\r\n" + fileName);
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("Произошла ошибка:\r\n" + exc.Message);
+            }
+        }
+
+        public void CreateExcelDocByTemplate(string fileName)
+        {
+            using (SpreadsheetDocument document = SpreadsheetDocument.Open(fileName, true)
+            )
+            {
+                WorkbookPart workbookPart = document.WorkbookPart;
+                WorksheetPart worksheetPart = workbookPart.WorksheetParts.FirstOrDefault();
+                var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+
+                // Inserting each rows
+                foreach (var record in CallsList)
+                {
+                    {
+                        var row = new Row();
+                        row.Append(
+                            ConstructCell(record.CreateTime?.ToString("dd.MM.yyyy HH:mm"), CellValues.String),
+                            ConstructCell(record.ServiceCompany, CellValues.String),
+                            ConstructCell(record.CallerId, CellValues.String),
+                            ConstructCell(record.WaitingTime?.ToString(), CellValues.String),
+                            ConstructCell(record.TalkTime?.ToString(), CellValues.String),
+                            ConstructCell(record.Requests, CellValues.String),
+                            ConstructCell(record.User?.ShortName, CellValues.String));
+
+                        sheetData.AppendChild(row);
+                    }
+                    worksheetPart.Worksheet.Save();
+                }
+            }
+        }
+
+        private Cell ConstructCell(string value, CellValues dataType)
+        {
+            return new Cell()
+            {
+                CellValue = new CellValue(value),
+                DataType = new EnumValue<CellValues>(dataType),
+            };
+        }
+
 
         private ICommand _addRequestToCallCommand;
         private CallsListDto _selectedRecordCall;

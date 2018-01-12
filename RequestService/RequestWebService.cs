@@ -88,6 +88,78 @@ namespace RequestServiceImpl
             return result.ToArray();
         }
 
+        public RequestForListDto[] WebRequestList2(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId, bool badWork = false, string clientPhone = null)
+        {
+            var findFromDate = fromDate.Date;
+            var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
+            var sqlQuery = "CALL CallCenter.WebGetRequests(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetId,@HouseId,@AddressId,@ParentServiceId,@ServiceId,@StatusId,@WorkerId,@BadWork,@ClientPhone,null)";
+            using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+                cmd.Parameters.AddWithValue("@ByCreateDate", filterByCreateDate);
+                cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                cmd.Parameters.AddWithValue("@ToDate", toDate);
+                cmd.Parameters.AddWithValue("@ExecuteFromDate", executeFromDate);
+                cmd.Parameters.AddWithValue("@ExecuteToDate", executeToDate);
+                cmd.Parameters.AddWithValue("@StreetId", streetId);
+                cmd.Parameters.AddWithValue("@HouseId", houseId);
+                cmd.Parameters.AddWithValue("@AddressId", addressId);
+                cmd.Parameters.AddWithValue("@ParentServiceId", parentServiceId);
+                cmd.Parameters.AddWithValue("@ServiceId", serviceId);
+                cmd.Parameters.AddWithValue("@StatusId", statusId);
+                cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                cmd.Parameters.AddWithValue("@BadWork", badWork);
+                cmd.Parameters.AddWithValue("@ClientPhone", clientPhone);
+
+                var requests = new List<RequestForListDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        requests.Add(new RequestForListDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            StreetPrefix = dataReader.GetString("prefix_name"),
+                            StreetName = dataReader.GetString("street_name"),
+                            AddressType = dataReader.GetString("address_type"),
+                            Flat = dataReader.GetString("flat"),
+                            Building = dataReader.GetString("building"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            Entrance = dataReader.GetNullableString("entrance"),
+                            Floor = dataReader.GetNullableString("floor"),
+                            CreateTime = dataReader.GetDateTime("create_time"),
+                            Description = dataReader.GetNullableString("description"),
+                            ContactPhones = dataReader.GetNullableString("client_phones"),
+                            ParentService = dataReader.GetNullableString("parent_name"),
+                            Service = dataReader.GetNullableString("service_name"),
+                            Worker = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("worker_id"),
+                                SurName = dataReader.GetNullableString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                            } : null,
+                            CreateUser = new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("create_user_id"),
+                                SurName = dataReader.GetNullableString("surname"),
+                                FirstName = dataReader.GetNullableString("firstname"),
+                                PatrName = dataReader.GetNullableString("patrname"),
+                            },
+                            ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                            ExecutePeriod = dataReader.GetNullableString("Period_Name"),
+                            Rating = dataReader.GetNullableString("Rating"),
+                            BadWork = dataReader.GetBoolean("bad_work"),
+                            StatusId = dataReader.GetInt32("req_status_id"),
+                            Status = dataReader.GetNullableString("Req_Status"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return requests.ToArray();
+            }
+        }
         public RequestForListDto[] WebRequestList(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId, bool badWork = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
@@ -172,7 +244,6 @@ namespace RequestServiceImpl
                 {
                     cmd.Parameters.AddWithValue("@RequestId", requestId);
                 }
-
                 var requests = new List<RequestForListDto>();
                 using (var dataReader = cmd.ExecuteReader())
                 {

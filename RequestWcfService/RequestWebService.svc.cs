@@ -96,12 +96,12 @@ namespace RequestWcfService
 
         public RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate,int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId,int? FilterParrentServiceId, int? FilterServiceId,bool badWork, string clientPhone )
         {
-            return _requestService.WebRequestList(workerId,null,false,DateTime.Now,DateTime.Now, fromDate, toDate, FilterStreetId, FilterHouseId, FilterAddressId, FilterParrentServiceId, FilterServiceId, FilterStatusId, FirlerWorkerId, badWork, clientPhone);
+            return _requestService.WebRequestList2(workerId,null,false,DateTime.Now,DateTime.Now, fromDate, toDate, FilterStreetId, FilterHouseId, FilterAddressId, FilterParrentServiceId, FilterServiceId, FilterStatusId, FirlerWorkerId, badWork, clientPhone);
         }
 
         public RequestForListDto GetRequestById(int requestId)
         {
-            var request =_requestService.WebRequestList(0, requestId, false, DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, null, null, null, null, null, null, null).FirstOrDefault();
+            var request =_requestService.WebRequestList2(0, requestId, false, DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, null, null, null, null, null, null, null).FirstOrDefault();
             return request;
         }
 
