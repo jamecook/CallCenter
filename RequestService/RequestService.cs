@@ -1488,6 +1488,28 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 return companies.OrderBy(i => i.Name).ToList();
             }
         }
+        public List<RingUpConfigDto> GetRingUpConfigs()
+        {
+            var query = "SELECT id,name,phone FROM asterisk.RingUpConfigs";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var configDtos = new List<RingUpConfigDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        configDtos.Add(new RingUpConfigDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                            Phone = dataReader.GetString("phone")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return configDtos.OrderBy(i => i.Name).ToList();
+            }
+        }
         public List<BlackListPhoneDto> GetBlackListPhones()
         {
             var query = "SELECT id,phone FROM asterisk.BlackList where enabled = 1 order by phone";
@@ -2877,6 +2899,35 @@ where C.Direction is not null";
                 cmd.Parameters.AddWithValue("@Address", addressId);
                 cmd.ExecuteNonQuery();
             }
+        }
+
+        public void SaveRingUpList(int configId, List<RingUpImportDto> records)
+        {
+            int newId;
+            if(records.Count==0)
+                return;
+            using ( var cmd = new MySqlCommand(@"insert into asterisk.RingUpList(config_id,call_time,state,exten) values(@Config,sysdate(),2,'04');
+    select LAST_INSERT_ID();", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Config", configId);
+                newId = Convert.ToInt32(cmd.ExecuteScalar());
+            }
+            foreach (var item in records)
+            {
+                using (var cmd = new MySqlCommand(@"call asterisk.InsertDolgRingPhone(@ListId, @Phone, @Dolg);", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@ListId", newId);
+                    cmd.Parameters.AddWithValue("@Phone", item.Phone);
+                    cmd.Parameters.AddWithValue("@Dolg", item.Dolg);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            using (var cmd = new MySqlCommand(@"update asterisk.RingUpList set state = 0 where id = @ListId;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ListId", newId);
+                cmd.ExecuteNonQuery();
+            }
+
         }
     }
 

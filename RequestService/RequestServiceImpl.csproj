@@ -87,7 +87,9 @@
     <Compile Include="Dto\RequestStateDto.cs" />
     <Compile Include="Dto\RequestTypeDto.cs" />
     <Compile Include="Dto\RequestUserDto.cs" />
+    <Compile Include="Dto\RingUpConfigDto.cs" />
     <Compile Include="Dto\RingUpHistoryDto.cs" />
+    <Compile Include="Dto\RingUpImportDto.cs" />
     <Compile Include="Dto\RoleDto.cs" />
     <Compile Include="Dto\ServiceCompanyDto.cs" />
     <Compile Include="Dto\ServiceDto.cs" />

@@ -10,16 +10,16 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <DockPanel HorizontalAlignment="Center" Margin="5">
             <Button Width="100" Margin ="15,5" Content="Новый" Command="{Binding NewCommand}"/>
-            <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата с:"></TextBlock>
+            <!--<TextBlock Margin="3" VerticalAlignment="Center" Text="Дата с:"></TextBlock>
             <DatePicker Margin="3"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="по:"></TextBlock>
-            <DatePicker Margin="3"/>
+            <DatePicker Margin="3"/>-->
             <Button Width="100" Margin ="15,5" Content="Обновить" Command="{Binding RefreshCommand}"/>
         </DockPanel>
         <DataGrid Name="RequestsGrid" Grid.Row ="1" 
@@ -131,5 +131,8 @@
                 </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
+        <StackPanel Grid.Row="2">
+            <!--<TextBlock Text="Подробно:"/>-->
+            </StackPanel>
     </Grid>
 </UserControl>

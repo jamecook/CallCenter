@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -22,6 +23,21 @@ namespace CRMPhone.ViewModel
         private ICommand _refreshCommand;
         private RingUpHistoryDto _currentRingUp;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(Refresh, true)); } }
+        private ICommand _newCommand;
+        public ICommand NewCommand { get { return _newCommand ?? (_newCommand = new CommandHandler(NewRingUp, true)); } }
+
+        private void NewRingUp()
+        {
+            var model = new RingUpNewDialogViewModel(RequestService);
+            var view = new RingUpNewDialog();
+            model.SetView(view);
+            view.Owner = Application.Current.MainWindow;
+            view.DataContext = model;
+            if (view.ShowDialog() == true)
+            {
+                Refresh();
+            }
+        }
 
         public RingUpHistoryDto CurrentRingUp
         {

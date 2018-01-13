@@ -144,6 +144,9 @@
     <Compile Include="Dialogs\AddRatingDialog.xaml.cs">
       <DependentUpon>AddRatingDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\Admins\RingUpNewDialog.xaml.cs">
+      <DependentUpon>RingUpNewDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\Admins\HouseAddOrEditDialog.xaml.cs">
       <DependentUpon>HouseAddOrEditDialog.xaml</DependentUpon>
     </Compile>
@@ -216,6 +219,7 @@
     </Compile>
     <Compile Include="ViewModel\AddRequestToCallDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\BlackListPhoneDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\RingUpNewDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\HouseAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\PhoneDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\ServiceDialogViewModel.cs" />
@@ -331,6 +335,10 @@
     <Page Include="Dialogs\AddRatingDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\RingUpNewDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\Admins\HouseAddOrEditDialog.xaml">
       <SubType>Designer</SubType>
