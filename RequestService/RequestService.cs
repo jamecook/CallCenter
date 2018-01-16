@@ -301,7 +301,20 @@ select LAST_INSERT_ID();", _dbConnection))
             var smsSettings = GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
             string phones="";
             if (request.Contacts != null && request.Contacts.Length > 0)
-                phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}").Aggregate((i, j) => i + ";" + j);
+                phones = request.Contacts.OrderBy(c => c.IsMain).Select(c =>
+                {
+                    var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
+                    if (!string.IsNullOrEmpty(c.SurName) &&
+                        !string.IsNullOrEmpty(c.FirstName) &&
+                        !string.IsNullOrEmpty(c.PatrName))
+                    {
+                        retVal += $" - {c.SurName} {c.FirstName} {c.PatrName}";
+                    }
+                    return retVal;
+                }
+                )
+                        .Aggregate((i, j) => i + ";" + j);
+            //phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}").Aggregate((i, j) => i + ";" + j);
 
             if(smsSettings.SendToWorker)
                 SendSms(requestId, smsSettings.Sender, worker.Phone,$"№ {requestId}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.", false);

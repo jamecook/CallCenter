@@ -481,6 +481,9 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="templates\meters.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="templates\calls.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -161,6 +161,7 @@
                         <DatePicker  Margin="3" Width="110" SelectedDate="{Binding MetersToDate}"/>
                         <Button  Margin="15,3" Content="Обновить" Padding="3" Command="{Binding RefreshMeterCommand}"/>
                         <Button  Margin="15,3" Content="Удалить" Padding="3" Command="{Binding DeleteCommand}"/>
+                        <Button  Margin="15,3" Content="Экспорт" Padding="3" Command="{Binding ExportMetersCommand}"/>
                     </WrapPanel>
                     <DataGrid Name="MetersGrid" Grid.Row="1"
                           AutoGenerateColumns="False"

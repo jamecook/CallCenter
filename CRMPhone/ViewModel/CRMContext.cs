@@ -364,6 +364,8 @@ namespace CRMPhone.ViewModel
 
         private ICommand _deleteCommand;
         public ICommand DeleteCommand { get { return _deleteCommand ?? (_deleteCommand = new CommandHandler(Delete, _canExecute)); } }
+        private ICommand _exportCommand;
+        public ICommand ExportCommand { get { return _exportCommand ?? (_exportCommand = new CommandHandler(Export, _canExecute)); } }
 
         private void Delete()
         {
@@ -451,9 +453,98 @@ namespace CRMPhone.ViewModel
 
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
 
-        private ICommand _exportCommand;
+        private ICommand _exportMetersCommand;
 
-        public ICommand ExportCommand { get { return _exportCommand ?? (_exportCommand = new CommandHandler(Export, _canExecute)); } }
+        public ICommand ExportMetersCommand { get { return _exportMetersCommand ?? (_exportMetersCommand = new CommandHandler(ExportMeters, _canExecute)); } }
+
+        private void ExportMeters()
+        {
+            if (MetersHistoryList.Count == 0)
+            {
+                MessageBox.Show("Нельзя экспортировать пустой список!", "Ошибка");
+                return;
+            }
+            try
+            {
+
+                var saveDialog = new SaveFileDialog();
+                saveDialog.AddExtension = true;
+                saveDialog.DefaultExt = ".xlsx";
+                saveDialog.Filter = "Excel файл|*.xlsx|XML Файл|*.xml";
+                if (saveDialog.ShowDialog() == true)
+                {
+                    var fileName = saveDialog.FileName;
+                    if (fileName.EndsWith(".xml"))
+                    {
+                        XElement root = new XElement("Records");
+                        foreach (var record in MetersHistoryList)
+                        {
+                            root.AddFirst(
+                                new XElement("Record",
+                                    new[]
+                                    {
+                                        new XElement("Время", record.Date.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("УК", record.ServiceCompany),
+                                        new XElement("Адрес", record.FullAddress),
+                                        new XElement("ЭлектроТ1", record.Electro1),
+                                        new XElement("ЭлектроТ2", record.Electro2),
+                                        new XElement("ГВСстояк1", record.HotWater1),
+                                        new XElement("ХВСстояк1", record.ColdWater1),
+                                        new XElement("ГВСстояк2", record.HotWater2),
+                                        new XElement("ХВСстояк2", record.ColdWater2),
+                                        new XElement("Отопление", record.Heating)
+                                    }));
+                        }
+                        var saver = new FileStream(fileName, FileMode.Create);
+                        root.Save(saver);
+                        saver.Close();
+                    }
+                    if (fileName.EndsWith(".xlsx"))
+                    {
+                        File.Copy("templates\\meters.xlsx", fileName, true);
+                        ExportMetersToExcelByTemplate(fileName);
+                    }
+                    MessageBox.Show("Данные сохранены в файл\r\n" + fileName);
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("Произошла ошибка:\r\n" + exc.Message);
+            }
+        }
+
+        public void ExportMetersToExcelByTemplate(string fileName)
+        {
+            using (SpreadsheetDocument document = SpreadsheetDocument.Open(fileName, true)
+            )
+            {
+                WorkbookPart workbookPart = document.WorkbookPart;
+                WorksheetPart worksheetPart = workbookPart.WorksheetParts.FirstOrDefault();
+                var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+
+                // Inserting each rows
+                foreach (var record in MetersHistoryList)
+                {
+                    {
+                        var row = new Row();
+                        row.Append(
+                            ConstructCell(record.Date.ToString("dd.MM.yyyy HH:mm"), CellValues.String),
+                            ConstructCell(record.ServiceCompany, CellValues.String),
+                            ConstructCell(record.FullAddress, CellValues.String),
+                            ConstructCell(record.Electro1.ToString(), CellValues.String),
+                            ConstructCell(record.Electro2.ToString(), CellValues.String),
+                            ConstructCell(record.HotWater1.ToString(), CellValues.String),
+                            ConstructCell(record.ColdWater1.ToString(), CellValues.String),
+                            ConstructCell(record.HotWater2.ToString(), CellValues.String),
+                            ConstructCell(record.ColdWater2.ToString(), CellValues.String),
+                            ConstructCell(record.Heating.ToString(), CellValues.String));
+
+                        sheetData.AppendChild(row);
+                    }
+                    worksheetPart.Worksheet.Save();
+                }
+            }
+        }
 
         private void Export()
         {
