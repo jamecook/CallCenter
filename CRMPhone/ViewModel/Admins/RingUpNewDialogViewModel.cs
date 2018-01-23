@@ -104,7 +104,7 @@ namespace CRMPhone.ViewModel.Admins
                             if (cell.DataType == "s")
                                 str = sharedStrings[Convert.ToInt32(cell.CellValue.Text)];
                             else
-                                str = cell.CellValue.Text;
+                                str = cell.CellValue?.Text;
                             if (cell.CellReference.Value.StartsWith("A"))
                                 item.Phone = str;
                             else if (cell.CellReference.Value.StartsWith("B"))

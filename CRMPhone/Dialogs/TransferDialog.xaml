@@ -13,7 +13,11 @@
         <StackPanel>
             <DockPanel>
             <TextBlock Margin ="5" Text="Номер:"/>
-            <ComboBox Margin="5" Text="{Binding Path=ClientPhone}" ItemsSource="{Binding Path=PhonesList}" IsEditable="True" />
+            <ComboBox Margin="5" Text="{Binding Path=ClientPhone}"
+                      ItemsSource="{Binding Path=PhonesList}"
+                      DisplayMemberPath="Name"
+                      SelectedItem="{Binding ClientPhone}"
+                      IsEditable="True" />
             </DockPanel>
             <Button Margin="5" Content="Перевести звонок" Command="{Binding Path=TransferCommand}" Width="140"/>
         </StackPanel>

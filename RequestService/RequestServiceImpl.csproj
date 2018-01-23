@@ -102,6 +102,7 @@
     <Compile Include="Dto\StatusHistoryDto.cs" />
     <Compile Include="Dto\StreetDto.cs" />
     <Compile Include="Dto\StreetPrefixDto.cs" />
+    <Compile Include="Dto\TransferIntoDto.cs" />
     <Compile Include="Dto\UserDto.cs" />
     <Compile Include="Dto\WebCallsDto.cs" />
     <Compile Include="Dto\WebFlatDto.cs" />

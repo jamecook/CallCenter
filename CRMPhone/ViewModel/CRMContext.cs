@@ -485,7 +485,10 @@ namespace CRMPhone.ViewModel
                                     {
                                         new XElement("Время", record.Date.ToString("dd.MM.yyyy HH:mm")),
                                         new XElement("УК", record.ServiceCompany),
-                                        new XElement("Адрес", record.FullAddress),
+                                        new XElement("Улица", record.StreetName),
+                                        new XElement("Дом", record.Building),
+                                        new XElement("Корпус", record.Corpus),
+                                        new XElement("Квартира", record.Flat),
                                         new XElement("ЭлектроТ1", record.Electro1),
                                         new XElement("ЭлектроТ2", record.Electro2),
                                         new XElement("ГВСстояк1", record.HotWater1),
@@ -530,7 +533,10 @@ namespace CRMPhone.ViewModel
                         row.Append(
                             ConstructCell(record.Date.ToString("dd.MM.yyyy HH:mm"), CellValues.String),
                             ConstructCell(record.ServiceCompany, CellValues.String),
-                            ConstructCell(record.FullAddress, CellValues.String),
+                            ConstructCell(record.StreetName, CellValues.String),
+                            ConstructCell(record.Building, CellValues.String),
+                            ConstructCell(record.Corpus, CellValues.String),
+                            ConstructCell(record.Flat, CellValues.String),
                             ConstructCell(record.Electro1.ToString(), CellValues.String),
                             ConstructCell(record.Electro2.ToString(), CellValues.String),
                             ConstructCell(record.HotWater1.ToString(), CellValues.String),
@@ -1022,14 +1028,14 @@ namespace CRMPhone.ViewModel
 
         public void Transfer()
         {
-            var phoneList = new List<string> {"101", "102", "103", "104", "105"};
-            phoneList.Remove(_sipUser);
+            var phoneList = _requestService.GetTransferList();
+            phoneList.Remove(phoneList.FirstOrDefault(p=>p.SipNumber==_sipUser));
             var transferContext = new TrasferDialogViewModel(phoneList);
             var transfer = new TransferDialog(transferContext);
             transfer.Owner = Application.Current.MainWindow;
             if (transfer.ShowDialog() == true)
             {
-                string callId = string.Format("sip:{0}@{1}", transferContext.ClientPhone, _serverIP);
+                string callId = string.Format("sip:{0}@{1}", transferContext.ClientPhone.SipNumber, _serverIP);
                 _sipAgent.CallMaker.Transfer(0,callId);
             }
 

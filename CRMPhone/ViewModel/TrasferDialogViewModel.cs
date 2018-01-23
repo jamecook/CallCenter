@@ -4,13 +4,14 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
+using RequestServiceImpl.Dto;
 
 namespace CRMPhone.ViewModel
 {
     public class TrasferDialogViewModel : INotifyPropertyChanged
     {
-        private List<string> _phonesList;
-        private string _clientPhone;
+        private List<TransferIntoDto> _phonesList;
+        private TransferIntoDto _clientPhone;
         private Window _view;
 
         private bool _canExecute = true;
@@ -26,13 +27,13 @@ namespace CRMPhone.ViewModel
         {
             _view = view;
         }
-        public TrasferDialogViewModel(List<string> phonesList)
+        public TrasferDialogViewModel(List<TransferIntoDto> phonesList)
         {
             _phonesList = phonesList;
             ClientPhone = _phonesList.FirstOrDefault();
         }
 
-        public string ClientPhone
+        public TransferIntoDto ClientPhone
         {
             get { return _clientPhone; }
             set
@@ -42,7 +43,7 @@ namespace CRMPhone.ViewModel
             }
         }
 
-        public List<string> PhonesList
+        public List<TransferIntoDto> PhonesList
         {
             get
             {
