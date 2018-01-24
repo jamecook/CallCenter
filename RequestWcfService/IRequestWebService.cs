@@ -24,6 +24,8 @@ namespace RequestWcfService
 
         [OperationContract]
         RequestForListDto GetRequestById(int requestId);
+        [OperationContract]
+        RequestForListDto GetRequestByWorkerAndId(int workerId, int requestId);
 
         [OperationContract]
         WorkerDto[] GetWorkers(int workerId);

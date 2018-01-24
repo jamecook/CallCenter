@@ -8,7 +8,7 @@
         WindowStartupLocation="CenterOwner"
         FontSize="14"
         d:DataContext="{d:DesignInstance viewModel:TrasferDialogViewModel}"
-        Title="Перевести звонок" Height="100" Width="260" ResizeMode="NoResize">
+        Title="Перевести звонок" Height="140" Width="260" ResizeMode="NoResize">
     <Grid>
         <StackPanel>
             <DockPanel>
@@ -16,8 +16,11 @@
             <ComboBox Margin="5" Text="{Binding Path=ClientPhone}"
                       ItemsSource="{Binding Path=PhonesList}"
                       DisplayMemberPath="Name"
-                      SelectedItem="{Binding ClientPhone}"
-                      IsEditable="True" />
+                      SelectedItem="{Binding ClientPhone}"/>
+            </DockPanel>
+            <DockPanel>
+                <TextBlock Margin ="5" Text="Произвольный номер:"/>
+                <TextBox Margin="5" Text="{Binding Path=TransferPhone}"/>
             </DockPanel>
             <Button Margin="5" Content="Перевести звонок" Command="{Binding Path=TransferCommand}" Width="140"/>
         </StackPanel>

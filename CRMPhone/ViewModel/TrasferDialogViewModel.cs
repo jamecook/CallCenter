@@ -16,6 +16,7 @@ namespace CRMPhone.ViewModel
 
         private bool _canExecute = true;
         private ICommand _transferCommand;
+        private string _transferPhone;
         public ICommand TransferCommand { get { return _transferCommand ?? (_transferCommand = new CommandHandler(Transfer, _canExecute)); } }
 
         private void Transfer()
@@ -31,6 +32,12 @@ namespace CRMPhone.ViewModel
         {
             _phonesList = phonesList;
             ClientPhone = _phonesList.FirstOrDefault();
+        }
+
+        public string TransferPhone
+        {
+            get { return _transferPhone; }
+            set { _transferPhone = value; OnPropertyChanged(nameof(TransferPhone));}
         }
 
         public TransferIntoDto ClientPhone

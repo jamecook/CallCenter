@@ -313,10 +313,7 @@ namespace RequestServiceImpl
 
         public WorkerDto[] GetWorkersByWorkerId(int workerId)
         {
-            var sqlQuery = @"SELECT id, service_company_id, sur_name, first_name, patr_name, speciality_id FROM CallCenter.Workers w where(w.id = @WorkerId or
-    w.service_company_id = (select service_company_id from CallCenter.Workers where id = @WorkerId)
-    or w.id in (select dependent_worker_id from CallCenter.WorkersRelations where parent_worker_id = @WorkerId)
-    ) and enabled = 1  order by sur_name,first_name,patr_name";
+            var sqlQuery = @"CALL CallCenter.WebGetWorkers(@WorkerId)";
             using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -342,12 +339,6 @@ namespace RequestServiceImpl
         public StreetDto[] GetStreetsByWorkerId(int workerId)
         {
             var sqlQuery = "CALL CallCenter.WebGetStreets(@CurWorker)";
-    //            var sqlQuery = @"SELECT s.id,s.name,s.city_id,p.id as Prefix_id,p.Name as Prefix_Name,p.ShortName FROM CallCenter.Houses h
-    //join CallCenter.Streets s on s.id = h.street_id
-    //join CallCenter.StreetPrefixes p on p.id = s.prefix_id
-    //join CallCenter.Workers w on w.service_company_id = h.service_company_id
-    //where w.id = @WorkerId and s.enabled = 1
-    //group by s.id,s.name";
             using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@CurWorker", workerId);
@@ -408,9 +399,7 @@ namespace RequestServiceImpl
 
         public WebHouseDto[] GetHousesByStreetAndWorkerId(int streetId, int workerId)
         {
-            var sqlQuery = @"SELECT h.id,h.Building,h.Corps FROM CallCenter.Houses h
-    join CallCenter.Workers w on w.service_company_id = h.service_company_id
-    where w.id = @WorkerId and h.enabled = 1 and h.street_id = @StreetId";
+            var sqlQuery = @"CALL CallCenter.WebGetHouses(@StreetId,@WorkerId)";
             using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@WorkerId", workerId);

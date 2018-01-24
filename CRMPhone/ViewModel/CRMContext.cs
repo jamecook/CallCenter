@@ -1035,7 +1035,10 @@ namespace CRMPhone.ViewModel
             transfer.Owner = Application.Current.MainWindow;
             if (transfer.ShowDialog() == true)
             {
-                string callId = string.Format("sip:{0}@{1}", transferContext.ClientPhone.SipNumber, _serverIP);
+                var phone = string.IsNullOrEmpty(transferContext.TransferPhone)
+                    ? transferContext.ClientPhone.SipNumber
+                    : transferContext.TransferPhone;
+                string callId = string.Format("sip:{0}@{1}", phone, _serverIP);
                 _sipAgent.CallMaker.Transfer(0,callId);
             }
 

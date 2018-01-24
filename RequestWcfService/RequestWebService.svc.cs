@@ -104,6 +104,11 @@ namespace RequestWcfService
             var request =_requestService.WebRequestList2(0, requestId, false, DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, null, null, null, null, null, null, null).FirstOrDefault();
             return request;
         }
+        public RequestForListDto GetRequestByWorkerAndId(int workerId, int requestId)
+        {
+            var request =_requestService.WebRequestList2(workerId, requestId, false, DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, null, null, null, null, null, null, null).FirstOrDefault();
+            return request;
+        }
 
         public WorkerDto[] GetWorkers(int workerId)
         {
