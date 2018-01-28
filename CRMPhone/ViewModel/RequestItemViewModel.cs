@@ -34,6 +34,7 @@ namespace CRMPhone.ViewModel
         private RequestRatingDto _rating;
         private bool _isBadWork;
         private DateTime? _alertTime;
+        private bool _gatanty;
 
 
         public RequestItemViewModel()
@@ -101,6 +102,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _isBadWork; }
             set { _isBadWork = value; OnPropertyChanged(nameof(IsBadWork));}
+        }
+
+        public bool Gatanty
+        {
+            get { return _gatanty; }
+            set { _gatanty = value; OnPropertyChanged(nameof(Gatanty));}
         }
 
         public bool IsImmediate

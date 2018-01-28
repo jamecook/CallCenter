@@ -88,11 +88,11 @@ namespace RequestServiceImpl
             return result.ToArray();
         }
 
-        public RequestForListDto[] WebRequestList2(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId, bool badWork = false, string clientPhone = null)
+        public RequestForListDto[] WebRequestList2(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId, bool badWork = false, bool garanty = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
-            var sqlQuery = "CALL CallCenter.WebGetRequests(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetId,@HouseId,@AddressId,@ParentServiceId,@ServiceId,@StatusId,@WorkerId,@BadWork,@ClientPhone,null)";
+            var sqlQuery = "CALL CallCenter.WebGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetId,@HouseId,@AddressId,@ParentServiceId,@ServiceId,@StatusId,@WorkerId,@BadWork,@Garanty,@ClientPhone,null)";
             using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -110,6 +110,7 @@ namespace RequestServiceImpl
                 cmd.Parameters.AddWithValue("@StatusId", statusId);
                 cmd.Parameters.AddWithValue("@WorkerId", workerId);
                 cmd.Parameters.AddWithValue("@BadWork", badWork);
+                cmd.Parameters.AddWithValue("@Garanty", garanty);
                 cmd.Parameters.AddWithValue("@ClientPhone", clientPhone);
 
                 var requests = new List<RequestForListDto>();
@@ -151,6 +152,7 @@ namespace RequestServiceImpl
                             ExecutePeriod = dataReader.GetNullableString("Period_Name"),
                             Rating = dataReader.GetNullableString("Rating"),
                             BadWork = dataReader.GetBoolean("bad_work"),
+                            Garanty = dataReader.GetBoolean("garanty"),
                             StatusId = dataReader.GetInt32("req_status_id"),
                             Status = dataReader.GetNullableString("Req_Status"),
                         });
@@ -316,6 +318,36 @@ namespace RequestServiceImpl
             var sqlQuery = @"CALL CallCenter.WebGetWorkers(@WorkerId)";
             using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
             {
+                cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                var workers = new List<WorkerDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        workers.Add(new WorkerDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            SurName = dataReader.GetString("sur_name"),
+                            FirstName = dataReader.GetNullableString("first_name"),
+                            PatrName = dataReader.GetNullableString("patr_name"),
+                            SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return workers.ToArray();
+            }
+        }
+        public WorkerDto[] GetWorkersByPeriod(bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate,int workerId)
+        {
+            var sqlQuery = @"CALL CallCenter.WebGetWorkersByPeriod(@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@WorkerId)";
+            using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ByCreateDate", filterByCreateDate);
+                cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                cmd.Parameters.AddWithValue("@ToDate", toDate);
+                cmd.Parameters.AddWithValue("@ExecuteFromDate", executeFromDate);
+                cmd.Parameters.AddWithValue("@ExecuteToDate", executeToDate);
                 cmd.Parameters.AddWithValue("@WorkerId", workerId);
                 var workers = new List<WorkerDto>();
                 using (var dataReader = cmd.ExecuteReader())

@@ -20,7 +20,7 @@ namespace RequestWcfService
         WebUserDto Login(string login, string password);
 
         [OperationContract]
-        RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId, bool badWork, string clientPhone);
+        RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId, bool badWork, bool garanty, string clientPhone);
 
         [OperationContract]
         RequestForListDto GetRequestById(int requestId);
@@ -29,6 +29,11 @@ namespace RequestWcfService
 
         [OperationContract]
         WorkerDto[] GetWorkers(int workerId);
+
+        [OperationContract]
+        WorkerDto[] GetWorkersByPeriod(bool filterByCreateDate, DateTime fromDate, DateTime toDate,
+            DateTime executeFromDate, DateTime executeToDate, int workerId);
+
         [OperationContract]
         StreetDto[] GetStreetListByWorker(int workerId);
         [OperationContract]

@@ -30,6 +30,8 @@ namespace RequestServiceImpl.Dto
         public string Rating { get; set; }
         public string RatingDescription { get; set; }
         public bool BadWork { get; set; }
+        public bool Garanty { get; set; }
+        public string GarantyTest => Garanty ? "Да" : "Нет";
         public int StatusId { get; set; }
         public string Status { get; set; }
         public string SpendTime { get; set; }

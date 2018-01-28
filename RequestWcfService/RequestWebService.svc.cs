@@ -67,7 +67,7 @@ namespace RequestWcfService
 
         public byte[] GetRequestActs(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId)
         {
-            var requests = _requestService.WebRequestList(workerId, null, false, DateTime.Now, DateTime.Now, fromDate, toDate, FilterStreetId, FilterHouseId, FilterAddressId, FilterParrentServiceId, FilterServiceId, FilterStatusId, FirlerWorkerId);
+            var requests = _requestService.WebRequestList2(workerId, null, false, DateTime.Now, DateTime.Now, fromDate, toDate, FilterStreetId, FilterHouseId, FilterAddressId, FilterParrentServiceId, FilterServiceId, FilterStatusId, FirlerWorkerId);
             var stiReport = new StiReport();
             stiReport.Load("templates\\act.mrt");
             StiOptions.Engine.HideRenderingProgress = true;
@@ -94,9 +94,9 @@ namespace RequestWcfService
             return _requestService.WebLogin(login, password);
         }
 
-        public RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate,int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId,int? FilterParrentServiceId, int? FilterServiceId,bool badWork, string clientPhone )
+        public RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate,int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId,int? FilterParrentServiceId, int? FilterServiceId,bool badWork, bool garanty, string clientPhone )
         {
-            return _requestService.WebRequestList2(workerId,null,false,DateTime.Now,DateTime.Now, fromDate, toDate, FilterStreetId, FilterHouseId, FilterAddressId, FilterParrentServiceId, FilterServiceId, FilterStatusId, FirlerWorkerId, badWork, clientPhone);
+            return _requestService.WebRequestList2(workerId,null,false,DateTime.Now,DateTime.Now, fromDate, toDate, FilterStreetId, FilterHouseId, FilterAddressId, FilterParrentServiceId, FilterServiceId, FilterStatusId, FirlerWorkerId, badWork, garanty, clientPhone);
         }
 
         public RequestForListDto GetRequestById(int requestId)
@@ -113,6 +113,10 @@ namespace RequestWcfService
         public WorkerDto[] GetWorkers(int workerId)
         {
             return _requestService.GetWorkersByWorkerId(workerId);
+        }
+        public WorkerDto[] GetWorkersByPeriod(bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int workerId)
+        {
+            return _requestService.GetWorkersByPeriod(filterByCreateDate, fromDate, toDate, executeFromDate, executeToDate, workerId);
         }
         public StreetDto[] GetStreetListByWorker(int workerId)
         {

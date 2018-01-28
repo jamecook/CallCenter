@@ -112,6 +112,7 @@ namespace CRMPhone.ViewModel
                                         new XElement("ВыполнениеС", request.FromTime?.ToString("HH:mm:ss") ?? ""),
                                         new XElement("ВыполнениеПо", request.ToTime?.ToString("HH:mm:ss") ?? ""),
                                         new XElement("ПотраченоВремени", request.SpendTime),
+                                        new XElement("Гарантийная", request.GarantyTest),
                                         new XElement("Оценка", request.Rating),
                                         new XElement("Комментарий_К_Оценке", request.RatingDescription),
                                     }));
@@ -177,6 +178,7 @@ namespace CRMPhone.ViewModel
                     ConstructCell("Выполнение С", CellValues.String),
                     ConstructCell("Выполнение По", CellValues.String),
                     ConstructCell("Потрачено Времени", CellValues.String),
+                    ConstructCell("Гарантийная", CellValues.String),
                     ConstructCell("Оценка", CellValues.String),
                     ConstructCell("Комментарий К Оценке", CellValues.String)
                 );
@@ -207,6 +209,7 @@ namespace CRMPhone.ViewModel
                             ConstructCell(request.FromTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
                             ConstructCell(request.ToTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
                             ConstructCell(request.SpendTime, CellValues.String),
+                            ConstructCell(request.GarantyTest, CellValues.String),
                             ConstructCell(request.Rating, CellValues.String),
                             ConstructCell(request.RatingDescription, CellValues.String));
 
@@ -252,6 +255,7 @@ namespace CRMPhone.ViewModel
                             ConstructCell(request.FromTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
                             ConstructCell(request.ToTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
                             ConstructCell(request.SpendTime, CellValues.String),
+                            ConstructCell(request.GarantyTest, CellValues.String),
                             ConstructCell(request.Rating, CellValues.String),
                             ConstructCell(request.RatingDescription, CellValues.String));
 
@@ -512,6 +516,7 @@ namespace CRMPhone.ViewModel
             requestModel.IsChargeable = request.IsChargeable;
             requestModel.IsImmediate = request.IsImmediate;
             requestModel.IsBadWork = request.IsBadWork;
+            requestModel.Gatanty = request.Garanty;
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
             requestModel.RequestState = request.State.Description;

@@ -87,7 +87,7 @@
                         <DatePicker  Margin="3" Width="110" SelectedDate="{Binding ExecuteToDate}"/>
                     </DockPanel>
                 </StackPanel>
-                <Button Width="80" Margin="5" Content="Обновить" Command="{Binding RefreshRequestCommand}"/>
+                <Button Width="80" Margin="5" Background ="DarkBlue" Content="Применить" Command="{Binding RefreshRequestCommand}"/>
                 <Button Width="80" Margin="5" Content="Экспорт" Command="{Binding ExportRequestCommand}"/>
                 <Button Width="120" Margin="5" Content="Сброс фильтров" Command="{Binding ClearFiltersCommand}"/>
                 <TextBlock Margin="35,3,3,3" VerticalAlignment="Center" Text="Заявок:"/>
@@ -301,7 +301,15 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-
+                <DataGridTextColumn Header="Гарантийная" Width="100"
+                             Binding="{Binding Path=GarantyTest}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="Оценка" Width="60"
                              Binding="{Binding Path=Rating}">
                     <DataGridTextColumn.ElementStyle>

@@ -497,7 +497,7 @@ namespace CRMPhone.ViewModel
             if (requestModel.RequestId.HasValue)
             {
                 _requestService.EditRequest(requestModel.RequestId.Value, requestModel.SelectedService.Id,
-                    requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork, requestModel.AlertTime);
+                    requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork,requestModel.Gatanty, requestModel.AlertTime);
                 MessageBox.Show($"Данные успешно сохранены!", "Заявка", MessageBoxButton.OK);
                 return;
             }

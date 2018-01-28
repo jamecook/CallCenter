@@ -35,10 +35,10 @@ namespace RequestServiceImpl
             }
         }
 
-        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork,DateTime? alertTime)
+        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, bool garanty,DateTime? alertTime)
         {
             using (var cmd = new MySqlCommand(
-                   @"call CallCenter.UpdateRequest(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable,@badWork,@alertTime);",
+                   @"call CallCenter.UpdateRequest2(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable,@badWork,@garanty,@alertTime);",
                    _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@userId", AppSettings.CurrentUser.Id);
@@ -48,6 +48,7 @@ namespace RequestServiceImpl
                 cmd.Parameters.AddWithValue("@immediate", immediate);
                 cmd.Parameters.AddWithValue("@chargeable", chargeable);
                 cmd.Parameters.AddWithValue("@badWork", isBadWork);
+                cmd.Parameters.AddWithValue("@garanty", garanty);
                 cmd.Parameters.AddWithValue("@alertTime", alertTime);
                 cmd.ExecuteNonQuery();
             }
@@ -577,7 +578,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     C.name City_name,
     U.SurName,U.FirstName,U.PatrName,
     entrance,floor,
-    rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,R.from_time,R.to_time,R.bad_work,R.alert_time
+    rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,R.from_time,R.to_time,R.bad_work,R.alert_time,R.garanty
      FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.RequestTypes RT on RT.id = R.type_id
@@ -608,6 +609,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                                 IsChargeable = dataReader.GetBoolean("is_chargeable"),
                                 IsImmediate = dataReader.GetBoolean("is_immediate"),
                                 IsBadWork = dataReader.GetBoolean("bad_work"),
+                                Garanty = dataReader.GetBoolean("garanty"),
                                 Description = dataReader.GetNullableString("description"),
                                 Entrance = dataReader.GetNullableString("entrance"),
                                 Floor = dataReader.GetNullableString("floor"),
@@ -714,7 +716,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     where rc2.request_id = R.id
     order by IsMain desc limit 1) clinet_fio,    
     rating.Name Rating, rtype.Description RatingDesc,
-    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,R.bad_work,
+    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,R.bad_work,R.garanty,
     min(rcalls.uniqueID) recordId, R.alert_time
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
@@ -800,6 +802,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             Id = dataReader.GetInt32("id"),
                             HasAttachment = dataReader.GetBoolean("has_attach"),
                             IsBadWork = dataReader.GetBoolean("bad_work"),
+                            Garanty = dataReader.GetBoolean("garanty"),
                             HasRecord = !string.IsNullOrEmpty(recordUniqueId),
                             RecordUniqueId = recordUniqueId,
                             StreetPrefix = dataReader.GetString("prefix_name"),
