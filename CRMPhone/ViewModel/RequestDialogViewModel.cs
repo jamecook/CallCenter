@@ -182,7 +182,7 @@ namespace CRMPhone.ViewModel
         {
             var currentDate = _requestService.GetCurrentDate();
             AddressRequestList = new ObservableCollection<RequestForListDto>(_requestService.GetRequestList(null, true, currentDate.AddDays(-90), currentDate.AddDays(1), DateTime.Today,
-                DateTime.Today, null, null, addressId, null, null,null,new int[0],null,null,null,false));
+                DateTime.Today, null, null, addressId, null, null,null,new int[0],null,null,null,false,false,null));
         }
 
         public string Entrance
@@ -497,7 +497,7 @@ namespace CRMPhone.ViewModel
             if (requestModel.RequestId.HasValue)
             {
                 _requestService.EditRequest(requestModel.RequestId.Value, requestModel.SelectedService.Id,
-                    requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork,requestModel.Gatanty, requestModel.AlertTime);
+                    requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork,requestModel.Gatanty, requestModel.IsRetry, requestModel.AlertTime);
                 MessageBox.Show($"Данные успешно сохранены!", "Заявка", MessageBoxButton.OK);
                 return;
             }
@@ -506,7 +506,7 @@ namespace CRMPhone.ViewModel
             {
                 _callUniqueId = _requestService.GetActiveCallUniqueId();
             }
-            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.SelectedCompany.Id, requestModel.AlertTime);
+            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.SelectedCompany.Id, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork);
             if (!request.HasValue)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");

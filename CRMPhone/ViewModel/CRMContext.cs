@@ -16,6 +16,7 @@ using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Security.RightsManagement;
 using System.Xml.Linq;
 using CRMPhone.Dialogs;
@@ -124,7 +125,7 @@ namespace CRMPhone.ViewModel
                 SipRegister();
             }
             InitMySql();
-            AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser})";
+            AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser}) ver. {Assembly.GetEntryAssembly().GetName().Version}";
             AlertRequestDataContext.InitCollections();
             RequestDataContext.InitCollections();
             ServiceCompanyDataContext.RefreshList();
@@ -1040,7 +1041,6 @@ namespace CRMPhone.ViewModel
                 return;
             if (_sipAgent.CallMaker.callStatus[1] < 0)
             {
-                //_serverIP = "37.140.198.61";
                 string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
                 SipState = $"Исходящий вызов на номер {_sipPhone}";
                 var callNum = _sipAgent.CallMaker.Invite(callId);

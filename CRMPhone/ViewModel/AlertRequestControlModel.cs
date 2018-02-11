@@ -96,6 +96,7 @@ namespace CRMPhone.ViewModel
             requestModel.IsChargeable = request.IsChargeable;
             requestModel.IsImmediate = request.IsImmediate;
             requestModel.IsBadWork = request.IsBadWork;
+            requestModel.IsRetry = request.IsRetry;
             requestModel.Gatanty = request.Garanty;
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;

@@ -35,10 +35,10 @@ namespace RequestServiceImpl
             }
         }
 
-        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, bool garanty,DateTime? alertTime)
+        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, bool garanty,bool isRetry,DateTime? alertTime)
         {
             using (var cmd = new MySqlCommand(
-                   @"call CallCenter.UpdateRequest2(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable,@badWork,@garanty,@alertTime);",
+                   @"call CallCenter.UpdateRequest3(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable,@badWork,@garanty,@retry,@alertTime);",
                    _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@userId", AppSettings.CurrentUser.Id);
@@ -49,13 +49,14 @@ namespace RequestServiceImpl
                 cmd.Parameters.AddWithValue("@chargeable", chargeable);
                 cmd.Parameters.AddWithValue("@badWork", isBadWork);
                 cmd.Parameters.AddWithValue("@garanty", garanty);
+                cmd.Parameters.AddWithValue("@retry", isRetry);
                 cmd.Parameters.AddWithValue("@alertTime", alertTime);
                 cmd.ExecuteNonQuery();
             }
         }
 
         public int? SaveNewRequest(int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
-            bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, int serviceCompanyId,DateTime? alertTime)
+            bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, int serviceCompanyId,DateTime? alertTime,bool isRetry, bool isBedWork)
         {
             int newId;
             //_logger.Debug($"RequestService.SaveNewRequest({addressId},{requestTypeId},[{contactList.Select(x => $"{x.PhoneNumber}").Aggregate((f1, f2) => f1 + ";" + f2)}],{requestMessage},{chargeable},{immediate},{callUniqueId})");
@@ -68,8 +69,8 @@ namespace RequestServiceImpl
 
                     using (
                         var cmd = new MySqlCommand(
-                            @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_chargeable,create_user_id,state_id,is_immediate, entrance, floor, service_company_id, alert_time)
-values(@AddressId, @TypeId, @Message, sysdate(),@IsChargeable,@UserId,@State,@IsImmediate,@Entrance,@Floor,@ServiceCompanyId,@AlertTime);
+                            @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_chargeable,create_user_id,state_id,is_immediate, entrance, floor, service_company_id,retry ,bad_work , alert_time)
+values(@AddressId, @TypeId, @Message, sysdate(),@IsChargeable,@UserId,@State,@IsImmediate,@Entrance,@Floor,@ServiceCompanyId,@Retry,@BadWork,@AlertTime);
 select LAST_INSERT_ID();", _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@AddressId", addressId);
@@ -83,6 +84,8 @@ select LAST_INSERT_ID();", _dbConnection))
                         cmd.Parameters.AddWithValue("@State", 1);
                         cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
                         cmd.Parameters.AddWithValue("@AlertTime", alertTime);
+                        cmd.Parameters.AddWithValue("@Retry", isRetry);
+                        cmd.Parameters.AddWithValue("@BadWork", isBedWork);
                         newId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 
@@ -578,7 +581,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     C.name City_name,
     U.SurName,U.FirstName,U.PatrName,
     entrance,floor,
-    rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,R.from_time,R.to_time,R.bad_work,R.alert_time,R.garanty
+    rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,R.from_time,R.to_time,R.bad_work,R.alert_time,R.garanty,R.retry
      FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.RequestTypes RT on RT.id = R.type_id
@@ -609,6 +612,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                                 IsChargeable = dataReader.GetBoolean("is_chargeable"),
                                 IsImmediate = dataReader.GetBoolean("is_immediate"),
                                 IsBadWork = dataReader.GetBoolean("bad_work"),
+                                IsRetry = dataReader.GetBoolean("retry"),
                                 Garanty = dataReader.GetBoolean("garanty"),
                                 Description = dataReader.GetNullableString("description"),
                                 Entrance = dataReader.GetNullableString("entrance"),
@@ -703,7 +707,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             return null;
         }
 
-        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int[] workersId,int? serviceCompanyId,int? userId,int? payment, bool onlyBadWork)
+        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int[] workersId,int? serviceCompanyId,int? userId,int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -716,7 +720,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     where rc2.request_id = R.id
     order by IsMain desc limit 1) clinet_fio,    
     rating.Name Rating, rtype.Description RatingDesc,
-    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,R.bad_work,R.garanty,
+    RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,R.bad_work,R.garanty,R.retry,
     min(rcalls.uniqueID) recordId, R.alert_time
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
@@ -771,6 +775,10 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     sqlQuery += $" and R.is_chargeable = {payment.Value}";
                 if (onlyBadWork)
                     sqlQuery += " and R.bad_work = 1";
+                if (onlyRetry)
+                    sqlQuery += " and R.retry = 1";
+                if (!string.IsNullOrEmpty(clientPhone))
+                    sqlQuery += $" and cp.Number like '%{clientPhone}'";
             }
             else
             {
@@ -802,6 +810,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             Id = dataReader.GetInt32("id"),
                             HasAttachment = dataReader.GetBoolean("has_attach"),
                             IsBadWork = dataReader.GetBoolean("bad_work"),
+                            IsRetry = dataReader.GetBoolean("retry"),
                             Garanty = dataReader.GetBoolean("garanty"),
                             HasRecord = !string.IsNullOrEmpty(recordUniqueId),
                             RecordUniqueId = recordUniqueId,
@@ -2603,7 +2612,7 @@ where C.Direction is not null";
         }
         public void SendSms(int requestId, string sender, string phone, string message,bool isClient)
         {
-            if (requestId <= 0 || string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(sender))
+            if (requestId <= 0 || string.IsNullOrEmpty(phone) || phone.Length < 10 || string.IsNullOrEmpty(sender))
                 return;
             using (var cmd =
                 new MySqlCommand("insert into CallCenter.SMSRequest(request_id,sender,phone,message,create_date, is_client) values(@Request, @Sender, @Phone,@Message,sysdate(),@IsClient)", _dbConnection))

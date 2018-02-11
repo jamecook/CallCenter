@@ -35,6 +35,7 @@ namespace CRMPhone.ViewModel
         private bool _isBadWork;
         private DateTime? _alertTime;
         private bool _gatanty;
+        private bool _isRetry;
 
 
         public RequestItemViewModel()
@@ -96,6 +97,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _isChargeable; }
             set { _isChargeable = value; OnPropertyChanged(nameof(IsChargeable)); }
+        }
+
+        public bool IsRetry
+        {
+            get { return _isRetry; }
+            set { _isRetry = value; OnPropertyChanged(nameof(IsRetry));}
         }
 
         public bool IsBadWork

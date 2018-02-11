@@ -67,6 +67,8 @@ namespace CRMPhone.ViewModel
             SelectedPayment = null;
             SelectedUser = null;
             ServiceCompanyBadWork = false;
+            OnlyRetry = false;
+            ClientPhone = "";
             //foreach (var worker in FilterWorkerList)
             //{
             //    worker.Selected = false;
@@ -123,6 +125,7 @@ namespace CRMPhone.ViewModel
                                         new XElement("Гарантийная", request.GarantyTest),
                                         new XElement("Оценка", request.Rating),
                                         new XElement("Комментарий_К_Оценке", request.RatingDescription),
+                                        new XElement("Повторная", request.IsRetry?"Да":""),
                                     }));
                         }
                         var saver = new FileStream(fileName, FileMode.Create);
@@ -188,7 +191,8 @@ namespace CRMPhone.ViewModel
                     ConstructCell("Потрачено Времени", CellValues.String),
                     ConstructCell("Гарантийная", CellValues.String),
                     ConstructCell("Оценка", CellValues.String),
-                    ConstructCell("Комментарий К Оценке", CellValues.String)
+                    ConstructCell("Комментарий К Оценке", CellValues.String),
+                    ConstructCell("Повторная", CellValues.String)
                 );
                 // Insert the header row to the Sheet Data
                 sheetData.AppendChild(row);
@@ -219,7 +223,8 @@ namespace CRMPhone.ViewModel
                             ConstructCell(request.SpendTime, CellValues.String),
                             ConstructCell(request.GarantyTest, CellValues.String),
                             ConstructCell(request.Rating, CellValues.String),
-                            ConstructCell(request.RatingDescription, CellValues.String));
+                            ConstructCell(request.RatingDescription, CellValues.String),
+                            ConstructCell(request.IsRetry ? "Да" : "", CellValues.String));
 
                         sheetData.AppendChild(row);
                     }
@@ -265,7 +270,8 @@ namespace CRMPhone.ViewModel
                             ConstructCell(request.SpendTime, CellValues.String),
                             ConstructCell(request.GarantyTest, CellValues.String),
                             ConstructCell(request.Rating, CellValues.String),
-                            ConstructCell(request.RatingDescription, CellValues.String));
+                            ConstructCell(request.RatingDescription, CellValues.String),
+                            ConstructCell(request.IsRetry ? "Да" : "", CellValues.String));
 
                         sheetData.AppendChild(row);
                     }
@@ -311,6 +317,8 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<PaymentDto> _paymentList;
         private PaymentDto _selectedPayment;
         private bool _serviceCompanyBadWork;
+        private bool _onlyRetry;
+        private string _clientPhone;
 
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
@@ -442,6 +450,18 @@ namespace CRMPhone.ViewModel
             set { _paymentList = value; OnPropertyChanged(nameof(PaymentList));}
         }
 
+        public bool OnlyRetry
+        {
+            get { return _onlyRetry; }
+            set { _onlyRetry = value; OnPropertyChanged(nameof(OnlyRetry));}
+        }
+
+        public string ClientPhone
+        {
+            get { return _clientPhone; }
+            set { _clientPhone = value; OnPropertyChanged(nameof(ClientPhone)); }
+        }
+
         public bool ServiceCompanyBadWork
         {
             get { return _serviceCompanyBadWork; }
@@ -524,6 +544,7 @@ namespace CRMPhone.ViewModel
             requestModel.IsChargeable = request.IsChargeable;
             requestModel.IsImmediate = request.IsImmediate;
             requestModel.IsBadWork = request.IsBadWork;
+            requestModel.IsRetry = request.IsRetry;
             requestModel.Gatanty = request.Garanty;
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
@@ -555,7 +576,7 @@ namespace CRMPhone.ViewModel
                 ExecuteFromDate, ExecuteToDate, SelectedStreet?.Id, _selectedHouse?.Id, SelectedFlat?.Id,
                 SelectedParentService?.Id, SelectedService?.Id, SelectedStatus?.Id,
                 FilterWorkerList.Where(w => w.Selected).Select(x => x.Id).ToArray(), SelectedServiceCompany?.Id,
-                SelectedUser?.Id, SelectedPayment?.Id, ServiceCompanyBadWork);
+                SelectedUser?.Id, SelectedPayment?.Id, ServiceCompanyBadWork,OnlyRetry, ClientPhone);
             foreach (var request in requests)
             {
                 RequestList.Add(request);

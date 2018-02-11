@@ -497,6 +497,7 @@
     <Resource Include="Images\prib_ucheta_small.png" />
     <Resource Include="Images\danger_small.png" />
     <Resource Include="Images\tech_work_small.png" />
+    <Resource Include="Images\retry.png" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
