@@ -152,6 +152,7 @@ namespace RequestServiceImpl
                             ExecutePeriod = dataReader.GetNullableString("Period_Name"),
                             Rating = dataReader.GetNullableString("Rating"),
                             BadWork = dataReader.GetBoolean("bad_work"),
+                            IsRetry = dataReader.GetBoolean("retry"),
                             Garanty = dataReader.GetBoolean("garanty"),
                             StatusId = dataReader.GetInt32("req_status_id"),
                             Status = dataReader.GetNullableString("Req_Status"),

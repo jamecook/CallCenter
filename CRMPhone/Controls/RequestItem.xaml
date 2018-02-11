@@ -31,9 +31,9 @@
                     <TextBlock Margin = "3" VerticalAlignment="Center" Text="{Binding RequestCreator}"/>
                     <TextBlock Margin = "3" VerticalAlignment="Center" Text="Статус:"/>
                     <TextBlock Margin = "3" VerticalAlignment="Center" Text="{Binding RequestState}"/>
-                    <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsBadWork}">Для обсуждения!</CheckBox>
-                    <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding Gatanty}">Гарантийная</CheckBox>
-                    <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsRetry}">Повторная</CheckBox>
+                    <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsBadWork}">Для обсуждения</CheckBox>
+                    <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding Gatanty}">Гарантия</CheckBox>
+                    <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsRetry}">Повтор</CheckBox>
                 </WrapPanel>
                     <WrapPanel Grid.Row="1" Grid.Column="0">
                     <!--<WrapPanel IsEnabled="{Binding CanSave}" Grid.Row="1" Grid.Column="0">-->
