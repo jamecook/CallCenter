@@ -254,7 +254,15 @@ namespace CRMPhone.ViewModel
             var record = obj as CallsListDto;
             var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
             var localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/","\\");
-            Process.Start(localFileName);
+            var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
+            try
+            {
+                Process.Start(localFileNameMp3);
+            }
+            catch
+            {
+                Process.Start(localFileName);
+            }
         }
 
 
@@ -278,6 +286,8 @@ namespace CRMPhone.ViewModel
 
         private ICommand _callCommand;
         public ICommand CallCommand { get {return _callCommand ?? (_callCommand = new CommandHandler(Call, _canExecute));}}
+        private ICommand _line2CallCommand;
+        public ICommand Line2CallCommand { get { return _line2CallCommand ?? (_line2CallCommand = new CommandHandler(Line2Call, _canExecute)); } }
 
         private ICommand _serviceCompanyInfoCommand;
         public ICommand ServiceCompanyInfoCommand { get { return _serviceCompanyInfoCommand ?? (_serviceCompanyInfoCommand = new CommandHandler(ServiceCompanyInfo, _canExecute)); } }
@@ -808,9 +818,9 @@ namespace CRMPhone.ViewModel
 
                 if (EnablePhone)
                 {
-                _refreshTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
-                _refreshTimer.Tick += RefreshTimerOnTick;
-                _refreshTimer.Start();
+                    _refreshTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+                    _refreshTimer.Tick += RefreshTimerOnTick;
+                    _refreshTimer.Start();
                 }
             }
 
@@ -836,7 +846,7 @@ namespace CRMPhone.ViewModel
                 _sipAgent.OnUnregistered += SipAgentOnUnregistered;
 
                 _sipAgent.AddTransport(1, 5060);
-                var mediaPort = _sipAgent.FindPort(10000, 20000, 2, 1);
+                var mediaPort = _sipAgent.FindPort(60000, 64000, 2, 1);
                 _sipAgent.Startup(mediaPort, 1, "", "");
 
             }
@@ -848,13 +858,13 @@ namespace CRMPhone.ViewModel
                 object ids = null;
                 _sipAgent.VoiceSettings.GetPlayers(out names, out ids);
                 var playersId = ids as int[];
-
-                _sipAgent.VoiceSettings.PlayerDevice = playersId[0];
+                var playId = 1;
+                _sipAgent.VoiceSettings.PlayerDevice = playersId[playId];
                 _sipAgent.VoiceSettings.GetRecorders(out names, out ids);
                 var recordsId = ids as int[];
 
                 _sipAgent.VoiceSettings.RecorderDevice = recordsId[0];
-                */
+                /**/
             }
             catch (Exception ex)
             {
@@ -871,6 +881,7 @@ namespace CRMPhone.ViewModel
             CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallList(FromDate, ToDate, RequestNum, SelectedUser?.Id, SelectedCompany?.Id));
             CallsCount = CallsList.Count;
         }
+
         private void RefreshTimerOnTick(object sender, EventArgs eventArgs)
         {
             RefreshActiveChannels();
@@ -1006,6 +1017,33 @@ namespace CRMPhone.ViewModel
                 string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
                 SipState = $"Исходящий вызов на номер {_sipPhone}";
                 _sipAgent.CallMaker.Invite(callId);
+            }
+        }
+        public void Line2Call()
+        {
+            if (_sipAgent.CallMaker.callStatus[1] == 180)
+            {
+                //if (DisableIncomingCalls)
+                //{
+                //    _sipAgent.CallMaker.HangupAll();
+                //    string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
+                //    SipState = $"Исходящий вызов на номер {_sipPhone}";
+                //    _sipAgent.CallMaker.Invite(callId);
+                //    return;
+                //}
+                LastAnsweredPhoneNumber = IncomingCallFrom;
+
+                _sipAgent.CallMaker.Accept(1);
+                return;
+            }
+            if (string.IsNullOrEmpty(_sipPhone))
+                return;
+            if (_sipAgent.CallMaker.callStatus[1] < 0)
+            {
+                //_serverIP = "37.140.198.61";
+                string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
+                SipState = $"Исходящий вызов на номер {_sipPhone}";
+                var callNum = _sipAgent.CallMaker.Invite(callId);
             }
         }
 

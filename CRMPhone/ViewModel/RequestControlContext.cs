@@ -44,7 +44,15 @@ namespace CRMPhone.ViewModel
             var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
             var fileName = _requestService.GetRecordFileNameByUniqueId(item.RecordUniqueId);
             var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/","\\");
-            Process.Start(localFileName);
+            var localFileNameMp3 = localFileName.Replace(".wav",".mp3");
+            try
+            {
+                Process.Start(localFileNameMp3);
+            }
+            catch 
+            {
+                Process.Start(localFileName);
+            }
 
         }
 

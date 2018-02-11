@@ -87,7 +87,7 @@
                         <DatePicker  Margin="3" Width="110" SelectedDate="{Binding ExecuteToDate}"/>
                     </DockPanel>
                 </StackPanel>
-                <Button Width="80" Margin="5" Background ="DarkBlue" Content="Применить" Command="{Binding RefreshRequestCommand}"/>
+                <Button Width="80" Margin="5" Background ="LightGreen" Content="Применить" Command="{Binding RefreshRequestCommand}"/>
                 <Button Width="80" Margin="5" Content="Экспорт" Command="{Binding ExportRequestCommand}"/>
                 <Button Width="120" Margin="5" Content="Сброс фильтров" Command="{Binding ClearFiltersCommand}"/>
                 <TextBlock Margin="35,3,3,3" VerticalAlignment="Center" Text="Заявок:"/>

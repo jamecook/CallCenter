@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
@@ -26,7 +28,18 @@ namespace CRMPhone.ViewModel
             set { _password = value; OnPropertyChanged(nameof(Password)); }
         }
 
-
+        public string GetLocalIpAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
         public LoginContext(string server)
         {
             var connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", server, "asterisk", "mysqlasterisk", "asterisk");
@@ -34,7 +47,8 @@ namespace CRMPhone.ViewModel
             try
             {
                 AppSettings.DbConnection.Open();
-                using (var cmd = new MySqlCommand(@"CALL CallCenter.GetSIPInfo()", AppSettings.DbConnection))
+                var localIp = GetLocalIpAddress();
+                using (var cmd = new MySqlCommand($"CALL CallCenter.GetSIPInfoByIp('{localIp}')", AppSettings.DbConnection))
                 {
                     using (var dataReader = cmd.ExecuteReader())
                     {

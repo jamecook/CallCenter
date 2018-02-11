@@ -51,6 +51,12 @@
                     <Button  Margin="15" Width="48" Height="48" Command="{Binding CallCommand}" ToolTip="Ответить на звонок/набрать номер">
                         <Image Source="pack://application:,,,/Images/answer.png" Width="32" Height="32" />
                     </Button>
+                    <Button Visibility="Collapsed" Margin="15" Width="48" Height="48" Command="{Binding Line2CallCommand}" ToolTip="Line2">
+                        Ring on Line2
+                    </Button>
+                    <Button Visibility="Collapsed" Margin="15" Width="48" Height="48" Command="{Binding CallCommand}" ToolTip="Hold">
+                        Hold
+                    </Button>
                     <Button Margin="15" Width="48" Height="48" Command="{Binding HangUpCommand}" ToolTip="Положить трубку">
                         <Image Source="pack://application:,,,/Images/hangupsmall.png" Width="32" Height="32" />
                     </Button>
