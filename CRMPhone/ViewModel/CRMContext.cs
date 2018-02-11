@@ -885,14 +885,21 @@ namespace CRMPhone.ViewModel
 
         private void RefreshTimerOnTick(object sender, EventArgs eventArgs)
         {
-            RefreshActiveChannels();
-            RefreshNotAnsweredCalls();
-            TimeSpan t = DateTime.Now - _lastAliveTime;
-            if (t.TotalSeconds > 30)
+            try
             {
-                SendAlive();
-                RefreshAlertRequest();
-                _lastAliveTime = DateTime.Now;
+                RefreshActiveChannels();
+                RefreshNotAnsweredCalls();
+                TimeSpan t = DateTime.Now - _lastAliveTime;
+                if (t.TotalSeconds > 30)
+                {
+                    SendAlive();
+                    RefreshAlertRequest();
+                    _lastAliveTime = DateTime.Now;
+                }
+            }
+            catch
+            {
+                // ignored
             }
         }
 
