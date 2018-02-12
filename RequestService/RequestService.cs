@@ -251,7 +251,12 @@ select LAST_INSERT_ID();", _dbConnection))
                     {
                         var fileName = dataReader.GetNullableString("MonitorFile");
                         var serverIpAddress = _dbConnection.DataSource;
-                        var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\");
+                        var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/", "\\");
+                        var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
+                        if (File.Exists(localFileNameMp3))
+                        {
+                            return File.ReadAllBytes(localFileName);
+                        }
                         return File.ReadAllBytes(localFileName);
                     }
                 }
