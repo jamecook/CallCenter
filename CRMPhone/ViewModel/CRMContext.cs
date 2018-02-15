@@ -254,16 +254,17 @@ namespace CRMPhone.ViewModel
         {
             var record = obj as CallsListDto;
             var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
+            _requestService.PlayRecord(serverIpAddress,record.MonitorFileName);
+/*
             var localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/","\\");
             var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
-            try
-            {
+            if (File.Exists(localFileNameMp3))
                 Process.Start(localFileNameMp3);
-            }
-            catch
-            {
+            else if (File.Exists(localFileNameMp3))
                 Process.Start(localFileName);
-            }
+            else
+                MessageBox.Show($"Файл с записью недоступен!\r\n{localFileNameMp3}", "Ошибка");
+*/
         }
 
 

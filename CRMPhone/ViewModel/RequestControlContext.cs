@@ -43,17 +43,18 @@ namespace CRMPhone.ViewModel
                 return;
             var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
             var fileName = _requestService.GetRecordFileNameByUniqueId(item.RecordUniqueId);
+            _requestService.PlayRecord(serverIpAddress, fileName);
+
+            /*
             var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/","\\");
             var localFileNameMp3 = localFileName.Replace(".wav",".mp3");
-            try
-            {
+            if(File.Exists(localFileNameMp3))
                 Process.Start(localFileNameMp3);
-            }
-            catch 
-            {
+            else if(File.Exists(localFileNameMp3))
                 Process.Start(localFileName);
-            }
-
+            else
+                MessageBox.Show($"Файл с записью недоступен!\r\n{localFileNameMp3}", "Ошибка");
+                */
         }
 
 

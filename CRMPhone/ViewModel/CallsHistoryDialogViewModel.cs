@@ -113,9 +113,13 @@ namespace CRMPhone.ViewModel
         private void PlayRecord(object obj)
         {
             var record = obj as CallsListDto;
-            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"]; ;
+            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
+            _requestService.PlayRecord(serverIpAddress, record.MonitorFileName);
+
+            /*
             var localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\");
             Process.Start(localFileName);
+            */
         }
         public void SetView(Window view)
         {

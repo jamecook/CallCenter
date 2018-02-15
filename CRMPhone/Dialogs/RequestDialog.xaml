@@ -206,7 +206,11 @@
         <Grid Grid.Row="2">
             <StackPanel>
                 <TextBlock Margin="3" Text="Заявки:"/>
+                <DockPanel>
                 <Button IsEnabled ="{Binding CanEdit}" Margin ="3" Content="Добавить" Width="120" Command="{Binding AddRequestCommand}" HorizontalAlignment="Left"/>
+                    <Button Margin ="3" Content="Информация по УК" Width="120" Command="{Binding GetScInfoCommand}"
+                            HorizontalAlignment="Left"/>
+                </DockPanel>
                 <ListBox Name ="RequestList" Height="340"
                      ScrollViewer.CanContentScroll="False"
                      ItemsSource="{Binding Path=RequestList}" 

@@ -138,6 +138,9 @@
     <Compile Include="Controls\NotifyRequestControl.xaml.cs">
       <DependentUpon>NotifyRequestControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\GetScInfoDialog.xaml.cs">
+      <DependentUpon>GetScInfoDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\AddRequestToCallDialog.xaml.cs">
       <DependentUpon>AddRequestToCallDialog.xaml</DependentUpon>
     </Compile>
@@ -252,6 +255,7 @@
     <Compile Include="Controls\UsersControl.xaml.cs">
       <DependentUpon>UsersControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\GetScInfoDialogViewModel.cs" />
     <Compile Include="ViewModel\HouseAdminControlContext.cs" />
     <Compile Include="ViewModel\MeterDeviceViewModel.cs" />
     <Compile Include="ViewModel\NoteDialogViewModel.cs" />
@@ -325,6 +329,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\NotifyRequestControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\GetScInfoDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

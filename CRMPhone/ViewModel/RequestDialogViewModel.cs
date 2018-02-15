@@ -25,7 +25,7 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<FlatDto> _flatList;
         private FlatDto _selectedFlat;
         private string _callUniqueId;
-        
+        private int? _selectedServiceCompanyId;
         private ObservableCollection<ContactDto> _contactList;
         private int _requestId;
 
@@ -101,6 +101,7 @@ namespace CRMPhone.ViewModel
                 FlatList.Add(flat);
             }
             var serviceCompanyId = _requestService.GetServiceCompany(houseId.Value);
+            _selectedServiceCompanyId = serviceCompanyId;
             if (serviceCompanyId != null)
             {
                 foreach (var request in RequestList.Where(r => r.CanSave))
@@ -220,6 +221,19 @@ namespace CRMPhone.ViewModel
         public ICommand AddContactCommand { get { return _addContactCommand ?? (_addContactCommand = new CommandHandler(AddContact, true)); } }
         private ICommand _addRequestCommand;
         public ICommand AddRequestCommand { get { return _addRequestCommand ?? (_addRequestCommand = new CommandHandler(AddRequest, true)); } }
+
+        private ICommand _getScInfoCommand;
+        public ICommand GetScInfoCommand { get { return _getScInfoCommand ?? (_getScInfoCommand = new RelayCommand(GetScInfo)); } }
+
+        private void GetScInfo(object obj)
+        {
+            var view = new GetScInfoDialog();
+            var model = new GetScInfoDialogViewModel(_requestService,_selectedServiceCompanyId,view);
+            view.DataContext = model;
+            model.SetView(view);
+            view.Owner = _view;
+            view.Show();
+        }
 
         private void AddRequest()
         {

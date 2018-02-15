@@ -32,9 +32,11 @@ namespace CRMPhone.ViewModel
                 return;
             var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
             var fileName = _requestService.GetRecordFileNameByUniqueId(item.RecordUniqueId);
+            _requestService.PlayRecord(serverIpAddress, fileName);
+            /*
             var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/","\\");
             Process.Start(localFileName);
-
+            */
         }
 
         private void RefreshRequest()

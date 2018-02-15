@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using MySql.Data.MySqlClient;
 using NLog;
 using NLog.LayoutRenderers;
@@ -1011,6 +1013,18 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             }
         }
 
+        public void PlayRecord(string serverIpAddress, string fileName)
+        {
+            var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/", "\\");
+            var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
+            if (File.Exists(localFileNameMp3))
+                Process.Start(localFileNameMp3);
+            else if (File.Exists(localFileNameMp3))
+                Process.Start(localFileName);
+            else
+                MessageBox.Show($"Файл с записью недоступен!\r\n{localFileNameMp3}", "Ошибка");
+
+        }
         public string GetRecordFileNameByUniqueId(string uniqueId)
         {
             var sqlQuery = @"select MonitorFile FROM asterisk.ChannelHistory ch
@@ -2958,6 +2972,34 @@ where C.Direction is not null";
                 cmd.ExecuteNonQuery();
             }
 
+        }
+
+        public void SaveServiceCompanyAdvancedInfo(int id, string savedFlow)
+        {
+            using (var cmd = new MySqlCommand(@"update CallCenter.ServiceCompanies set advanced_info = @Info where id = @Id",
+                        _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Info", savedFlow);
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public string GetServiceCompanyAdvancedInfo(int id)
+        {
+            string result;
+            using (var cmd = new MySqlCommand("SELECT id,advanced_info FROM CallCenter.ServiceCompanies where id = @Id",_dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    dataReader.Read();
+                    var ret_id = dataReader.GetInt32("id");
+                    result = dataReader.GetNullableString("advanced_info");
+                }
+                return result;
+            }
         }
     }
 
