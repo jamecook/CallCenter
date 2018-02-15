@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -77,6 +78,8 @@ namespace CRMPhone.ViewModel.Admins
             if (dialog.ShowDialog() == true)
             {
                 _importedRecords = new List<RingUpImportDto>();
+                try
+                {
                 using (var document = SpreadsheetDocument.Open(dialog.FileName, true))
                 {
                     WorkbookPart workbookPart = document.WorkbookPart;
@@ -113,6 +116,12 @@ namespace CRMPhone.ViewModel.Admins
                         _importedRecords.Add(item);
                     }
                 }
+                }
+                catch (IOException exc)
+                {
+                    MessageBox.Show(exc.Message);
+                }
+
                 _errorRecords = new List<RingUpImportDto>();
                 foreach (var item in _importedRecords)
                 {

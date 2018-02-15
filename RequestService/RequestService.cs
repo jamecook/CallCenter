@@ -2950,7 +2950,7 @@ where C.Direction is not null";
             int newId;
             if(records.Count==0)
                 return;
-            using ( var cmd = new MySqlCommand(@"insert into asterisk.RingUpList(config_id,call_time,state,exten) values(@Config,sysdate(),2,'04');
+            using ( var cmd = new MySqlCommand(@"insert into asterisk.RingUpList(config_id,call_time,state,exten) select id,sysdate(),2,exten from asterisk.RingUpConfigs a where a.id = @Config;
     select LAST_INSERT_ID();", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@Config", configId);
