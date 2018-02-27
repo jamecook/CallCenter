@@ -1019,7 +1019,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
             if (File.Exists(localFileNameMp3))
                 Process.Start(localFileNameMp3);
-            else if (File.Exists(localFileNameMp3))
+            else if (File.Exists(localFileName))
                 Process.Start(localFileName);
             else
                 MessageBox.Show($"Файл с записью недоступен!\r\n{localFileNameMp3}", "Ошибка");
