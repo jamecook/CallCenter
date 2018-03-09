@@ -288,6 +288,7 @@
     <Compile Include="ViewModel\ServiceAdminControlContext.cs" />
     <Compile Include="ViewModel\ServiceCompanyInfoDialogViewModel.cs" />
     <Compile Include="ViewModel\SetWorkingTimesDialogViewModel.cs" />
+    <Compile Include="ViewModel\SipLine.cs" />
     <Compile Include="ViewModel\SpecialityControlContext.cs" />
     <Compile Include="ViewModel\TrasferDialogViewModel.cs" />
     <Compile Include="ViewModel\ServiceCompanyControlContext.cs" />
@@ -506,6 +507,9 @@
     <Resource Include="Images\danger_small.png" />
     <Resource Include="Images\tech_work_small.png" />
     <Resource Include="Images\retry.png" />
+    <Resource Include="Images\hold.png" />
+    <Resource Include="Images\merge.png" />
+    <Resource Include="Images\bridgeBlack.png" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -522,17 +526,6 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="conaito">
-      <Guid>{C925F211-6A67-4E38-93AB-8B2F30ABE8FD}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\play.png">
@@ -622,7 +615,17 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <COMReference Include="SIPEVOActiveXLib">
+      <Guid>{21785C9C-E97E-4723-A1FE-0B362DA953B0}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -10,7 +10,7 @@
         mc:Ignorable="d"
         FontSize="14"
         d:DataContext="{d:DesignInstance viewModel:CRMContext}"
-        Title="{Binding AppTitle}" Height="600" Width="1200" MinWidth="1200" MinHeight="600" Closing="Window_Closing">
+        Title="{Binding AppTitle}" Height="700" Width="1200" MinWidth="1200" MinHeight="700" Closing="Window_Closing">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     </Window.Resources>
@@ -31,7 +31,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <StackPanel Grid.Row ="0">
-                <DockPanel Margin="0,3">
+                <DockPanel>
                     <TextBlock Text="Входящий вызов от:" Margin="3" FontWeight="Bold"/>
                     <TextBlock Text="{Binding IncomingCallFrom}" Margin="3" FontWeight="Bold"/>
                 </DockPanel>
@@ -48,35 +48,51 @@
                     <TextBox Margin="5" Width="100" Text="{Binding SipPhone}"/>
                 </DockPanel>
                 <WrapPanel HorizontalAlignment="Center">
-                    <Button  Margin="15" Width="48" Height="48" Command="{Binding CallCommand}" ToolTip="Ответить на звонок/набрать номер">
+                    <Button  Margin="5" Width="48" Height="48" Command="{Binding CallCommand}" ToolTip="Ответить на звонок/набрать номер">
                         <Image Source="pack://application:,,,/Images/answer.png" Width="32" Height="32" />
                     </Button>
-                    <Button Visibility="Collapsed" Margin="15" Width="48" Height="48" Command="{Binding Line2CallCommand}" ToolTip="Line2">
-                        Ring on Line2
-                    </Button>
-                    <Button Visibility="Collapsed" Margin="15" Width="48" Height="48" Command="{Binding CallCommand}" ToolTip="Hold">
-                        Hold
-                    </Button>
-                    <Button Margin="15" Width="48" Height="48" Command="{Binding HangUpCommand}" ToolTip="Положить трубку">
+                    <Button Margin="5" Width="48" Height="48" Command="{Binding HangUpCommand}" ToolTip="Положить трубку">
                         <Image Source="pack://application:,,,/Images/hangupsmall.png" Width="32" Height="32" />
                     </Button>
-                    <Button  Margin="15" Width="48" Height="48" Command="{Binding TransferCommand}" ToolTip="Перевести звонок">
+                    <Button  Margin="5" Width="48" Height="48" Command="{Binding TransferCommand}" ToolTip="Перевести звонок">
                         <Image Source="pack://application:,,,/Images/forward.png" Width="32" Height="32" />
                     </Button>
                 </WrapPanel>
-                <StackPanel>
-                    <Button  Margin="15" Width="48" Height="48" Command="{Binding MuteCommand}" ToolTip="Микрофон" Background="{Binding MuteButtonBackground}">
+                <WrapPanel HorizontalAlignment="Center">
+                    <Button  Margin="5" Width="48" Height="48" Command="{Binding MuteCommand}" ToolTip="Микрофон" Background="{Binding MuteButtonBackground}">
                         <Image Source="pack://application:,,,/Images/mic-mute.png" Width="24" Height="24" />
                     </Button>
-                </StackPanel>
+                    <Button  Margin="5" Width="48" Height="48" Command="{Binding HoldCommand}" ToolTip="Hold/UnHold">
+                        <Image Source="pack://application:,,,/Images/hold.png" Width="24" Height="24" />
+                    </Button>
+                    <Button  Margin="5" Width="48" Height="48" Command="{Binding BridgeCommand}" ToolTip="Соединить линии">
+                        <Image Source="pack://application:,,,/Images/bridgeBlack.png" Width="32" Height="32" />
+                    </Button>
+                    <Button  Margin="5" Width="48" Height="48" Command="{Binding ConferenceCommand}" ToolTip="Конференция">
+                        <Image Source="pack://application:,,,/Images/merge.png" Width="24" Height="24" />
+                    </Button>
+                </WrapPanel>
                 <StackPanel>
-                    <TextBlock Text="Последний разговор с:" Margin="3" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <ListBox ItemsSource="{Binding Path=SipLines}" Margin="3" SelectedItem="{Binding SelectedLine}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,2">
+                                    <TextBlock Margin ="2" Text="{Binding Path=Name}" />
+                                    <TextBlock Margin ="2" Text="{Binding Path=State}" />
+                                    <TextBlock Margin ="2" Foreground="Blue" FontWeight="DemiBold" Text="{Binding Path=Phone}" />
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <WrapPanel>
+                    <TextBlock Text="Последний №:" Margin="3" FontWeight="Bold" HorizontalAlignment="Center"/>
                     <TextBlock Text="{Binding LastAnsweredPhoneNumber}" Margin="3" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    </WrapPanel>
                 </StackPanel>
 
-                <TextBlock Margin ="5" FontWeight="Bold" TextAlignment="Center" Text="Абоненты в очереди:"/>
+                <TextBlock Margin ="1" FontWeight="Bold" TextAlignment="Center" Text="Абоненты в очереди:"/>
             </StackPanel>
-            <ListBox Grid.Row ="1" ItemsSource="{Binding Path=ActiveChannels}" Margin="10">
+            <ListBox Grid.Row ="1" ItemsSource="{Binding Path=ActiveChannels}" Margin="3">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <DockPanel Margin="0,2">
@@ -96,7 +112,7 @@
                      ItemsSource="{Binding Path=NotAnsweredCalls}" 
                      SelectedItem ="{Binding Path=SelectedCall}"
                      MouseDoubleClick="NotAnsweredListBox_OnMouseDoubleClick"
-                     Margin="10">
+                     Margin="3">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <DockPanel Margin="0,2">
