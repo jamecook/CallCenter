@@ -1,7 +1,7 @@
 @echo off
 echo --------------------------------------------------
-echo    Registering conaito VoIP SIP ActiveX control
+echo     Registering VoIP SIP Client ActiveX control
 echo --------------------------------------------------
 echo Make sure you're member of the administrator group
-echo otherwise the registration will fail.
-regsvr32.exe SipSdk.2.0.dll
+echo otherwise the registration will may fail.
+regsvr32.exe VoIPSIPActiveX.dll
