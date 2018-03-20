@@ -113,12 +113,14 @@
     <Compile Include="Dto\WorkerDto.cs" />
     <Compile Include="Dto\WorkerForFilterDto.cs" />
     <Compile Include="Dto\WorkerHistoryDto.cs" />
+    <Compile Include="ExportedMeterDto.cs" />
     <Compile Include="MeterListDto.cs" />
     <Compile Include="MetersDto.cs" />
     <Compile Include="MysqlDecorator.cs" />
     <Compile Include="RequestService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestWebService.cs" />
+    <Compile Include="TrizMeterListDto.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

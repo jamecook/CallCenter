@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:system="clr-namespace:System;assembly=System"
         mc:Ignorable="d"
         Title="Информация о УК" Height="640" Width="700" MinWidth ="500" MinHeight="400"
         WindowStartupLocation="CenterOwner"
@@ -19,7 +20,10 @@
         </DockPanel>
 
         <DockPanel Grid.Row="1">
-            <RichTextBox Name="FlowInfo" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <RichTextBox Name="FlowInfo" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" SpellCheck.IsEnabled="True">
+                <SpellCheck.CustomDictionaries>
+                    <system:Uri>pack://application:,,,/russian.lex</system:Uri>
+                </SpellCheck.CustomDictionaries>
             </RichTextBox>
         </DockPanel>
         <DockPanel Grid.Row="2" HorizontalAlignment="Right">

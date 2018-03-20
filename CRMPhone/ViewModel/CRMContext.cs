@@ -306,8 +306,6 @@ namespace CRMPhone.ViewModel
 
         private ICommand _callCommand;
         public ICommand CallCommand { get {return _callCommand ?? (_callCommand = new CommandHandler(Call, _canExecute));}}
-        private ICommand _line2CallCommand;
-        public ICommand Line2CallCommand { get { return _line2CallCommand ?? (_line2CallCommand = new CommandHandler(Line2Call, _canExecute)); } }
 
         private ICommand _serviceCompanyInfoCommand;
         public ICommand ServiceCompanyInfoCommand { get { return _serviceCompanyInfoCommand ?? (_serviceCompanyInfoCommand = new CommandHandler(ServiceCompanyInfo, _canExecute)); } }
@@ -488,6 +486,201 @@ namespace CRMPhone.ViewModel
 
         public ICommand ExportMetersCommand { get { return _exportMetersCommand ?? (_exportMetersCommand = new CommandHandler(ExportMeters, _canExecute)); } }
 
+        private ICommand _exportToTrizCommand;
+
+        public ICommand ExportToTrizCommand { get { return _exportToTrizCommand ?? (_exportToTrizCommand = new CommandHandler(ExportToTriz, _canExecute)); } }
+
+        private void ExportToTriz()
+        {
+            if (MetersHistoryList.Count == 0)
+            {
+                MessageBox.Show("Нельзя экспортировать пустой список!", "Ошибка");
+                return;
+            }
+            try
+            {
+                var streetsNames = new Dictionary<string, string>();
+
+                // Add some elements to the dictionary. There are no 
+                // duplicate keys, but some of the values are duplicates.
+                streetsNames.Add("Ледниковый", "Ледниковый проезд");
+                streetsNames.Add("Александра Протозанова", "Протозанова");
+                streetsNames.Add("Бориса Опрокиднева", "Опрокиднева");
+                streetsNames.Add("Василия Подшибякина", "Подшибякина");
+                streetsNames.Add("Дмитрия Менделеева", "Менделеева");
+                streetsNames.Add("Мелиораторов", "Мелиораторов");
+                streetsNames.Add("Николая Федорова", "Федорова");
+                streetsNames.Add("Сидора Путилова", "Путилова");
+                streetsNames.Add("Николая Зелинского", "Зелинского"); 
+
+                var openFileDialog = new OpenFileDialog();
+                openFileDialog.AddExtension = true;
+                openFileDialog.DefaultExt = ".xlsx";
+                openFileDialog.Filter = "Excel файл|*.xlsx|XML Файл|*.xml";
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    using (SpreadsheetDocument document = SpreadsheetDocument.Open(openFileDialog.FileName, true))
+                    {
+                        WorkbookPart workbookPart = document.WorkbookPart;
+                        WorksheetPart worksheetPart = workbookPart.WorksheetParts.FirstOrDefault();
+                        SharedStringTablePart sstpart = workbookPart.GetPartsOfType<SharedStringTablePart>().First();
+                        //WorkbookStylesPart styles = workbookPart.GetPartsOfType<WorkbookStylesPart>().FirstOrDefault();
+                        //// FillId = 1
+                        //Fill fill2 = new Fill();
+                        //var patternFill2 = new PatternFill() { PatternType = PatternValues.Gray125 };
+                        //fill2.Append(patternFill2);
+                        //styles.Stylesheet.Fills.Append(fill2);
+                        //styles.Stylesheet.Save();
+                        SharedStringTable sst = sstpart.SharedStringTable;
+                        var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+
+                        var cells = sheetData.Descendants<Cell>();
+                        var rows = sheetData.Descendants<Row>();
+
+                        //Console.WriteLine("Row count = {0}", rows.LongCount());
+                        //Console.WriteLine("Cell count = {0}", cells.LongCount());
+                        var readedTriz = new List<TrizMeterListDto>();
+                        uint styleId = 0;
+                        var exported = new List<ExportedMeterDto>();
+                        foreach (Row row in rows)
+                        {
+                            var newRow = new TrizMeterListDto(){RowId = row.RowIndex};
+                            var cellIndex = 0;
+                            foreach (Cell c in row.Elements<Cell>())
+                            {
+                                var value = "";
+                                if ((c.DataType != null) && (c.DataType == CellValues.SharedString))
+                                {
+                                    var ssid = int.Parse(c.CellValue.Text);
+                                    value = sst.ChildElements[ssid].InnerText;
+                                }
+                                else if (c.CellValue != null)
+                                {
+                                    value = c.CellValue.Text;
+                                }
+                                if (cellIndex == 0)
+                                    newRow.Street = value;
+                                else if(cellIndex == 1)
+                                    newRow.Building = value;
+                                else if(cellIndex == 2)
+                                    newRow.Corpus = value;
+                                else if(cellIndex == 3)
+                                    newRow.Flat = value;
+                                else if(cellIndex == 4)
+                                    newRow.ServiceName = value;
+                                else if(cellIndex == 5)
+                                    newRow.Position = value;
+                                else if(cellIndex == 6)
+                                    newRow.LastDate = value;
+                                else if(cellIndex == 7)
+                                    newRow.LastValue = value;
+                                else if (cellIndex == 8)
+                                {
+                                    newRow.CurrentValue = value;
+                                    if (row.RowIndex == 1)
+                                    {
+                                        styleId = c.StyleIndex;
+                                    }
+
+                                    else
+                                    {
+                                        //Проверка надо указывать значение или нет
+                                        var findVal = MetersHistoryList.FirstOrDefault(m => m.StreetName == streetsNames[newRow.Street] &&
+                                                        m.Building == newRow.Building && (m.Corpus??"") == newRow.Corpus &&
+                                                        m.Flat == newRow.Flat);
+                                        if (findVal != null)
+                                        {
+                                            if(exported.All(e => e.Id != findVal.Id))
+                                                exported.Add(new ExportedMeterDto{Id = findVal.Id});
+                                            double insertVal = -1;
+                                            if (newRow.ServiceName == "Электроэнергия (день)" || newRow.ServiceName == "Электроэнергия(день)")
+                                                insertVal = findVal.Electro1;
+                                            if (newRow.ServiceName == "Электроэнергия(ночь)" || newRow.ServiceName == "Электроэнергия (ночь)")
+                                                insertVal = findVal.Electro2;
+                                            if (newRow.ServiceName == "Электроэнергия")
+                                                insertVal = findVal.Electro1 + findVal.Electro2;
+
+                                            if (newRow.ServiceName == "Горячее водоснабжение")
+                                            {
+                                                if (newRow.Position == "Кухня")
+                                                {
+                                                    insertVal = findVal.HotWater1;
+                                                    exported.First(e => e.Id == findVal.Id).SavedHot1 = true;
+                                                }
+                                                else if(!string.IsNullOrEmpty(newRow.Position))
+                                                {
+                                                    insertVal = findVal.HotWater2;
+                                                    exported.First(e => e.Id == findVal.Id).SavedHot2 = true;
+                                                }
+                                                else
+                                                {
+                                                    var meter = exported.First(e => e.Id == findVal.Id);
+                                                    if (meter.SavedHot1)
+                                                    {
+                                                        insertVal = findVal.HotWater2;
+                                                        meter.SavedHot2 = true;
+                                                    }
+                                                    else
+                                                    {
+                                                        insertVal = findVal.HotWater1;
+                                                        meter.SavedHot1 = true;
+                                                    }
+                                                }
+                                            }
+
+                                            if (newRow.ServiceName == "Холодное водоснабжение")
+                                            {
+                                                if (newRow.Position == "Кухня")
+                                                {
+                                                    insertVal = findVal.ColdWater1;
+                                                    exported.First(e => e.Id == findVal.Id).SavedCold1 = true;
+                                                }
+                                                else if (!string.IsNullOrEmpty(newRow.Position))
+                                                {
+                                                    insertVal = findVal.ColdWater2;
+                                                    exported.First(e => e.Id == findVal.Id).SavedCold2 = true;
+                                                }
+                                            else
+                                                {
+                                                    var meter = exported.First(e => e.Id == findVal.Id);
+                                                    if (meter.SavedCold1)
+                                                    {
+                                                        insertVal = findVal.ColdWater2;
+                                                        meter.SavedCold2 = true;
+                                                    }
+                                                    else
+                                                    {
+                                                        insertVal = findVal.ColdWater1;
+                                                        meter.SavedCold1 = true;
+                                                    }
+                                                }
+                                            }
+
+                                            c.CellValue = new CellValue(insertVal.ToString());
+
+                                            if (styleId > 0)
+                                                c.StyleIndex = styleId;
+                                        }
+                                    }
+                                }
+                                cellIndex++;
+                            }
+                            //readedTriz.Add(newRow);
+                        }
+
+                        
+                            worksheetPart.Worksheet.Save();
+
+                    }
+                    MessageBox.Show("Экспортирование завершено!");
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("Произошла ошибка:\r\n" + exc.Message);
+            }
+        }
+
         private void ExportMeters()
         {
             if (MetersHistoryList.Count == 0)
@@ -549,8 +742,7 @@ namespace CRMPhone.ViewModel
 
         public void ExportMetersToExcelByTemplate(string fileName)
         {
-            using (SpreadsheetDocument document = SpreadsheetDocument.Open(fileName, true)
-            )
+            using (SpreadsheetDocument document = SpreadsheetDocument.Open(fileName, true))
             {
                 WorkbookPart workbookPart = document.WorkbookPart;
                 WorksheetPart worksheetPart = workbookPart.WorksheetParts.FirstOrDefault();
@@ -886,6 +1078,7 @@ namespace CRMPhone.ViewModel
                     _sipClient.TCPPort = -1;
                     _sipClient.MaxPhoneLines = 2;
                     _sipClient.Register();
+                    _sipClient.PlayRingtone = false;
 
                     //_sipClient.ConferenceJoin();
                     //_sipClient.ConferenceRemove();
@@ -1149,34 +1342,11 @@ namespace CRMPhone.ViewModel
                 _sipClient.PhoneLine = SelectedLine.Id;
                 _sipClient.Connect(callId);
             }
-        }
-        public void Line2Call()
-        {
-            /*
-            if (_sipAgent.CallMaker.callStatus[1] == 180)
+            else
             {
-                //if (DisableIncomingCalls)
-                //{
-                //    _sipAgent.CallMaker.HangupAll();
-                //    string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
-                //    SipState = $"Исходящий вызов на номер {_sipPhone}";
-                //    _sipAgent.CallMaker.Invite(callId);
-                //    return;
-                //}
-                LastAnsweredPhoneNumber = IncomingCallFrom;
-
-                _sipAgent.CallMaker.Accept(1);
-                return;
+                MessageBox.Show("Линия занята, выберите другую линию!",
+                    "Предупреждение");
             }
-            if (string.IsNullOrEmpty(_sipPhone))
-                return;
-            if (_sipAgent.CallMaker.callStatus[1] < 0)
-            {
-                string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
-                SipState = $"Исходящий вызов на номер {_sipPhone}";
-                var callNum = _sipAgent.CallMaker.Invite(callId);
-            }
-            */
         }
 
         public void CallFromList()
