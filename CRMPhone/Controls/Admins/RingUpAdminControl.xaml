@@ -21,6 +21,7 @@
             <TextBlock Margin="3" VerticalAlignment="Center" Text="по:"></TextBlock>
             <DatePicker Margin="3"/>-->
             <Button Width="100" Margin ="15,5" Content="Обновить" Command="{Binding RefreshCommand}"/>
+            <Button Width="100" Margin ="15,5" Content="Прервать" Command="{Binding AbortCommand}"/>
         </DockPanel>
         <DataGrid Name="RequestsGrid" Grid.Row ="1" 
                           AutoGenerateColumns="False"

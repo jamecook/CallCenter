@@ -728,7 +728,9 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     order by IsMain desc limit 1) clinet_fio,    
     rating.Name Rating, rtype.Description RatingDesc,
     RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,R.bad_work,R.garanty,R.retry,
-    min(rcalls.uniqueID) recordId, R.alert_time
+    min(rcalls.uniqueID) recordId, R.alert_time,
+    (SELECT note FROM CallCenter.RequestNoteHistory rnh where rnh.request_id = R.id
+    order by operation_date desc limit 1) last_note
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.Addresses a on a.id = R.address_id
@@ -855,7 +857,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             FromTime = dataReader.GetNullableDateTime("from_time"),
                             ToTime = dataReader.GetNullableDateTime("to_time"),
                             AlertTime = dataReader.GetNullableDateTime("alert_time"),
-                            MainFio = dataReader.GetNullableString("clinet_fio")
+                            MainFio = dataReader.GetNullableString("clinet_fio"),
+                            LastNote = dataReader.GetNullableString("last_note"),
                         });
                     }
                     dataReader.Close();
@@ -2969,6 +2972,16 @@ where C.Direction is not null";
             using (var cmd = new MySqlCommand(@"update asterisk.RingUpList set state = 0 where id = @ListId;", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@ListId", newId);
+                cmd.ExecuteNonQuery();
+            }
+
+        }
+
+        public void AbortRingUp(int rintUpId)
+        {
+            using (var cmd = new MySqlCommand(@"update asterisk.RingUpList set state = 3 where id = @ListId;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ListId", rintUpId);
                 cmd.ExecuteNonQuery();
             }
 

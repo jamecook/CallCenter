@@ -511,12 +511,13 @@ namespace CRMPhone.ViewModel
                 streetsNames.Add("Мелиораторов", "Мелиораторов");
                 streetsNames.Add("Николая Федорова", "Федорова");
                 streetsNames.Add("Сидора Путилова", "Путилова");
-                streetsNames.Add("Николая Зелинского", "Зелинского"); 
+                streetsNames.Add("Николая Зелинского", "Зелинского");
+                streetsNames.Add("Первомайская", "Первомайская");
 
                 var openFileDialog = new OpenFileDialog();
                 openFileDialog.AddExtension = true;
                 openFileDialog.DefaultExt = ".xlsx";
-                openFileDialog.Filter = "Excel файл|*.xlsx|XML Файл|*.xml";
+                openFileDialog.Filter = "Excel файл|*.xlsx";
                 if (openFileDialog.ShowDialog() == true)
                 {
                     using (SpreadsheetDocument document = SpreadsheetDocument.Open(openFileDialog.FileName, true))
@@ -558,23 +559,23 @@ namespace CRMPhone.ViewModel
                                 {
                                     value = c.CellValue.Text;
                                 }
-                                if (cellIndex == 0)
+                                if (cellIndex == 4)
                                     newRow.Street = value;
-                                else if(cellIndex == 1)
-                                    newRow.Building = value;
-                                else if(cellIndex == 2)
-                                    newRow.Corpus = value;
-                                else if(cellIndex == 3)
-                                    newRow.Flat = value;
-                                else if(cellIndex == 4)
-                                    newRow.ServiceName = value;
                                 else if(cellIndex == 5)
-                                    newRow.Position = value;
+                                    newRow.Building = value;
                                 else if(cellIndex == 6)
+                                    newRow.Corpus = value.Replace(", корп","").Trim();
+                                else if(cellIndex == 8)
+                                    newRow.Flat = value;
+                                else if(cellIndex == 16)
+                                    newRow.ServiceName = value;
+                                else if(cellIndex == 25)
+                                    newRow.Position = value;
+                                else if(cellIndex == 26)
                                     newRow.LastDate = value;
-                                else if(cellIndex == 7)
+                                else if(cellIndex == 27)
                                     newRow.LastValue = value;
-                                else if (cellIndex == 8)
+                                else if (cellIndex == 28)
                                 {
                                     newRow.CurrentValue = value;
                                     if (row.RowIndex == 1)
@@ -656,7 +657,7 @@ namespace CRMPhone.ViewModel
                                                 }
                                             }
 
-                                            c.CellValue = new CellValue(insertVal.ToString());
+                                            c.CellValue = new CellValue(insertVal.ToString().Replace(",","."));
 
                                             if (styleId > 0)
                                                 c.StyleIndex = styleId;

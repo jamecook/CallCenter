@@ -131,7 +131,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="30" >
+                <!--<DataGridTemplateColumn Width="30" >
                     <DataGridTemplateColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="ContentTemplate">
@@ -148,8 +148,7 @@
                             <Image Source="pack://application:,,,/Images/retry.png" Height="16" Visibility="{Binding IsRetry, Converter={StaticResource BooleanToVisibility} }"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
+                </DataGridTemplateColumn>-->
                 <DataGridTemplateColumn Width="30" >
                     <DataGridTemplateColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
@@ -171,6 +170,15 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Повтор." Width="60"
+                                    Binding="{Binding Path=IsRetryText}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="№" Width="60"
                              Binding="{Binding Path=Id}">
                     <DataGridTextColumn.ElementStyle>
@@ -351,6 +359,17 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
+                <DataGridTextColumn Header="Последний комментарий исполнителя" Width="280"
+                             Binding="{Binding Path=LastNote}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
             </DataGrid.Columns>
         </DataGrid>
 

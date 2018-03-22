@@ -127,6 +127,7 @@ namespace CRMPhone.ViewModel
                                         new XElement("Оценка", request.Rating),
                                         new XElement("Комментарий_К_Оценке", request.RatingDescription),
                                         new XElement("Повторная", request.IsRetry?"Да":""),
+                                        new XElement("Последний_Комментарий_исполнителя", request.LastNote),
                                     }));
                         }
                         var saver = new FileStream(fileName, FileMode.Create);
@@ -272,7 +273,8 @@ namespace CRMPhone.ViewModel
                             ConstructCell(request.GarantyTest, CellValues.String),
                             ConstructCell(request.Rating, CellValues.String),
                             ConstructCell(request.RatingDescription, CellValues.String),
-                            ConstructCell(request.IsRetry ? "Да" : "", CellValues.String));
+                            ConstructCell(request.IsRetry ? "Да" : "", CellValues.String),
+                            ConstructCell(request.LastNote, CellValues.String));
 
                         sheetData.AppendChild(row);
                     }

@@ -25,6 +25,23 @@ namespace CRMPhone.ViewModel
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(Refresh, true)); } }
         private ICommand _newCommand;
         public ICommand NewCommand { get { return _newCommand ?? (_newCommand = new CommandHandler(NewRingUp, true)); } }
+        private ICommand _abortCommand;
+        public ICommand AbortCommand { get { return _abortCommand ?? (_abortCommand = new CommandHandler(AbortRingUp, true)); } }
+
+        private void AbortRingUp()
+        {
+            if (CurrentRingUp == null)
+            {
+                MessageBox.Show($"Необходимо выделить один элемент из списка обзвонов!","Автообзвон");
+                return;
+            }
+            if (MessageBox.Show($"Вы уверены что хотите прервать обзвон № {CurrentRingUp.Id}", "Автообзвон",
+                    MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                RequestService.AbortRingUp(CurrentRingUp.Id);
+                Refresh();
+            }
+        }
 
         private void NewRingUp()
         {

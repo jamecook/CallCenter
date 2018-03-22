@@ -9,6 +9,7 @@ namespace RequestServiceImpl.Dto
         public bool HasRecord { get; set; }
         public bool IsBadWork { get; set; }
         public bool IsRetry { get; set; }
+        public string IsRetryText => IsRetry ? "да" : "нет";
         public string RecordUniqueId { get; set; }
         public DateTime CreateTime { get; set; }
         public string StreetPrefix { get; set; }
@@ -39,6 +40,7 @@ namespace RequestServiceImpl.Dto
         public DateTime? FromTime { get; set; }
         public DateTime? ToTime { get; set; }
         public DateTime? AlertTime { get; set; }
+        public string LastNote { get; set; }
 
 
         public string FullAddress
