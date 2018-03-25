@@ -118,7 +118,7 @@ select LAST_INSERT_ID();", _dbConnection))
                         ContactDto currentInfo = null;
                         using (
                             var cmd = new MySqlCommand(
-                                "SELECT id,sur_name,first_name,patr_name FROM CallCenter.ClientPhones C where Number = @Phone", _dbConnection))
+                                "SELECT id,name,email,addition FROM CallCenter.ClientPhones C where Number = @Phone", _dbConnection))
                         {
                             cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
 
@@ -129,9 +129,9 @@ select LAST_INSERT_ID();", _dbConnection))
                                     currentInfo = new ContactDto
                                     {
                                         Id = dataReader.GetInt32("id"),
-                                        FirstName = dataReader.GetNullableString("first_name"),
-                                        SurName = dataReader.GetNullableString("sur_name"),
-                                        PatrName = dataReader.GetNullableString("patr_name"),
+                                        Name = dataReader.GetNullableString("name"),
+                                        Email = dataReader.GetNullableString("email"),
+                                        AdditionInfo = dataReader.GetNullableString("addition"),
                                     };
                                     clientPhoneId = currentInfo.Id;
                                 }
@@ -140,41 +140,26 @@ select LAST_INSERT_ID();", _dbConnection))
                         }
                         if (currentInfo == null)
                         {
-                            if (!string.IsNullOrEmpty(contact.FullName))
-                            {
-                                var names = contact.FullName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                                if (names.Length > 0)
-                                    contact.SurName = names[0];
-                                if (names.Length > 1)
-                                    contact.FirstName = names[1];
-                                if (names.Length > 2)
-                                {
-                                    var patrName = string.Empty;
-                                    for (int i = 2; i < names.Length; i++)
-                                        patrName += names[i] + " ";
-                                    contact.PatrName = patrName.TrimEnd();
-                                }
-                            }
                             using (
-                                var cmd = new MySqlCommand(@"insert into CallCenter.ClientPhones(Number,sur_name,first_name,patr_name) values(@Phone,@SurName,@FirstName,@PatrName);
+                                var cmd = new MySqlCommand(@"insert into CallCenter.ClientPhones(Number,name,email,addition) values(@Phone,@Name,@Email,@AddInfo);
     select LAST_INSERT_ID();", _dbConnection))
                             {
                                 cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
-                                cmd.Parameters.AddWithValue("@SurName", contact.SurName);
-                                cmd.Parameters.AddWithValue("@FirstName", contact.FirstName);
-                                cmd.Parameters.AddWithValue("@PatrName", contact.PatrName);
+                                cmd.Parameters.AddWithValue("@Name", contact.Name);
+                                cmd.Parameters.AddWithValue("@Email", contact.Email);
+                                cmd.Parameters.AddWithValue("@AddInfo", contact.AdditionInfo);
                                 clientPhoneId = Convert.ToInt32(cmd.ExecuteScalar());
                             }
                         }
                         else
                         {
                             using (
-    var cmd = new MySqlCommand(@"update CallCenter.ClientPhones set sur_name = @SurName,first_name = @FirstName,patr_name = @PatrName where id = @Id;", _dbConnection))
+    var cmd = new MySqlCommand(@"update CallCenter.ClientPhones set name = @Name,email = @Email,addition = @AddInfo where id = @Id;", _dbConnection))
                             {
                                 cmd.Parameters.AddWithValue("@Id", currentInfo.Id);
-                                cmd.Parameters.AddWithValue("@SurName",string.IsNullOrEmpty(contact.SurName) ? currentInfo.SurName : contact.SurName);
-                                cmd.Parameters.AddWithValue("@FirstName", string.IsNullOrEmpty(contact.FirstName) ? currentInfo.FirstName : contact.FirstName);
-                                cmd.Parameters.AddWithValue("@PatrName", string.IsNullOrEmpty(contact.PatrName) ? currentInfo.PatrName : contact.PatrName);
+                                cmd.Parameters.AddWithValue("@Name", string.IsNullOrEmpty(contact.Name) ? currentInfo.Name : contact.Name);
+                                cmd.Parameters.AddWithValue("@Email", string.IsNullOrEmpty(contact.Email) ? currentInfo.Email : contact.Email);
+                                cmd.Parameters.AddWithValue("@AddInfo", string.IsNullOrEmpty(contact.AdditionInfo) ? currentInfo.AdditionInfo : contact.AdditionInfo);
                                 cmd.ExecuteNonQuery();
                             }
                         }
@@ -315,11 +300,9 @@ select LAST_INSERT_ID();", _dbConnection))
                 phones = request.Contacts.OrderBy(c => c.IsMain).Select(c =>
                 {
                     var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
-                    if (!string.IsNullOrEmpty(c.SurName) &&
-                        !string.IsNullOrEmpty(c.FirstName) &&
-                        !string.IsNullOrEmpty(c.PatrName))
+                    if (!string.IsNullOrEmpty(c.Name))
                     {
-                        retVal += $" - {c.SurName} {c.FirstName} {c.PatrName}";
+                        retVal += $" - {c.Name}";
                     }
                     return retVal;
                 }
@@ -679,7 +662,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             using (
                                 var contact =
                                     new MySqlCommand(
-                                        @"SELECT R.id, IsMain,Number,sur_name,first_name,patr_name from CallCenter.RequestContacts R
+                                        @"SELECT R.id, IsMain,Number,name,email,addition from CallCenter.RequestContacts R
     join CallCenter.ClientPhones P on P.id = R.ClientPhone_id where request_id = @reqId order by IsMain desc",
                                         _dbConnection))
                             {
@@ -693,10 +676,9 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                                             Id = contactReader.GetInt32("id"),
                                             IsMain = contactReader.GetBoolean("IsMain"),
                                             PhoneNumber = contactReader.GetString("Number"),
-                                            SurName = contactReader.GetNullableString("sur_name"),
-                                            FirstName = contactReader.GetNullableString("first_name"),
-                                            PatrName = contactReader.GetNullableString("patr_name"),
-                                            FullName = $"{contactReader.GetNullableString("sur_name")} {contactReader.GetNullableString("first_name")} {contactReader.GetNullableString("patr_name")}"
+                                            Name = contactReader.GetNullableString("name"),
+                                            Email = contactReader.GetNullableString("email"),
+                                            AdditionInfo = contactReader.GetNullableString("addition"),
                                         });
                                     }
                                 }
@@ -722,7 +704,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 @"SELECT R.id,case when count(ra.id)=0 then false else true end has_attach,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
     R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
-    (SELECT concat(sur_name,' ',case when first_name is null then '' else first_name end,' ', case when patr_name is null then '' else patr_name end) from CallCenter.RequestContacts rc2
+    (SELECT name from CallCenter.RequestContacts rc2
     join CallCenter.ClientPhones cp2 on cp2.id = rc2.ClientPhone_id
     where rc2.request_id = R.id
     order by IsMain desc limit 1) clinet_fio,    
@@ -1414,7 +1396,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         public ClientAddressInfoDto GetLastAddressByClientPhone(string phone)
         {
             ClientAddressInfoDto result = null;
-            var query = @"SELECT h.street_id,h.building,h.corps,a.flat,sur_name,first_name,patr_name FROM CallCenter.ClientPhones cp
+            var query = @"SELECT cp.id,h.street_id,h.building,h.corps,a.flat,name,email,addition FROM CallCenter.ClientPhones cp
             join CallCenter.RequestContacts rc on rc.ClientPhone_id = cp.id
             join CallCenter.Requests r on r.id = rc.request_id
             join CallCenter.Addresses a on a.id = r.address_id
@@ -1430,13 +1412,15 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     {
                         result = new ClientAddressInfoDto
                         {
+                            ClientPhoneId = dataReader.GetInt32("id"),
                             StreetId = dataReader.GetInt32("street_id"),
                             Building = dataReader.GetString("building"),
                             Corpus = dataReader.GetNullableString("corps"),
                             Flat = dataReader.GetString("flat"),
-                            SurName = dataReader.GetNullableString("sur_name"),
-                            FirstName = dataReader.GetNullableString("first_name"),
-                            PatrName = dataReader.GetNullableString("patr_name"),
+
+                            Name = dataReader.GetNullableString("name"),
+                            Email = dataReader.GetNullableString("email"),
+                            AdditionInfo = dataReader.GetNullableString("addition"),
                         };
                     }
                     dataReader.Close();

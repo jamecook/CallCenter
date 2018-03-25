@@ -85,11 +85,9 @@ namespace CRMPhone.ViewModel
                 phones = request.Contacts.OrderBy(c=>c.IsMain).Select(c =>
                         {
                             var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
-                            if (!string.IsNullOrEmpty(c.SurName) &&
-                                !string.IsNullOrEmpty(c.FirstName) &&
-                                !string.IsNullOrEmpty(c.PatrName))
+                            if (!string.IsNullOrEmpty(c.Name))
                             {
-                                retVal += $" - {c.SurName} {c.FirstName} {c.PatrName}";
+                                retVal += $" - {c.Name}";
                             }
                             return retVal;
                         }

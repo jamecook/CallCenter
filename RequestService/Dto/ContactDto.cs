@@ -21,11 +21,9 @@ namespace RequestServiceImpl.Dto
         }
 
         public string PhoneNumber { get; set; }
-
-        public string FullName { get; set; }
-        public string SurName { get; set; }
-        public string FirstName { get; set; }
-        public string PatrName { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string AdditionInfo { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

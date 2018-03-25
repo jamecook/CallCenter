@@ -655,7 +655,7 @@ namespace CRMPhone.ViewModel
                     SelectedHouse = HouseList.FirstOrDefault(h => h.Building == clientInfoDto.Building &&
                                                       h.Corpus == clientInfoDto.Corpus);
                     SelectedFlat = FlatList.FirstOrDefault(f => f.Flat == clientInfoDto.Flat);
-                    contactInfo = new ContactDto { Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall,FullName = $"{clientInfoDto.SurName} {clientInfoDto.FirstName} {clientInfoDto.PatrName}",SurName = clientInfoDto.SurName,FirstName = clientInfoDto.FirstName,PatrName = clientInfoDto.PatrName};
+                    contactInfo = new ContactDto { Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall,Name = clientInfoDto.Name};
                 }
             }
             ContactList = new ObservableCollection<ContactDto>(new[] {contactInfo});

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CRMPhone", "CRMPhone\CRMPhone.csproj", "{B34CFB1A-EDC8-49A7-B838-AEBDCC6DF6B9}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveWcfService", "SaveWcfService\SaveWcfService.csproj", "{4FF1EFDF-FC04-47B3-AC88-5C6F6F8F905F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevinoSender", "DevinoSenter\DevinoSender.csproj", "{C94B6D32-72BB-40B2-BA6C-84C80690769B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BridgeAMI", "BridgeAMI\BridgeAMI.csproj", "{0EA97B0D-F10D-4CB2-B7C6-F244CC69FC7C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,8 +41,15 @@ Global
 		{C94B6D32-72BB-40B2-BA6C-84C80690769B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C94B6D32-72BB-40B2-BA6C-84C80690769B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C94B6D32-72BB-40B2-BA6C-84C80690769B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EA97B0D-F10D-4CB2-B7C6-F244CC69FC7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EA97B0D-F10D-4CB2-B7C6-F244CC69FC7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EA97B0D-F10D-4CB2-B7C6-F244CC69FC7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EA97B0D-F10D-4CB2-B7C6-F244CC69FC7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0459D035-3D3F-4B0D-ACF0-413C2CF0C1AC}
 	EndGlobalSection
 EndGlobal
