@@ -23,7 +23,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Column ="0" Margin="3" Visibility="{Binding PhoneVisibility}">
+        <Grid Name="PhoneGrid"  Grid.Column ="0" Margin="3" Visibility="{Binding PhoneVisibility}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -92,12 +92,19 @@
 
                 <TextBlock Margin ="1" FontWeight="Bold" TextAlignment="Center" Text="Абоненты в очереди:"/>
             </StackPanel>
-            <ListBox Grid.Row ="1" ItemsSource="{Binding Path=ActiveChannels}" Margin="3">
+            <ListBox Grid.Row ="1" ItemsSource="{Binding Path=ActiveChannels}" Margin="3" Name="ActiveCallsListBox">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <DockPanel Margin="0,2">
                             <TextBlock Margin ="2" Text="{Binding Path=CreateTime, StringFormat='{}{0:HH:mm}'}" />
                             <TextBlock Margin ="2" Foreground="Blue" FontWeight="DemiBold" Text="{Binding Path=CallerIdNum}" />
+                            <Button  Margin="2" Width="24" Height="24" 
+                                 Command="{Binding Path=DataContext.GetCallFromQueryCommand, ElementName=ActiveCallsListBox}"
+                                     CommandParameter="{Binding}"
+                                 ToolTip="Взять из очереди">
+                                <Image Source="pack://application:,,,/Images/answer.png" Stretch="Fill" />
+                            </Button>
+
                         </DockPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

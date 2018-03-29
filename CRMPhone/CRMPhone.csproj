@@ -108,6 +108,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AmiService.cs" />
     <Compile Include="Controls\Admins\HouseAdminControl.xaml.cs">
       <DependentUpon>HouseAdminControl.xaml</DependentUpon>
     </Compile>

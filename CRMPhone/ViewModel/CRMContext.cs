@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Security.RightsManagement;
+using System.Threading;
 using System.Xml.Linq;
 using CRMPhone.Dialogs;
 using DocumentFormat.OpenXml;
@@ -313,6 +314,45 @@ namespace CRMPhone.ViewModel
         private ICommand _openMetersCommand;
         public ICommand OpenMetersCommand { get { return _openMetersCommand ?? (_openMetersCommand = new RelayCommand(OpenMeters)); } }
 
+        private ICommand _getCallFromQueryCommand;
+        public ICommand GetCallFromQueryCommand { get { return _getCallFromQueryCommand ?? (_getCallFromQueryCommand = new RelayCommand(GetCallFromQuery)); } }
+
+        private void GetCallFromQuery(object currentChannel)
+        {
+            var item = currentChannel as ActiveChannelsDto;
+            if(item == null || string.IsNullOrEmpty(item.Channel))
+                return;
+            if (_sipClient.CallState[0] != CallState.CallState_Free)
+            {
+                MessageBox.Show("Невозможно взять из очереди если занята первай линия!");
+                return;
+            }
+            string callId = string.Format("sip:{0}@{1}", "123123321", _serverIP);
+            _sipClient.PhoneLine = 0;
+            _sipClient.Connect(callId);
+            var bridgeThread = new Thread(BridgeFunc); //Создаем новый объект потока (Thread)
+            
+            bridgeThread.Start(item); //запускаем поток
+
+        }
+
+        private void BridgeFunc(object number)
+        {
+            var item = number as ActiveChannelsDto;
+            //if(item == null || string.IsNullOrEmpty(item.Channel))
+              //  return;
+            Thread.Sleep(600);
+            var channel1 = _requestService.GetCurrentChannel(_sipUser);
+            if(string.IsNullOrEmpty(channel1))
+                return;
+            using (var bridgeService = new AmiService(_serverIP, 5038))
+            {
+                if (bridgeService.LoginAndBridge("zerg", "asteriskzerg", channel1, item.Channel))
+                {
+                    SipLines[0].Phone = item.CallerIdNum;
+                }
+            }
+        }
 
         private void ServiceCompanyInfo()
         {

@@ -314,6 +314,24 @@ namespace RequestServiceImpl
             };
         }
 
+        public string GetCurrentChannel(string sipNumber)
+        {
+            var info = string.Empty;
+            var sqlQuery = @"CALL CallCenter.GetChannelsToBridge(@Sip)";
+            using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Sip", sipNumber);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        info = dataReader.GetNullableString("Channel");
+                    }
+                }
+                return info;
+            };
+        }
+
         public WorkerDto[] GetWorkersByWorkerId(int workerId)
         {
             var sqlQuery = @"CALL CallCenter.WebGetWorkers(@WorkerId)";
