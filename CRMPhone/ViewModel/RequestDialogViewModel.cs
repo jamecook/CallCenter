@@ -410,7 +410,7 @@ namespace CRMPhone.ViewModel
             view.DataContext = model;
             if (view.ShowDialog()==true)
             {
-                requestModel.SelectedWorker = requestModel.WorkerList.SingleOrDefault(w => w.Id == model.ExecuterId);
+                requestModel.SelectedMaster = requestModel.MasterList.SingleOrDefault(w => w.Id == model.MasterId);
             }
         }
         private void SetWorkingTimes(object sender)
@@ -534,8 +534,10 @@ namespace CRMPhone.ViewModel
                     mainClient.PhoneNumber, $"Заявка № {request.Value}. {requestModel.SelectedParentService.Name} - {requestModel.SelectedService.Name}", true);
             }
             requestModel.RequestId = request;
-            if (requestModel.SelectedWorker != null && requestModel.SelectedWorker.Id > 0)
-                _requestService.AddNewWorker(request.Value, requestModel.SelectedWorker.Id);
+            if (requestModel.SelectedMaster != null && requestModel.SelectedMaster.Id > 0)
+                _requestService.AddNewMaster(request.Value, requestModel.SelectedMaster.Id);
+            if (requestModel.SelectedExecuter!= null && requestModel.SelectedExecuter.Id > 0)
+                _requestService.AddNewExecuter(request.Value, requestModel.SelectedExecuter.Id);
             if (requestModel.SelectedDateTime.HasValue)
                 _requestService.AddNewExecuteDate(request.Value, requestModel.SelectedDateTime.Value, requestModel.SelectedPeriod, "");
             //Обновление информации о заявке

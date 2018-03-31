@@ -16,7 +16,8 @@ namespace RequestServiceImpl.Dto
         public ContactDto[] Contacts { get; set; }
         public DateTime? ExecuteDate { get; set; }
         public int? PeriodId { get; set; }
-        public int? ExecutorId { get; set; }
+        public int? MasterId { get; set; }
+        public int? ExecuterId { get; set; }
         public int? ServiceCompanyId { get; set; }
         public bool IsImmediate { get; set; }
         public bool IsChargeable { get; set; }

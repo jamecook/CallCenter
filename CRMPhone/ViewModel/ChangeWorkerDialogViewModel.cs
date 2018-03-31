@@ -18,7 +18,7 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<WorkerDto> _workerList;
         private WorkerDto _selectedWorker;
         private ObservableCollection<WorkerHistoryDto> _workerHistoryList;
-        private int? _oldExecuterId;
+        private int? _oldMasterId;
 
         public ChangeWorkerDialogViewModel(RequestServiceImpl.RequestService requestService,int requestId)
         {
@@ -26,8 +26,8 @@ namespace CRMPhone.ViewModel
             _requestId = requestId;
             WorkerList = new ObservableCollection<WorkerDto>(_requestService.GetWorkers(null));
             var request = _requestService.GetRequest(_requestId);
-            _oldExecuterId = request.ExecutorId;
-            SelectedWorker = WorkerList.SingleOrDefault(w => w.Id == request.ExecutorId);
+            _oldMasterId = request.MasterId;
+            SelectedWorker = WorkerList.SingleOrDefault(w => w.Id == request.MasterId);
             Refresh(null);
         }
 
@@ -46,14 +46,14 @@ namespace CRMPhone.ViewModel
         private void Save(object sender)
         {
             var t = FromTime;
-            if (_oldExecuterId == SelectedWorker.Id)
+            if (_oldMasterId == SelectedWorker.Id)
                 return;
-            _requestService.AddNewWorker(_requestId,SelectedWorker.Id);
-            _oldExecuterId = SelectedWorker.Id;
+            _requestService.AddNewMaster(_requestId,SelectedWorker.Id);
+            _oldMasterId = SelectedWorker.Id;
             _view.DialogResult = true;
         }
 
-        public int? ExecuterId => _oldExecuterId;
+        public int? MasterId => _oldMasterId;
 
         public ObservableCollection<WorkerHistoryDto> WorkerHistoryList
         {

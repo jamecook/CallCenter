@@ -13,6 +13,7 @@ namespace RequestServiceImpl.Dto
         public string FullName => SurName + " " + FirstName + " " + PatrName;
         public string Phone { get; set; }
         public bool CanAssign { get; set; }
+        public bool IsMaster { get; set; }
         public int? ParentWorkerId { get; set; }
     }
 }

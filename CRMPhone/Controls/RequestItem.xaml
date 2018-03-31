@@ -56,11 +56,22 @@
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
                     </ComboBox>
+                    <DockPanel>
+                        <CheckBox Margin="3" VerticalAlignment="Center" IsChecked="{Binding IsChargeable}">Платная</CheckBox>
+                        <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsImmediate}">Срочная</CheckBox>
+                    </DockPanel>
+
                 </WrapPanel>
                 <WrapPanel Grid.Row="2" Grid.Column="0">
                 <!--<WrapPanel Grid.Row="2" Grid.Column="0" IsEnabled="{Binding CanSave}">-->
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="Мастер:"/>
+                    <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedMaster}" ItemsSource="{Binding MasterList}" IsEditable="True">
+                        <ComboBox.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
+                        </ComboBox.Resources>
+                    </ComboBox>
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Исполнитель:"/>
-                    <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedWorker}" ItemsSource="{Binding WorkerList}" IsEditable="True">
+                    <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedExecuter}" ItemsSource="{Binding ExecuterList}" IsEditable="True">
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
@@ -74,10 +85,6 @@
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
                     </ComboBox>
-                    <DockPanel>
-                        <CheckBox Margin="3" VerticalAlignment="Center" IsChecked="{Binding IsChargeable}">Платная</CheckBox>
-                        <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsImmediate}">Срочная</CheckBox>
-                    </DockPanel>
                 </WrapPanel>
                 <WrapPanel Grid.Row="3" Grid.Column="0">
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Примечание:"/>

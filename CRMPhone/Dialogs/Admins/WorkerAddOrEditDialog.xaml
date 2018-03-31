@@ -61,6 +61,7 @@
                 </TextBox>
             </DockPanel>
             <DockPanel>
+                <CheckBox Margin="5" IsChecked="{Binding Path=IsMaster}">Мастер</CheckBox>
                 <CheckBox Margin="5" IsChecked="{Binding Path=CanAssign}">Может выполнять заявки</CheckBox>
             </DockPanel>
         </StackPanel>

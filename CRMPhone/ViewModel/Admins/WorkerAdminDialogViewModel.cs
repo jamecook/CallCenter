@@ -26,6 +26,7 @@ namespace CRMPhone.ViewModel.Admins
         private ObservableCollection<WorkerDto> _parentWorkerList;
         private WorkerDto _selectedParentWorker;
         private bool _canAssign;
+        private bool _isMaster;
 
         public ObservableCollection<SpecialityDto> SpecialityList
         {
@@ -102,6 +103,12 @@ namespace CRMPhone.ViewModel.Admins
             set { _canAssign = value; OnPropertyChanged(nameof(CanAssign)); }
         }
 
+        public bool IsMaster
+        {
+            get { return _isMaster; }
+            set { _isMaster = value; OnPropertyChanged(nameof(IsMaster));}
+        }
+
         public WorkerAdminDialogViewModel(RequestServiceImpl.RequestService requestService, int? workerId)
         {
             _requestService = requestService;
@@ -117,6 +124,7 @@ namespace CRMPhone.ViewModel.Admins
                 PatrName = worker.PatrName;
                 Phone = worker.Phone;
                 CanAssign = worker.CanAssign;
+                IsMaster = worker.IsMaster;
                 SelectedServiceCompany = ServiceCompanyList.SingleOrDefault(s => s.Id == worker.ServiceCompanyId);
                 SelectedSpeciality = SpecialityList.SingleOrDefault(s => s.Id == worker.SpecialityId);
                 var selectParentWorkerId = worker.ParentWorkerId ?? 0;
@@ -134,7 +142,7 @@ namespace CRMPhone.ViewModel.Admins
         {
             if (SelectedServiceCompany != null && !string.IsNullOrEmpty(SurName) && SelectedSpeciality != null)
             {
-                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id, CanAssign, (SelectedParentWorker!=null && SelectedParentWorker.Id>0)? SelectedParentWorker.Id :(int?) null);
+                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id, CanAssign, IsMaster, (SelectedParentWorker!=null && SelectedParentWorker.Id>0)? SelectedParentWorker.Id :(int?) null);
                 _view.DialogResult = true;
             }
             else

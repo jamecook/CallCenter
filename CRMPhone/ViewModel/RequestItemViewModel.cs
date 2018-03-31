@@ -12,8 +12,10 @@ namespace CRMPhone.ViewModel
     public class RequestItemViewModel : INotifyPropertyChanged
     {
         private readonly RequestServiceImpl.RequestService _requestService;
-        private ObservableCollection<WorkerDto> _workerList;
-        private WorkerDto _selectedWorker;
+        private ObservableCollection<WorkerDto> _masterList;
+        private ObservableCollection<WorkerDto> _executerList;
+        private WorkerDto _selectedMaster;
+        private WorkerDto _selectedExecuter;
         private ObservableCollection<ServiceDto> _parentServiceList;
         private ServiceDto _selectedParentService;
         private ObservableCollection<ServiceDto> _serviceList;
@@ -42,7 +44,8 @@ namespace CRMPhone.ViewModel
         {
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             ServiceList = new ObservableCollection<ServiceDto>();
-            WorkerList = new ObservableCollection<WorkerDto>(_requestService.GetWorkers(null));
+            MasterList = new ObservableCollection<WorkerDto>(_requestService.GetMasters(null));
+            ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetWorkers(null));
             ParentServiceList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
             SelectedParentService = ParentServiceList.FirstOrDefault();
             PeriodList = new ObservableCollection<PeriodDto>(_requestService.GetPeriods());
@@ -164,16 +167,26 @@ namespace CRMPhone.ViewModel
             set { _selectedService = value; OnPropertyChanged(nameof(SelectedService)); }
         }
 
-        public ObservableCollection<WorkerDto> WorkerList
+        public ObservableCollection<WorkerDto> MasterList
         {
-            get { return _workerList; }
-            set { _workerList = value; OnPropertyChanged(nameof(WorkerList)); }
+            get { return _masterList; }
+            set { _masterList = value; OnPropertyChanged(nameof(MasterList)); }
+        }
+        public ObservableCollection<WorkerDto> ExecuterList
+        {
+            get { return _executerList; }
+            set { _executerList = value; OnPropertyChanged(nameof(ExecuterList)); }
         }
 
-        public WorkerDto SelectedWorker
+        public WorkerDto SelectedMaster
         {
-            get { return _selectedWorker; }
-            set { _selectedWorker = value; OnPropertyChanged(nameof(SelectedWorker)); }
+            get { return _selectedMaster; }
+            set { _selectedMaster = value; OnPropertyChanged(nameof(SelectedMaster)); }
+        }
+        public WorkerDto SelectedExecuter
+        {
+            get { return _selectedExecuter; }
+            set { _selectedExecuter = value; OnPropertyChanged(nameof(SelectedExecuter)); }
         }
 
         public ObservableCollection<PeriodDto> PeriodList

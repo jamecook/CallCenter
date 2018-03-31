@@ -77,9 +77,9 @@ namespace CRMPhone.ViewModel
         {
             var request = _requestService.GetRequest(_requestId);
             var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
-            if (!request.ExecutorId.HasValue)
+            if (!request.MasterId.HasValue)
                 return;
-            var worker = _requestService.GetWorkerById(request.ExecutorId.Value);
+            var worker = _requestService.GetWorkerById(request.MasterId.Value);
             string phones = "";
             if (request.Contacts != null && request.Contacts.Length > 0)
                 phones = request.Contacts.OrderBy(c=>c.IsMain).Select(c =>
