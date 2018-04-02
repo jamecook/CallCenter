@@ -74,7 +74,7 @@ namespace RequestWcfService
             StiOptions.Engine.HideExceptions = true;
             StiOptions.Engine.HideMessages = true;
 
-            var acts = requests.Select(r=>new {Address=r.FullAddress, Workers = r.Worker.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": "+ r.Service, Description = r.Description}).ToArray();
+            var acts = requests.Select(r=>new {Address=r.FullAddress, Workers = r.Master.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": "+ r.Service, Description = r.Description}).ToArray();
 
             stiReport.RegBusinessObject("", "Acts", acts);
             stiReport.Render();

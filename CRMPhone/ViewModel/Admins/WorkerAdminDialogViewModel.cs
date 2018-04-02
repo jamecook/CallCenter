@@ -58,7 +58,7 @@ namespace CRMPhone.ViewModel.Admins
         {
             ParentWorkerList.Clear();
             ParentWorkerList.Add(new WorkerDto(){Id= 0, SurName = "Нет руководителя" });
-            _requestService.GetWorkers(serviceCompany.Id).ToList().ForEach(w=>ParentWorkerList.Add(w));
+            _requestService.GetExecuters(serviceCompany.Id).ToList().ForEach(w=>ParentWorkerList.Add(w));
         }
 
         public ObservableCollection<WorkerDto> ParentWorkerList

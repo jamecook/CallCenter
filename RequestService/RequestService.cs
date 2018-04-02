@@ -860,7 +860,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             ContactPhones = dataReader.GetNullableString("client_phones"),
                             ParentService = dataReader.GetNullableString("parent_name"),
                             Service = dataReader.GetNullableString("service_name"),
-                            Worker = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
+                            Master = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("worker_id"),
                                 SurName = dataReader.GetNullableString("sur_name"),
@@ -929,7 +929,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             ContactPhones = dataReader.GetNullableString("client_phones"),
                             ParentService = dataReader.GetNullableString("parent_name"),
                             Service = dataReader.GetNullableString("service_name"),
-                            Worker = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
+                            Master = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("worker_id"),
                                 SurName = dataReader.GetNullableString("sur_name"),
@@ -1018,7 +1018,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             ContactPhones = dataReader.GetNullableString("client_phones"),
                             ParentService = dataReader.GetNullableString("parent_name"),
                             Service = dataReader.GetNullableString("service_name"),
-                            Worker = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
+                            Master = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("worker_id"),
                                 SurName = dataReader.GetNullableString("sur_name"),
@@ -1081,7 +1081,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 }
             }
         }
-        public IList<WorkerDto> GetWorkers(int? serviceCompanyId, bool showOnlyExecutors = true)
+        public IList<WorkerDto> GetExecuters(int? serviceCompanyId, bool showOnlyExecutors = true)
         {
             var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
@@ -1740,7 +1740,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             }
         }
 
-        public List<WorkerHistoryDto> GetWorkerHistoryByRequest(int requestId)
+        public List<WorkerHistoryDto> GetMasterHistoryByRequest(int requestId)
         {
             var query = @"SELECT operation_date, R.worker_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestWorkerHistory R
  join CallCenter.Workers w on w.id = R.worker_id
@@ -1760,6 +1760,44 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             Worker = new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("worker_id"),
+                                SurName = dataReader.GetNullableString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                            },
+                            CreateUser = new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("user_id"),
+                                SurName = dataReader.GetNullableString("surname"),
+                                FirstName = dataReader.GetNullableString("firstname"),
+                                PatrName = dataReader.GetNullableString("patrname"),
+                            },
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return historyDtos.OrderByDescending(i => i.CreateTime).ToList();
+            }
+        }
+        public List<WorkerHistoryDto> GetExecuterHistoryByRequest(int requestId)
+        {
+            var query = @"SELECT operation_date, R.executer_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestExecuterHistory R
+ join CallCenter.Workers w on w.id = R.executer_id
+ join CallCenter.Users u on u.id = user_id
+ where request_id = @RequestId";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var historyDtos = new List<WorkerHistoryDto>();
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        historyDtos.Add(new WorkerHistoryDto
+                        {
+                            CreateTime = dataReader.GetDateTime("operation_date"),
+                            Worker = new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("executer_id"),
                                 SurName = dataReader.GetNullableString("sur_name"),
                                 FirstName = dataReader.GetNullableString("first_name"),
                                 PatrName = dataReader.GetNullableString("patr_name"),

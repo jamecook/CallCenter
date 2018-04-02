@@ -20,7 +20,7 @@ namespace RequestServiceImpl.Dto
         public string Floor { get; set; }
         public string Entrance { get; set; }
         public string AddressType { get; set; }
-        public RequestUserDto Worker { get; set; }
+        public RequestUserDto Master { get; set; }
         public RequestUserDto Executer { get; set; }
         public RequestUserDto CreateUser { get; set; }
         public DateTime? ExecuteTime { get; set; }

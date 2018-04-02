@@ -134,7 +134,7 @@ namespace RequestServiceImpl
                             ContactPhones = dataReader.GetNullableString("client_phones"),
                             ParentService = dataReader.GetNullableString("parent_name"),
                             Service = dataReader.GetNullableString("service_name"),
-                            Worker = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
+                            Master = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("worker_id"),
                                 SurName = dataReader.GetNullableString("sur_name"),
@@ -268,7 +268,7 @@ namespace RequestServiceImpl
                             ContactPhones = dataReader.GetNullableString("client_phones"),
                             ParentService = dataReader.GetNullableString("parent_name"),
                             Service = dataReader.GetNullableString("service_name"),
-                            Worker = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
+                            Master = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("worker_id"),
                                 SurName = dataReader.GetNullableString("sur_name"),

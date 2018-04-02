@@ -84,7 +84,7 @@ namespace CRMPhone.ViewModel
                 _requestService = new RequestService(AppSettings.DbConnection);
             WorkersList.Clear();
 
-            _requestService.GetWorkers(null,false).ToList().ForEach(w => WorkersList.Add(w));
+            _requestService.GetExecuters(null,false).ToList().ForEach(w => WorkersList.Add(w));
 
             OnPropertyChanged(nameof(WorkersList));
         }

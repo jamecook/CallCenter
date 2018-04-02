@@ -122,7 +122,9 @@
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Сохранить</Button>
                     <!--<Button Margin="5" Width="140" Height="24" IsEnabled ="{Binding CanSave}" Command="{Binding ElementName=RequestGrid, Path=DataContext.SaveRequestCommand}"
                     CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Сохранить</Button>-->
-                    <Button Margin="3" Width="130" Height="22" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeWorkerCommand}"
+                    <Button Margin="3" Width="130" Height="22" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeMasterCommand}"
+             CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Мастер</Button>
+                    <Button Margin="3" Width="130" Height="22" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeExecuterCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Исполнитель</Button>
                     <DockPanel>
                     <Button Margin="3" Width="60" Height="22" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.ChangeDateCommand}"

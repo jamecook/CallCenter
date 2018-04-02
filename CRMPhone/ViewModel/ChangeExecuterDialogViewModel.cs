@@ -9,7 +9,7 @@ using RequestServiceImpl.Dto;
 
 namespace CRMPhone.ViewModel
 {
-    public class ChangeWorkerDialogViewModel :INotifyPropertyChanged
+    public class ChangeExecuterDialogViewModel :INotifyPropertyChanged
     {
         private Window _view;
 
@@ -20,14 +20,14 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<WorkerHistoryDto> _workerHistoryList;
         private int? _oldMasterId;
 
-        public ChangeWorkerDialogViewModel(RequestServiceImpl.RequestService requestService,int requestId)
+        public ChangeExecuterDialogViewModel(RequestServiceImpl.RequestService requestService,int requestId)
         {
             _requestService = requestService;
             _requestId = requestId;
-            WorkerList = new ObservableCollection<WorkerDto>(_requestService.GetMasters(null));
+            WorkerList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
             var request = _requestService.GetRequest(_requestId);
-            _oldMasterId = request.MasterId;
-            SelectedWorker = WorkerList.SingleOrDefault(w => w.Id == request.MasterId);
+            _oldMasterId = request.ExecuterId;
+            SelectedWorker = WorkerList.SingleOrDefault(w => w.Id == request.ExecuterId);
             Refresh(null);
         }
 
@@ -48,7 +48,7 @@ namespace CRMPhone.ViewModel
             var t = FromTime;
             if (_oldMasterId == SelectedWorker.Id)
                 return;
-            _requestService.AddNewMaster(_requestId,SelectedWorker.Id);
+            _requestService.AddNewExecuter(_requestId,SelectedWorker.Id);
             _oldMasterId = SelectedWorker.Id;
             _view.DialogResult = true;
         }
@@ -69,7 +69,7 @@ namespace CRMPhone.ViewModel
 
         public void Refresh(object sender)
         {
-            WorkerHistoryList = new ObservableCollection<WorkerHistoryDto>(_requestService.GetMasterHistoryByRequest(_requestId));
+            WorkerHistoryList = new ObservableCollection<WorkerHistoryDto>(_requestService.GetExecuterHistoryByRequest(_requestId));
         }
 
         public WorkerDto SelectedWorker

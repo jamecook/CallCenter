@@ -284,8 +284,10 @@ namespace CRMPhone.ViewModel
         private ICommand _saveRequestCommand;
         public ICommand SaveRequestCommand { get { return _saveRequestCommand ?? (_saveRequestCommand = new RelayCommand(SaveRequest)); } }
 
-        private ICommand _changeWorkerCommand;
-        public ICommand ChangeWorkerCommand { get { return _changeWorkerCommand ?? (_changeWorkerCommand = new RelayCommand(ChangeWorker)); } }
+        private ICommand _changeMasterCommand;
+        public ICommand ChangeMasterCommand { get { return _changeMasterCommand ?? (_changeMasterCommand = new RelayCommand(ChangeMaster)); } }
+        private ICommand _changeExecuterCommand;
+        public ICommand ChangeExecuterCommand { get { return _changeExecuterCommand ?? (_changeExecuterCommand = new RelayCommand(ChangeExecuter)); } }
 
         private ICommand _setWorkingTimesCommand;
         public ICommand SetWorkingTimesCommand { get { return _setWorkingTimesCommand ?? (_setWorkingTimesCommand = new RelayCommand(SetWorkingTimes)); } }
@@ -396,7 +398,7 @@ namespace CRMPhone.ViewModel
             view.ShowDialog();
         }
 
-        private void ChangeWorker(object sender)
+        private void ChangeMaster(object sender)
         {
             if (!(sender is RequestItemViewModel))
                 return;
@@ -411,6 +413,23 @@ namespace CRMPhone.ViewModel
             if (view.ShowDialog()==true)
             {
                 requestModel.SelectedMaster = requestModel.MasterList.SingleOrDefault(w => w.Id == model.MasterId);
+            }
+        }
+        private void ChangeExecuter(object sender)
+        {
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            if(!requestModel.RequestId.HasValue)
+                return;
+            var model = new ChangeExecuterDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var view = new ChangeWorkerDialog();
+            model.SetView(view);
+            view.Owner = _view;
+            view.DataContext = model;
+            if (view.ShowDialog()==true)
+            {
+                requestModel.SelectedExecuter = requestModel.ExecuterList.SingleOrDefault(w => w.Id == model.MasterId);
             }
         }
         private void SetWorkingTimes(object sender)

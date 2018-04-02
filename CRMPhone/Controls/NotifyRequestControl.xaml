@@ -163,7 +163,7 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Исполнитель" Width="120"
-                             Binding="{Binding Path=Worker.ShortName}">
+                             Binding="{Binding Path=Master.ShortName}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextWrapping" Value="Wrap"/>

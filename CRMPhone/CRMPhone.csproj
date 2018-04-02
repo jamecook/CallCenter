@@ -231,6 +231,7 @@
     <Compile Include="ViewModel\Admins\StreetAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
+    <Compile Include="ViewModel\ChangeExecuterDialogViewModel.cs" />
     <Compile Include="ViewModel\EditAddressOnRequestDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertForHouseDialogViewModel.cs" />

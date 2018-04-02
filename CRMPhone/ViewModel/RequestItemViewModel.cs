@@ -45,7 +45,7 @@ namespace CRMPhone.ViewModel
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             ServiceList = new ObservableCollection<ServiceDto>();
             MasterList = new ObservableCollection<WorkerDto>(_requestService.GetMasters(null));
-            ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetWorkers(null));
+            ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
             ParentServiceList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
             SelectedParentService = ParentServiceList.FirstOrDefault();
             PeriodList = new ObservableCollection<PeriodDto>(_requestService.GetPeriods());

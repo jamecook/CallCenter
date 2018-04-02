@@ -119,7 +119,8 @@ namespace CRMPhone.ViewModel
                                         new XElement("Примечание", request.Description),
                                         new XElement("Дата", request.ExecuteTime?.Date.ToString("dd.MM.yyyy") ?? ""),
                                         new XElement("Время", request.ExecutePeriod),
-                                        new XElement("Исполнитель", request.Worker?.ShortName),
+                                        new XElement("Мастер", request.Master?.ShortName),
+                                        new XElement("Исполнитель", request.Executer?.ShortName),
                                         new XElement("ВыполнениеС", request.FromTime?.ToString("HH:mm:ss") ?? ""),
                                         new XElement("ВыполнениеПо", request.ToTime?.ToString("HH:mm:ss") ?? ""),
                                         new XElement("ПотраченоВремени", request.SpendTime),
@@ -187,6 +188,7 @@ namespace CRMPhone.ViewModel
                     ConstructCell("Примечание", CellValues.String),
                     ConstructCell("Дата", CellValues.String),
                     ConstructCell("Время", CellValues.String),
+                    ConstructCell("Мастер", CellValues.String),
                     ConstructCell("Исполнитель", CellValues.String),
                     ConstructCell("Выполнение С", CellValues.String),
                     ConstructCell("Выполнение По", CellValues.String),
@@ -219,7 +221,8 @@ namespace CRMPhone.ViewModel
                             ConstructCell(request.Description, CellValues.String),
                             ConstructCell(request.ExecuteTime?.Date.ToString("dd.MM.yyyy") ?? "", CellValues.String),
                             ConstructCell(request.ExecutePeriod, CellValues.String),
-                            ConstructCell(request.Worker?.ShortName, CellValues.String),
+                            ConstructCell(request.Master?.ShortName, CellValues.String),
+                            ConstructCell(request.Executer?.ShortName, CellValues.String),
                             ConstructCell(request.FromTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
                             ConstructCell(request.ToTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
                             ConstructCell(request.SpendTime, CellValues.String),
@@ -266,7 +269,8 @@ namespace CRMPhone.ViewModel
                             ConstructCell(request.Description, CellValues.String),
                             ConstructCell(request.ExecuteTime?.Date.ToString("dd.MM.yyyy") ?? "", CellValues.String),
                             ConstructCell(request.ExecutePeriod, CellValues.String),
-                            ConstructCell(request.Worker?.ShortName, CellValues.String),
+                            ConstructCell(request.Master?.ShortName, CellValues.String),
+                            ConstructCell(request.Executer?.ShortName, CellValues.String),
                             ConstructCell(request.FromTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
                             ConstructCell(request.ToTime?.ToString("HH:mm:ss") ?? "", CellValues.String),
                             ConstructCell(request.SpendTime, CellValues.String),
@@ -612,7 +616,7 @@ namespace CRMPhone.ViewModel
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
             ServiceList = new ObservableCollection<ServiceDto>();
-            FilterWorkerList = new ObservableCollection<WorkerForFilterDto>(_requestService.GetWorkers(null).Select(
+            FilterWorkerList = new ObservableCollection<WorkerForFilterDto>(_requestService.GetExecuters(null).Select(
                 w => new WorkerForFilterDto()
                 {
                     Id = w.Id,

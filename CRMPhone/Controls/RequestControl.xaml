@@ -266,13 +266,22 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Исполнитель" Width="120"
-                             Binding="{Binding Path=Worker.ShortName}">
+                <DataGridTextColumn Header="Мастер" Width="120"
+                             Binding="{Binding Path=Master.ShortName}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextWrapping" Value="Wrap"/>
                             <Setter Property="Margin" Value="3"/>
 
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Исполнитель" Width="120"
+                             Binding="{Binding Path=Executer.ShortName}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>

@@ -67,7 +67,7 @@ namespace CRMPhone.ViewModel
 
         public void Refresh(object sender)
         {
-            //    //WorkerHistoryList = new ObservableCollection<WorkerHistoryDto>(_requestService.GetWorkerHistoryByRequest(_requestId));
+            //    //WorkerHistoryList = new ObservableCollection<WorkerHistoryDto>(_requestService.GetMasterHistoryByRequest(_requestId));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
