@@ -24,6 +24,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Win32;
+using NLog;
 using SIPEVOActiveXLib;
 using Color = System.Windows.Media.Color;
 
@@ -31,6 +32,7 @@ namespace CRMPhone.ViewModel
 {
     public class CRMContext : INotifyPropertyChanged
     {
+        private static Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly DispatcherTimer _refreshTimer;
         private MySqlConnection _dbRefreshConnection;
         private MySqlConnection _dbMainConnection;
@@ -1109,7 +1111,7 @@ namespace CRMPhone.ViewModel
                     _sipClient.OnRegistrationFailure += SipClientOnRegistrationFailure;
                     _sipClient.OnHold += SipClientOnHold;
 
-                    _sipClient.LogEnabled = false;
+                    _sipClient.LogEnabled = true;
                     _sipClient.UserID = _sipUser;
                     _sipClient.LoginID = _sipUser;
                     _sipClient.Password = _sipSecret;

@@ -9,6 +9,7 @@ namespace RequestServiceImpl.Dto
         public int WorkerId { get; set; }
         public int ServiceCompanyId { get; set; }
         public int SpecialityId { get; set; }
+        public bool CanCreateRequestInWeb { get; set; }
         public string FullName => SurName + " " + FirstName + " " + PatrName;
     }
 }

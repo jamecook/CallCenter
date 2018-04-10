@@ -200,6 +200,11 @@ namespace RequestWcfService
         {
             _requestService.CreateRequestFromPhone(phone, code, addressId, typeId, description);
         }
+        public string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId, int? executerId, string description)
+        {
+            return _requestService.CreateRequestFromWeb(workerId, phone, fio, addressId, typeId, masterId, executerId,
+                description);
+        }
 
         public StatInfoDto[] GetWorkerStat(int currentWorkerId, DateTime fromDate, DateTime toDate)
         {

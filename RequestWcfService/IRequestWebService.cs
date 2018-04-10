@@ -96,6 +96,10 @@ namespace RequestWcfService
         void CreateRequestFromPhone(string phone, string code, int addressId, int typeId, string description);
 
         [OperationContract]
+        string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId,
+            int? executerId, string description);
+
+        [OperationContract]
         string GetRedirectPhone();
 
         [OperationContract]

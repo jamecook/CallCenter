@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Reflection;
 using System.Resources;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using CRMPhone.ViewModel;
+using NLog;
 using RequestServiceImpl;
 
 namespace CRMPhone
@@ -14,8 +16,10 @@ namespace CRMPhone
     public partial class MainWindow : Window
     {
         private NotifyIcon _notify;
+        private static Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         public MainWindow()
         {
+            _logger.Debug($"App Started. Ver. {Assembly.GetEntryAssembly().GetName().Version}");
             InitializeComponent();
             _notify = new NotifyIcon();
             _notify.Icon = new System.Drawing.Icon("PhoneIco.ico");

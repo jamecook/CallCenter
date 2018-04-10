@@ -25,6 +25,7 @@ namespace RequestServiceImpl
                             WorkerId = dataReader.GetInt32("worker_id"),
                             ServiceCompanyId = dataReader.GetInt32("service_company_id"),
                             SpecialityId = dataReader.GetInt32("speciality_id"),
+                            CanCreateRequestInWeb = dataReader.GetBoolean("can_create_in_web")
                         };
                     }
                     dataReader.Close();
@@ -645,6 +646,26 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 cmd.ExecuteNonQuery();
             }
 
+        }
+        public string CreateRequestFromWeb(int workerId, string phone, string fio, int addressId, int typeId,int? masterId,int? executerId, string description)
+        {
+            var query = "call CallCenter.WebCreateRequest(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc);";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                cmd.Parameters.AddWithValue("@Phone", phone);
+                cmd.Parameters.AddWithValue("@Fio", fio);
+                cmd.Parameters.AddWithValue("@AddressId", addressId);
+                cmd.Parameters.AddWithValue("@TypeId", typeId);
+                cmd.Parameters.AddWithValue("@MasterId", masterId);
+                cmd.Parameters.AddWithValue("@ExecuterId", executerId);
+                cmd.Parameters.AddWithValue("@Desc", description);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    dataReader.Read();
+                    return dataReader.GetNullableString("requestId");
+                }
+            }
         }
 
         public StatInfoDto[] GetWorkerStat(int currentWorkerId, DateTime fromDate, DateTime toDate)
