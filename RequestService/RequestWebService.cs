@@ -89,11 +89,11 @@ namespace RequestServiceImpl
             return result.ToArray();
         }
 
-        public RequestForListDto[] WebRequestList2(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId, bool badWork = false, bool garanty = false, string clientPhone = null)
+        public RequestForListDto[] WebRequestList2(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int? workerId, bool badWork = false, bool garanty = false, string clientPhone = null, int? rating = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
-            var sqlQuery = "CALL CallCenter.WebGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetId,@HouseId,@AddressId,@ParentServiceId,@ServiceId,@StatusId,@WorkerId,@BadWork,@Garanty,@ClientPhone,null)";
+            var sqlQuery = "CALL CallCenter.WebGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetId,@HouseId,@AddressId,@ParentServiceId,@ServiceId,@StatusId,@WorkerId,@BadWork,@Garanty,@ClientPhone,null,@Rating)";
             using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -113,6 +113,7 @@ namespace RequestServiceImpl
                 cmd.Parameters.AddWithValue("@BadWork", badWork);
                 cmd.Parameters.AddWithValue("@Garanty", garanty);
                 cmd.Parameters.AddWithValue("@ClientPhone", clientPhone);
+                cmd.Parameters.AddWithValue("@Rating", rating);
 
                 var requests = new List<RequestForListDto>();
                 using (var dataReader = cmd.ExecuteReader())

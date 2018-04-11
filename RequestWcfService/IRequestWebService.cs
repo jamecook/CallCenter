@@ -20,7 +20,7 @@ namespace RequestWcfService
         WebUserDto Login(string login, string password);
 
         [OperationContract]
-        RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId, bool badWork, bool garanty, string clientPhone);
+        RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId, bool badWork, bool garanty, string clientPhone, int? rating);
 
         [OperationContract]
         RequestForListDto GetRequestById(int requestId);
