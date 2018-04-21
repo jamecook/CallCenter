@@ -63,6 +63,7 @@ namespace RequestServiceImpl
             }
             return result.ToArray();
         }
+
         public StatInfoDto[] GetRequestByWorkersInfo()
         {
             var result = new List<StatInfoDto>();

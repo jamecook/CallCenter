@@ -558,6 +558,7 @@ namespace CRMPhone.ViewModel
             requestModel.RequestState = request.State.Description;
             requestModel.SelectedMaster = requestModel.MasterList.SingleOrDefault(w => w.Id == request.MasterId);
             requestModel.SelectedExecuter = requestModel.ExecuterList.SingleOrDefault(w => w.Id == request.ExecuterId);
+            requestModel.SelectedEquipment = requestModel.EquipmentList.SingleOrDefault(e => e.Id == request.Equipment?.Id);
             requestModel.RequestId = request.Id;
             requestModel.Rating = request.Rating;
             requestModel.AlertTime = request.AlertTime;

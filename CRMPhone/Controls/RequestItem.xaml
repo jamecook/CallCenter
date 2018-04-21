@@ -109,6 +109,12 @@
                         <Image Source="pack://application:,,,/Images/edit_small.png"/>
                     </Button>
 
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="Оборудование:"/>
+                    <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="450" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEquipment}" ItemsSource="{Binding EquipmentList}" IsEditable="True">
+                        <ComboBox.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
+                        </ComboBox.Resources>
+                    </ComboBox>
 
                 </WrapPanel>
                 <WrapPanel Grid.Row="5" Grid.Column="0" Visibility="{Binding ShowRating}">

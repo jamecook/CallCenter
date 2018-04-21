@@ -28,6 +28,7 @@ namespace RequestServiceImpl.Dto
         public DateTime? ToTime { get; set; }
         public DateTime? AlertTime { get; set; }
         public bool Garanty { get; set; }
+        public EquipmentDto Equipment { get; set; }
 
     }
 }

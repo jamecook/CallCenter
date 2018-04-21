@@ -64,6 +64,12 @@
                           IsReadOnly="True"
                           HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Auto" Height="120">
+                    <DataGrid.InputBindings>
+                        <MouseBinding MouseAction="LeftDoubleClick"
+                  Command="{Binding Path=OpenRequestCommand}"
+                  CommandParameter="{Binding ElementName=OldRequestsGrid, Path=SelectedItem}" />
+                    </DataGrid.InputBindings>
+
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="№" Width="60"
                                             Binding="{Binding Path=Id}">

@@ -40,6 +40,65 @@ namespace CRMPhone.ViewModel
             get { return _addressRequestList; }
             set { _addressRequestList = value; OnPropertyChanged(nameof(AddressRequestList)); }
         }
+        private ICommand _openRequestCommand;
+        public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest)); } }
+
+
+        private void OpenRequest(object sender)
+        {
+            var selectedItem = sender as RequestForListDto;
+            if (selectedItem == null)
+                return;
+            var request = _requestService.GetRequest(selectedItem.Id);
+            if (request == null)
+            {
+                MessageBox.Show("Произошла непредвиденная ошибка!");
+                return;
+            }
+
+            var viewModel = new RequestDialogViewModel();
+            var view = new RequestDialog(viewModel);
+            viewModel.SetView(view);
+            viewModel.RequestId = request.Id;
+            viewModel.SelectedCity = viewModel.CityList.SingleOrDefault(i => i.Id == request.Address.CityId);
+            viewModel.SelectedStreet = viewModel.StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
+            viewModel.SelectedHouse = viewModel.HouseList.SingleOrDefault(i => i.Id == request.Address.HouseId);
+            viewModel.SelectedFlat = viewModel.FlatList.SingleOrDefault(i => i.Id == request.Address.Id);
+            viewModel.Floor = request.Floor;
+            viewModel.Entrance = request.Entrance;
+            viewModel.FromTime = request.FromTime;
+            viewModel.ToTime = request.ToTime;
+            var requestModel = viewModel.RequestList.FirstOrDefault();
+            requestModel.SelectedParentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            requestModel.SelectedService = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+            requestModel.Description = request.Description;
+            requestModel.IsChargeable = request.IsChargeable;
+            requestModel.IsImmediate = request.IsImmediate;
+            requestModel.IsBadWork = request.IsBadWork;
+            requestModel.IsRetry = request.IsRetry;
+            requestModel.Gatanty = request.Garanty;
+            requestModel.RequestCreator = request.CreateUser.ShortName;
+            requestModel.RequestDate = request.CreateTime;
+            requestModel.RequestState = request.State.Description;
+            requestModel.SelectedMaster = requestModel.MasterList.SingleOrDefault(w => w.Id == request.MasterId);
+            requestModel.SelectedExecuter = requestModel.ExecuterList.SingleOrDefault(w => w.Id == request.ExecuterId);
+            requestModel.SelectedEquipment = requestModel.EquipmentList.SingleOrDefault(e => e.Id == request.Equipment.Id);
+            requestModel.RequestId = request.Id;
+            requestModel.Rating = request.Rating;
+            requestModel.AlertTime = request.AlertTime;
+            if (request.ServiceCompanyId.HasValue)
+            {
+                requestModel.SelectedCompany = requestModel.CompanyList.FirstOrDefault(c => c.Id == request.ServiceCompanyId.Value);
+            }
+            if (request.ExecuteDate.HasValue && request.ExecuteDate.Value.Date > DateTime.MinValue)
+            {
+                requestModel.SelectedDateTime = request.ExecuteDate.Value.Date;
+                requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
+            }
+            viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
+            view.Show();
+
+        }
 
         public int RequestId
         {
@@ -539,7 +598,7 @@ namespace CRMPhone.ViewModel
             {
                 _callUniqueId = _requestService.GetActiveCallUniqueId();
             }
-            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.SelectedCompany.Id, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork);
+            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.SelectedCompany.Id, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id);
             if (!request.HasValue)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");

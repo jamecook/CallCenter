@@ -58,7 +58,7 @@ namespace RequestServiceImpl
         }
 
         public int? SaveNewRequest(int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
-            bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, int serviceCompanyId,DateTime? alertTime,bool isRetry, bool isBedWork)
+            bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, int serviceCompanyId,DateTime? alertTime,bool isRetry, bool isBedWork,int? equipmentId)
         {
             int newId;
             //_logger.Debug($"RequestService.SaveNewRequest({addressId},{requestTypeId},[{contactList.Select(x => $"{x.PhoneNumber}").Aggregate((f1, f2) => f1 + ";" + f2)}],{requestMessage},{chargeable},{immediate},{callUniqueId})");
@@ -71,8 +71,8 @@ namespace RequestServiceImpl
 
                     using (
                         var cmd = new MySqlCommand(
-                            @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_chargeable,create_user_id,state_id,is_immediate, entrance, floor, service_company_id,retry ,bad_work , alert_time)
-values(@AddressId, @TypeId, @Message, sysdate(),@IsChargeable,@UserId,@State,@IsImmediate,@Entrance,@Floor,@ServiceCompanyId,@Retry,@BadWork,@AlertTime);
+                            @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_chargeable,create_user_id,state_id,is_immediate, entrance, floor, service_company_id,retry ,bad_work , alert_time, equipment_id)
+values(@AddressId, @TypeId, @Message, sysdate(),@IsChargeable,@UserId,@State,@IsImmediate,@Entrance,@Floor,@ServiceCompanyId,@Retry,@BadWork,@AlertTime, @EquipmentId);
 select LAST_INSERT_ID();", _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@AddressId", addressId);
@@ -88,6 +88,7 @@ select LAST_INSERT_ID();", _dbConnection))
                         cmd.Parameters.AddWithValue("@AlertTime", alertTime);
                         cmd.Parameters.AddWithValue("@Retry", isRetry);
                         cmd.Parameters.AddWithValue("@BadWork", isBedWork);
+                        cmd.Parameters.AddWithValue("@EquipmentId", equipmentId);
                         newId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 
@@ -611,7 +612,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     U.SurName,U.FirstName,U.PatrName,
     entrance,floor,
     rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,R.from_time,R.to_time,R.bad_work,R.alert_time,R.garanty,R.retry,
-    R.executer_id
+    R.executer_id, R.equipment_id, eqt.name eq_type_name, eq.name eq_name
      FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.RequestTypes RT on RT.id = R.type_id
@@ -625,6 +626,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     join CallCenter.Users U on U.id = R.Create_user_id
     left join CallCenter.RequestRating rtype on rtype.request_id = R.id
     left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
+    left join CallCenter.Equipments eq on eq.id = R.equipment_id
+    left join CallCenter.EquipmentTypes eqt on eqt.id = eq.type_id
     where R.id = @reqId", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@reqId", requestId);
@@ -693,7 +696,12 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                                     Id = dataReader.GetInt32("rating_id"),
                                     Name = dataReader.GetString("RatingName"),
                                     Description = dataReader.GetNullableString("RatingDesc")
-                                } : new RequestRatingDto()
+                                } : new RequestRatingDto(),
+                                Equipment = dataReader.GetNullableInt("equipment_id").HasValue ? new EquipmentDto
+                                {
+                                    Id = dataReader.GetInt32("equipment_id"),
+                                    Name = $"{dataReader.GetString("eq_type_name")} - {dataReader.GetString("eq_name")}"
+                                } : new EquipmentDto{ Id = null,Name = "Нет"}
                             };
                         }
                         dataReader.Close();
@@ -2739,6 +2747,28 @@ where C.Direction is not null";
             }
         }
 
+        public List<EquipmentDto> GetEquipments()
+        {
+            var query = "SELECT e.id,t.name type_name,e.name FROM CallCenter.Equipments e join CallCenter.EquipmentTypes t on t.id = e.type_id order by t.name,e.name";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var equipment = new List<EquipmentDto>();
+                equipment.Add(new EquipmentDto(){Id=null,Name = "Нет"});
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        equipment.Add(new EquipmentDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = $"{dataReader.GetString("type_name")} - {dataReader.GetString("name")}",
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return equipment;
+            };
+        }
         public void AddCallToRequest(int requestId, string callUniqueId)
         {
             if(requestId<=0 || string.IsNullOrEmpty(callUniqueId))

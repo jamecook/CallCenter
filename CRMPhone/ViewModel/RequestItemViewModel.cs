@@ -38,6 +38,8 @@ namespace CRMPhone.ViewModel
         private DateTime? _alertTime;
         private bool _gatanty;
         private bool _isRetry;
+        private ObservableCollection<EquipmentDto> _equipmentList;
+        private EquipmentDto _selectedEquipment;
 
 
         public RequestItemViewModel()
@@ -46,6 +48,7 @@ namespace CRMPhone.ViewModel
             ServiceList = new ObservableCollection<ServiceDto>();
             MasterList = new ObservableCollection<WorkerDto>(_requestService.GetMasters(null));
             ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
+            EquipmentList = new ObservableCollection<EquipmentDto>(_requestService.GetEquipments());
             ParentServiceList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
             SelectedParentService = ParentServiceList.FirstOrDefault();
             PeriodList = new ObservableCollection<PeriodDto>(_requestService.GetPeriods());
@@ -172,6 +175,13 @@ namespace CRMPhone.ViewModel
             get { return _masterList; }
             set { _masterList = value; OnPropertyChanged(nameof(MasterList)); }
         }
+
+        public ObservableCollection<EquipmentDto> EquipmentList
+        {
+            get { return _equipmentList; }
+            set { _equipmentList = value; OnPropertyChanged(nameof(EquipmentList));}
+        }
+
         public ObservableCollection<WorkerDto> ExecuterList
         {
             get { return _executerList; }
@@ -183,6 +193,13 @@ namespace CRMPhone.ViewModel
             get { return _selectedMaster; }
             set { _selectedMaster = value; OnPropertyChanged(nameof(SelectedMaster)); }
         }
+
+        public EquipmentDto SelectedEquipment
+        {
+            get { return _selectedEquipment; }
+            set { _selectedEquipment = value; OnPropertyChanged(nameof(SelectedEquipment));}
+        }
+
         public WorkerDto SelectedExecuter
         {
             get { return _selectedExecuter; }
