@@ -352,6 +352,8 @@ namespace CRMPhone.ViewModel
                 if (bridgeService.LoginAndBridge("zerg", "asteriskzerg", channel1, item.Channel))
                 {
                     SipLines[0].Phone = item.CallerIdNum;
+                    LastAnsweredPhoneNumber = item.CallerIdNum;
+                    IncomingCallFrom = item.CallerIdNum;
                 }
             }
         }
@@ -1111,7 +1113,7 @@ namespace CRMPhone.ViewModel
                     _sipClient.OnRegistrationFailure += SipClientOnRegistrationFailure;
                     _sipClient.OnHold += SipClientOnHold;
 
-                    _sipClient.LogEnabled = true;
+                    _sipClient.LogEnabled = false;
                     _sipClient.UserID = _sipUser;
                     _sipClient.LoginID = _sipUser;
                     _sipClient.Password = _sipSecret;
@@ -1119,9 +1121,13 @@ namespace CRMPhone.ViewModel
                     _sipClient.DisplayName = _sipUser;
                     _sipClient.Initialize(null);
                     _sipClient.TCPPort = -1;
-                    _sipClient.MaxPhoneLines = 2;
                     _sipClient.Register();
                     _sipClient.PlayRingtone = false;
+
+                    _sipClient.MaxPhoneLines = 2;
+                    _sipClient.NoiseReduction = false;
+                    _sipClient.AEC = false;
+                    //_sipClient.EchoTail = 0;
 
                     //_sipClient.ConferenceJoin();
                     //_sipClient.ConferenceRemove();

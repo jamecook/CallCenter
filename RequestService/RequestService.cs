@@ -2721,13 +2721,20 @@ where C.Direction is not null";
             {
                 newFile = SaveFile(requestId, fileExtension, fileStream);
             }
-            using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id)
+            AttachFileToRequest(AppSettings.CurrentUser.Id,requestId, name, newFile);
+        }
+
+        public void AttachFileToRequest(int userId, int requestId, string fileName, string generatedFileName)
+        {
+            using (
+                var cmd =
+                    new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id)
  values(@RequestId,@Name,@FileName,sysdate(),@userId);", _dbConnection))
             {
-                cmd.Parameters.AddWithValue("@userId", AppSettings.CurrentUser.Id);
+                cmd.Parameters.AddWithValue("@userId", userId);
                 cmd.Parameters.AddWithValue("@RequestId", requestId);
-                cmd.Parameters.AddWithValue("@Name", name);
-                cmd.Parameters.AddWithValue("@FileName", newFile);
+                cmd.Parameters.AddWithValue("@Name", fileName);
+                cmd.Parameters.AddWithValue("@FileName", generatedFileName);
                 cmd.ExecuteNonQuery();
             }
         }

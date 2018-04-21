@@ -60,6 +60,30 @@ namespace RequestWcfService
             return null;
         }
 
+        public FileUploadResponse UploadFile(FileUploadRequest input)
+        {
+            var rootDir = ConfigurationManager.AppSettings["rootFolder"].TrimEnd('\\');
+            if (string.IsNullOrEmpty(rootDir))
+                throw new ConfigurationErrorsException("rootFolder is not set!");
+            if (!Directory.Exists($"{rootDir}\\{input.RequestId}"))
+            {
+                Directory.CreateDirectory($"{rootDir}\\{input.RequestId}");
+            }
+            var fileExtension = Path.GetExtension(input.FileName);
+            var fileName = Guid.NewGuid() + fileExtension;
+            using (var writer = new FileStream($"{rootDir}\\{input.RequestId}\\{fileName}", FileMode.Create))
+            {
+                int readCount;
+                var buffer = new byte[8192];
+                while ((readCount = input.FileStream.Read(buffer, 0, buffer.Length)) != 0)
+                {
+                    writer.Write(buffer, 0, readCount);
+                }
+            }
+            _requestService.AttachFileToRequest(input.UserId,input.RequestId,input.FileName, fileName);
+
+            return new FileUploadResponse() { RetFileName = fileName };
+        }
         public void ChangeState(int requestId, int stateId, int userId)
         {
             _requestService.AddNewState(requestId, stateId, userId);

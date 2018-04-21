@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
@@ -107,5 +108,29 @@ namespace RequestWcfService
 
         [OperationContract]
         byte[] GetRequestActs(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId);
+        [OperationContract]
+        FileUploadResponse UploadFile(FileUploadRequest input);
     }
+    [MessageContract]
+    public class FileUploadRequest
+    {
+        [MessageHeader(MustUnderstand = true)]
+        public int UserId;
+        [MessageHeader(MustUnderstand = true)]
+        public int RequestId;
+        [MessageHeader(MustUnderstand = true)]
+        public string FileName;
+        [MessageBodyMember]
+        public Stream FileStream;
+
+    }
+
+    [MessageContract]
+    public class FileUploadResponse
+    {
+        [MessageBodyMember]
+        public string RetFileName { get; set; }
+
+    }
+
 }
