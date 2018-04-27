@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
+using RequestServiceImpl.Dto;
 
 namespace CRMPhone.ViewModel.Admins
 {

@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
-using CRMPhone.Annotations;
 using CRMPhone.Dialogs.Admins;
 using CRMPhone.ViewModel.Admins;
 using RequestServiceImpl;

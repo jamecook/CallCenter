@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
@@ -9,7 +10,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml.Linq;
-using CRMPhone.Annotations;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -70,11 +70,11 @@ namespace CRMPhone.ViewModel
             ServiceCompanyBadWork = false;
             OnlyRetry = false;
             ClientPhone = "";
-            //foreach (var worker in FilterWorkerList)
+            //foreach (var worker in FilterMasterList)
             //{
             //    worker.Selected = false;
             //}
-            //OnPropertyChanged(nameof(FilterWorkerList));
+            //OnPropertyChanged(nameof(FilterMasterList));
             RefreshRequest();
         }
 
@@ -316,7 +316,7 @@ namespace CRMPhone.ViewModel
         private DateTime _executeFromDate;
         private DateTime _executeToDate;
         private bool _filterByCreateDate;
-        private ObservableCollection<WorkerForFilterDto> _filterWorkerList;
+        private ObservableCollection<FieldForFilterDto> _filterMasterList;
         private ObservableCollection<UserDto> _userList;
         private UserDto _selectedUser;
         private ObservableCollection<ServiceCompanyDto> _serviceCompanyList;
@@ -326,6 +326,7 @@ namespace CRMPhone.ViewModel
         private bool _serviceCompanyBadWork;
         private bool _onlyRetry;
         private string _clientPhone;
+        private ObservableCollection<FieldForFilterDto> _filterStatusList;
 
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
@@ -421,11 +422,23 @@ namespace CRMPhone.ViewModel
             set { _selectedService = value; OnPropertyChanged(nameof(SelectedService)); }
         }
 
-        public ObservableCollection<WorkerForFilterDto> FilterWorkerList
+        public ObservableCollection<FieldForFilterDto> FilterMasterList
         {
-            get { return _filterWorkerList; }
-            set { _filterWorkerList = value; OnPropertyChanged(nameof(FilterWorkerList));}
+            get { return _filterMasterList; }
+            set { _filterMasterList = value; OnPropertyChanged(nameof(FilterMasterList));}
         }
+
+        public ObservableCollection<FieldForFilterDto> FilterStatusList
+        {
+            get { return _filterStatusList; }
+            set { _filterStatusList = value; OnPropertyChanged(nameof(FilterStatusList)); }
+        }
+        public void FilterStatusListChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            var t = 1;
+            //This will get called when the collection is changed
+        }
+
 
         public ObservableCollection<UserDto> UserList
         {
@@ -583,8 +596,11 @@ namespace CRMPhone.ViewModel
             RequestList.Clear();
             var requests = _requestService.GetRequestList(RequestNum, FilterByCreateDate, FromDate, ToDate,
                 ExecuteFromDate, ExecuteToDate, SelectedStreet?.Id, _selectedHouse?.Id, SelectedFlat?.Id,
-                SelectedParentService?.Id, SelectedService?.Id, SelectedStatus?.Id,
-                FilterWorkerList.Where(w => w.Selected).Select(x => x.Id).ToArray(), SelectedServiceCompany?.Id,
+                SelectedParentService?.Id, SelectedService?.Id,
+                FilterStatusList.FirstOrDefault(s => s.Selected)?.Id,
+                //SelectedStatus?.Id,
+                FilterMasterList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+                SelectedServiceCompany?.Id,
                 SelectedUser?.Id, SelectedPayment?.Id, ServiceCompanyBadWork,OnlyRetry, ClientPhone);
             foreach (var request in requests)
             {
@@ -617,16 +633,27 @@ namespace CRMPhone.ViewModel
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
             ServiceList = new ObservableCollection<ServiceDto>();
-            FilterWorkerList = new ObservableCollection<WorkerForFilterDto>(_requestService.GetExecuters(null).Select(
-                w => new WorkerForFilterDto()
+            FilterMasterList = new ObservableCollection<FieldForFilterDto>(_requestService.GetMasters(null).Select(
+                w => new FieldForFilterDto()
                 {
                     Id = w.Id,
-                    SurName = w.SurName,
-                    FirstName = w.FirstName,
-                    PatrName = w.PatrName,
+                    Name = $"{w.SurName} {w.FirstName} {w.PatrName}",
                     Selected = false
                 }));
-            StatusList = new ObservableCollection<StatusDto>(_requestService.GetRequestStatuses());
+            //StatusList = new ObservableCollection<StatusDto>(_requestService.GetRequestStatuses());
+            FilterStatusList = new ObservableCollection<FieldForFilterDto>(_requestService.GetRequestStatuses().Select(
+                w => new FieldForFilterDto()
+                {
+                    Id = w.Id,
+                    Name = w.Description,
+                    Selected = false
+                }));
+            FilterStatusList.CollectionChanged += FilterStatusListChanged;
+            foreach (var status in FilterStatusList)
+            {
+                status.PropertyChanged += OnPropertyChanged;
+            }
+
             ParentServiceList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
             PaymentList = new ObservableCollection<PaymentDto>(new [] {new PaymentDto{Id=0,Name="Бесплатные"}, new PaymentDto{Id = 1, Name = "Платные"}});
             ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
@@ -634,6 +661,13 @@ namespace CRMPhone.ViewModel
 
             ChangeCity(_requestService.GetCities().FirstOrDefault().Id);
         }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs arg)
+        {
+            var t = arg;
+            //throw new NotImplementedException();
+        }
+
         public ObservableCollection<RequestForListDto> RequestList
         {
             get { return _requestList; }

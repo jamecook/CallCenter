@@ -81,6 +81,7 @@
     <Compile Include="Dto\HouseDto.cs" />
     <Compile Include="Dto\NotAnsweredDto.cs" />
     <Compile Include="Dto\NoteDto.cs" />
+    <Compile Include="Dto\NotifyPropertyChangedInvocatorAttribute.cs" />
     <Compile Include="Dto\PaymentDto.cs" />
     <Compile Include="Dto\PeriodDto.cs" />
     <Compile Include="Dto\RecuestRatingDto.cs" />
@@ -112,8 +113,9 @@
     <Compile Include="Dto\WebStatusDto.cs" />
     <Compile Include="Dto\WebUserDto.cs" />
     <Compile Include="Dto\WorkerDto.cs" />
-    <Compile Include="Dto\WorkerForFilterDto.cs" />
+    <Compile Include="Dto\FieldForFilterDto.cs" />
     <Compile Include="Dto\WorkerHistoryDto.cs" />
+    <Compile Include="Dto\WorketHouseAndTypeListDto.cs" />
     <Compile Include="ExportedMeterDto.cs" />
     <Compile Include="MeterListDto.cs" />
     <Compile Include="MetersDto.cs" />

@@ -1,6 +1,7 @@
 ﻿using CRMPhone.Annotations;
 using System.ComponentModel;
 using System.Windows;
+using RequestServiceImpl.Dto;
 
 namespace CRMPhone.ViewModel
 {

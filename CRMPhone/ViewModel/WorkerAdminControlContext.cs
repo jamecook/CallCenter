@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using CRMPhone.Annotations;
 using CRMPhone.Dialogs;
 using CRMPhone.Dialogs.Admins;
 using CRMPhone.ViewModel.Admins;
@@ -29,10 +28,28 @@ namespace CRMPhone.ViewModel
         }
 
         private RequestService _requestService;
+
         private ICommand _addNewCommand;
         public ICommand AddNewCommand { get { return _addNewCommand ?? (_addNewCommand = new CommandHandler(AddWorker, true)); } }
+
         private ICommand _deleteCommand;
         public ICommand DeleteCommand { get { return _deleteCommand ?? (_deleteCommand = new CommandHandler(DeleteWorker, true)); } }
+
+        private ICommand _houseAndServiceCommand;
+        public ICommand HouseAndServiceCommand { get { return _houseAndServiceCommand ?? (_houseAndServiceCommand = new CommandHandler(EditHouseAndService, true)); } }
+
+        private void EditHouseAndService()
+        {
+            if (SelectedWorker != null)
+            {
+                var model = new WorkerHouseAndTypeAdminDialogViewModel(_requestService, SelectedWorker.Id);
+                var view = new WorkerHouseAndTypeAddOrEditDialog();
+                model.SetView(view);
+                view.Owner = Application.Current.MainWindow;
+                view.DataContext = model;
+                view.ShowDialog();
+            }
+        }
 
         private void DeleteWorker()
         {
@@ -48,7 +65,6 @@ namespace CRMPhone.ViewModel
                     RefreshList();
                 }
             }
-            
         }
 
         private ICommand _editCommand;

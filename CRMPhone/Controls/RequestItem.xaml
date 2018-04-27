@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="800"
+             d:DesignHeight="320" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance viewModel:RequestItemViewModel}">
     <Grid>
         <Border BorderBrush="Black" CornerRadius="5" BorderThickness="1">
@@ -70,25 +70,30 @@
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
                     </ComboBox>
+                    <CheckBox Margin="3" VerticalAlignment="Center" IsChecked="{Binding ShowAllMasters}">Все</CheckBox>
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Исполнитель:"/>
                     <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedExecuter}" ItemsSource="{Binding ExecuterList}" IsEditable="True">
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
                     </ComboBox>
+                    <CheckBox Margin="3" VerticalAlignment="Center" IsChecked="{Binding ShowAllExecuters}" Visibility="Collapsed">Все</CheckBox>
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата:"/>
                     <DatePicker  Margin="3" IsEnabled="{Binding CanSave}" Width="100" SelectedDate="{Binding SelectedDateTime}">
                     </DatePicker>
-                    <TextBlock Margin="3" VerticalAlignment="Center" Text="Время:"/>
-                    <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedPeriod}" ItemsSource="{Binding PeriodList}" IsEditable="True">
-                        <ComboBox.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
-                        </ComboBox.Resources>
-                    </ComboBox>
+
+                    <DockPanel>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="Время:"/>
+                        <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedPeriod}" ItemsSource="{Binding PeriodList}" IsEditable="True">
+                            <ComboBox.Resources>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
+                            </ComboBox.Resources>
+                        </ComboBox>
+                    </DockPanel>
                 </WrapPanel>
                 <WrapPanel Grid.Row="3" Grid.Column="0">
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Примечание:"/>
-                    <TextBox Margin="3" Width="600" Height="48"
+                    <TextBox Margin="3" Width="600" Height="32"
                              SpellCheck.IsEnabled="True"
                              MaxLength="1000" 
                              TextWrapping="Wrap"
@@ -110,7 +115,7 @@
                     </Button>
 
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Оборудование:"/>
-                    <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="450" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEquipment}" ItemsSource="{Binding EquipmentList}" IsEditable="True">
+                    <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="350" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEquipment}" ItemsSource="{Binding EquipmentList}" IsEditable="True">
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>

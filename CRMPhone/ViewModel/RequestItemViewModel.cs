@@ -40,6 +40,9 @@ namespace CRMPhone.ViewModel
         private bool _isRetry;
         private ObservableCollection<EquipmentDto> _equipmentList;
         private EquipmentDto _selectedEquipment;
+        private bool _showAllMasters;
+        private bool _showAllExecuters;
+        private int? _selectedHouseId;
 
 
         public RequestItemViewModel()
@@ -93,6 +96,17 @@ namespace CRMPhone.ViewModel
             set { _selectedCompany = value; OnPropertyChanged(nameof(SelectedCompany));}
         }
 
+        public int? SelectedHouseId
+        {
+            get { return _selectedHouseId; }
+            set
+            {
+                _selectedHouseId = value;
+                UpdateMastets();
+                OnPropertyChanged(nameof(SelectedHouseId));
+            }
+        }
+
         public ObservableCollection<ServiceDto> ParentServiceList
         {
             get { return _parentServiceList; }
@@ -129,6 +143,50 @@ namespace CRMPhone.ViewModel
             set { _isImmediate = value; OnPropertyChanged(nameof(IsImmediate)); }
         }
 
+        public bool ShowAllMasters
+        {
+            get { return _showAllMasters; }
+            set
+            {
+
+                _showAllMasters = value;
+                UpdateMastets();
+                OnPropertyChanged(nameof(ShowAllMasters));
+            }
+        }
+
+        private void UpdateMastets()
+        {
+            var selectedMaster = SelectedMaster?.Id;
+            MasterList.Clear();
+            if (_showAllMasters)
+            {
+                foreach (var master in _requestService.GetMasters(null))
+                {
+                    MasterList.Add(master);
+                }
+                SelectedMaster = MasterList.FirstOrDefault(m => m.Id == selectedMaster);
+            }
+            else
+            {
+                if (_selectedHouseId.HasValue)
+                {
+                    foreach (var master in _requestService.GetMastersByHouseAndService(_selectedHouseId.Value, SelectedParentService.Id))
+                    {
+                        MasterList.Add(master);
+                    }
+                    SelectedMaster = MasterList.FirstOrDefault();
+                }
+            }
+
+        }
+
+        public bool ShowAllExecuters
+        {
+            get { return _showAllExecuters; }
+            set { _showAllExecuters = value; OnPropertyChanged(nameof(ShowAllExecuters));}
+        }
+
         public string Description
         {
             get { return _description; }
@@ -148,6 +206,7 @@ namespace CRMPhone.ViewModel
             {
                 _selectedParentService = value;
                 ChangeParentService(value?.Id);
+                UpdateMastets();
                 OnPropertyChanged(nameof(SelectedParentService));
             }
         }

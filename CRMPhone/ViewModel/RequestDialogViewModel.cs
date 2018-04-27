@@ -161,9 +161,11 @@ namespace CRMPhone.ViewModel
             }
             var serviceCompanyId = _requestService.GetServiceCompany(houseId.Value);
             _selectedServiceCompanyId = serviceCompanyId;
-            if (serviceCompanyId != null)
+
+            foreach (var request in RequestList.Where(r => r.CanSave))
             {
-                foreach (var request in RequestList.Where(r => r.CanSave))
+                request.SelectedHouseId = houseId;
+                if (serviceCompanyId != null)
                 {
                     request.SelectedCompany = request.CompanyList.FirstOrDefault(c => c.Id == serviceCompanyId.Value);
                 }

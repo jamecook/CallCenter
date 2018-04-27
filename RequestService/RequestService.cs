@@ -1163,6 +1163,96 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 return workers;
             }
         }
+        public IList<WorkerDto> GetMastersByHouseAndService(int houseId, int parentServiceTypeId, bool showOnlyExecutors = true)
+        {
+            var query =
+                $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id 
+    FROM CallCenter.WorkerHouseAndType wh
+    join CallCenter.Workers w on wh.worker_id = w.id
+    left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
+    left join CallCenter.Speciality sp on sp.id = w.speciality_id
+    where w.enabled = 1 and w.is_master = 1 and wh.master_weigth is not null and wh.house_id = {houseId}
+    and (wh.type_id is null or wh.type_id = {parentServiceTypeId})
+    group by s.id,s.name ,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name,w.can_assign,w.parent_worker_id
+    order by wh.master_weigth desc;";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var workers = new List<WorkerDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        workers.Add(new WorkerDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            ServiceCompanyId = dataReader.GetNullableInt("service_id"),
+                            ServiceCompanyName = dataReader.GetNullableString("service_name"),
+                            SurName = dataReader.GetString("sur_name"),
+                            FirstName = dataReader.GetNullableString("first_name"),
+                            PatrName = dataReader.GetNullableString("patr_name"),
+                            SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            SpecialityName = dataReader.GetNullableString("speciality_name"),
+                            Phone = dataReader.GetNullableString("phone"),
+                            CanAssign = dataReader.GetBoolean("can_assign"),
+                            ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return workers;
+            }
+        }
+
+        public IList<WorketHouseAndTypeListDto> GetHouseAndTypesByWorkerId(int workerId)
+        {
+            var query = $@"SELECT wh.id,s.name,h.building,h.corps,r.name type_name,wh.master_weigth FROM CallCenter.WorkerHouseAndType wh
+join CallCenter.Houses h on h.id = wh.house_id
+join CallCenter.Streets s on s.id = h.street_id
+left join CallCenter.RequestTypes r on r.id = wh.type_id
+where wh.worker_id = {workerId}";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var result = new List<WorketHouseAndTypeListDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        var corps = dataReader.GetNullableString("corps");
+                        corps = corps != null ? $"/{corps}" : "";
+                        result.Add(new WorketHouseAndTypeListDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            StreetAndHouse = $"{dataReader.GetNullableString("name")} {dataReader.GetNullableString("building")}{corps}",
+                            ServiceType = dataReader.GetNullableString("type_name")??"Все",
+                            Weigth = dataReader.GetInt32("master_weigth"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return result;
+            }
+        }
+        public void DeleteHouseAndTypesByWorkerId(int recordId)
+        {
+            using (var cmd = new MySqlCommand(@"delete from CallCenter.WorkerHouseAndType where id = @recordId;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@recordId", recordId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void AddHouseAndTypesForWorker(int workerId,int houseId, int? serviceType, int weigth)
+        {
+            using (var cmd = new MySqlCommand(@"insert into CallCenter.WorkerHouseAndType(worker_id, house_id,type_id, master_weigth) 
+    values(@WorkerId,@HouseId,@TypeId,@Weigth);", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                cmd.Parameters.AddWithValue("@HouseId", houseId);
+                cmd.Parameters.AddWithValue("@TypeId", serviceType);
+                cmd.Parameters.AddWithValue("@Weigth", weigth);
+                cmd.ExecuteNonQuery();
+            }
+        }
 
         public SmsSettingDto GetSmsSettingsForServiceCompany(int? serviceCompanyId)
         {

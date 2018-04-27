@@ -46,42 +46,26 @@ namespace CRMPhone.Controls
             }
         }
 
-        private void OnCbObjectCheckBoxChecked(object sender, RoutedEventArgs e)
+        private void CbOnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var count = CbWorkers.Items.Cast<WorkerForFilterDto>().Count(w => w.Selected);
-            if (count > 1)
-            {
-                CbWorkers.Text = "Выбрано несколько";
-            }
-            else if (count == 1)
-            {
-                var item = CbWorkers.Items.Cast<WorkerForFilterDto>().FirstOrDefault(w => w.Selected);
-                CbWorkers.Text = item?.FullName;
-            }
-            else
-                CbWorkers.Text = "";
-        }
-
-        private void OnCbSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox comboBox = (ComboBox)sender;
+            var comboBox = (ComboBox)sender;
             comboBox.SelectedItem = null;
         }
 
-        private void CbWorkers_OnDropDownClosed(object sender, EventArgs e)
+        private void CbOnDropDownClosed(object sender, EventArgs e)
         {
-            var count = CbWorkers.Items.Cast<WorkerForFilterDto>().Count(w => w.Selected);
+            var count = ((ComboBox)sender).ItemsSource.Cast<FieldForFilterDto>().Count(w => w.Selected);
             if (count > 1)
             {
-                CbWorkers.Text = "Выбрано несколько";
+                ((ComboBox)sender).Text = "Несколько";
             }
             else if (count == 1)
             {
-                var item = CbWorkers.Items.Cast<WorkerForFilterDto>().FirstOrDefault(w => w.Selected);
-                CbWorkers.Text = item?.FullName;
+                var item = ((ComboBox)sender).ItemsSource.Cast<FieldForFilterDto>().FirstOrDefault(w => w.Selected);
+                ((ComboBox)sender).Text = item?.Name;
             }
             else
-                CbWorkers.Text = "";
+                ((ComboBox)sender).Text = "";
 
         }
 
