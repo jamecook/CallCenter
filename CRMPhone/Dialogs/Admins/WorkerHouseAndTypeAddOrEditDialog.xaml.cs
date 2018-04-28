@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using RequestServiceImpl.Dto;
 
 namespace CRMPhone.Dialogs.Admins
 {
@@ -21,6 +22,29 @@ namespace CRMPhone.Dialogs.Admins
         public WorkerHouseAndTypeAddOrEditDialog()
         {
             InitializeComponent();
+        }
+
+        private void CbOnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = (ComboBox)sender;
+            comboBox.SelectedItem = null;
+        }
+
+        private void CbOnDropDownClosed(object sender, EventArgs e)
+        {
+            var count = ((ComboBox)sender).ItemsSource.Cast<FieldForFilterDto>().Count(w => w.Selected);
+            if (count > 1)
+            {
+                ((ComboBox)sender).Text = "Несколько";
+            }
+            else if (count == 1)
+            {
+                var item = ((ComboBox)sender).ItemsSource.Cast<FieldForFilterDto>().FirstOrDefault(w => w.Selected);
+                ((ComboBox)sender).Text = item?.Name;
+            }
+            else
+                ((ComboBox)sender).Text = "";
+
         }
     }
 }

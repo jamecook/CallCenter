@@ -61,21 +61,102 @@ namespace CRMPhone.ViewModel
         private void ClearFilters()
         {
             RequestNum = string.Empty;
-            SelectedStreet = null;
-            SelectedParentService = null;
-            SelectedStatus = null;
-            SelectedServiceCompany = null;
             SelectedPayment = null;
-            SelectedUser = null;
             ServiceCompanyBadWork = false;
             OnlyRetry = false;
             ClientPhone = "";
-            //foreach (var worker in FilterMasterList)
-            //{
-            //    worker.Selected = false;
-            //}
-            //OnPropertyChanged(nameof(FilterMasterList));
+            foreach (var status in FilterStatusList)
+            {
+                status.Selected = false;
+            }
+            StatusText = "";
+
+            foreach (var serviceCompany in FilterServiceCompanyList)
+            {
+                serviceCompany.Selected = false;
+            }
+            ServiceCompanyText = "";
+
+            foreach (var worker in FilterMasterList)
+            {
+                worker.Selected = false;
+            }
+            MasterText = "";
+
+            foreach (var worker in FilterExecuterList)
+            {
+                worker.Selected = false;
+            }
+            ExecuterText = "";
+            foreach (var user in FilterUserList)
+            {
+                user.Selected = false;
+            }
+            UserText = "";
+            foreach (var rating in FilterRatingList)
+            {
+                rating.Selected = false;
+            }
+            RatingText = "";
+            foreach (var street in FilterStreetList)
+            {
+                street.Selected = false;
+            }
+            StreetText = "";
+            foreach (var service in FilterParentServiceList)
+            {
+                service.Selected = false;
+            }
+            ParentServiceText = "";
             RefreshRequest();
+        }
+
+        public string ParentServiceText
+        {
+            get { return _parentServiceText; }
+            set { _parentServiceText = value; OnPropertyChanged(nameof(ParentServiceText));}
+        }
+
+        public string StreetText
+        {
+            get { return _streetText; }
+            set { _streetText = value; OnPropertyChanged(nameof(StreetText));}
+        }
+
+        public string RatingText
+        {
+            get { return _ratingText; }
+            set { _ratingText = value; OnPropertyChanged(nameof(RatingText)); }
+        }
+
+        public string UserText
+        {
+            get { return _userText; }
+            set { _userText = value; OnPropertyChanged(nameof(UserText)); }
+        }
+
+        public string ServiceCompanyText
+        {
+            get { return _serviceCompanyText; }
+            set { _serviceCompanyText = value; OnPropertyChanged(nameof(ServiceCompanyText)); }
+        }
+
+        public string StatusText
+        {
+            get { return _statusText; }
+            set { _statusText = value; OnPropertyChanged(nameof(StatusText)); }
+        }
+
+        public string ExecuterText
+        {
+            get { return _executerText; }
+            set { _executerText = value; OnPropertyChanged(nameof(ExecuterText)); }
+        }
+
+        public string MasterText
+        {
+            get { return _masterText; }
+            set { _masterText = value; OnPropertyChanged(nameof(MasterText)); }
         }
 
         private void ExportRequest()
@@ -299,34 +380,38 @@ namespace CRMPhone.ViewModel
         private ICommand _openRequestCommand;
         private DateTime _fromDate;
         private DateTime _toDate;
-        private ObservableCollection<StreetDto> _streetList;
-        private StreetDto _selectedStreet;
         private ObservableCollection<HouseDto> _houseList;
         private HouseDto _selectedHouse;
         private ObservableCollection<FlatDto> _flatList;
         private FlatDto _selectedFlat;
-        private ObservableCollection<ServiceDto> _parentServiceList;
-        private ServiceDto _selectedParentService;
         private ObservableCollection<ServiceDto> _serviceList;
         private ServiceDto _selectedService;
-        private ObservableCollection<StatusDto> _statusList;
-        private StatusDto _selectedList;
         private string _requestNum;
         private int _requestCount;
         private DateTime _executeFromDate;
         private DateTime _executeToDate;
         private bool _filterByCreateDate;
         private ObservableCollection<FieldForFilterDto> _filterMasterList;
-        private ObservableCollection<UserDto> _userList;
-        private UserDto _selectedUser;
-        private ObservableCollection<ServiceCompanyDto> _serviceCompanyList;
-        private ServiceCompanyDto _selectedServiceCompany;
         private ObservableCollection<PaymentDto> _paymentList;
         private PaymentDto _selectedPayment;
         private bool _serviceCompanyBadWork;
         private bool _onlyRetry;
         private string _clientPhone;
         private ObservableCollection<FieldForFilterDto> _filterStatusList;
+        private string _statusText;
+        private string _masterText;
+        private ObservableCollection<FieldForFilterDto> _filterServiceCompanyList;
+        private string _serviceCompanyText;
+        private string _executerText;
+        private ObservableCollection<FieldForFilterDto> _filterExecuterList;
+        private ObservableCollection<FieldForFilterDto> _filterUserList;
+        private string _userText;
+        private ObservableCollection<FieldForFilterDto> _filterRatingList;
+        private string _ratingText;
+        private ObservableCollection<FieldForFilterDto> _filterStreetList;
+        private string _streetText;
+        private ObservableCollection<FieldForFilterDto> _filterParentServiceList;
+        private string _parentServiceText;
 
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
@@ -336,21 +421,10 @@ namespace CRMPhone.ViewModel
             set { _requestNum = value; OnPropertyChanged(nameof(RequestNum));}
         }
 
-        public ObservableCollection<StreetDto> StreetList
+        public ObservableCollection<FieldForFilterDto> FilterStreetList
         {
-            get { return _streetList; }
-            set { _streetList = value; OnPropertyChanged(nameof(StreetList)); }
-        }
-
-        public StreetDto SelectedStreet
-        {
-            get { return _selectedStreet; }
-            set
-            {
-                _selectedStreet = value;
-                ChangeStreet(value?.Id);
-                OnPropertyChanged(nameof(SelectedStreet));
-            }
+            get { return _filterStreetList; }
+            set { _filterStreetList = value; OnPropertyChanged(nameof(FilterStreetList));}
         }
 
         public ObservableCollection<HouseDto> HouseList
@@ -394,20 +468,10 @@ namespace CRMPhone.ViewModel
             OnPropertyChanged(nameof(HouseList));
         }
 
-        public ServiceDto SelectedParentService
+        public ObservableCollection<FieldForFilterDto> FilterParentServiceList
         {
-            get { return _selectedParentService; }
-            set
-            {
-                _selectedParentService = value;
-                ChangeParentService(value?.Id);
-                OnPropertyChanged(nameof(SelectedParentService));
-            }
-        }
-        public ObservableCollection<ServiceDto> ParentServiceList
-        {
-            get { return _parentServiceList; }
-            set { _parentServiceList = value; OnPropertyChanged(nameof(ParentServiceList)); }
+            get { return _filterParentServiceList; }
+            set { _filterParentServiceList = value; OnPropertyChanged(nameof(FilterParentServiceList));}
         }
 
         public ObservableCollection<ServiceDto> ServiceList
@@ -422,6 +486,12 @@ namespace CRMPhone.ViewModel
             set { _selectedService = value; OnPropertyChanged(nameof(SelectedService)); }
         }
 
+        public ObservableCollection<FieldForFilterDto> FilterExecuterList
+        {
+            get { return _filterExecuterList; }
+            set { _filterExecuterList = value; OnPropertyChanged(nameof(FilterExecuterList));}
+        }
+
         public ObservableCollection<FieldForFilterDto> FilterMasterList
         {
             get { return _filterMasterList; }
@@ -433,35 +503,23 @@ namespace CRMPhone.ViewModel
             get { return _filterStatusList; }
             set { _filterStatusList = value; OnPropertyChanged(nameof(FilterStatusList)); }
         }
-        public void FilterStatusListChanged(object sender, NotifyCollectionChangedEventArgs e)
+
+        public ObservableCollection<FieldForFilterDto> FilterRatingList
         {
-            var t = 1;
-            //This will get called when the collection is changed
+            get { return _filterRatingList; }
+            set { _filterRatingList = value; OnPropertyChanged(nameof(FilterRatingList));}
         }
 
-
-        public ObservableCollection<UserDto> UserList
+        public ObservableCollection<FieldForFilterDto> FilterUserList
         {
-            get { return _userList; }
-            set { _userList = value; OnPropertyChanged(nameof(UserList));}
+            get { return _filterUserList; }
+            set { _filterUserList = value; OnPropertyChanged(nameof(FilterUserList)); }
         }
 
-        public UserDto SelectedUser
+        public ObservableCollection<FieldForFilterDto> FilterServiceCompanyList
         {
-            get { return _selectedUser; }
-            set { _selectedUser = value; OnPropertyChanged(nameof(SelectedUser));}
-        }
-
-        public ObservableCollection<ServiceCompanyDto> ServiceCompanyList
-        {
-            get { return _serviceCompanyList; }
-            set { _serviceCompanyList = value; OnPropertyChanged(nameof(ServiceCompanyList));}
-        }
-
-        public ServiceCompanyDto SelectedServiceCompany
-        {
-            get { return _selectedServiceCompany; }
-            set { _selectedServiceCompany = value; OnPropertyChanged(nameof(SelectedServiceCompany));}
+            get { return _filterServiceCompanyList; }
+            set { _filterServiceCompanyList = value; OnPropertyChanged(nameof(FilterServiceCompanyList));}
         }
 
         public ObservableCollection<PaymentDto> PaymentList
@@ -520,14 +578,44 @@ namespace CRMPhone.ViewModel
 
         private void ChangeCity(int? cityId)
         {
-            StreetList.Clear();
+            foreach (var street in FilterStreetList)
+            {
+                street.PropertyChanged -= StreetOnPropertyChanged;
+            }
+            FilterStreetList.Clear();
             if (!cityId.HasValue)
                 return;
-            foreach (var street in _requestService.GetStreets(cityId.Value).OrderBy(s => s.Name))
+            foreach (var street in _requestService.GetStreets(cityId.Value).OrderBy(s => s.Name).Select(w => new FieldForFilterDto()
             {
-                StreetList.Add(street);
+                Id = w.Id,
+                Name = w.NameWithPrefix,
+                Selected = false
+            }))
+            {
+                FilterStreetList.Add(street);
             }
-            OnPropertyChanged(nameof(StreetList));
+            foreach (var street in FilterStreetList)
+            {
+                street.PropertyChanged += StreetOnPropertyChanged;
+            }
+            OnPropertyChanged(nameof(FilterStreetList));
+        }
+
+        private void StreetOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+        {
+            var item = sender as FieldForFilterDto;
+            if (item != null)
+            {
+                if (FilterStreetList.Count(f => f.Selected) == 1)
+                {
+                    ChangeStreet(FilterStreetList.FirstOrDefault(f => f.Selected)?.Id);
+                }
+                else
+                {
+                    ChangeStreet(null);
+                }
+            }
+
         }
 
         private void OpenRequest(object sender)
@@ -595,13 +683,18 @@ namespace CRMPhone.ViewModel
                 _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             RequestList.Clear();
             var requests = _requestService.GetRequestList(RequestNum, FilterByCreateDate, FromDate, ToDate,
-                ExecuteFromDate, ExecuteToDate, SelectedStreet?.Id, _selectedHouse?.Id, SelectedFlat?.Id,
-                SelectedParentService?.Id, SelectedService?.Id,
-                FilterStatusList.FirstOrDefault(s => s.Selected)?.Id,
-                //SelectedStatus?.Id,
+                ExecuteFromDate, ExecuteToDate,
+                FilterStreetList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+                _selectedHouse?.Id, SelectedFlat?.Id,
+                FilterParentServiceList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+                SelectedService?.Id,
+                FilterStatusList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterMasterList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
-                SelectedServiceCompany?.Id,
-                SelectedUser?.Id, SelectedPayment?.Id, ServiceCompanyBadWork,OnlyRetry, ClientPhone);
+                FilterExecuterList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+                FilterServiceCompanyList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+                FilterUserList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+                FilterRatingList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+                SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone);
             foreach (var request in requests)
             {
                 RequestList.Add(request);
@@ -629,7 +722,7 @@ namespace CRMPhone.ViewModel
         public void InitCollections()
         {
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
-            StreetList = new ObservableCollection<StreetDto>();
+            FilterStreetList = new ObservableCollection<FieldForFilterDto>();
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
             ServiceList = new ObservableCollection<ServiceDto>();
@@ -639,34 +732,86 @@ namespace CRMPhone.ViewModel
                     Id = w.Id,
                     Name = $"{w.SurName} {w.FirstName} {w.PatrName}",
                     Selected = false
-                }));
-            //StatusList = new ObservableCollection<StatusDto>(_requestService.GetRequestStatuses());
+                }).OrderBy(s=>s.Name));
+
+            FilterExecuterList = new ObservableCollection<FieldForFilterDto>(_requestService.GetExecuters(null).Select(
+                w => new FieldForFilterDto()
+                {
+                    Id = w.Id,
+                    Name = $"{w.SurName} {w.FirstName} {w.PatrName}",
+                    Selected = false
+                }).OrderBy(s=>s.Name));
+
+            FilterServiceCompanyList = new ObservableCollection<FieldForFilterDto>(_requestService.GetServiceCompanies().Select(
+                w => new FieldForFilterDto()
+                {
+                    Id = w.Id,
+                    Name = w.Name,
+                    Selected = false
+                }).OrderBy(s=>s.Name));
+
             FilterStatusList = new ObservableCollection<FieldForFilterDto>(_requestService.GetRequestStatuses().Select(
                 w => new FieldForFilterDto()
                 {
                     Id = w.Id,
                     Name = w.Description,
                     Selected = false
-                }));
-            FilterStatusList.CollectionChanged += FilterStatusListChanged;
-            foreach (var status in FilterStatusList)
+                }).OrderBy(s => s.Name));
+
+            FilterUserList = new ObservableCollection<FieldForFilterDto>(_requestService.GetUsers().Select(
+                w => new FieldForFilterDto()
+                {
+                    Id = w.Id,
+                    Name = w.FullName,
+                    Selected = false
+                }).OrderBy(s => s.Name));
+            FilterRatingList = new ObservableCollection<FieldForFilterDto>(new []{1,2,3,4,5}.Select(
+                w => new FieldForFilterDto()
+                {
+                    Id = w,
+                    Name = w.ToString(),
+                    Selected = false
+                }).OrderBy(s => s.Name));
+            FilterParentServiceList = new ObservableCollection<FieldForFilterDto>(_requestService.GetServices(null).Select(
+                w => new FieldForFilterDto()
+                {
+                    Id = w.Id,
+                    Name = w.Name,
+                    Selected = false
+                }).OrderBy(s => s.Name));
+            foreach (var service in FilterParentServiceList)
             {
-                status.PropertyChanged += OnPropertyChanged;
+                service.PropertyChanged += ServiceOnPropertyChanged;
             }
+            //foreach (var status in FilterStatusList)
+            //{
+            //    status.PropertyChanged += OnPropertyChanged;
+            //}
 
-            ParentServiceList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
             PaymentList = new ObservableCollection<PaymentDto>(new [] {new PaymentDto{Id=0,Name="Бесплатные"}, new PaymentDto{Id = 1, Name = "Платные"}});
-            ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
-            UserList = new ObservableCollection<UserDto>(_requestService.GetUsers());
-
             ChangeCity(_requestService.GetCities().FirstOrDefault().Id);
         }
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs arg)
+        private void ServiceOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
-            var t = arg;
-            //throw new NotImplementedException();
+            var item = sender as FieldForFilterDto;
+            if (item != null)
+            {
+                if (FilterParentServiceList.Count(f => f.Selected) == 1)
+                {
+                    ChangeParentService(FilterParentServiceList.FirstOrDefault(f => f.Selected)?.Id);
+                }
+                else
+                {
+                    ChangeParentService(null);
+                }
+            }
         }
+
+        //private void OnPropertyChanged(object sender, PropertyChangedEventArgs arg)
+        //{
+        //    var t = arg;
+        //}
 
         public ObservableCollection<RequestForListDto> RequestList
         {
@@ -697,19 +842,6 @@ namespace CRMPhone.ViewModel
             get { return _toDate; }
             set { _toDate = value; OnPropertyChanged(nameof(ToDate));}
         }
-
-        public ObservableCollection<StatusDto> StatusList
-        {
-            get { return _statusList; }
-            set { _statusList = value; OnPropertyChanged(nameof(StatusList)); }
-        }
-
-        public StatusDto SelectedStatus
-        {
-            get { return _selectedList; }
-            set { _selectedList = value; OnPropertyChanged(nameof(SelectedStatus)); }
-        }
-
         public bool FilterByCreateDate
         {
             get { return _filterByCreateDate; }

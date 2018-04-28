@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -25,17 +26,9 @@ namespace CRMPhone.ViewModel.Admins
         private ServiceDto _selectedParentService;
         private int _weigth;
         private ObservableCollection<WorketHouseAndTypeListDto> _houseAndTypeList;
+        private ObservableCollection<FieldForFilterDto> _filterHouseList;
+        private ObservableCollection<FieldForFilterDto> _filterServiceList;
 
-
-        public ServiceDto SelectedParentService
-        {
-            get { return _selectedParentService; }
-            set
-            {
-                _selectedParentService = value;
-                OnPropertyChanged(nameof(SelectedParentService));
-            }
-        }
         public ObservableCollection<ServiceDto> ParentServiceList
         {
             get { return _parentServiceList; }
@@ -53,15 +46,48 @@ namespace CRMPhone.ViewModel.Admins
         {
             _requestService = requestService;
             _workerId = workerId;
-            ParentServiceList = new ObservableCollection<ServiceDto>(new []{ new ServiceDto{Id = 0,Name = "Все"} }.Concat(_requestService.GetServices(null)));
-            SelectedParentService = ParentServiceList.FirstOrDefault();
+            var services = new[] {new ServiceDto {Id = 0, Name = "Все"}}.Concat(_requestService.GetServices(null));
+            FilterServiceList = new ObservableCollection<FieldForFilterDto>(services.Select(w => new FieldForFilterDto()
+            {
+                Id = w.Id,
+                Name = w.Name,
+                Selected = false
+            }));
+            foreach (var service in FilterServiceList)
+            {
+                service.PropertyChanged += ServiceOnPropertyChanged;
+            }
+
             StreetList = new ObservableCollection<StreetDto>();
-            HouseList = new ObservableCollection<HouseDto>();
+            FilterHouseList = new ObservableCollection<FieldForFilterDto>();
             CityList = new ObservableCollection<CityDto>(_requestService.GetCities());
             RefreshList();
             if (CityList.Count > 0)
             {
                 SelectedCity = CityList.FirstOrDefault();
+            }
+        }
+
+        private void ServiceOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+        {
+            var item = sender as FieldForFilterDto;
+            if (item != null && item.Selected)
+            {
+                if (item.Id == 0)
+                {
+                    foreach (var service in FilterServiceList.Where(s=>s.Id > 0))
+                    {
+                        service.Selected = false;
+                    }
+
+                }
+                else
+                {
+                    var service = FilterServiceList.FirstOrDefault(s => s.Id == 0);
+                    if (service != null)
+                        service.Selected = false;
+                }
+
             }
         }
 
@@ -94,14 +120,22 @@ namespace CRMPhone.ViewModel.Admins
 
         private void ChangeStreet(int? streetId)
         {
-            HouseList.Clear();
+            FilterHouseList.Clear();
             if (!streetId.HasValue)
                 return;
-            foreach (var house in _requestService.GetHouses(streetId.Value).OrderBy(s => s.Building?.PadLeft(6, '0')).ThenBy(s => s.Corpus?.PadLeft(6, '0')))
+            foreach (var house in _requestService.GetHouses(streetId.Value)
+                .OrderBy(s => s.Building?.PadLeft(6, '0'))
+                .ThenBy(s => s.Corpus?.PadLeft(6, '0'))
+                .Select(w => new FieldForFilterDto()
+                {
+                    Id = w.Id,
+                    Name = w.FullName,
+                    Selected = false
+                }))
             {
-                HouseList.Add(house);
+                FilterHouseList.Add(house);
             }
-            OnPropertyChanged(nameof(HouseList));
+            OnPropertyChanged(nameof(FilterHouseList));
         }
         public ObservableCollection<StreetDto> StreetList
         {
@@ -120,20 +154,16 @@ namespace CRMPhone.ViewModel.Admins
             }
         }
 
-        public ObservableCollection<HouseDto> HouseList
+        public ObservableCollection<FieldForFilterDto> FilterServiceList
         {
-            get { return _houseList; }
-            set { _houseList = value; OnPropertyChanged(nameof(HouseList)); }
+            get { return _filterServiceList; }
+            set { _filterServiceList = value; OnPropertyChanged(nameof(FilterServiceList));}
         }
 
-        public HouseDto SelectedHouse
+        public ObservableCollection<FieldForFilterDto> FilterHouseList
         {
-            get { return _selectedHouse; }
-            set
-            {
-                _selectedHouse = value;
-                OnPropertyChanged(nameof(SelectedHouse));
-            }
+            get { return _filterHouseList; }
+            set { _filterHouseList = value; OnPropertyChanged(nameof(FilterHouseList));}
         }
 
         public int Weigth
@@ -157,11 +187,15 @@ namespace CRMPhone.ViewModel.Admins
 
         private void Add(object sender)
         {
-            if(SelectedHouse==null || SelectedParentService == null)
+            if(!FilterServiceList.Any(s => s.Selected) || !FilterHouseList.Any(s => s.Selected))
                 return;
-
-            _requestService.AddHouseAndTypesForWorker(_workerId, SelectedHouse.Id,
-                SelectedParentService.Id == 0 ? (int?) null : SelectedParentService.Id, Weigth);
+            foreach (var houseId in FilterHouseList.Where(h => h.Selected).Select(h => h.Id))
+            {
+                foreach (var serviceId in FilterServiceList.Where(h => h.Selected).Select(h => h.Id))
+                {
+                    _requestService.AddHouseAndTypesForWorker(_workerId, houseId, serviceId == 0 ? (int?) null : serviceId, Weigth);
+                }
+            }
             RefreshList();
         }
         private void Delete(object sender)

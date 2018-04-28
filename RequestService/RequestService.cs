@@ -745,7 +745,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             return null;
         }
 
-        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int? streetId, int? houseId, int? addressId, int? parentServiceId, int? serviceId, int? statusId, int[] workersId,int? serviceCompanyId,int? userId,int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone)
+        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -796,24 +796,36 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
 
                     sqlQuery += " where R.execute_date between @FromDate and @ToDate";
                 }
-                if (streetId.HasValue)
-                    sqlQuery += $" and s.id = {streetId.Value}";
+                if (streetsId != null && streetsId.Length > 0)
+                    sqlQuery += $" and s.id in ({streetsId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
                 if (houseId.HasValue)
                     sqlQuery += $" and h.id = {houseId.Value}";
                 if (addressId.HasValue)
                     sqlQuery += $" and a.id = {addressId.Value}";
                 if (serviceId.HasValue)
                     sqlQuery += $" and rt.id = {serviceId.Value}";
-                if (parentServiceId.HasValue)
-                    sqlQuery += $" and rt2.id = {parentServiceId.Value}";
-                if (statusId.HasValue)
-                    sqlQuery += $" and R.state_id = {statusId.Value}";
-                if (workersId.Length>0)
-                    sqlQuery += $" and w.id in ({workersId.Select(x=>x.ToString()).Aggregate((x,y)=>x+","+y)})";
-                if (serviceCompanyId.HasValue)
-                    sqlQuery += $" and R.service_company_id = {serviceCompanyId.Value}";
-                if (userId.HasValue)
-                    sqlQuery += $" and R.create_user_id = {userId.Value}";
+
+                if (parentServicesId != null && parentServicesId.Length >0)
+                    sqlQuery += $" and rt2.id in ({parentServicesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+
+                if (statusesId !=null && statusesId.Length >0)
+                    sqlQuery += $" and R.state_id in ({statusesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+
+                if (mastersId != null && mastersId.Length>0)
+                    sqlQuery += $" and w.id in ({mastersId.Select(x=>x.ToString()).Aggregate((x,y)=>x+","+y)})";
+
+                if (executersId != null && executersId.Length>0)
+                    sqlQuery += $" and R.executer_id in ({executersId.Select(x=>x.ToString()).Aggregate((x,y)=>x+","+y)})";
+
+                if (serviceCompaniesId != null && serviceCompaniesId.Length>0)
+                    sqlQuery += $" and R.service_company_id in ({serviceCompaniesId.Select(x=>x.ToString()).Aggregate((x,y)=>x+","+y)})";
+
+                if (usersId != null && usersId.Length>0)
+                    sqlQuery += $" and R.create_user_id in ({usersId.Select(x=>x.ToString()).Aggregate((x,y)=>x+","+y)})";
+
+                if (ratingsId != null && ratingsId.Length>0)
+                    sqlQuery += $" and rtype.rating_id in ({ratingsId.Select(x=>x.ToString()).Aggregate((x,y)=>x+","+y)})";
+
                 if (payment.HasValue)
                     sqlQuery += $" and R.is_chargeable = {payment.Value}";
                 if (onlyBadWork)
