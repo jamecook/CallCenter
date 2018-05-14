@@ -118,9 +118,13 @@ namespace RequestWcfService
             return _requestService.WebLogin(login, password);
         }
 
-        public RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate,int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId,int? FilterParrentServiceId, int? FilterServiceId,bool badWork, bool garanty, string clientPhone, int? rating,bool filterByCreateDate)
+        public RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate,int? filterWorkerId, int? filterStreetId, int? filterHouseId, int? filterAddressId, int? filterStatusId,int? filterParrentServiceId, int? filterServiceId,bool badWork, bool garanty, string clientPhone, int? rating,bool filterByCreateDate)
         {
-            return _requestService.WebRequestList2(workerId,null, filterByCreateDate, fromDate, toDate, fromDate, toDate, FilterStreetId, FilterHouseId, FilterAddressId, FilterParrentServiceId, FilterServiceId, FilterStatusId, FirlerWorkerId, badWork, garanty, clientPhone, rating);
+            return _requestService.WebRequestList2(workerId,null, filterByCreateDate, fromDate, toDate, fromDate, toDate, filterStreetId, filterHouseId, filterAddressId, filterParrentServiceId, filterServiceId, filterStatusId, filterWorkerId, badWork, garanty, clientPhone, rating);
+        }
+        public RequestForListDto[] RequestListArrayParams(int workerId, int? requestId, DateTime fromDate, DateTime toDate, int[] filterWorkerIds, int[] filterStreetIds, int[] filterHouseIds, int[] filterAddressIds, int[] filterStatusIds, int[] filterParrentServiceIds, int[] filterServiceIds, bool badWork, bool garanty, string clientPhone, int[] ratingIds, bool filterByCreateDate)
+        {
+            return _requestService.WebRequestListArrayParam(workerId, requestId, filterByCreateDate, fromDate, toDate, fromDate, toDate, filterStreetIds, filterHouseIds, filterAddressIds, filterParrentServiceIds, filterServiceIds, filterStatusIds, filterWorkerIds, ratingIds, badWork, garanty, clientPhone);
         }
 
         public RequestForListDto GetRequestById(int requestId)
