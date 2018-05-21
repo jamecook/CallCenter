@@ -360,6 +360,22 @@ namespace CRMPhone.ViewModel
         public ICommand OpenNoteDialogCommand { get { return _noteCommand ?? (_noteCommand = new RelayCommand(OpenNotesDialog)); } }
         private ICommand _addCallCommand;
         public ICommand AddCallCommand { get { return _addCallCommand ?? (_addCallCommand = new RelayCommand(AddCall)); } }
+
+        private ICommand _showMasterInfoCommand;
+        public ICommand ShowMasterInfoCommand
+        {
+            get { return _showMasterInfoCommand ?? (_showMasterInfoCommand = new RelayCommand(ShowMasterInfo)); }
+            
+        }
+
+        private void ShowMasterInfo(object obj)
+        {
+            var model = obj as RequestItemViewModel;
+            if(model?.SelectedMaster == null)
+                return;
+            throw new NotImplementedException();
+        }
+
         private ICommand _callsHistoryCommand;
         public ICommand CallsHistoryCommand { get { return _callsHistoryCommand ?? (_callsHistoryCommand = new RelayCommand(CallsHistory)); } }
 

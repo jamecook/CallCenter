@@ -108,6 +108,26 @@ namespace RequestWcfService
             //File.WriteAllBytes("\\111.pdf",reportStream.GetBuffer());
             return reportStream.GetBuffer();
         }
+
+        public byte[] ExportToExcel(int workerId, int? requestId, DateTime fromDate, DateTime toDate, int[] filterWorkerIds, int[] filterExecuterIds, int[] filterStreetIds, int[] filterHouseIds, int[] filterAddressIds, int[] filterStatusIds, int[] filterParrentServiceIds, int[] filterServiceIds, bool badWork, bool garanty, string clientPhone, int[] ratingIds, bool filterByCreateDate)
+        {
+            var requests = _requestService.WebRequestListArrayParam(workerId, requestId, filterByCreateDate, fromDate, toDate, fromDate, toDate, filterStreetIds, filterHouseIds, filterAddressIds, filterParrentServiceIds, filterServiceIds, filterStatusIds, filterWorkerIds, filterExecuterIds, ratingIds, badWork, garanty, clientPhone);
+            var requestsDto = requests.Select(r => new { r.Id,r.CreateTime, r.StreetName, r.Building, r.Corpus, r.Flat, MasterShortName = r.Master?.ShortName, ExecuterShortName = r.Executer?.ShortName, r.ContactPhones, r.ParentService, r.Service, r.Description,r.Rating,r.Status,r.ExecuteTime,r.ExecutePeriod }).ToArray();
+
+            var stiReport = new StiReport();
+            stiReport.Load("templates\\exportToExcel.mrt");
+            StiOptions.Engine.HideRenderingProgress = true;
+            //StiOptions.Engine.HideExceptions = true;
+            StiOptions.Engine.HideMessages = true;
+
+
+            stiReport.RegBusinessObject("", "Requests", requestsDto);
+            stiReport.Render();
+            var reportStream = new MemoryStream();
+            stiReport.ExportDocument(StiExportFormat.Excel2007, reportStream);
+            reportStream.Position = 0;
+            return reportStream.GetBuffer();
+        }
         public CityDto[] GetData()
         {
             return _requestService.GetCities().ToArray();
@@ -122,9 +142,9 @@ namespace RequestWcfService
         {
             return _requestService.WebRequestList2(workerId,null, filterByCreateDate, fromDate, toDate, fromDate, toDate, filterStreetId, filterHouseId, filterAddressId, filterParrentServiceId, filterServiceId, filterStatusId, filterWorkerId, badWork, garanty, clientPhone, rating);
         }
-        public RequestForListDto[] RequestListArrayParams(int workerId, int? requestId, DateTime fromDate, DateTime toDate, int[] filterWorkerIds, int[] filterStreetIds, int[] filterHouseIds, int[] filterAddressIds, int[] filterStatusIds, int[] filterParrentServiceIds, int[] filterServiceIds, bool badWork, bool garanty, string clientPhone, int[] ratingIds, bool filterByCreateDate)
+        public RequestForListDto[] RequestListArrayParams(int workerId, int? requestId, DateTime fromDate, DateTime toDate, int[] filterWorkerIds, int[] filterExecuterIds, int[] filterStreetIds, int[] filterHouseIds, int[] filterAddressIds, int[] filterStatusIds, int[] filterParrentServiceIds, int[] filterServiceIds, bool badWork, bool garanty, string clientPhone, int[] ratingIds, bool filterByCreateDate)
         {
-            return _requestService.WebRequestListArrayParam(workerId, requestId, filterByCreateDate, fromDate, toDate, fromDate, toDate, filterStreetIds, filterHouseIds, filterAddressIds, filterParrentServiceIds, filterServiceIds, filterStatusIds, filterWorkerIds, ratingIds, badWork, garanty, clientPhone);
+            return _requestService.WebRequestListArrayParam(workerId, requestId, filterByCreateDate, fromDate, toDate, fromDate, toDate, filterStreetIds, filterHouseIds, filterAddressIds, filterParrentServiceIds, filterServiceIds, filterStatusIds, filterWorkerIds, filterExecuterIds, ratingIds, badWork, garanty, clientPhone);
         }
 
         public RequestForListDto GetRequestById(int requestId)
@@ -145,6 +165,10 @@ namespace RequestWcfService
         public WorkerDto[] GetWorkersByPeriod(bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int workerId)
         {
             return _requestService.GetWorkersByPeriod(filterByCreateDate, fromDate, toDate, executeFromDate, executeToDate, workerId);
+        }
+        public WorkerDto[] GetExecutersByPeriod(bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int workerId)
+        {
+            return _requestService.GetExecutersByPeriod(filterByCreateDate, fromDate, toDate, executeFromDate, executeToDate, workerId);
         }
         public StreetDto[] GetStreetListByWorker(int workerId)
         {

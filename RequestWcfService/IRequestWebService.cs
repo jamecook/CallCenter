@@ -24,7 +24,10 @@ namespace RequestWcfService
         RequestForListDto[] RequestList(int workerId, DateTime fromDate, DateTime toDate, int? firlerWorkerId, int? filterStreetId, int? filterHouseId, int? filterAddressId, int? filterStatusId, int? filterParrentServiceId, int? filterServiceId, bool badWork, bool garanty, string clientPhone, int? rating, bool filterByCreateDate);
 
         [OperationContract]
-        RequestForListDto[] RequestListArrayParams(int workerId, int? requestId, DateTime fromDate, DateTime toDate, int[] filterWorkerIds, int[] filterStreetIds, int[] filterHouseIds, int[] filterAddressIds, int[] filterStatusIds, int[] filterParrentServiceIds, int[] filterServiceIds, bool badWork, bool garanty, string clientPhone, int[] ratingIds, bool filterByCreateDate);
+        byte[] ExportToExcel(int workerId, int? requestId, DateTime fromDate, DateTime toDate, int[] filterWorkerIds,int[] filterExecuterIds, int[] filterStreetIds, int[] filterHouseIds, int[] filterAddressIds,int[] filterStatusIds, int[] filterParrentServiceIds, int[] filterServiceIds, bool badWork, bool garanty,string clientPhone, int[] ratingIds, bool filterByCreateDate);
+
+        [OperationContract]
+        RequestForListDto[] RequestListArrayParams(int workerId, int? requestId, DateTime fromDate, DateTime toDate, int[] filterWorkerIds, int[] filterExecuterIds, int[] filterStreetIds, int[] filterHouseIds, int[] filterAddressIds, int[] filterStatusIds, int[] filterParrentServiceIds, int[] filterServiceIds, bool badWork, bool garanty, string clientPhone, int[] ratingIds, bool filterByCreateDate);
 
         [OperationContract]
         RequestForListDto GetRequestById(int requestId);
@@ -36,6 +39,10 @@ namespace RequestWcfService
 
         [OperationContract]
         WorkerDto[] GetWorkersByPeriod(bool filterByCreateDate, DateTime fromDate, DateTime toDate,
+            DateTime executeFromDate, DateTime executeToDate, int workerId);
+
+        [OperationContract]
+        WorkerDto[] GetExecutersByPeriod(bool filterByCreateDate, DateTime fromDate, DateTime toDate,
             DateTime executeFromDate, DateTime executeToDate, int workerId);
 
         [OperationContract]

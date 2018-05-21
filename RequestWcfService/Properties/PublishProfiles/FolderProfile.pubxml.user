@@ -17,19 +17,19 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>05/31/2017 19:01:20</publishTime>
     </File>
     <File Include="bin/RequestServiceImpl.dll">
-      <publishTime>05/14/2018 23:03:50</publishTime>
+      <publishTime>05/16/2018 21:59:34</publishTime>
     </File>
     <File Include="bin/RequestServiceImpl.dll.config">
       <publishTime>09/14/2017 20:36:44</publishTime>
     </File>
     <File Include="bin/RequestServiceImpl.pdb">
-      <publishTime>05/14/2018 23:03:50</publishTime>
+      <publishTime>05/16/2018 21:59:34</publishTime>
     </File>
     <File Include="bin/RequestWcfService.dll">
-      <publishTime>05/14/2018 23:03:50</publishTime>
+      <publishTime>05/21/2018 21:40:23</publishTime>
     </File>
     <File Include="bin/RequestWcfService.pdb">
-      <publishTime>05/14/2018 23:03:50</publishTime>
+      <publishTime>05/21/2018 21:40:23</publishTime>
     </File>
     <File Include="bin/Stimulsoft.Base.dll">
       <publishTime>01/01/0001 00:00:00</publishTime>
@@ -43,14 +43,20 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="bin/templates/act.mrt">
       <publishTime>07/27/2017 21:21:05</publishTime>
     </File>
+    <File Include="bin/templates/exportToExcel.mrt">
+      <publishTime>05/21/2018 21:35:57</publishTime>
+    </File>
     <File Include="packages.config">
-      <publishTime>03/06/2017 23:41:57</publishTime>
+      <publishTime>06/03/2017 23:41:57</publishTime>
     </File>
     <File Include="RequestWebService.svc">
-      <publishTime>03/06/2017 23:39:03</publishTime>
+      <publishTime>06/03/2017 23:39:03</publishTime>
     </File>
     <File Include="templates/act.mrt">
       <publishTime>07/27/2017 21:21:05</publishTime>
+    </File>
+    <File Include="templates/exportToExcel.mrt">
+      <publishTime>05/21/2018 21:35:57</publishTime>
     </File>
     <File Include="Web.config">
       <publishTime>04/10/2018 20:04:27</publishTime>
