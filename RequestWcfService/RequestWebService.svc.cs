@@ -109,6 +109,31 @@ namespace RequestWcfService
             return reportStream.GetBuffer();
         }
 
+        public byte[] GetRequestActs(int workerId, int? requestId, DateTime fromDate, DateTime toDate, int[] filterWorkerIds,
+    int[] filterExecuterIds, int[] filterStreetIds, int[] filterHouseIds, int[] filterAddressIds,
+    int[] filterStatusIds, int[] filterParrentServiceIds, int[] filterServiceIds, bool badWork, bool garanty,
+    string clientPhone, int[] ratingIds, bool filterByCreateDate)
+        {
+            var requests = _requestService.WebRequestListArrayParam(workerId, requestId, filterByCreateDate, fromDate, toDate, fromDate, toDate, filterStreetIds, filterHouseIds, filterAddressIds, filterParrentServiceIds, filterServiceIds, filterStatusIds, filterWorkerIds, filterExecuterIds, ratingIds, badWork, garanty, clientPhone);
+            var stiReport = new StiReport();
+            stiReport.Load("templates\\act.mrt");
+            StiOptions.Engine.HideRenderingProgress = true;
+            StiOptions.Engine.HideExceptions = true;
+            StiOptions.Engine.HideMessages = true;
+
+            var acts = requests.Select(r => new { Address = r.FullAddress, Workers = r.Master?.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": " + r.Service, Description = r.Description }).ToArray();
+
+            stiReport.RegBusinessObject("", "Acts", acts);
+            stiReport.Render();
+            var reportStream = new MemoryStream();
+            stiReport.ExportDocument(StiExportFormat.Pdf, reportStream);
+            reportStream.Position = 0;
+            //File.WriteAllBytes("\\111.pdf",reportStream.GetBuffer());
+            return reportStream.GetBuffer();
+
+        }
+
+
         public byte[] ExportToExcel(int workerId, int? requestId, DateTime fromDate, DateTime toDate, int[] filterWorkerIds, int[] filterExecuterIds, int[] filterStreetIds, int[] filterHouseIds, int[] filterAddressIds, int[] filterStatusIds, int[] filterParrentServiceIds, int[] filterServiceIds, bool badWork, bool garanty, string clientPhone, int[] ratingIds, bool filterByCreateDate)
         {
             var requests = _requestService.WebRequestListArrayParam(workerId, requestId, filterByCreateDate, fromDate, toDate, fromDate, toDate, filterStreetIds, filterHouseIds, filterAddressIds, filterParrentServiceIds, filterServiceIds, filterStatusIds, filterWorkerIds, filterExecuterIds, ratingIds, badWork, garanty, clientPhone);
@@ -146,7 +171,6 @@ namespace RequestWcfService
         {
             return _requestService.WebRequestListArrayParam(workerId, requestId, filterByCreateDate, fromDate, toDate, fromDate, toDate, filterStreetIds, filterHouseIds, filterAddressIds, filterParrentServiceIds, filterServiceIds, filterStatusIds, filterWorkerIds, filterExecuterIds, ratingIds, badWork, garanty, clientPhone);
         }
-
         public RequestForListDto GetRequestById(int requestId)
         {
             var request =_requestService.WebRequestList2(0, requestId, false, DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, null, null, null, null, null, null, null).FirstOrDefault();

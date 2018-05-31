@@ -117,7 +117,9 @@ namespace RequestWcfService
         StatInfoDto[] GetWorkerStat(int currentWorkerId, DateTime fromDate, DateTime toDate);
 
         [OperationContract]
-        byte[] GetRequestActs(int workerId, DateTime fromDate, DateTime toDate, int? FirlerWorkerId, int? FilterStreetId, int? FilterHouseId, int? FilterAddressId, int? FilterStatusId, int? FilterParrentServiceId, int? FilterServiceId);
+        byte[] GetRequestActs(int workerId, int? requestId, DateTime fromDate, DateTime toDate, int[] filterWorkerIds, int[] filterExecuterIds, int[] filterStreetIds, int[] filterHouseIds, int[] filterAddressIds, int[] filterStatusIds, int[] filterParrentServiceIds, int[] filterServiceIds, bool badWork, bool garanty, string clientPhone, int[] ratingIds, bool filterByCreateDate);
+
+
         [OperationContract]
         FileUploadResponse UploadFile(FileUploadRequest input);
     }
