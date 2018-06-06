@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -28,6 +29,15 @@ namespace CRMPhone.ViewModel
         {
             AlertTimes = new ObservableCollection<AlertTimeDto>(alertTimes);
             SelectedTime = AlertTimes.FirstOrDefault();
+            var times = new List<AlertTimeDto>();
+            for (int i = 9; i < 21; i++)
+            {
+                times.Add(new AlertTimeDto {Id=i,Name = string.Format("{0}:00",i), AddMinutes = i*60});
+            }
+            AlertDateTimes = new ObservableCollection<AlertTimeDto>(times);
+            SelectedDateTime = AlertDateTimes.FirstOrDefault();
+            SelectedDate = DateTime.Now;
+            ByTime = true;
         }
 
 
@@ -35,6 +45,36 @@ namespace CRMPhone.ViewModel
         {
             get { return _selectedTime; }
             set { _selectedTime = value; OnPropertyChanged(nameof(SelectedTime));}
+        }
+
+        public ObservableCollection<AlertTimeDto> AlertDateTimes
+        {
+            get { return _alertDateTimes; }
+            set { _alertDateTimes = value; OnPropertyChanged(nameof(AlertDateTimes));}
+        }
+
+        public AlertTimeDto SelectedDateTime
+        {
+            get { return _selectedDateTime; }
+            set { _selectedDateTime = value; OnPropertyChanged(nameof(SelectedDateTime));}
+        }
+
+        public bool ByTime
+        {
+            get { return _byTime; }
+            set { _byTime = value; OnPropertyChanged(nameof(ByTime));}
+        }
+
+        public bool ByDate
+        {
+            get { return _byDate; }
+            set { _byDate = value; OnPropertyChanged(nameof(ByDate));}
+        }
+
+        public DateTime? SelectedDate
+        {
+            get { return _selectedDate; }
+            set { _selectedDate = value; OnPropertyChanged(nameof(SelectedDate));}
         }
 
         public void SetView(Window view)
@@ -48,6 +88,11 @@ namespace CRMPhone.ViewModel
         public ICommand SaveCommand { get { return _saveCommand ?? (_saveCommand = new RelayCommand(Save)); } }
 
         private ICommand _cancelCommand;
+        private bool _byTime;
+        private bool _byDate;
+        private DateTime? _selectedDate;
+        private ObservableCollection<AlertTimeDto> _alertDateTimes;
+        private AlertTimeDto _selectedDateTime;
         public ICommand CancelCommand { get { return _cancelCommand ?? (_cancelCommand = new RelayCommand(Cancel)); } }
 
 

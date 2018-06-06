@@ -373,7 +373,9 @@ namespace CRMPhone.ViewModel
             var model = obj as RequestItemViewModel;
             if(model?.SelectedMaster == null)
                 return;
-            throw new NotImplementedException();
+            var view = new WorkerInfoDialog();
+            view.ShowDialog();
+            //throw new NotImplementedException();
         }
 
         private ICommand _callsHistoryCommand;
@@ -430,7 +432,8 @@ namespace CRMPhone.ViewModel
             view.DataContext = model;
             if(view.ShowDialog() ?? false)
             {
-                var currentTime = _requestService.GetCurrentDate().AddMinutes(model.SelectedTime.AddMinutes);
+                var currentTime = model.ByTime?_requestService.GetCurrentDate().AddMinutes(model.SelectedTime.AddMinutes)
+                        :(model.SelectedDate?? _requestService.GetCurrentDate()).AddMinutes(model.SelectedDateTime.AddMinutes);
                 requestModel.AlertTime = currentTime;
             }
 

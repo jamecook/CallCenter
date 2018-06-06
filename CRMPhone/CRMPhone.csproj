@@ -190,6 +190,9 @@
     <Compile Include="Dialogs\ChangeAlertTimeDialog.xaml.cs">
       <DependentUpon>ChangeAlertTimeDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\WorkerInfoDialog.xaml.cs">
+      <DependentUpon>WorkerInfoDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\NotesDialog.xaml.cs">
       <DependentUpon>NotesDialog.xaml</DependentUpon>
     </Compile>
@@ -403,6 +406,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Dialogs\WorkerInfoDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Dialogs\NotesDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -506,6 +513,8 @@
     <Resource Include="Resources\ringin.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Images\NoAnswer.png" />
+    <Resource Include="Images\CanAnswer.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

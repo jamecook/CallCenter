@@ -85,6 +85,40 @@ Channel2: {channel2}
             return GetResult(result);
         }
 
+        public string QueuePause(string sipNumber, bool paused)
+        {
+            byte[] bytes = new byte[16 * 1024];
+            var pauseStr = paused ? "true" : "false";
+            byte[] msg = Encoding.ASCII.GetBytes($@"Action: QueuePause
+Interface: sip/{sipNumber}
+Paused: {pauseStr}
+
+");
+            var bytesSent = _clientSocket.Send(msg);
+            // Receive the response from the remote device.  
+            var bytesRec = _clientSocket.Receive(bytes);
+            var result = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+            return GetResult(result);
+        }
+
+        public bool LoginAndQueuePause(string login, string secret, string sipNumber, bool paused)
+        {
+            var ret = false;
+            Connect();
+            var buff = ReadAllFromSocket();
+            var result = Login(login, secret);
+            if (result != "Success")
+                return false;
+            result = QueuePause(sipNumber, paused);
+            if (string.IsNullOrEmpty(result))
+            {
+                result = ReadAllFromSocket();
+            }
+            if (result.Contains("Success"))
+                ret = true;
+            result = Logout();
+            return ret;
+        }
         public bool LoginAndBridge(string login, string secret, string channel1, string channel2)
         {
             Connect();

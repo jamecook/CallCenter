@@ -147,6 +147,14 @@ namespace CRMPhone.ViewModel
             BlackListContext.RefreshList();
             AlertAndWorkContext.InitCollections();
             OnPropertyChanged(nameof(IsAdminRoleExist));
+            if (!string.IsNullOrEmpty(AppSettings.SipInfo?.SipUser))
+            {
+                using (var bridgeService = new AmiService(_serverIP, 5038))
+                {
+                    bridgeService.LoginAndQueuePause("zerg", "asteriskzerg", AppSettings.SipInfo.SipUser, false);
+                }
+
+            }
         }
         public DateTime FromDate
         {
@@ -428,7 +436,34 @@ namespace CRMPhone.ViewModel
 
         private ICommand _transferCommand;
         public ICommand TransferCommand { get { return _transferCommand ?? (_transferCommand = new CommandHandler(Transfer, _canExecute)); } }
-        
+
+        private ICommand _queuePauseCommand;
+        public ICommand QueuePauseCommand { get { return _queuePauseCommand ?? (_queuePauseCommand = new CommandHandler(QueuePause, _canExecute)); } }
+        private ICommand _queueUnPauseCommand;
+        public ICommand QueueUnPauseCommand { get { return _queueUnPauseCommand ?? (_queueUnPauseCommand = new CommandHandler(QueueUnPause, _canExecute)); } }
+
+        private void QueueUnPause()
+        {
+            using (var bridgeService = new AmiService(_serverIP, 5038))
+            {
+                if (bridgeService.LoginAndQueuePause("zerg", "asteriskzerg", AppSettings.SipInfo.SipUser, false))
+                {
+                    MessageBox.Show("Теперь вы будете принимать звонки!");
+                }
+            }
+        }
+
+        private void QueuePause()
+        {
+            using (var bridgeService = new AmiService(_serverIP, 5038))
+            {
+                if (bridgeService.LoginAndQueuePause("zerg", "asteriskzerg", AppSettings.SipInfo.SipUser, true))
+                {
+                    MessageBox.Show("Вы не будете принимать звонки из очереди!");
+                }
+            }
+        }
+
         private ICommand _addMeterCommand;
         public ICommand AddMeterCommand { get { return _addMeterCommand ?? (_addMeterCommand = new CommandHandler(AddMeters, _canExecute)); } }
 
