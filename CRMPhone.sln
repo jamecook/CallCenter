@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PjSIPClient", "PjSIPClient\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StopAllAutoRing", "StopAllAutoRing\StopAllAutoRing.csproj", "{1152F7AD-E8A6-4C11-815E-468ACA09A8F9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChangeStateToInWork", "ChangeStateToInWork\ChangeStateToInWork.csproj", "{59C7C3D9-F311-41AF-8F8F-30453F2DC7FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{1152F7AD-E8A6-4C11-815E-468ACA09A8F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1152F7AD-E8A6-4C11-815E-468ACA09A8F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1152F7AD-E8A6-4C11-815E-468ACA09A8F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59C7C3D9-F311-41AF-8F8F-30453F2DC7FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59C7C3D9-F311-41AF-8F8F-30453F2DC7FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59C7C3D9-F311-41AF-8F8F-30453F2DC7FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59C7C3D9-F311-41AF-8F8F-30453F2DC7FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
