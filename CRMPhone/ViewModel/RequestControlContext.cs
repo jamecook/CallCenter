@@ -657,7 +657,7 @@ namespace CRMPhone.ViewModel
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
             requestModel.RequestState = request.State.Description;
-            requestModel.SelectedMaster = requestModel.MasterList.SingleOrDefault(w => w.Id == request.MasterId);
+            requestModel.SelectedMaster = request.MasterId.HasValue? _requestService.GetWorkerById(request.MasterId.Value):null;
             requestModel.SelectedExecuter = requestModel.ExecuterList.SingleOrDefault(w => w.Id == request.ExecuterId);
             requestModel.SelectedEquipment = requestModel.EquipmentList.SingleOrDefault(e => e.Id == request.Equipment?.Id);
             requestModel.RequestId = request.Id;

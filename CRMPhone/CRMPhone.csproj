@@ -109,6 +109,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AmiService.cs" />
+    <Compile Include="ContextSaver.cs" />
     <Compile Include="Controls\Admins\HouseAdminControl.xaml.cs">
       <DependentUpon>HouseAdminControl.xaml</DependentUpon>
     </Compile>
@@ -302,6 +303,7 @@
     <Compile Include="ViewModel\TrasferDialogViewModel.cs" />
     <Compile Include="ViewModel\ServiceCompanyControlContext.cs" />
     <Compile Include="ViewModel\WorkerAdminControlContext.cs" />
+    <Compile Include="ViewModel\WorkerInfoViewModel.cs" />
     <Page Include="Controls\Admins\HouseAdminControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

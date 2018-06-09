@@ -374,6 +374,10 @@ namespace CRMPhone.ViewModel
             if(model?.SelectedMaster == null)
                 return;
             var view = new WorkerInfoDialog();
+            view.Owner = _view;
+            var viewModel = new WorkerInfoViewModel(_requestService,model?.SelectedMaster?.Id??0,_requestId);
+            view.DataContext = viewModel;
+            viewModel.SetView(view);
             view.ShowDialog();
             //throw new NotImplementedException();
         }

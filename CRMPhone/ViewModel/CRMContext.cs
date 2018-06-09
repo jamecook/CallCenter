@@ -90,6 +90,7 @@ namespace CRMPhone.ViewModel
 
         public CRMContext()
         {
+            ContextSaver.CrmContext = this;
             IsMuted = false;
             _serverIP = ConfigurationManager.AppSettings["CallCenterIP"];
             LineNum = 0;

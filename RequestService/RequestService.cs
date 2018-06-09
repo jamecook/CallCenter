@@ -1296,8 +1296,11 @@ where wh.worker_id = {workerId}";
         public WorkerDto GetWorkerById(int workerId)
         {
             WorkerDto worker = null;
-            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,w.can_assign,w.parent_worker_id,w.is_master FROM CallCenter.Workers w
-    left join CallCenter.ServiceCompanies s on s.id = w.service_company_id   
+            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,
+    w.can_assign,w.parent_worker_id,w.is_master, sp.name speciality_name
+    FROM CallCenter.Workers w
+    left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
+    left join CallCenter.Speciality sp on sp.id = w.speciality_id
     where w.enabled = 1 and w.id = @WorkerId";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
@@ -1314,6 +1317,7 @@ where wh.worker_id = {workerId}";
                             SurName = dataReader.GetString("sur_name"),
                             FirstName = dataReader.GetNullableString("first_name"),
                             PatrName = dataReader.GetNullableString("patr_name"),
+                            SpecialityName = dataReader.GetNullableString("speciality_name"),
                             SpecialityId = dataReader.GetNullableInt("speciality_id"),
                             Phone = dataReader.GetNullableString("phone"),
                             CanAssign = dataReader.GetBoolean("can_assign"),
@@ -3228,6 +3232,20 @@ where C.Direction is not null";
 
         }
 
+        public List<WorkerDto> GetWorkerInfoWithParrents(int workerId)
+        {
+            var result = new List<WorkerDto>();
+            WorkerDto worker = null;
+            do
+            {
+                if(worker==null)
+                    worker = GetWorkerById(workerId);
+                else if(worker.ParentWorkerId.HasValue)
+                    worker = GetWorkerById(worker.ParentWorkerId.Value);
+                result.Add(worker);
+            } while (worker.ParentWorkerId != null);
+            return result;
+        }
         public void AbortRingUp(int rintUpId)
         {
             using (var cmd = new MySqlCommand(@"update asterisk.RingUpList set state = 3 where id = @ListId;", _dbConnection))

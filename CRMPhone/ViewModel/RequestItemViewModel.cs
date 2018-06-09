@@ -250,7 +250,12 @@ namespace CRMPhone.ViewModel
         public WorkerDto SelectedMaster
         {
             get { return _selectedMaster; }
-            set { _selectedMaster = value; OnPropertyChanged(nameof(SelectedMaster)); }
+            set { _selectedMaster = value;
+                if (!MasterList.Contains(_selectedMaster))
+                {
+                    MasterList.Add(_selectedMaster);
+                }
+                OnPropertyChanged(nameof(SelectedMaster)); }
         }
 
         public EquipmentDto SelectedEquipment
