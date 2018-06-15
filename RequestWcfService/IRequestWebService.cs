@@ -42,6 +42,9 @@ namespace RequestWcfService
             DateTime executeFromDate, DateTime executeToDate, int workerId);
 
         [OperationContract]
+        WorkerDto[] GetMastersByHouseAndService(int houseId, int parentServiceTypeId);
+
+        [OperationContract]
         WorkerDto[] GetExecutersByPeriod(bool filterByCreateDate, DateTime fromDate, DateTime toDate,
             DateTime executeFromDate, DateTime executeToDate, int workerId);
 

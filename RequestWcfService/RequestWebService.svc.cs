@@ -190,6 +190,10 @@ namespace RequestWcfService
         {
             return _requestService.GetWorkersByPeriod(filterByCreateDate, fromDate, toDate, executeFromDate, executeToDate, workerId);
         }
+        public WorkerDto[] GetMastersByHouseAndService(int houseId, int parentServiceTypeId)
+        {
+            return _requestService.GetMastersByHouseAndService(houseId, parentServiceTypeId).ToArray();
+        }
         public WorkerDto[] GetExecutersByPeriod(bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int workerId)
         {
             return _requestService.GetExecutersByPeriod(filterByCreateDate, fromDate, toDate, executeFromDate, executeToDate, workerId);

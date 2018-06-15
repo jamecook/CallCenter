@@ -496,6 +496,10 @@ namespace CRMPhone.ViewModel
             view.DataContext = model;
             if (view.ShowDialog()==true)
             {
+                if (requestModel.MasterList.Where(m=>m!=null).All(m => m.Id != model.MasterId))
+                {
+                    requestModel.MasterList.Add(model.SelectedWorker);
+                }
                 requestModel.SelectedMaster = requestModel.MasterList.SingleOrDefault(w => w.Id == model.MasterId);
             }
         }
