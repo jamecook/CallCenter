@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>C:\Users\zerg\Google Диск\CallCenter\CallCenter\AppWebService\bin\Release\PublishOutput</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="bin/AppWebService.dll">
+      <publishTime>06/19/2018 22:25:48</publishTime>
+    </File>
+    <File Include="bin/AppWebService.pdb">
+      <publishTime>06/19/2018 22:25:48</publishTime>
+    </File>
+    <File Include="bin/MySql.Data.dll">
+      <publishTime>04/26/2018 23:48:14</publishTime>
+    </File>
+    <File Include="bin/NLog.dll">
+      <publishTime>05/31/2017 19:01:20</publishTime>
+    </File>
+    <File Include="bin/RequestServiceImpl.dll">
+      <publishTime>06/19/2018 22:25:47</publishTime>
+    </File>
+    <File Include="bin/RequestServiceImpl.dll.config">
+      <publishTime>09/14/2017 20:36:44</publishTime>
+    </File>
+    <File Include="bin/RequestServiceImpl.pdb">
+      <publishTime>06/19/2018 22:25:47</publishTime>
+    </File>
+    <File Include="RequestTokenService.svc">
+      <publishTime>06/19/2018 21:54:36</publishTime>
+    </File>
+    <File Include="Web.config">
+      <publishTime>06/19/2018 22:25:48</publishTime>
+    </File>
+  </ItemGroup>
+</Project>
