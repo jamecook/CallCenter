@@ -155,6 +155,7 @@ namespace RequestServiceImpl
                             ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
                             ExecutePeriod = dataReader.GetNullableString("Period_Name"),
                             Rating = dataReader.GetNullableString("Rating"),
+                            RatingDescription = dataReader.GetNullableString("RatingDesc"),
                             BadWork = dataReader.GetBoolean("bad_work"),
                             IsRetry = dataReader.GetBoolean("retry"),
                             Garanty = dataReader.GetBoolean("garanty"),

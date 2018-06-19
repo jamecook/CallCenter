@@ -611,7 +611,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     C.name City_name,
     U.SurName,U.FirstName,U.PatrName,
     entrance,floor,
-    rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,R.from_time,R.to_time,R.bad_work,R.alert_time,R.garanty,R.retry,
+    rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,
+    R.from_time,R.to_time,R.bad_work,R.alert_time,R.garanty,R.retry,
     R.executer_id, R.equipment_id, eqt.name eq_type_name, eq.name eq_name
      FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
@@ -624,7 +625,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     join CallCenter.StreetPrefixes SP on SP.id = S.prefix_id
     join CallCenter.Cities C on C.id = S.city_id
     join CallCenter.Users U on U.id = R.Create_user_id
-    left join CallCenter.RequestRating rtype on rtype.request_id = R.id
+    left join (select a.request_id,max(a.id) as max_id from CallCenter.RequestRating a group by a.request_id ) max_rtype on max_rtype.request_id = R.id
+    left join CallCenter.RequestRating rtype on rtype.id = max_rtype.max_id
     left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
     left join CallCenter.Equipments eq on eq.id = R.equipment_id
     left join CallCenter.EquipmentTypes eqt on eqt.id = eq.type_id
@@ -757,7 +759,12 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     join CallCenter.ClientPhones cp2 on cp2.id = rc2.ClientPhone_id
     where rc2.request_id = R.id
     order by IsMain desc limit 1) clinet_fio,    
-    rating.Name Rating, rtype.Description RatingDesc,
+    (select rating.Name Rating from CallCenter.RequestRating rtype
+    left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id where rtype.request_id = R.id order by rtype.id desc limit 1) Rating,
+
+    (select rtype2.Description  from CallCenter.RequestRating rtype2
+    where rtype2.request_id = R.id order by rtype2.id desc limit 1) RatingDesc,
+
     RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,R.bad_work,R.garanty,R.retry,
     min(rcalls.uniqueID) recordId, R.alert_time,
     (SELECT note FROM CallCenter.RequestNoteHistory rnh where rnh.request_id = R.id
@@ -780,8 +787,6 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     left join CallCenter.ClientPhones cp on cp.id = rc.clientPhone_id
     join CallCenter.Users u on u.id = create_user_id
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
-    left join CallCenter.RequestRating rtype on rtype.request_id = R.id
-    left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
     left join CallCenter.RequestCalls rcalls on rcalls.request_id = R.id";
             if (string.IsNullOrEmpty(requestId))
             {

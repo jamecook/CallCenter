@@ -79,6 +79,7 @@
     <Compile Include="Dto\ExecuteDateHistoryDto.cs" />
     <Compile Include="Dto\FlatDto.cs" />
     <Compile Include="Dto\HouseDto.cs" />
+    <Compile Include="Dto\LoginDto.cs" />
     <Compile Include="Dto\NotAnsweredDto.cs" />
     <Compile Include="Dto\NoteDto.cs" />
     <Compile Include="Dto\NotifyPropertyChangedInvocatorAttribute.cs" />

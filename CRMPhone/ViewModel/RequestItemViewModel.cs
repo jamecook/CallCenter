@@ -76,7 +76,7 @@ namespace CRMPhone.ViewModel
             set { _rating = value; OnPropertyChanged(nameof(Rating)); OnPropertyChanged(nameof(CanAddRating)); OnPropertyChanged(nameof(ShowRating)); }
         }
 
-        public bool CanAddRating { get { return CanEdit && Rating.Id == 0; } }
+        public bool CanAddRating { get { return CanEdit /*&& Rating.Id == 0*/; } }
         public Visibility ShowRating
         {
             get
