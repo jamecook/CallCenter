@@ -646,7 +646,8 @@ namespace CRMPhone.ViewModel
             viewModel.FromTime = request.FromTime;
             viewModel.ToTime = request.ToTime;
             var requestModel = viewModel.RequestList.FirstOrDefault();
-            requestModel.SelectedParentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            //requestModel.SelectedParentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            requestModel.SelectedParentService = new ServiceDto() {Id = request.Type.Id, Name = request.Type.Name};
             requestModel.SelectedService = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
             requestModel.Description = request.Description;
             requestModel.IsChargeable = request.IsChargeable;

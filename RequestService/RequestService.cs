@@ -759,12 +759,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     join CallCenter.ClientPhones cp2 on cp2.id = rc2.ClientPhone_id
     where rc2.request_id = R.id
     order by IsMain desc limit 1) clinet_fio,    
-    (select rating.Name Rating from CallCenter.RequestRating rtype
-    left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id where rtype.request_id = R.id order by rtype.id desc limit 1) Rating,
-
-    (select rtype2.Description  from CallCenter.RequestRating rtype2
-    where rtype2.request_id = R.id order by rtype2.id desc limit 1) RatingDesc,
-
+    rating.Name Rating,
+    rtype.Description RatingDesc,
     RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,R.bad_work,R.garanty,R.retry,
     min(rcalls.uniqueID) recordId, R.alert_time,
     (SELECT note FROM CallCenter.RequestNoteHistory rnh where rnh.request_id = R.id
@@ -780,6 +776,9 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     join CallCenter.StreetPrefixes sp on sp.id = s.prefix_id
     join CallCenter.RequestTypes rt on rt.id = R.type_id
     join CallCenter.RequestTypes rt2 on rt2.id = rt.parrent_id
+    left join (select request_id,max(id) max_id from CallCenter.RequestRating rr group by request_id) rr_max on rr_max.request_id = R.Id
+    left join CallCenter.RequestRating rtype on rtype.id = rr_max.max_id
+    left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
     left join CallCenter.RequestAttachments ra on ra.request_id = R.id
     left join CallCenter.Workers w on w.id = R.worker_id
     left join CallCenter.Workers execw on execw.id = R.executer_id
@@ -1008,7 +1007,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     left join CallCenter.ClientPhones cp on cp.id = rc.clientPhone_id
     join CallCenter.Users u on u.id = create_user_id
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
-    left join CallCenter.RequestRating rtype on rtype.request_id = R.id
+    left join (select request_id,max(id) max_id from CallCenter.RequestRating rr group by request_id) rr_max on rr_max.request_id = R.Id
+    left join CallCenter.RequestRating rtype on rtype.id = rr_max.max_id
     left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
     left join CallCenter.RequestCalls rcalls on rcalls.request_id = R.id
     where is_immediate = 1";
