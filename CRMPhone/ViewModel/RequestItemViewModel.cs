@@ -43,6 +43,7 @@ namespace CRMPhone.ViewModel
         private bool _showAllMasters;
         private bool _showAllExecuters;
         private int? _selectedHouseId;
+        private DateTime? _termOfExecution;
 
 
         public RequestItemViewModel()
@@ -215,6 +216,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _selectedDateTime; }
             set { _selectedDateTime = value; OnPropertyChanged(nameof(SelectedDateTime)); }
+        }
+
+        public DateTime? TermOfExecution
+        {
+            get { return _termOfExecution; }
+            set { _termOfExecution = value; OnPropertyChanged(nameof(TermOfExecution));}
         }
 
         public ObservableCollection<ServiceDto> ServiceList

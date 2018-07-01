@@ -85,7 +85,6 @@
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата:"/>
                     <DatePicker  Margin="3" IsEnabled="{Binding CanSave}" Width="100" SelectedDate="{Binding SelectedDateTime}">
                     </DatePicker>
-
                     <DockPanel>
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="Время:"/>
                         <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedPeriod}" ItemsSource="{Binding PeriodList}" IsEditable="True">
@@ -94,6 +93,9 @@
                             </ComboBox.Resources>
                         </ComboBox>
                     </DockPanel>
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="Срок исполнения:"/>
+                    <DatePicker  Margin="3" Width="100" SelectedDate="{Binding TermOfExecution}">
+                    </DatePicker>
                 </WrapPanel>
                 <WrapPanel Grid.Row="3" Grid.Column="0">
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Примечание:"/>

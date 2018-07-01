@@ -646,9 +646,21 @@ namespace CRMPhone.ViewModel
             viewModel.FromTime = request.FromTime;
             viewModel.ToTime = request.ToTime;
             var requestModel = viewModel.RequestList.FirstOrDefault();
-            //requestModel.SelectedParentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
-            requestModel.SelectedParentService = new ServiceDto() {Id = request.Type.Id, Name = request.Type.Name};
+            requestModel.SelectedParentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            if ( requestModel.SelectedParentService == null)
+            {
+                var parrentServiceType = _requestService.GetServiceById(request.Type.ParentId ?? 0);
+                requestModel.ParentServiceList.Add(parrentServiceType);
+                requestModel.SelectedParentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            }
             requestModel.SelectedService = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+            if (requestModel.SelectedService == null)
+            {
+                var serviceType = _requestService.GetServiceById(request.Type.Id);
+                requestModel.ParentServiceList.Add(serviceType);
+                requestModel.SelectedService = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+            }
+
             requestModel.Description = request.Description;
             requestModel.IsChargeable = request.IsChargeable;
             requestModel.IsImmediate = request.IsImmediate;
@@ -673,6 +685,7 @@ namespace CRMPhone.ViewModel
                 requestModel.SelectedDateTime = request.ExecuteDate.Value.Date;
                 requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
             }
+            requestModel.TermOfExecution = request.TermOfExecution;
             viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
             view.Show();
 

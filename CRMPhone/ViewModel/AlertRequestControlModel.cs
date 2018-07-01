@@ -117,6 +117,7 @@ namespace CRMPhone.ViewModel
                 requestModel.SelectedDateTime = request.ExecuteDate.Value.Date;
                 requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
             }
+            requestModel.TermOfExecution = request.TermOfExecution;
             viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
             view.Show();
 

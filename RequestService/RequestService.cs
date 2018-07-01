@@ -37,10 +37,10 @@ namespace RequestServiceImpl
             }
         }
 
-        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, bool garanty,bool isRetry,DateTime? alertTime)
+        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, bool garanty,bool isRetry,DateTime? alertTime, DateTime? termOfExecution)
         {
             using (var cmd = new MySqlCommand(
-                   @"call CallCenter.UpdateRequest3(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable,@badWork,@garanty,@retry,@alertTime);",
+                   @"call CallCenter.UpdateRequest(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable,@badWork,@garanty,@retry,@alertTime,@termOfExecution);",
                    _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@userId", AppSettings.CurrentUser.Id);
@@ -53,6 +53,7 @@ namespace RequestServiceImpl
                 cmd.Parameters.AddWithValue("@garanty", garanty);
                 cmd.Parameters.AddWithValue("@retry", isRetry);
                 cmd.Parameters.AddWithValue("@alertTime", alertTime);
+                cmd.Parameters.AddWithValue("@termOfExecution", termOfExecution);
                 cmd.ExecuteNonQuery();
             }
         }
@@ -457,6 +458,33 @@ select LAST_INSERT_ID();", _dbConnection))
             }
 
         }
+
+        public void AddNewTermOfExecution(int requestId, DateTime termOfExecution, string note)
+        {
+            try
+            {
+                using (var transaction = _dbConnection.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(
+                                @"update CallCenter.Requests set term_of_execution = @ExecuteDate where id = @RequestId",
+                                _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@ExecuteDate", termOfExecution);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                }
+            }
+            catch (Exception exc)
+            {
+                _logger.Error(exc);
+                throw;
+            }
+        }
         public void AddNewExecuteDate(int requestId, DateTime executeDate, PeriodDto period, string note)
         {
             _logger.Debug($"RequestService.AddNewExecuteDate({requestId},{executeDate},{period.Id},{note})");
@@ -613,7 +641,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     entrance,floor,
     rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,
     R.from_time,R.to_time,R.bad_work,R.alert_time,R.garanty,R.retry,
-    R.executer_id, R.equipment_id, eqt.name eq_type_name, eq.name eq_name
+    R.executer_id, R.equipment_id, eqt.name eq_type_name, eq.name eq_name,R.term_of_execution
      FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.RequestTypes RT on RT.id = R.type_id
@@ -657,6 +685,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                                 FromTime = dataReader.GetNullableDateTime("from_time"),
                                 ToTime = dataReader.GetNullableDateTime("to_time"),
                                 AlertTime = dataReader.GetNullableDateTime("alert_time"),
+                                TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
                                 Type = new RequestTypeDto
                                 {
                                     Id = dataReader.GetInt32("type_id"),
@@ -765,7 +794,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     min(rcalls.uniqueID) recordId, R.alert_time,
     (SELECT note FROM CallCenter.RequestNoteHistory rnh where rnh.request_id = R.id
     order by operation_date desc limit 1) last_note,
-    R.executer_id,execw.sur_name exec_sur_name, execw.first_name exec_first_name, execw.patr_name exec_patr_name
+    R.executer_id,execw.sur_name exec_sur_name, execw.first_name exec_first_name, execw.patr_name exec_patr_name,R.term_of_execution
 
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
@@ -906,6 +935,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                                 PatrName = dataReader.GetNullableString("patrname"),
                             },
                             ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                            TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
                             ExecutePeriod = dataReader.GetNullableString("Period_Name"),
                             Rating = dataReader.GetNullableString("Rating"),
                             RatingDescription = dataReader.GetNullableString("RatingDesc"),

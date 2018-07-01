@@ -154,6 +154,7 @@ namespace RequestServiceImpl
                             },
                             ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
                             ExecutePeriod = dataReader.GetNullableString("Period_Name"),
+                            TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
                             Rating = dataReader.GetNullableString("Rating"),
                             RatingDescription = dataReader.GetNullableString("RatingDesc"),
                             BadWork = dataReader.GetBoolean("bad_work"),
@@ -245,6 +246,7 @@ namespace RequestServiceImpl
                             Garanty = dataReader.GetBoolean("garanty"),
                             StatusId = dataReader.GetInt32("req_status_id"),
                             Status = dataReader.GetNullableString("Req_Status"),
+                            TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
                         });
                     }
                     dataReader.Close();
@@ -262,7 +264,7 @@ namespace RequestServiceImpl
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
     rating.Name Rating,R.bad_work,R.floor,R.entrance,
     RS.id req_status_id,
-    RS.Description Req_Status
+    RS.Description Req_Status,R.term_of_execution
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.WebStateToState WS on WS.state_id = R.state_id

@@ -24,6 +24,7 @@ namespace RequestServiceImpl.Dto
         public RequestUserDto Executer { get; set; }
         public RequestUserDto CreateUser { get; set; }
         public DateTime? ExecuteTime { get; set; }
+        public DateTime? TermOfExecution { get; set; }
         public string ExecutePeriod { get; set; }
         public string Description { get; set; }
         public string ParentService { get; set; }

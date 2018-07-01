@@ -95,6 +95,7 @@ namespace CRMPhone.ViewModel
                 requestModel.SelectedDateTime = request.ExecuteDate.Value.Date;
                 requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
             }
+            requestModel.TermOfExecution = request.TermOfExecution;
             viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
             view.Show();
 
@@ -618,7 +619,7 @@ namespace CRMPhone.ViewModel
             if (requestModel.RequestId.HasValue)
             {
                 _requestService.EditRequest(requestModel.RequestId.Value, requestModel.SelectedService.Id,
-                    requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork,requestModel.Gatanty, requestModel.IsRetry, requestModel.AlertTime);
+                    requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork,requestModel.Gatanty, requestModel.IsRetry, requestModel.AlertTime, requestModel.TermOfExecution);
                 MessageBox.Show($"Данные успешно сохранены!", "Заявка", MessageBoxButton.OK);
                 return;
             }
@@ -647,6 +648,8 @@ namespace CRMPhone.ViewModel
                 _requestService.AddNewExecuter(request.Value, requestModel.SelectedExecuter.Id);
             if (requestModel.SelectedDateTime.HasValue)
                 _requestService.AddNewExecuteDate(request.Value, requestModel.SelectedDateTime.Value, requestModel.SelectedPeriod, "");
+            if (requestModel.TermOfExecution.HasValue)
+                _requestService.AddNewTermOfExecution(request.Value, requestModel.SelectedDateTime.Value, "");
             //Обновление информации о заявке
             var newRequest = _requestService.GetRequest(request.Value);
             requestModel.RequestCreator = newRequest.CreateUser.ShortName;
