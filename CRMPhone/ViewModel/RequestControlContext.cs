@@ -64,6 +64,7 @@ namespace CRMPhone.ViewModel
             SelectedPayment = null;
             ServiceCompanyBadWork = false;
             OnlyRetry = false;
+            OnlyGaranty = false;
             ClientPhone = "";
             foreach (var status in FilterStatusList)
             {
@@ -412,6 +413,7 @@ namespace CRMPhone.ViewModel
         private string _streetText;
         private ObservableCollection<FieldForFilterDto> _filterParentServiceList;
         private string _parentServiceText;
+        private bool _onlyGaranty;
 
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
@@ -532,6 +534,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _onlyRetry; }
             set { _onlyRetry = value; OnPropertyChanged(nameof(OnlyRetry));}
+        }
+
+        public bool OnlyGaranty
+        {
+            get { return _onlyGaranty; }
+            set { _onlyGaranty = value; OnPropertyChanged(nameof(OnlyGaranty)); }
         }
 
         public string ClientPhone
@@ -708,7 +716,7 @@ namespace CRMPhone.ViewModel
                 FilterServiceCompanyList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterUserList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterRatingList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
-                SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone);
+                SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone, OnlyGaranty);
             foreach (var request in requests)
             {
                 RequestList.Add(request);

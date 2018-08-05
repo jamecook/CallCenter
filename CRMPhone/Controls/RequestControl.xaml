@@ -157,6 +157,7 @@
                     </DockPanel>
                     <CheckBox Margin="5" VerticalAlignment="Center" Content="Для обсуждения!" Foreground="Red" IsChecked="{Binding ServiceCompanyBadWork}"/>
                     <CheckBox Margin="5" VerticalAlignment="Center" Content="Повторная" Foreground="Red" IsChecked="{Binding OnlyRetry}"/>
+                    <CheckBox Margin="5" VerticalAlignment="Center" Content="Гарантия" Foreground="Red" IsChecked="{Binding OnlyGaranty}"/>
                 </WrapPanel>
             </Expander>
 

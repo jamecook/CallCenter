@@ -593,6 +593,7 @@ namespace CRMPhone.ViewModel
                 streetsNames.Add("Сидора Путилова", "Путилова");
                 streetsNames.Add("Николая Зелинского", "Зелинского");
                 streetsNames.Add("Первомайская", "Первомайская");
+                streetsNames.Add("Ванцетти", "Ванцетти");
 
                 var openFileDialog = new OpenFileDialog();
                 openFileDialog.AddExtension = true;

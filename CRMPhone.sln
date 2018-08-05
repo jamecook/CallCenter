@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChangeStateToInWork", "Chan
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppWebService", "AppWebService\AppWebService.csproj", "{5876CBBC-69A6-446A-B99F-78C88FE3E7E9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequestWebService", "RequestWebService\RequestWebService.csproj", "{CF5DB6DF-75CB-47CF-AC83-977100069CB4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{6D51484C-A2FB-4E71-AC5D-0A305596524C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +73,14 @@ Global
 		{5876CBBC-69A6-446A-B99F-78C88FE3E7E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5876CBBC-69A6-446A-B99F-78C88FE3E7E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5876CBBC-69A6-446A-B99F-78C88FE3E7E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF5DB6DF-75CB-47CF-AC83-977100069CB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF5DB6DF-75CB-47CF-AC83-977100069CB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF5DB6DF-75CB-47CF-AC83-977100069CB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF5DB6DF-75CB-47CF-AC83-977100069CB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D51484C-A2FB-4E71-AC5D-0A305596524C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D51484C-A2FB-4E71-AC5D-0A305596524C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D51484C-A2FB-4E71-AC5D-0A305596524C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D51484C-A2FB-4E71-AC5D-0A305596524C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

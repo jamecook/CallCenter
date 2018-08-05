@@ -776,7 +776,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             return null;
         }
 
-        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone)
+        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone, bool onlyGaranty)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -865,6 +865,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     sqlQuery += " and R.bad_work = 1";
                 if (onlyRetry)
                     sqlQuery += " and R.retry = 1";
+                if (onlyGaranty)
+                    sqlQuery += " and R.garanty = 1";
                 if (!string.IsNullOrEmpty(clientPhone))
                     sqlQuery += $" and cp.Number like '%{clientPhone}'";
             }
