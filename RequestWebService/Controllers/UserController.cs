@@ -29,10 +29,10 @@ namespace RequestWebService.Controllers
             try
             {
                 Log("AddUser");
-                RequestService.AddUser(userInfo.BitrixId, userInfo.SurName, userInfo.FirstName, userInfo.PatrName, userInfo.Phone, userInfo.Email,
+                var requestId = RequestService.AddUser(userInfo.BitrixId, userInfo.SurName, userInfo.FirstName, userInfo.PatrName, userInfo.Phone, userInfo.Email,
                         userInfo.Login, userInfo.Password, userInfo.DefaultServiceCompany, userInfo.IsMaster);
                 return
-                    new DefaultResult { ResultCode = 0, ResultDescription = "User Added"};
+                    new DefaultResult { ResultCode = 0, ResultDescription = requestId };
             }
             catch (Exception ex)
             {
@@ -50,7 +50,7 @@ namespace RequestWebService.Controllers
                 RequestService.UpdateUser(bitrixId, userInfo.SurName, userInfo.FirstName, userInfo.PatrName, userInfo.Phone, userInfo.Email,
                         userInfo.Login, userInfo.Password, userInfo.DefaultServiceCompany, userInfo.IsMaster);
                 return
-                    new DefaultResult { ResultCode = 0, ResultDescription = "User Added" };
+                    new DefaultResult { ResultCode = 0, ResultDescription = "User Updated" };
             }
             catch (Exception ex)
             {
@@ -61,9 +61,9 @@ namespace RequestWebService.Controllers
 
         [HttpGet("{id}")]
 
-        public UserDto Get(string bitrixId)
+        public UserDto Get(string id)
         {
-            return RequestService.GetUser(bitrixId);
+            return RequestService.GetUser(id);
         }
 
         /*
