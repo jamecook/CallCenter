@@ -72,6 +72,8 @@ namespace CRMPhone.ViewModel
 
         private ICommand _sendSmsToWorkerCommand;
         public ICommand SendSmsToWorkerCommand { get { return _sendSmsToWorkerCommand ?? (_sendSmsToWorkerCommand = new RelayCommand(SendSmsToWorker)); } }
+        private ICommand _sendSmsToExecutorCommand;
+        public ICommand SendSmsToExecutorCommand { get { return _sendSmsToExecutorCommand ?? (_sendSmsToExecutorCommand = new RelayCommand(SendSmsToExecutor)); } }
 
         private void SendSmsToWorker(object obj)
         {
@@ -80,6 +82,35 @@ namespace CRMPhone.ViewModel
             if (!request.MasterId.HasValue)
                 return;
             var worker = _requestService.GetWorkerById(request.MasterId.Value);
+            string phones = "";
+            if (request.Contacts != null && request.Contacts.Length > 0)
+                phones = request.Contacts.OrderBy(c=>c.IsMain).Select(c =>
+                        {
+                            var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
+                            if (!string.IsNullOrEmpty(c.Name))
+                            {
+                                retVal += $" - {c.Name}";
+                            }
+                            return retVal;
+                        }
+                )
+                        .Aggregate((i, j) => i + ";" + j);
+            if (smsSettings.SendToWorker)
+            {
+                _requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone,
+                    $"№ {request.Id}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
+                    false);
+                MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
+                RefreshLists();
+            }
+        }
+        private void SendSmsToExecutor(object obj)
+        {
+            var request = _requestService.GetRequest(_requestId);
+            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
+            if (!request.ExecuterId.HasValue)
+                return;
+            var worker = _requestService.GetWorkerById(request.ExecuterId.Value);
             string phones = "";
             if (request.Contacts != null && request.Contacts.Length > 0)
                 phones = request.Contacts.OrderBy(c=>c.IsMain).Select(c =>

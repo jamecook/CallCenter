@@ -42,12 +42,12 @@ namespace RequestWebService.Controllers
         }
 
         [HttpPut("{id}")]
-        public DefaultResult Put(string bitrixId, [FromBody]UserDto userInfo)
+        public DefaultResult Put(string id, [FromBody]UserDto userInfo)
         {
             try
             {
                 Log("UpdateUser");
-                RequestService.UpdateUser(bitrixId, userInfo.SurName, userInfo.FirstName, userInfo.PatrName, userInfo.Phone, userInfo.Email,
+                RequestService.UpdateUser(id, userInfo.SurName, userInfo.FirstName, userInfo.PatrName, userInfo.Phone, userInfo.Email,
                         userInfo.Login, userInfo.Password, userInfo.DefaultServiceCompany, userInfo.IsMaster);
                 return
                     new DefaultResult { ResultCode = 0, ResultDescription = "User Updated" };

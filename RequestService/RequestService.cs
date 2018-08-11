@@ -294,27 +294,7 @@ select LAST_INSERT_ID();", _dbConnection))
         {
             _logger.Debug($"RequestService.AddNewMaster({requestId},{workerId})");
 
-            var request = GetRequest(requestId);
-            var worker = GetWorkerById(workerId);
-            var smsSettings = GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
-            string phones="";
-            if (request.Contacts != null && request.Contacts.Length > 0)
-                phones = request.Contacts.OrderBy(c => c.IsMain).Select(c =>
-                {
-                    var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
-                    if (!string.IsNullOrEmpty(c.Name))
-                    {
-                        retVal += $" - {c.Name}";
-                    }
-                    return retVal;
-                }
-                )
-                        .Aggregate((i, j) => i + ";" + j);
-            //phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}").Aggregate((i, j) => i + ";" + j);
-
-            if(smsSettings.SendToWorker)
-                SendSms(requestId, smsSettings.Sender, worker.Phone,$"№ {requestId}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.", false);
-            //SendSms(requestId, smsSettings.Sender, worker.Phone, $"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
+            SendSmsToWorker(requestId, workerId);
 
             try
             {
@@ -351,10 +331,38 @@ select LAST_INSERT_ID();", _dbConnection))
             }
 
         }
+
+        private void SendSmsToWorker(int requestId, int workerId)
+        {
+            var request = GetRequest(requestId);
+            var worker = GetWorkerById(workerId);
+            var smsSettings = GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
+            string phones = "";
+            if (request.Contacts != null && request.Contacts.Length > 0)
+                phones = request.Contacts.OrderBy(c => c.IsMain).Select(c =>
+                        {
+                            var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
+                            if (!string.IsNullOrEmpty(c.Name))
+                            {
+                                retVal += $" - {c.Name}";
+                            }
+                            return retVal;
+                        }
+                    )
+                    .Aggregate((i, j) => i + ";" + j);
+            //phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}").Aggregate((i, j) => i + ";" + j);
+
+            if (smsSettings.SendToWorker)
+                SendSms(requestId, smsSettings.Sender, worker.Phone,
+                    $"№ {requestId}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
+                    false);
+            //SendSms(requestId, smsSettings.Sender, worker.Phone, $"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
+        }
+
         public void AddNewExecuter(int requestId, int workerId)
         {
             _logger.Debug($"RequestService.AddNewExecuter({requestId},{workerId})");
-
+            SendSmsToWorker(requestId, workerId);
             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())

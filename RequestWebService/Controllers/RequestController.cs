@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RequestWebService.Dto;
 using RequestWebService.Services;
@@ -10,6 +14,12 @@ namespace RequestWebService.Controllers
     [Route("[controller]")]
     public class RequestController : Controller
     {
+        private readonly IHostingEnvironment _environment;
+
+        public RequestController(IHostingEnvironment environment)
+        {
+            _environment = environment;//?? throw new ArgumentNullException(nameof(environment));
+        }
         public void Log(string method)
         {
             var remoteIpAddress = HttpContext.Connection.RemoteIpAddress.ToString();
@@ -20,6 +30,22 @@ namespace RequestWebService.Controllers
             var str = Encoding.UTF8.GetString(buf, 0, bufLen);
             RequestService.LogOperation(remoteIpAddress, method, str);
 
+        }
+        [HttpPost("uploadImage/{id}")]
+        public async Task<IActionResult> Post(string id, [FromBody]IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return Content("file not selected");
+            var uploads = Path.Combine(_environment.WebRootPath, "uploads");
+
+            return Content("file uploaded");
+            if (file.Length > 0)
+            {
+                using (var fileStream = new FileStream(Path.Combine(uploads, file.FileName), FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+            }
         }
 
         [HttpPost("add")]

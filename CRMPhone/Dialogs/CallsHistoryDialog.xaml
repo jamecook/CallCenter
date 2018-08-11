@@ -143,8 +143,9 @@
             </DataGrid.Columns>
         </DataGrid>
         <DockPanel Grid.Row="2">
-            <Button Margin="5,10" Padding="15,3" HorizontalAlignment="Right" Command="{Binding Path=SendSmsToCitizenCommand}">Отправить СМС жильцу</Button>
-            <Button Margin="5,10" Padding="15,3" HorizontalAlignment="Right" Command="{Binding Path=SendSmsToWorkerCommand}">Отправить СМС исполнителю</Button>
+            <Button Margin="5,10" Padding="5,3" HorizontalAlignment="Right" Command="{Binding Path=SendSmsToCitizenCommand}">Отправить СМС жильцу</Button>
+            <Button Margin="5,10" Padding="5,3" HorizontalAlignment="Right" Command="{Binding Path=SendSmsToWorkerCommand}">Отправить СМС мастеру</Button>
+            <Button Margin="5,10" Padding="5,3" HorizontalAlignment="Right" Command="{Binding Path=SendSmsToExecutorCommand}">Отправить СМС исполнителю</Button>
             <Button Margin="5,10" Padding="15,3" HorizontalAlignment="Right" Command="{Binding Path=CloseCommand}">Закрыть</Button>
         </DockPanel>
     </Grid>
