@@ -338,6 +338,8 @@
                         <ComboBox Margin="3" Width="110" DisplayMemberPath="ShortName" SelectedItem="{Binding SelectedUser}" ItemsSource="{Binding UserList}" IsEditable="True" />
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="УК:"/>
                         <ComboBox Margin="3" Width="180" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCompany}" ItemsSource="{Binding CompanyList}" IsEditable="True" />
+                        <TextBlock Margin="5" VerticalAlignment="Center" Text="телефон:"/>
+                        <TextBox Margin="5" Width="150" Text="{Binding PhoneNumber}"/>
 
                         <Button  Margin="5" Padding ="5,0" Height="24" Content="Обновить" Command="{Binding RefreshCommand}"/>
                         <Button  Margin="5" Padding ="5,0" Height="24" Content="Привязать заявку" Command="{Binding AddRequestToCallCommand}"/>

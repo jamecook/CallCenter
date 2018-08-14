@@ -172,6 +172,16 @@ namespace CRMPhone.ViewModel
                 }
                 
             }
+            if (houseId.HasValue)
+            {
+                var house = _requestService.GetHouseById(houseId.Value);
+                CommissioningDate = house.CommissioningDate;
+            }
+            else
+            {
+                CommissioningDate = null;
+            }
+
             OnPropertyChanged(nameof(FlatList));
         }
 
@@ -220,6 +230,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _flatList; }
             set { _flatList = value; OnPropertyChanged(nameof(FlatList));}
+        }
+
+        public DateTime? CommissioningDate
+        {
+            get { return _commissioningDate; }
+            set { _commissioningDate = value; OnPropertyChanged(nameof(CommissioningDate)); }
         }
 
         public FlatDto SelectedFlat
@@ -669,6 +685,7 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<RequestForListDto> _addressRequestList;
         private bool _alertExists;
         private bool _canEditAddress;
+        private DateTime? _commissioningDate;
 
         public bool CanEditAddress
         {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace CRMPhone.ViewModel.Admins
         private int? _flatsCount;
         private ObservableCollection<ServiceCompanyDto> _serviceCompanyList;
         private ServiceCompanyDto _selectedServiceCompany;
+        private DateTime? _commissioningDate;
 
         public string StreetName
         {
@@ -74,6 +76,12 @@ namespace CRMPhone.ViewModel.Admins
             set { _flatsCount = value; OnPropertyChanged(nameof(FlatsCount));}
         }
 
+        public DateTime? CommissioningDate
+        {
+            get { return _commissioningDate; }
+            set { _commissioningDate = value; OnPropertyChanged(nameof(CommissioningDate)); }
+        }
+
         public HouseAdminDialogViewModel(RequestService requestService, int streetId, int? houseId)
         {
             _requestService = requestService;
@@ -90,6 +98,7 @@ namespace CRMPhone.ViewModel.Admins
                   EntranceCount = house.EntranceCount;
                   FlatsCount = house.FlatCount;
                   FloorCount = house.FloorCount;
+                  CommissioningDate = house.CommissioningDate;
                   SelectedServiceCompany = ServiceCompanyList.FirstOrDefault(s => s.Id == house.ServiceCompanyId);
               }
         }
@@ -117,7 +126,7 @@ namespace CRMPhone.ViewModel.Admins
                     return;
                 }
             }
-            _requestService.SaveHouse(_houseId, _streetId, BuildingNumber, corpus, SelectedServiceCompany.Id, EntranceCount, FloorCount, FlatsCount);
+            _requestService.SaveHouse(_houseId, _streetId, BuildingNumber, corpus, SelectedServiceCompany.Id, EntranceCount, FloorCount, FlatsCount, CommissioningDate);
             _view.DialogResult = true;
         }
 

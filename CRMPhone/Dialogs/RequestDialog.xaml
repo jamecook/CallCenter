@@ -53,6 +53,10 @@
                     <Button Content="Закрыть" Margin="25,3,15,3" Width="120" Command="{Binding CloseCommand}"/>
                 </WrapPanel>
             </WrapPanel>
+            <DockPanel>
+                <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата ввода в эксплуатацию:"/>
+                <TextBlock Margin="3" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding CommissioningDate, StringFormat='{}{0:dd.MM.yyyy}'}"/>
+            </DockPanel>
             <StackPanel>
             <!--<StackPanel Visibility ="{Binding CanEdit, Converter={StaticResource BooleanToVisibility}}">-->
             <TextBlock Margin ="3" Text="История заявок по адресу за последние 90 дней:"/>

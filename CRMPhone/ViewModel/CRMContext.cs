@@ -1086,6 +1086,7 @@ namespace CRMPhone.ViewModel
             set { _selectedUser = value; OnPropertyChanged(nameof(SelectedUser)); }
         }
 
+        public string PhoneNumber { get; set; }
         public ServiceCompanyDto SelectedCompany
         {
             get { return _selectedCompany; }
@@ -1288,7 +1289,7 @@ namespace CRMPhone.ViewModel
 
         public void RefreshList()
         {
-            CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallList(FromDate, ToDate, RequestNum, SelectedUser?.Id, SelectedCompany?.Id));
+            CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallList(FromDate, ToDate, RequestNum, SelectedUser?.Id, SelectedCompany?.Id,PhoneNumber));
             CallsCount = CallsList.Count;
         }
 

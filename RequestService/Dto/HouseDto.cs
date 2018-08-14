@@ -1,3 +1,5 @@
+using System;
+
 namespace RequestServiceImpl.Dto
 {
     public class HouseDto
@@ -12,6 +14,7 @@ namespace RequestServiceImpl.Dto
         public int? EntranceCount { get; set; }
         public int? FlatCount { get; set; }
         public int? FloorCount { get; set; }
+        public DateTime? CommissioningDate { get; set; }
 
         public string FullName
         {

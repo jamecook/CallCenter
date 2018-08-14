@@ -2047,7 +2047,7 @@ where wh.worker_id = {workerId}";
             }
         }
 
-        public List<CallsListDto> GetCallList(DateTime fromDate, DateTime toDate, string requestId, int? operatorId, int? serviceCompanyId)
+        public List<CallsListDto> GetCallList(DateTime fromDate, DateTime toDate, string requestId, int? operatorId, int? serviceCompanyId, string phoneNumber)
         {
  //           var sqlQuery = @"SELECT UniqueId,CallDirection,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime, 
  //MonitorFile,TalkTime,WaitingTime, userId, SurName, FirstName, PatrName, RequestId FROM asterisk.CallsHistory C";
@@ -2090,6 +2090,11 @@ where C.Direction is not null";
                     sqlQuery += " and sc.id = @ServiceCompanyId";
 
                 }
+                if (!string.IsNullOrEmpty(phoneNumber))
+                {
+                    sqlQuery +=
+                        " and (case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) like @PhoneNumber";
+                }
             }
             sqlQuery += " group by C.UniqueID order by UniqueId";
 
@@ -2113,8 +2118,13 @@ where C.Direction is not null";
                     {
                         cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
                     }
+                    if (!string.IsNullOrEmpty(phoneNumber))
+                    {
+                        cmd.Parameters.AddWithValue("@PhoneNumber", "%"+phoneNumber+"%");
+                    }
+
                 }
-                    using (var dataReader = cmd.ExecuteReader())
+                using (var dataReader = cmd.ExecuteReader())
                 {
                     var callList = new List<CallsListDto>();
                     while (dataReader.Read())
@@ -2663,7 +2673,7 @@ where C.Direction is not null";
         public HouseDto GetHouseById(int houseId)
         {
             HouseDto house = null;
-            using (var cmd = new MySqlCommand(@"SELECT h.id, h.street_id, h.building, h.corps, h.service_company_id, h.entrance_count, h.flat_count, h.floor_count, h.service_company_id, s.Name service_company_name FROM CallCenter.Houses h
+            using (var cmd = new MySqlCommand(@"SELECT h.id, h.street_id, h.building, h.corps, h.service_company_id, h.entrance_count, h.flat_count, h.floor_count, h.service_company_id, s.Name service_company_name,commissioning_date FROM CallCenter.Houses h
  left join CallCenter.ServiceCompanies s on s.id = h.service_company_id where h.enabled = 1 and h.id = @HouseId", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@HouseId", houseId);
@@ -2682,6 +2692,7 @@ where C.Direction is not null";
                             EntranceCount = dataReader.GetNullableInt("entrance_count"),
                             FlatCount = dataReader.GetNullableInt("flat_count"),
                             FloorCount = dataReader.GetNullableInt("floor_count"),
+                            CommissioningDate = dataReader.GetNullableDateTime("commissioning_date"),
                         };
                     }
                     dataReader.Close();
@@ -2692,10 +2703,10 @@ where C.Direction is not null";
         }
 
         public void SaveHouse(int? houseId, int streetId, string buildingNumber, string corpus, int serviceCompanyId,
-            int? entranceCount, int? floorCount, int? flatsCount)
+            int? entranceCount, int? floorCount, int? flatsCount, DateTime? commissioningDate)
         {
             using (var cmd = new MySqlCommand(
-                    @"call CallCenter.AddOrUndateHouse(@houseId,@streetId,@buildingNumber,@corpus,@serviceCompanyId,@entranceCount,@floorCount,@flatsCount);",
+                    @"call CallCenter.AddOrUndateHouse(@houseId,@streetId,@buildingNumber,@corpus,@serviceCompanyId,@entranceCount,@floorCount,@flatsCount,@commissioningDate);",
                     _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@houseId", houseId);
@@ -2706,6 +2717,7 @@ where C.Direction is not null";
                 cmd.Parameters.AddWithValue("@entranceCount", entranceCount);
                 cmd.Parameters.AddWithValue("@floorCount", floorCount);
                 cmd.Parameters.AddWithValue("@flatsCount", flatsCount);
+                cmd.Parameters.AddWithValue("@commissioningDate", commissioningDate);
                 cmd.ExecuteNonQuery();
             }
         }

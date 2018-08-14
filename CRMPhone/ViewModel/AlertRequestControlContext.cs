@@ -83,16 +83,16 @@ namespace CRMPhone.ViewModel
             viewModel.FromTime = request.FromTime;
             viewModel.ToTime = request.ToTime;
             var requestModel = viewModel.RequestList.FirstOrDefault();
-            requestModel.SelectedParentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
-            requestModel.SelectedService = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+            requestModel.SelectedParentService = requestModel.ParentServiceList.FirstOrDefault(i => i.Id == request.Type.ParentId);
+            requestModel.SelectedService = requestModel.ServiceList.FirstOrDefault(i => i.Id == request.Type.Id);
             requestModel.Description = request.Description;
             requestModel.IsChargeable = request.IsChargeable;
             requestModel.IsImmediate = request.IsImmediate;
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
             requestModel.RequestState = request.State.Description;
-            requestModel.SelectedMaster = requestModel.MasterList.SingleOrDefault(w => w.Id == request.MasterId);
-            requestModel.SelectedExecuter = requestModel.ExecuterList.SingleOrDefault(w => w.Id == request.ExecuterId);
+            requestModel.SelectedMaster = request.MasterId.HasValue ? _requestService.GetWorkerById(request.MasterId.Value) : null;
+            requestModel.SelectedExecuter = request.ExecuterId.HasValue ? _requestService.GetWorkerById(request.ExecuterId.Value) : null;
             requestModel.RequestId = request.Id;
             requestModel.Rating = request.Rating;
             if (request.ServiceCompanyId.HasValue)

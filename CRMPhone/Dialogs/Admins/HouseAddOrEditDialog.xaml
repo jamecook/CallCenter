@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:admin="clr-namespace:CRMPhone.ViewModel.Admins"
         mc:Ignorable="d"
-        Title="Дома" Height="300" Width="240" MinWidth ="240" MinHeight="300"
+        Title="Дома" Height="320" Width="280" MinWidth ="280" MinHeight="320"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         d:DataContext="{d:DesignInstance admin:HouseAdminDialogViewModel}">
@@ -52,6 +52,10 @@
             <DockPanel>
                 <TextBlock Margin="5" VerticalAlignment="Center" Text="Кол-во квартир:"/>
                 <TextBox Margin="5" HorizontalAlignment="Right" Width="60" MaxLength="5" TextWrapping="Wrap" Text="{Binding FlatsCount}"/>
+            </DockPanel>
+            <DockPanel>
+                <TextBlock Margin="5" VerticalAlignment="Center" Text="Ввод у эксплуатацию:"/>
+                <DatePicker Margin="5" HorizontalAlignment="Right" Width="120" SelectedDate="{Binding CommissioningDate}"/>
             </DockPanel>
         </StackPanel>
         <StackPanel Grid.Row="3" HorizontalAlignment="Right">
