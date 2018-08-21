@@ -20,6 +20,7 @@ namespace RequestWebService.Dto
         public string Description { get; set; }
         public string Status { get; set; }
         public string ExecuterName { get; set; }
+        public string ServiceCompany { get; set; }
         public DateTime? ExecuteTime { get; set; }
         public double? Cost { get; set; }
         public bool ContainsPhotos { get; set; }

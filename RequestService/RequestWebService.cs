@@ -647,7 +647,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
         }
         public StatusDto[] GetStatusesAllowedInWeb()
         {
-            var query = "SELECT id, name, Description FROM CallCenter.RequestState R order by id";
+            var query = "SELECT id, name, Description FROM CallCenter.RequestState R where R.allow_in_web = 1 order by id";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 var types = new List<StatusDto>();

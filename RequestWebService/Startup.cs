@@ -23,7 +23,12 @@ namespace RequestWebService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddCors(o => o.AddPolicy("CORS", b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+            services.AddMvc()
+                .AddJsonOptions(options =>
+                {
+                    options.SerializerSettings.DateFormatString = "dd.MM.yyyy HH:mm:ss";
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -33,7 +38,7 @@ namespace RequestWebService
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseCors("CORS");
             app.UseMvc();
         }
     }

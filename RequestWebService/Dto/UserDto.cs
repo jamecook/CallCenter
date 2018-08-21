@@ -2,6 +2,7 @@ namespace RequestWebService.Dto
 {
     public class UserDto
     {
+        public int? Id { get; set; }
         public string BitrixId { get; set; }
         public string SurName { get; set; }
         public string FirstName { get; set; }

@@ -23,11 +23,15 @@ namespace RequestWebService.Controllers
         public void Log(string method)
         {
             var remoteIpAddress = HttpContext.Connection.RemoteIpAddress.ToString();
-            var bufLen = (int)HttpContext.Request.Body.Length;
-            var buf = new byte[bufLen];
-            HttpContext.Request.Body.Position = 0;
-            HttpContext.Request.Body.Read(buf, 0, bufLen);
-            var str = Encoding.UTF8.GetString(buf, 0, bufLen);
+            var str = string.Empty;
+            var bufLen = HttpContext.Request.Method!="GET"?(int?)HttpContext.Request.Body?.Length:null;
+            if (bufLen != null)
+            {
+                var buf = new byte[bufLen.Value];
+                HttpContext.Request.Body.Position = 0;
+                HttpContext.Request.Body.Read(buf, 0, bufLen.Value);
+                str = Encoding.UTF8.GetString(buf, 0, bufLen.Value);
+            }
             RequestService.LogOperation(remoteIpAddress, method, str);
 
         }
@@ -54,7 +58,7 @@ namespace RequestWebService.Controllers
             try
             {
                 Log("AddRequest");
-                var requestId = RequestService.AddRequest(request.BitrixId, request.CreaterPhone, request.CreateTime, request.StreetName, request.Building, request.Corpus, request.Flat, request.ServiceId, request.ServiceFullName, request.Description, request.Status, request.ExecuterName, request.ExecuteTime, request.Cost);
+                var requestId = RequestService.AddRequest(request.BitrixId, request.CreaterPhone, request.CreateTime, request.StreetName, request.Building, request.Corpus, request.Flat, request.ServiceId, request.ServiceFullName, request.Description, request.Status, request.ExecuterName, request.ServiceCompany, request.ExecuteTime, request.Cost);
                 return
                     new DefaultResult { ResultCode = 0, ResultDescription = requestId };
             }
@@ -70,7 +74,7 @@ namespace RequestWebService.Controllers
             try
             {
                 Log("UpdateRequest");
-                RequestService.UpdateRequest(request.BitrixId, request.CreaterPhone, request.CreateTime, request.StreetName, request.Building, request.Corpus, request.Flat, request.ServiceId, request.ServiceFullName, request.Description, request.Status, request.ExecuterName, request.ExecuteTime, request.Cost);
+                RequestService.UpdateRequest(request.BitrixId, request.CreaterPhone, request.CreateTime, request.StreetName, request.Building, request.Corpus, request.Flat, request.ServiceId, request.ServiceFullName, request.Description, request.Status, request.ExecuterName,request.ServiceCompany, request.ExecuteTime, request.Cost);
                 return
                     new DefaultResult { ResultCode = 0, ResultDescription = "Request Updated" };
             }
@@ -81,11 +85,19 @@ namespace RequestWebService.Controllers
             }
 
         }
-        [HttpGet("{id}")]
 
+        [HttpGet("{id}")]
         public RequestDto Get(string id)
         {
+            Log($"GetRequest. {HttpContext.Request.Path}");
             return RequestService.GetRequest(id);
+        }
+
+        [HttpGet]
+        public RequestDto[] Get()
+        {
+            Log("GetAllRequests");
+            return RequestService.GetAllRequests();
         }
         /*
                 [HttpGet("all")]//http://localhost:61174/request/all?token=qwe12312321qeweq-768tuj6570-ghji

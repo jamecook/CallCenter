@@ -20,7 +20,7 @@ namespace RequestWebService.Services
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand("insert into logs(ip_address,json,function) values(@IpStr,@Json,@Function);", conn))
+                using (var cmd = new MySqlCommand("insert into logs(ip_address,json,function,oper_date) values(@IpStr,@Json,@Function,now());", conn))
                 {
                     cmd.Parameters.AddWithValue("@IpStr", ipAddress);
                     cmd.Parameters.AddWithValue("@Json", jsonOperation);
@@ -34,7 +34,7 @@ namespace RequestWebService.Services
 
 
         internal static void UpdateRequest(string bitrixId, string phone, DateTime createDateTime, string streetName, string building, string corpus,
-            string flat, string serviceId, string serviceName, string descript, string status, string executer, DateTime? executeDateTime, double? cost)
+            string flat, string serviceId, string serviceName, string descript, string status, string executer,string serviceCompany, DateTime? executeDateTime, double? cost)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace RequestWebService.Services
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand("call Dispex.update_request(@bitrixIdStr,@phoneStr,@createDateTime,@streetNameStr,@buildingStr,@corpusStr,@flatStr,@serviceIdStr,@serviceNameStr," +
-                                                      "@descriptStr,@statusStr,@executerStr,@executeDateTime,@costDouble);", conn))
+                                                      "@descriptStr,@statusStr,@executerStr,@serviceCompanyStr,@executeDateTime,@costDouble);", conn))
                     {
                         cmd.Parameters.AddWithValue("@bitrixIdStr", bitrixId);
                         cmd.Parameters.AddWithValue("@phoneStr", phone);
@@ -56,6 +56,7 @@ namespace RequestWebService.Services
                         cmd.Parameters.AddWithValue("@descriptStr", descript);
                         cmd.Parameters.AddWithValue("@statusStr", status);
                         cmd.Parameters.AddWithValue("@executerStr", executer);
+                        cmd.Parameters.AddWithValue("@serviceCompanyStr", serviceCompany);
                         cmd.Parameters.AddWithValue("@executeDateTime", executeDateTime);
                         cmd.Parameters.AddWithValue("@costDouble", cost);
                         cmd.ExecuteNonQuery();
@@ -71,7 +72,7 @@ namespace RequestWebService.Services
         }
 
         public static string AddRequest(string bitrixId,string phone, DateTime createDateTime, string streetName, string building, string corpus,
-            string flat, string serviceId, string serviceName, string descript, string status, string executer, DateTime? executeDateTime, double? cost)
+            string flat, string serviceId, string serviceName, string descript, string status, string executer,string serviceCompany, DateTime? executeDateTime, double? cost)
         {
             try
             {
@@ -82,7 +83,7 @@ namespace RequestWebService.Services
                         var cmd =
                             new MySqlCommand(
                                 "call Dispex.add_request(@bitrixIdStr,@phoneStr,@createDateTime,@streetNameStr,@buildingStr,@corpusStr,@flatStr,@serviceIdStr,@serviceNameStr," +
-                                "@descriptStr,@statusStr,@executerStr,@executeDateTime,@costDouble);", conn))
+                                "@descriptStr,@statusStr,@executerStr,@serviceCompanyStr,@executeDateTime,@costDouble);", conn))
                     {
                         cmd.Parameters.AddWithValue("@bitrixIdStr", bitrixId);
                         cmd.Parameters.AddWithValue("@phoneStr", phone);
@@ -96,6 +97,7 @@ namespace RequestWebService.Services
                         cmd.Parameters.AddWithValue("@descriptStr", descript);
                         cmd.Parameters.AddWithValue("@statusStr", status);
                         cmd.Parameters.AddWithValue("@executerStr", executer);
+                        cmd.Parameters.AddWithValue("@serviceCompanyStr", serviceCompany);
                         cmd.Parameters.AddWithValue("@executeDateTime", executeDateTime);
                         cmd.Parameters.AddWithValue("@costDouble", cost);
                         using (var dataReader = cmd.ExecuteReader())
@@ -144,6 +146,7 @@ namespace RequestWebService.Services
                                     ExecuterName = dataReader.GetNullableString("executer_name"),
                                     ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
                                     Cost = dataReader.GetNullableDouble("cost"),
+                                    ServiceCompany = dataReader.GetNullableString("service_company")
                                 };
                             }
                             else
@@ -155,6 +158,51 @@ namespace RequestWebService.Services
                     conn.Close();
                 }
                 return result;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public static RequestDto[] GetAllRequests()
+        {
+            List<RequestDto> result = new List<RequestDto>();
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand("call Dispex.get_all_request();", conn))
+                    {
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            while (dataReader.Read())
+                            {
+                                result.Add(new RequestDto()
+                                {
+                                    BitrixId = dataReader.GetNullableString("bitrix_id"),
+                                    Id = dataReader.GetInt32("id"),
+                                    CreaterPhone = dataReader.GetNullableString("from_phone"),
+                                    CreateTime = dataReader.GetDateTime("create_date"),
+                                    StreetName = dataReader.GetNullableString("street_name"),
+                                    Building = dataReader.GetNullableString("building"),
+                                    Corpus = dataReader.GetNullableString("corpus"),
+                                    Flat = dataReader.GetNullableString("flat"),
+                                    ServiceId = dataReader.GetNullableString("bitrix_service_id"),
+                                    ServiceFullName = dataReader.GetNullableString("bitrix_service_name"),
+                                    Description = dataReader.GetNullableString("descript"),
+                                    Status = dataReader.GetNullableString("status"),
+                                    ExecuterName = dataReader.GetNullableString("executer_name"),
+                                    ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                                    Cost = dataReader.GetNullableDouble("cost"),
+                                    ServiceCompany = dataReader.GetNullableString("service_company")
+                                });
+                            }
+                        }
+                    }
+                    conn.Close();
+                }
+                return result.ToArray();
             }
             catch (Exception ex)
             {
@@ -227,6 +275,7 @@ namespace RequestWebService.Services
                         if(dataReader.Read())
                         { result = new UserDto()
                         {
+                            Id = dataReader.GetNullableInt("id"),
                             BitrixId = bitrixId,
                             SurName = dataReader.GetNullableString("sur_name"),
                             FirstName = dataReader.GetNullableString("first_name"),
@@ -248,6 +297,39 @@ namespace RequestWebService.Services
                 conn.Close();
             }
             return result;
+        }public static UserDto[] GetAllUsers()
+        {
+            List<UserDto> result = new List<UserDto>();
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+
+                conn.Open();
+                using (var cmd = new MySqlCommand("call Dispex.get_users();", conn))
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            result.Add(new UserDto()
+                            {
+                                Id = dataReader.GetNullableInt("id"),
+                                BitrixId = dataReader.GetNullableString("bitrix_id"),
+                                SurName = dataReader.GetNullableString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                                Phone = dataReader.GetNullableString("phone"),
+                                IsMaster = dataReader.GetBoolean("is_master"),
+                                Email = dataReader.GetNullableString("email"),
+                                Login = dataReader.GetNullableString("login"),
+                                DefaultServiceCompany = dataReader.GetNullableString("default_service_company"),
+                            });
+                        }
+                    
+                    }
+                }
+                conn.Close();
+            }
+            return result.ToArray();
         }
     }
 }

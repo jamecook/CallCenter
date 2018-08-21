@@ -15,11 +15,15 @@ namespace RequestWebService.Controllers
         public void Log(string method)
         {
             var remoteIpAddress = HttpContext.Connection.RemoteIpAddress.ToString();
-            var bufLen = (int)HttpContext.Request.Body.Length;
-            var buf = new byte[bufLen];
-            HttpContext.Request.Body.Position = 0;
-            HttpContext.Request.Body.Read(buf, 0, bufLen);
-            var str = Encoding.UTF8.GetString(buf, 0, bufLen);
+            var str = string.Empty;
+            var bufLen = HttpContext.Request.Method != "GET" ? (int?)HttpContext.Request.Body?.Length : null;
+            if (bufLen != null)
+            {
+                var buf = new byte[bufLen.Value];
+                HttpContext.Request.Body.Position = 0;
+                HttpContext.Request.Body.Read(buf, 0, bufLen.Value);
+                str = Encoding.UTF8.GetString(buf, 0, bufLen.Value);
+            }
             RequestService.LogOperation(remoteIpAddress, method, str);
 
         }
@@ -63,7 +67,14 @@ namespace RequestWebService.Controllers
 
         public UserDto Get(string id)
         {
+            Log($"GetUser. {HttpContext.Request.Path}");
             return RequestService.GetUser(id);
+        }
+        [HttpGet]
+        public UserDto[] Get()
+        {
+            Log("GetAllUsers");
+            return RequestService.GetAllUsers();
         }
 
         /*
