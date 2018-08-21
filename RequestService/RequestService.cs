@@ -337,6 +337,12 @@ select LAST_INSERT_ID();", _dbConnection))
             var request = GetRequest(requestId);
             var worker = GetWorkerById(workerId);
             var smsSettings = GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
+            var service = GetServiceById(request.Type.Id);
+            var parrentService = request.Type.ParentId.HasValue ? GetServiceById(request.Type.ParentId.Value) : null;
+            if (!((parrentService?.CanSendSms??true) && service.CanSendSms))
+            {
+                return;
+            }
             string phones = "";
             if (request.Contacts != null && request.Contacts.Length > 0)
                 phones = request.Contacts.OrderBy(c => c.IsMain).Select(c =>

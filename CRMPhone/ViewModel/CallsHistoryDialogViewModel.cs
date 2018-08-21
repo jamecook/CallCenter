@@ -79,6 +79,13 @@ namespace CRMPhone.ViewModel
         {
             var request = _requestService.GetRequest(_requestId);
             var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
+            var service = _requestService.GetServiceById(request.Type.Id);
+            var parrentService = request.Type.ParentId.HasValue ? _requestService.GetServiceById(request.Type.ParentId.Value) : null;
+            if (!((parrentService?.CanSendSms ?? true) && service.CanSendSms))
+            {
+                return;
+            }
+
             if (!request.MasterId.HasValue)
                 return;
             var worker = _requestService.GetWorkerById(request.MasterId.Value);
@@ -108,6 +115,12 @@ namespace CRMPhone.ViewModel
         {
             var request = _requestService.GetRequest(_requestId);
             var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
+            var service = _requestService.GetServiceById(request.Type.Id);
+            var parrentService = request.Type.ParentId.HasValue ? _requestService.GetServiceById(request.Type.ParentId.Value) : null;
+            if (!((parrentService?.CanSendSms ?? true) && service.CanSendSms))
+            {
+                return;
+            }
             if (!request.ExecuterId.HasValue)
                 return;
             var worker = _requestService.GetWorkerById(request.ExecuterId.Value);

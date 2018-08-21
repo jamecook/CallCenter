@@ -517,7 +517,7 @@ namespace CRMPhone.ViewModel
                 {
                     requestModel.MasterList.Add(model.SelectedWorker);
                 }
-                requestModel.SelectedMaster = requestModel.MasterList.SingleOrDefault(w => w.Id == model.MasterId);
+                requestModel.SelectedMaster = model.SelectedWorker;
             }
         }
         private void ChangeExecuter(object sender)
