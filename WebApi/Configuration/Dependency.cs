@@ -9,7 +9,7 @@ namespace WebApi.Configuration
         public static IServiceCollection AddServiceDependencies(this IServiceCollection services)
         {
             services.AddScoped<IAuthService, AuthService>();
-            services.AddSingleton<IAuthorizationHandler, MaximumOfficeNumberAuthorizationHandler>();  
+            //services.AddSingleton<IAuthorizationHandler, MaximumOfficeNumberAuthorizationHandler>();  
             return services;
         }
     }

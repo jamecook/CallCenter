@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,12 +38,12 @@ namespace WebApi.Configuration
             options.RequireHttpsMetadata = false;
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                //ValidateIssuer = true,
+                ValidateIssuer = true,
                 ValidIssuer = configuration["Auth:Issuer"],
                 ValidateAudience = false,
-                //ValidateLifetime = true,
+                ValidateLifetime = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(configuration["Auth:Key"])),
-                //ValidateIssuerSigningKey = true,
+                ValidateIssuerSigningKey = true,
 
             };
             options.Events = new JwtBearerEvents()

@@ -84,7 +84,7 @@ namespace WebApi.Services
                 var userToken = new UserToken
                 {
                     Token = Guid.NewGuid(),
-                    ExpirationDate = DateTime.Now.AddDays(100),
+                    ExpirationDate = DateTime.Now.AddDays(1000),
                     User = new User() {Id = 1, Login = "asdsa",PasswordHash = "sad"}
                 };
                 return userToken;

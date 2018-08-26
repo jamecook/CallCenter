@@ -24,21 +24,19 @@ namespace WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
-
             services
             .AddServiceDependencies()
             .AddAuthentication(Configuration);
 
             services.AddCors(o => o.AddPolicy("CORS", b =>
             {
-                //if (Configuration.GetValue<bool>("Security:CORS:Enabled"))
-                //{
-                //    b.WithOrigins(Configuration.GetValue<string[]>("Security:CORS:Origins"))
-                //        .AllowAnyMethod()
-                //        .AllowAnyHeader();
-                //}
-                //else
+                if (Configuration.GetValue<bool>("Security:CORS:Enabled"))
+                {
+                    b.WithOrigins(Configuration.GetValue<string[]>("Security:CORS:Origins"))
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                }
+                else
                 {
                     b.AllowAnyOrigin()
                         .AllowAnyMethod()
@@ -48,6 +46,7 @@ namespace WebApi
 
             services
                 .AddMvc(options => { options.AddGlobalAuthControl(); })
+                //.AddMvc()
                 .AddJsonOptions(options =>
                 {
                     options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
