@@ -29,7 +29,7 @@ namespace WebApi.Services
 
         public TokenDto GetToken(AuthDto authDto)
         {
-                var user = GetUser(authDto);
+                var user = RequestService.WebLogin(authDto.Login, authDto.Password); ;
                 if (user == null)
                 {
                     return null;
@@ -37,7 +37,8 @@ namespace WebApi.Services
                 var now = DateTime.UtcNow;
                 return new TokenDto
                 {
-                    Access = CreateAccessToken(authDto.Login, now),
+                    //todo надо что-то сделать тут
+                    Access = CreateAccessToken(new WebUserDto(), now),
                     Refresh = CreateRefreshToken(user, now)
                 };
         }
@@ -57,7 +58,7 @@ namespace WebApi.Services
                 var now = DateTime.UtcNow;
                 return new TokenDto
                 {
-                    Access = CreateAccessToken(userToken.User.Login, now),
+                    Access = CreateAccessToken(userToken.User, now),
                     Refresh = UpdateRefreshToken(userToken, now)
                 };
         }
@@ -85,7 +86,7 @@ namespace WebApi.Services
                 {
                     Token = Guid.NewGuid(),
                     ExpirationDate = DateTime.Now.AddDays(1000),
-                    User = new User() {Id = 1, Login = "asdsa",PasswordHash = "sad"}
+                   // User = new User() {Id = 1, Login = "asdsa",PasswordHash = "sad"}
                 };
                 return userToken;
             }
@@ -96,10 +97,18 @@ namespace WebApi.Services
             }
         }
 
-        private string CreateAccessToken(string login, DateTime start)
+        private string CreateAccessToken(WebUserDto user, DateTime start)
         {
             //todo: добавить роли
-            var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, login) };
+            var claims = new List<Claim>
+            {
+                new Claim("UserId", user.UserId.ToString()),
+                //new Claim("FirstName", user.FirstName),
+                //new Claim("PatrName", user.PatrName),
+                //new Claim("SurName", user.SurName),
+                new Claim("CanCreateRequestInWeb", user.CanCreateRequestInWeb.ToString()),
+                 new Claim("WorkerId", user.WorkerId.ToString())
+            };
             var jwt = new JwtSecurityToken(
                 issuer: _configuration["Auth:Issuer"],
                 notBefore: start,
@@ -114,7 +123,7 @@ namespace WebApi.Services
             userToken.ExpirationDate = start.Add(TimeSpan.FromDays(_configuration.GetValue<int>("Auth:RefreshExpireDays")));
         }
 
-        private Guid CreateRefreshToken(User user, DateTime start)
+        private Guid CreateRefreshToken(WebUserDto user, DateTime start)
         {
             var userToken = new UserToken
             {

@@ -62,7 +62,8 @@ namespace WebApi
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseCors("CORS");
+            app.UseAuthentication();
             app.UseMvc();
         }
     }

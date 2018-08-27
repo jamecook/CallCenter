@@ -24,6 +24,7 @@ namespace RequestWebService.Dto
         public DateTime? ExecuteTime { get; set; }
         public double? Cost { get; set; }
         public bool ContainsPhotos { get; set; }
+        public string Hash { get; set; }
 
 
         //public string FullAddress

@@ -13,5 +13,6 @@ namespace RequestWebService.Dto
         public string Email { get; set; }
         public string Phone { get; set; }
         public bool IsMaster { get; set; }
+        public string Hash { get; set; }
     }
 }

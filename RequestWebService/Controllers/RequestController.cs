@@ -74,9 +74,9 @@ namespace RequestWebService.Controllers
             try
             {
                 Log("UpdateRequest");
-                RequestService.UpdateRequest(request.BitrixId, request.CreaterPhone, request.CreateTime, request.StreetName, request.Building, request.Corpus, request.Flat, request.ServiceId, request.ServiceFullName, request.Description, request.Status, request.ExecuterName,request.ServiceCompany, request.ExecuteTime, request.Cost);
+                var affectedRows = RequestService.UpdateRequest(request.BitrixId, request.CreaterPhone, request.CreateTime, request.StreetName, request.Building, request.Corpus, request.Flat, request.ServiceId, request.ServiceFullName, request.Description, request.Status, request.ExecuterName,request.ServiceCompany, request.ExecuteTime, request.Cost, request.Hash);
                 return
-                    new DefaultResult { ResultCode = 0, ResultDescription = "Request Updated" };
+                    new DefaultResult { ResultCode = affectedRows, ResultDescription = affectedRows==1?"Request Updated":"Hash was changed" };
             }
             catch (Exception ex)
             {

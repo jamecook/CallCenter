@@ -30,11 +30,8 @@ namespace RequestWebService.Services
                 conn.Close();
             }
         }
-
-
-
-        internal static void UpdateRequest(string bitrixId, string phone, DateTime createDateTime, string streetName, string building, string corpus,
-            string flat, string serviceId, string serviceName, string descript, string status, string executer,string serviceCompany, DateTime? executeDateTime, double? cost)
+        internal static int UpdateRequest(string bitrixId, string phone, DateTime createDateTime, string streetName, string building, string corpus,
+            string flat, string serviceId, string serviceName, string descript, string status, string executer,string serviceCompany, DateTime? executeDateTime, double? cost, string hashVal)
         {
             try
             {
@@ -42,7 +39,7 @@ namespace RequestWebService.Services
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand("call Dispex.update_request(@bitrixIdStr,@phoneStr,@createDateTime,@streetNameStr,@buildingStr,@corpusStr,@flatStr,@serviceIdStr,@serviceNameStr," +
-                                                      "@descriptStr,@statusStr,@executerStr,@serviceCompanyStr,@executeDateTime,@costDouble);", conn))
+                                                      "@descriptStr,@statusStr,@executerStr,@serviceCompanyStr,@executeDateTime,@costDouble,@hashVal);", conn))
                     {
                         cmd.Parameters.AddWithValue("@bitrixIdStr", bitrixId);
                         cmd.Parameters.AddWithValue("@phoneStr", phone);
@@ -59,14 +56,15 @@ namespace RequestWebService.Services
                         cmd.Parameters.AddWithValue("@serviceCompanyStr", serviceCompany);
                         cmd.Parameters.AddWithValue("@executeDateTime", executeDateTime);
                         cmd.Parameters.AddWithValue("@costDouble", cost);
-                        cmd.ExecuteNonQuery();
+                        cmd.Parameters.AddWithValue("@hashVal", hashVal);
+                        return Convert.ToInt32(cmd.ExecuteScalar());
                     }
                     conn.Close();
                 }
             }
             catch (Exception e)
             {
-                return;
+                return 0;
             }
             
         }
@@ -146,7 +144,8 @@ namespace RequestWebService.Services
                                     ExecuterName = dataReader.GetNullableString("executer_name"),
                                     ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
                                     Cost = dataReader.GetNullableDouble("cost"),
-                                    ServiceCompany = dataReader.GetNullableString("service_company")
+                                    ServiceCompany = dataReader.GetNullableString("service_company"),
+                                    Hash = dataReader.GetNullableString("hash_val")
                                 };
                             }
                             else
@@ -195,7 +194,8 @@ namespace RequestWebService.Services
                                     ExecuterName = dataReader.GetNullableString("executer_name"),
                                     ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
                                     Cost = dataReader.GetNullableDouble("cost"),
-                                    ServiceCompany = dataReader.GetNullableString("service_company")
+                                    ServiceCompany = dataReader.GetNullableString("service_company"),
+                                    Hash = dataReader.GetNullableString("hash_val")
                                 });
                             }
                         }
@@ -235,7 +235,7 @@ namespace RequestWebService.Services
                 }
             }
         }
-        public static void UpdateUser(string bitrixId, string surName, string firstName, string patrName, string phone, string email, string login, string password, string defaultServiceCompany, bool isMaster)
+        public static int UpdateUser(string bitrixId, string surName, string firstName, string patrName, string phone, string email, string login, string password, string defaultServiceCompany, bool isMaster,string hashValue)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -243,7 +243,7 @@ namespace RequestWebService.Services
                 using (
                     var cmd =
                         new MySqlCommand(
-                            "call Dispex.update_user(@bitrixIdStr,@surNameStr,@firstNameStr,@patrNameStr,@phoneStr,@emailStr,@loginStr,@passwordStr,@defServiceCompanyStr,@isMaster);",
+                            "call Dispex.update_user(@bitrixIdStr,@surNameStr,@firstNameStr,@patrNameStr,@phoneStr,@emailStr,@loginStr,@passwordStr,@defServiceCompanyStr,@isMaster,@hashVal);",
                             conn))
                 {
                     cmd.Parameters.AddWithValue("@bitrixIdStr", bitrixId);
@@ -256,7 +256,8 @@ namespace RequestWebService.Services
                     cmd.Parameters.AddWithValue("@passwordStr", password);
                     cmd.Parameters.AddWithValue("@defServiceCompanyStr", defaultServiceCompany);
                     cmd.Parameters.AddWithValue("@isMaster", isMaster);
-                    cmd.ExecuteNonQuery();
+                    cmd.Parameters.AddWithValue("@hashVal", hashValue);
+                    return Convert.ToInt32(cmd.ExecuteScalar());
                 }
                 conn.Close();
             }
@@ -285,6 +286,7 @@ namespace RequestWebService.Services
                             Email = dataReader.GetNullableString("email"),
                             Login = dataReader.GetNullableString("login"),
                             DefaultServiceCompany = dataReader.GetNullableString("default_service_company"),
+                            Hash = dataReader.GetNullableString("hash_val")
                         };
                         }
                         else
@@ -322,6 +324,7 @@ namespace RequestWebService.Services
                                 Email = dataReader.GetNullableString("email"),
                                 Login = dataReader.GetNullableString("login"),
                                 DefaultServiceCompany = dataReader.GetNullableString("default_service_company"),
+                                Hash = dataReader.GetNullableString("hash_val")
                             });
                         }
                     

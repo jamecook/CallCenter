@@ -51,10 +51,10 @@ namespace RequestWebService.Controllers
             try
             {
                 Log("UpdateUser");
-                RequestService.UpdateUser(id, userInfo.SurName, userInfo.FirstName, userInfo.PatrName, userInfo.Phone, userInfo.Email,
-                        userInfo.Login, userInfo.Password, userInfo.DefaultServiceCompany, userInfo.IsMaster);
+                var affectedRows = RequestService.UpdateUser(id, userInfo.SurName, userInfo.FirstName, userInfo.PatrName, userInfo.Phone, userInfo.Email,
+                        userInfo.Login, userInfo.Password, userInfo.DefaultServiceCompany, userInfo.IsMaster,userInfo.Hash);
                 return
-                    new DefaultResult { ResultCode = 0, ResultDescription = "User Updated" };
+                    new DefaultResult { ResultCode = affectedRows, ResultDescription = affectedRows == 1 ? "Request Updated" : "Hash was changed" };
             }
             catch (Exception ex)
             {

@@ -6,6 +6,6 @@ namespace WebApi.Models
     {
         public virtual Guid Token { get; set; }
         public virtual DateTime ExpirationDate { get; set; }
-        public virtual User User { get; set; }
+        public virtual WebUserDto User { get; set; }
     }
 }
