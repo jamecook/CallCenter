@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -14,9 +16,12 @@ namespace WebApi.Controllers
         //[HttpGet, AllowAnonymous]
         //[Authorize(Policy = "OfficeNumberUnder200")]
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IEnumerable<string>> Get()
         {
-            return new string[] { "value1", "value2" };
+            var ttt = User.Claims.ToArray();
+            var login = User.Claims.FirstOrDefault(c => c.Type == "Login");
+            var loginStr = login?.Value;
+            return new string[] { loginStr, "value2" };
         }
 
         // GET api/values/5

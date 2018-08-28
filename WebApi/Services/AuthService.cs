@@ -37,8 +37,7 @@ namespace WebApi.Services
                 var now = DateTime.UtcNow;
                 return new TokenDto
                 {
-                    //todo надо что-то сделать тут
-                    Access = CreateAccessToken(new WebUserDto(), now),
+                    Access = CreateAccessToken(user, now),
                     Refresh = CreateRefreshToken(user, now)
                 };
         }
@@ -103,9 +102,10 @@ namespace WebApi.Services
             var claims = new List<Claim>
             {
                 new Claim("UserId", user.UserId.ToString()),
-                //new Claim("FirstName", user.FirstName),
-                //new Claim("PatrName", user.PatrName),
-                //new Claim("SurName", user.SurName),
+                new Claim("Login", user.Login??""),
+                new Claim("SurName", user.SurName??""),
+                new Claim("FirstName", user.FirstName??""),
+                new Claim("PatrName", user.PatrName??""),
                 new Claim("CanCreateRequestInWeb", user.CanCreateRequestInWeb.ToString()),
                  new Claim("WorkerId", user.WorkerId.ToString())
             };

@@ -30,7 +30,8 @@ namespace WebApi.Services
                             return new WebUserDto
                             {
                                 UserId = dataReader.GetInt32("UserId"),
-                                SurName = dataReader.GetString("SurName"),
+                                Login = dataReader.GetNullableString("Login"),
+                                SurName = dataReader.GetNullableString("SurName"),
                                 FirstName = dataReader.GetNullableString("FirstName"),
                                 PatrName = dataReader.GetNullableString("PatrName"),
                                 WorkerId = dataReader.GetInt32("worker_id"),
