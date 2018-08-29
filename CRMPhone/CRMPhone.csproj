@@ -84,6 +84,15 @@
       <HintPath>..\packages\NLog.4.4.8\lib\net40\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>..\packages\Stimulsoft.Base.2014.1.1900.0\lib\net20\Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Controls.Win">
+      <HintPath>..\packages\Stimulsoft.Controls.Win.2014.1.1900.0\lib\net20\Stimulsoft.Controls.Win.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Report">
+      <HintPath>..\packages\Stimulsoft.Report.2014.1.1900.0\lib\net20\Stimulsoft.Report.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -520,6 +529,9 @@
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="templates\act.mrt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="templates\meters.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

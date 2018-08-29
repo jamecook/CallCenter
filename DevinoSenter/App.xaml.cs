@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Windows;
 using DevinoSender.Devino;
 using NLog;
+using System.Threading;
 
 namespace DevinoSender
 {
@@ -33,7 +34,13 @@ namespace DevinoSender
                     ConfigurationManager.AppSettings["DevinoPassword"]);
                 //Проверка баланса
                 var balance = sender.GetBalance(sessionID);
-                if (balance < 5) return;
+                if (balance < 5)
+                {
+                    _logger.Debug($"Small Balance! {balance}");
+                    //Thread.Sleep(1000);
+                    Application.Current.Shutdown();
+                    return;
+                }
                 //Запрет отправки смс
                 var smsList = GetSendSmsList(dbConnection);
                 if (Convert.ToBoolean(ConfigurationManager.AppSettings["EnableSend"]) == false)

@@ -16,6 +16,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Win32;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
+using Stimulsoft.Report;
 
 namespace CRMPhone.ViewModel
 {
@@ -30,6 +31,8 @@ namespace CRMPhone.ViewModel
         public ICommand RefreshRequestCommand { get { return _refreshRequestCommand ?? (_refreshRequestCommand = new CommandHandler(RefreshRequest, true)); } }
         private ICommand _exportRequestCommand;
         public ICommand ExportRequestCommand { get { return _exportRequestCommand ?? (_exportRequestCommand = new CommandHandler(ExportRequest, true)); } }
+        private ICommand _printActsCommand;
+        public ICommand PrintActsCommand { get { return _printActsCommand ?? (_printActsCommand = new CommandHandler(PrintActs, true)); } }
         private ICommand _clearFiltersCommand;
         public ICommand ClearFiltersCommand { get { return _clearFiltersCommand ?? (_clearFiltersCommand = new CommandHandler(ClearFilters, true)); } }
 
@@ -160,6 +163,60 @@ namespace CRMPhone.ViewModel
             set { _masterText = value; OnPropertyChanged(nameof(MasterText)); }
         }
 
+        private void PrintActs()
+        {
+            if (RequestList.Count == 0)
+            {
+                MessageBox.Show("Нельзя экспортировать пустой список!", "Ошибка");
+                return;
+            }
+            try
+            {
+
+                var saveDialog = new SaveFileDialog();
+                saveDialog.AddExtension = true;
+                saveDialog.DefaultExt = ".doc";
+                saveDialog.Filter = "Word файл|*.doc";
+                if (saveDialog.ShowDialog() == true)
+                {
+                    var fileName = saveDialog.FileName;
+                    if (fileName.EndsWith(".doc"))
+                    {
+                        var stiReport = new StiReport();
+                        stiReport.Load("templates\\act.mrt");
+                        var requestsDto = RequestList.Select(x => new
+                        {
+                            RequestNumber = x.Id,
+                            Address = x.FullAddress,
+                            ClientName = x.MainFio,
+                            ClientPhones = x.ContactPhones,
+                            ParentService = x.ParentService,
+                            Service = x.Service,
+                        }).ToArray();
+                        StiOptions.Engine.HideRenderingProgress = true;
+                        //StiOptions.Engine.HideExceptions = true;
+                        StiOptions.Engine.HideMessages = true;
+
+
+                        stiReport.RegBusinessObject("", "Acts", requestsDto);
+                        stiReport.Render();
+                        var reportStream = new MemoryStream();
+                        stiReport.ExportDocument(StiExportFormat.Rtf, reportStream);
+                        //stiReport.ExportDocument(StiExportFormat.Pdf, reportStream);
+                        reportStream.Position = 0;
+                        File.WriteAllBytes(fileName, reportStream.GetBuffer());
+
+                        MessageBox.Show("Данные сохранены в файл\r\n" + fileName);
+                    }
+                }
+            }
+            catch
+                (Exception exc)
+            {
+                MessageBox.Show("Произошла ошибка:\r\n" + exc.Message);
+            }
+
+        }
         private void ExportRequest()
         {
             if (RequestList.Count == 0)
