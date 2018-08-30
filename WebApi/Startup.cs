@@ -51,6 +51,7 @@ namespace WebApi
                 {
                     options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
                     options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                    options.SerializerSettings.DateFormatString = "yyyy-MM-dd hh:mm:ss";
                 });
 
         }
