@@ -29,7 +29,7 @@ namespace WebApi.Controllers
             var token = _authService.GetToken(authDto);
             if (token == null)
             {
-                return UnprocessableEntity();
+                return Unauthorized();
             }
             return new TokenModel{Access = token.Access,Refresh = token.Refresh.ToString()};
         }

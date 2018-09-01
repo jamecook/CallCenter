@@ -83,29 +83,44 @@ namespace WebApi.Controllers
                 garanty.HasValue && garanty.Value, clientPhone);
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("workers")]
+        public IEnumerable<WorkerDto> GetWorkers()
         {
-            return "value";
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetWorkersByWorkerId(workerId);
         }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody]string value)
+        [HttpGet("statuses")]
+        public IEnumerable<StatusDto> GetStatuses()
         {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetStatusesAllowedInWeb();
         }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        [HttpGet("streets")]
+        public IEnumerable<StreetDto> GetStreets()
         {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetStreetsByWorkerId(workerId);
         }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpGet("houses/{id}")]
+        public IEnumerable<WebHouseDto> GetHouses(int id)
         {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetHousesByStreetAndWorkerId(id, workerId);
         }
+        [HttpGet("parrent_services")]
+        public IEnumerable<ServiceDto> GetParrentServices()
+        {
+            return RequestService.GetServices(null);
+        }
+        [HttpGet("services/{id}")]
+        public IEnumerable<ServiceDto> GetServices(int id)
+        {
+            return RequestService.GetServices(id);
+        }
+        
     }
 }

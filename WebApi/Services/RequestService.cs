@@ -48,6 +48,158 @@ namespace WebApi.Services
             }
         }
 
+        public static WorkerDto[] GetWorkersByWorkerId(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL CallCenter.WebGetWorkers(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var workers = new List<WorkerDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            workers.Add(new WorkerDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                SurName = dataReader.GetString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                                SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return workers.ToArray();
+                }
+            }
+        }
+        public static StatusDto[] GetStatusesAllowedInWeb()
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var query =
+                    "SELECT id, name, Description FROM CallCenter.RequestState R where R.allow_in_web = 1 order by id";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var types = new List<StatusDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            types.Add(new StatusDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                Description = dataReader.GetString("Description")
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return types.ToArray();
+                }
+            }
+        }
+
+        public static StreetDto[] GetStreetsByWorkerId(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery = "CALL CallCenter.WebGetStreets(@CurWorker)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", workerId);
+                    var streets = new List<StreetDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            streets.Add(new StreetDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                Prefix = new StreetPrefixDto
+                                {
+                                    Id = dataReader.GetInt32("Prefix_id"),
+                                    Name = dataReader.GetString("Prefix_Name"),
+                                    ShortName = dataReader.GetString("ShortName")
+                                },
+                                CityId = dataReader.GetInt32("city_id")
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return streets.ToArray();
+                }
+            }
+        }
+        public static WebHouseDto[] GetHousesByStreetAndWorkerId(int streetId, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery = @"CALL CallCenter.WebGetHouses(@StreetId,@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@StreetId", streetId);
+                    var houses = new List<HouseDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            houses.Add(new HouseDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Building = dataReader.GetString("building"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                StreetId = streetId
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return houses.Select(h => new WebHouseDto {Id = h.Id, Name = h.FullName}).ToArray();
+                }
+            }
+        }
+        public static IList<ServiceDto> GetServices(long? parentId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = parentId.HasValue
+                    ? @"SELECT id,name,can_send_sms FROM CallCenter.RequestTypes R where parrent_id = @ParentId and enabled = 1 order by name"
+                    : @"SELECT id,name,can_send_sms FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    if (parentId.HasValue)
+                        cmd.Parameters.AddWithValue("@ParentId", parentId.Value);
+
+                    var services = new List<ServiceDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            services.Add(new ServiceDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                CanSendSms = dataReader.GetBoolean("can_send_sms")
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return services;
+                }
+            }
+        }
         public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds, bool badWork = false, bool garanty = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
