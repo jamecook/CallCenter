@@ -2631,7 +2631,7 @@ where C.Direction is not null";
         public ServiceDto GetServiceById(int serviceId)
         {
             ServiceDto service = null;
-            var query = "SELECT id,name,can_send_sms FROM CallCenter.RequestTypes  where enabled = 1 and id = @ID";
+            var query = "SELECT id,name,can_send_sms FROM CallCenter.RequestTypes  where id = @ID";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@ID", serviceId);

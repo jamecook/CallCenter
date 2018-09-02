@@ -111,7 +111,7 @@ namespace WebApi.Controllers
             int.TryParse(workerIdStr, out int workerId);
             return RequestService.GetHousesByStreetAndWorkerId(id, workerId);
         }
-        [HttpGet("parrent_services")]
+        [HttpGet("parent_services")]
         public IEnumerable<ServiceDto> GetParrentServices()
         {
             return RequestService.GetServices(null);

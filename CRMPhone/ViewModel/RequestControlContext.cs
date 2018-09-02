@@ -711,21 +711,22 @@ namespace CRMPhone.ViewModel
             viewModel.FromTime = request.FromTime;
             viewModel.ToTime = request.ToTime;
             var requestModel = viewModel.RequestList.FirstOrDefault();
-            requestModel.SelectedParentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
-            if ( requestModel.SelectedParentService == null)
+            var selectedParrentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            if (selectedParrentService == null)
             {
                 var parrentServiceType = _requestService.GetServiceById(request.Type.ParentId ?? 0);
                 requestModel.ParentServiceList.Add(parrentServiceType);
-                requestModel.SelectedParentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+                selectedParrentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
             }
-            requestModel.SelectedService = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
-            if (requestModel.SelectedService == null)
+            requestModel.SelectedParentService = selectedParrentService;
+            var service = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+            if (service == null)
             {
                 var serviceType = _requestService.GetServiceById(request.Type.Id);
-                requestModel.ParentServiceList.Add(serviceType);
-                requestModel.SelectedService = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+                requestModel.ServiceList.Add(serviceType);
+                service = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
             }
-
+            requestModel.SelectedService = service;
             requestModel.Description = request.Description;
             requestModel.IsChargeable = request.IsChargeable;
             requestModel.IsImmediate = request.IsImmediate;

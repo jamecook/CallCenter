@@ -50,7 +50,7 @@
               <Page isRef="3" />
               <Parent isRef="4" />
               <Text>Акт выполненных работ
-от «____»______________ 2017г.</Text>
+от «____»______________ 2018г.</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
@@ -300,10 +300,10 @@
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>Report</ReportAlias>
-  <ReportChanged>7/27/2017 9:20:45 PM</ReportChanged>
+  <ReportChanged>9/2/2018 6:36:39 PM</ReportChanged>
   <ReportCreated>7/26/2017 8:11:07 PM</ReportCreated>
-  <ReportFile>templates\act.mrt</ReportFile>
-  <ReportGuid>7786a88d29324d1784846b66889458a5</ReportGuid>
+  <ReportFile>C:\Users\zerg\Google Диск\CallCenter\CallCenter\RequestWcfService\templates\act.mrt</ReportFile>
+  <ReportGuid>80b96b92bc1d4abf9649540a21677231</ReportGuid>
   <ReportName>Report</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2014.1.1900</ReportVersion>
