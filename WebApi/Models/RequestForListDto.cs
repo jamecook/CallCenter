@@ -10,7 +10,7 @@ namespace WebApi.Models
         public bool IsBadWork { get; set; }
         public bool IsRetry { get; set; }
         public string IsRetryText => IsRetry ? "да" : "нет";
-        public string RecordUniqueId { get; set; }
+        public int? FirstRecordId { get; set; }
         public DateTime CreateTime { get; set; }
         public string StreetPrefix { get; set; }
         public string StreetName { get; set; }
@@ -20,9 +20,9 @@ namespace WebApi.Models
         public string Floor { get; set; }
         public string Entrance { get; set; }
         public string AddressType { get; set; }
-        public RequestUserDto Master { get; set; }
-        public RequestUserDto Executer { get; set; }
-        public RequestUserDto CreateUser { get; set; }
+        public UserDto Master { get; set; }
+        public UserDto Executer { get; set; }
+        public UserDto CreateUser { get; set; }
         public DateTime? ExecuteTime { get; set; }
         public DateTime? TermOfExecution { get; set; }
         public string ExecutePeriod { get; set; }

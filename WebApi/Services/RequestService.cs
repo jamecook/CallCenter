@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using MySql.Data.MySqlClient;
 using WebApi.Models;
@@ -107,6 +108,80 @@ namespace WebApi.Services
             }
         }
 
+        public static WebCallsDto[] GetWebCallsByRequestId(int requestId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery = @"SELECT rc.id,c.CallerIdNum,c.CreateTime,c.MonitorFile FROM CallCenter.Requests r
+join CallCenter.RequestCalls rc on rc.request_id = r.id
+join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId order by c.CreateTime";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    var states = new List<WebCallsDto>();
+                    cmd.Parameters.AddWithValue("@reqId", requestId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            states.Add(new WebCallsDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                PhoneNumber = dataReader.GetNullableString("CallerIdNum"),
+                                CreateTime = dataReader.GetDateTime("CreateTime"),
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return states.ToArray();
+                }
+            }
+        }
+        public static byte[] GetRecordById(int recordId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd =
+                    new MySqlCommand(@"SELECT MonitorFile FROM CallCenter.RequestCalls r
+    join asterisk.ChannelHistory c on c.UniqueID = r.uniqueID
+    where r.id = @reqId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@reqId", recordId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            var fileName = dataReader.GetNullableString("MonitorFile");
+                            var serverIpAddress = conn.DataSource;
+                            var localFileName =
+                                fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\")
+                                    .Replace("/", "\\");
+                            if (File.Exists(localFileName))
+                            {
+                                return File.ReadAllBytes(localFileName);
+                            }
+                            var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
+                            if (File.Exists(localFileNameMp3))
+                            {
+                                return File.ReadAllBytes(localFileNameMp3);
+                            }
+                            return null;
+                        }
+                    }
+                }
+            }
+            return new byte[0];
+        }
+        public static byte[] DownloadFile(int requestId, string fileName,string rootDir)
+        {
+            if (!string.IsNullOrEmpty(rootDir) && Directory.Exists($"{rootDir}\\{requestId}"))
+            {
+                return File.ReadAllBytes($"{rootDir}\\{requestId}\\{fileName}");
+            }
+            return null;
+        }
+
         public static StreetDto[] GetStreetsByWorkerId(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -175,8 +250,10 @@ namespace WebApi.Services
             {
                 conn.Open();
                 var query = parentId.HasValue
-                    ? @"SELECT id,name,can_send_sms FROM CallCenter.RequestTypes R where parrent_id = @ParentId and enabled = 1 order by name"
-                    : @"SELECT id,name,can_send_sms FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
+                    ? @"SELECT t1.id,t1.name,t1.can_send_sms,t2.id parent_id, t2.name parent_name FROM CallCenter.RequestTypes t1
+                        left join CallCenter.RequestTypes t2 on t2.id = t1.parrent_id
+                        where t1.parrent_id = @ParentId and t1.enabled = 1 order by t1.name"
+                    : @"SELECT id,name,can_send_sms, null parent_id, null parent_name FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     if (parentId.HasValue)
@@ -191,7 +268,9 @@ namespace WebApi.Services
                             {
                                 Id = dataReader.GetInt32("id"),
                                 Name = dataReader.GetString("name"),
-                                CanSendSms = dataReader.GetBoolean("can_send_sms")
+                                CanSendSms = dataReader.GetBoolean("can_send_sms"),
+                                ParentId = dataReader.GetNullableInt("parent_id"),
+                                ParentName = dataReader.GetNullableString("parent_name")
                             });
                         }
                         dataReader.Close();
@@ -263,6 +342,7 @@ namespace WebApi.Services
                     {
                         while (dataReader.Read())
                         {
+                            var recordId = dataReader.GetNullableInt("recordId");
                             requests.Add(new RequestForListDto
                             {
                                 Id = dataReader.GetInt32("id"),
@@ -273,6 +353,8 @@ namespace WebApi.Services
                                 Building = dataReader.GetString("building"),
                                 Corpus = dataReader.GetNullableString("corps"),
                                 Entrance = dataReader.GetNullableString("entrance"),
+                                FirstRecordId = recordId,
+                                HasRecord = recordId.HasValue,
                                 Floor = dataReader.GetNullableString("floor"),
                                 CreateTime = dataReader.GetDateTime("create_time"),
                                 Description = dataReader.GetNullableString("description"),
@@ -280,7 +362,7 @@ namespace WebApi.Services
                                 ParentService = dataReader.GetNullableString("parent_name"),
                                 Service = dataReader.GetNullableString("service_name"),
                                 Master = dataReader.GetNullableInt("worker_id") != null
-                                    ? new RequestUserDto
+                                    ? new UserDto
                                     {
                                         Id = dataReader.GetInt32("worker_id"),
                                         SurName = dataReader.GetNullableString("sur_name"),
@@ -289,7 +371,7 @@ namespace WebApi.Services
                                     }
                                     : null,
                                 Executer = dataReader.GetNullableInt("executer_id") != null
-                                    ? new RequestUserDto
+                                    ? new UserDto
                                     {
                                         Id = dataReader.GetInt32("executer_id"),
                                         SurName = dataReader.GetNullableString("exec_sur_name"),
@@ -297,7 +379,7 @@ namespace WebApi.Services
                                         PatrName = dataReader.GetNullableString("exec_patr_name"),
                                     }
                                     : null,
-                                CreateUser = new RequestUserDto
+                                CreateUser = new UserDto
                                 {
                                     Id = dataReader.GetInt32("create_user_id"),
                                     SurName = dataReader.GetNullableString("surname"),
@@ -319,6 +401,85 @@ namespace WebApi.Services
                     }
                     return requests.ToArray();
                 }
+            }
+        }
+
+        public static List<AttachmentDto> GetAttachments(int requestId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(@"SELECT a.id,a.request_id,a.name,a.file_name,a.create_date,u.id user_id,u.SurName,u.FirstName,u.PatrName FROM CallCenter.RequestAttachments a
+ join CallCenter.Users u on u.id = a.user_id where a.deleted = 0 and a.request_id = @requestId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@requestId", requestId);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var attachments = new List<AttachmentDto>();
+                        while (dataReader.Read())
+                        {
+                            attachments.Add(new AttachmentDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                FileName = dataReader.GetString("file_name"),
+                                CreateDate = dataReader.GetDateTime("create_date"),
+                                RequestId = dataReader.GetInt32("request_id"),
+                                User = new UserDto()
+                                {
+                                    Id = dataReader.GetInt32("user_id"),
+                                    SurName = dataReader.GetNullableString("SurName"),
+                                    FirstName = dataReader.GetNullableString("FirstName"),
+                                    PatrName = dataReader.GetNullableString("PatrName"),
+                                }
+                            });
+                        }
+                        dataReader.Close();
+                        return attachments;
+                    }
+                }
+            }
+        }
+
+        public static List<NoteDto> GetNotes(int requestId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery =
+                    @"SELECT n.id,n.operation_date,n.request_id,n.user_id,n.note,u.SurName,u.FirstName,u.PatrName from CallCenter.RequestNoteHistory n
+join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order by operation_date";
+                using (
+                    var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var noteList = new List<NoteDto>();
+                        while (dataReader.Read())
+                        {
+                            noteList.Add(new NoteDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Date = dataReader.GetDateTime("operation_date"),
+                                Note = dataReader.GetNullableString("note"),
+                                User = new UserDto
+                                {
+                                    Id = dataReader.GetInt32("user_id"),
+                                    SurName = dataReader.GetNullableString("SurName"),
+                                    FirstName = dataReader.GetNullableString("FirstName"),
+                                    PatrName = dataReader.GetNullableString("PatrName"),
+                                },
+                            });
+                        }
+                        dataReader.Close();
+                        return noteList;
+                    }
+                }
+
             }
         }
     }

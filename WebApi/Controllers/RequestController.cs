@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Configuration;
 using WebApi.Models;
 using WebApi.Services;
 
@@ -46,13 +47,14 @@ namespace WebApi.Controllers
     [Route("[controller]")]
     public class RequestController : Controller
     {
-        //int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate,
-        //DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds,
-        //int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds, bool badWork = false, bool garanty = false, 
-        //string clientPhone = null
+        public IConfiguration Configuration { get; }
+        public RequestController(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
 
         [HttpGet]
-        public IEnumerable<RequestForListDto> Get([FromQuery]int? requestId,[FromQuery] bool? filterByCreateDate,
+        public IEnumerable<RequestForListDto> Get([FromQuery]string requestId,[FromQuery] bool? filterByCreateDate,
             [FromQuery] DateTime? fromDate,[FromQuery] DateTime? toDate,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] streets,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] houses,
@@ -72,7 +74,20 @@ namespace WebApi.Controllers
             //var login = User.Claims.FirstOrDefault(c => c.Type == "Login")?.Value;
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.WebRequestListArrayParam(workerId, requestId,
+            int? rId=null;
+            if (!string.IsNullOrEmpty(requestId))
+            {
+                if (int.TryParse(requestId, out int parseId))
+                {
+                    rId = parseId;
+                }
+                else
+                {
+                    rId = -1;
+                }
+            }
+
+            return RequestService.WebRequestListArrayParam(workerId, rId,
                 filterByCreateDate ?? true,
                 fromDate ?? DateTime.Today,
                 toDate ?? DateTime.Today.AddDays(1),
@@ -121,6 +136,43 @@ namespace WebApi.Controllers
         {
             return RequestService.GetServices(id);
         }
-        
+        [HttpGet("request_records/{id}")]
+        public IEnumerable<WebCallsDto> GetRequestRecords(int id)
+        {
+            return RequestService.GetWebCallsByRequestId(id);
+        }
+        [HttpGet("record/{id}")]
+        public byte[] GetRecord(int id)
+        {
+            return RequestService.GetRecordById(id);
+        }
+        [HttpGet("request_attachments/{id}")]
+        public IEnumerable<AttachmentDto> GetAttachments(int id)
+        {
+            return RequestService.GetAttachments(id);
+        }
+        [HttpGet("attachment")]
+        public byte[] GetAttachment([FromQuery]string requestId, [FromQuery]string fileName)
+        {
+            int? rId = null;
+            if (!string.IsNullOrEmpty(requestId) && int.TryParse(requestId, out int parseId))
+            {
+                rId = parseId;
+            }
+            if (!rId.HasValue) return null;
+
+            var rootFolder = GetRootFolder();
+            return RequestService.DownloadFile(rId.Value, fileName, rootFolder);
+        }
+        [HttpGet("request_notes/{id}")]
+        public IEnumerable<NoteDto> GetNotes(int id)
+        {
+            return RequestService.GetNotes(id);
+        }
+
+        private string GetRootFolder()
+        {
+            return Configuration.GetValue<string>("Settings:RootFolder");
+        }
     }
 }
