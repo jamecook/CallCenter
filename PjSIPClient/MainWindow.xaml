@@ -3,10 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PjSIPClient"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        
+        <StackPanel>
+            <Button  Margin="5" Command="{Binding InitCommand}" ToolTip="Ответить на звонок/набрать номер">
+                Init
+            </Button>
+            <Button  Margin="5" Command="{Binding CallCommand}" ToolTip="Ответить на звонок/набрать номер">
+                Call
+            </Button>
+            <Button  Margin="5" Command="{Binding HangUpCommand}" ToolTip="Ответить на звонок/набрать номер">
+                HangUpAll
+            </Button>
+        </StackPanel>
     </Grid>
 </Window>
