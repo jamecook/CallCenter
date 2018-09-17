@@ -748,6 +748,15 @@
                     </TabControl>
                 </Grid>
             </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/dispex.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Dispex Заявки"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <controls:DispexRequestControl DataContext="{Binding DispexRequestControlModel}"/>
+            </TabItem>
         </TabControl>
         <TextBlock Margin ="10,0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Height="24" Text="{Binding SipState}" />
     </Grid>

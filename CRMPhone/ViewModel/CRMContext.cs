@@ -119,12 +119,21 @@ namespace CRMPhone.ViewModel
             AlertRequestDataContext = new AlertRequestControlContext();
             AlertAndWorkContext = new AlertAndWorkControlContext();
             AlertRequestControlModel = new AlertRequestControlModel();
+            DispexRequestControlModel = new DispexRequestControlModel();
         }
 
         public AlertRequestControlModel AlertRequestControlModel
         {
             get { return _alertRequestControlModel; }
             set { _alertRequestControlModel = value; OnPropertyChanged(nameof(AlertRequestControlModel));}
+        }
+
+        public DispexRequestControlModel DispexRequestControlModel
+        {
+            get { return _dispexRequestControlModel; }
+            set { _dispexRequestControlModel = value;
+                OnPropertyChanged(nameof(DispexRequestControlModel));
+            }
         }
 
         public void InitMysqlAndSip()
@@ -961,6 +970,7 @@ namespace CRMPhone.ViewModel
         private RingUpAdminControlContext _ringUpAdminContext;
         private ObservableCollection<SipLine> _sipLines;
         private SipLine _selectedLine;
+        private DispexRequestControlModel _dispexRequestControlModel;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 

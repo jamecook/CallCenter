@@ -146,6 +146,9 @@
     <Compile Include="Controls\AlertRequestControl.xaml.cs">
       <DependentUpon>AlertRequestControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\DispexRequestControl.xaml.cs">
+      <DependentUpon>DispexRequestControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\NotifyRequestControl.xaml.cs">
       <DependentUpon>NotifyRequestControl.xaml</DependentUpon>
     </Compile>
@@ -249,6 +252,7 @@
     <Compile Include="ViewModel\Admins\WorkerHouseAndTypeAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
     <Compile Include="ViewModel\ChangeExecuterDialogViewModel.cs" />
+    <Compile Include="ViewModel\DispexRequestControlModel.cs" />
     <Compile Include="ViewModel\EditAddressOnRequestDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertForHouseDialogViewModel.cs" />
@@ -346,6 +350,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\AlertRequestControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\DispexRequestControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -526,6 +534,7 @@
     </Resource>
     <Resource Include="Images\NoAnswer.png" />
     <Resource Include="Images\CanAnswer.png" />
+    <Resource Include="Images\dispex.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -4,18 +4,25 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="750" Width="525" Closing="MainWindow_OnClosing">
     <Grid>
         <StackPanel>
-            <Button  Margin="5" Command="{Binding InitCommand}" ToolTip="Ответить на звонок/набрать номер">
+            <Button  Margin="5" Command="{Binding InitCommand}">
                 Init
             </Button>
-            <Button  Margin="5" Command="{Binding CallCommand}" ToolTip="Ответить на звонок/набрать номер">
+            <Button  Margin="5" Command="{Binding CallCommand}">
                 Call
             </Button>
-            <Button  Margin="5" Command="{Binding HangUpCommand}" ToolTip="Ответить на звонок/набрать номер">
+            <Button  Margin="5" Command="{Binding TransferCommand}">
+                Transfer
+            </Button>
+            <Button  Margin="5" Command="{Binding HangUpCommand}">
                 HangUpAll
             </Button>
+            <Button  Margin="5" Command="{Binding CallInfoCommand}">
+                CallInfo
+            </Button>
+            <TextBox Text="{Binding Messages}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Height="600"></TextBox>
         </StackPanel>
     </Grid>
 </Window>

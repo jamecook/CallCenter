@@ -22,7 +22,7 @@ namespace WebApi.Services
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand($"Call CallCenter.WebLogin('{userName}','{password}')", conn)
+                using (var cmd = new MySqlCommand($"Call CallCenter.DispexLogin('{userName}','{password}')", conn)
                 )
                 {
                     using (var dataReader = cmd.ExecuteReader())
@@ -55,7 +55,7 @@ namespace WebApi.Services
             {
                 conn.Open();
 
-                var sqlQuery = @"CALL CallCenter.WebGetWorkers(@WorkerId)";
+                var sqlQuery = @"CALL CallCenter.DispexGetWorkers(@WorkerId)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -79,16 +79,16 @@ namespace WebApi.Services
                 }
             }
         }
-        public static StatusDto[] GetStatusesAllowedInWeb()
+        public static StatusDto[] GetStatusesAllowedInWeb(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
 
-                var query =
-                    "SELECT id, name, Description FROM CallCenter.RequestState R where R.allow_in_web = 1 order by id";
-                using (var cmd = new MySqlCommand(query, conn))
+                var sqlQuery = "CALL CallCenter.DispexGetStatuses(@CurWorker)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
+                    cmd.Parameters.AddWithValue("@CurWorker", workerId);
                     var types = new List<StatusDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -187,7 +187,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var sqlQuery = "CALL CallCenter.WebGetStreets(@CurWorker)";
+                var sqlQuery = "CALL CallCenter.DispexGetStreets(@CurWorker)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", workerId);
@@ -220,7 +220,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var sqlQuery = @"CALL CallCenter.WebGetHouses(@StreetId,@WorkerId)";
+                var sqlQuery = @"CALL CallCenter.DispexGetHouses(@StreetId,@WorkerId)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -244,21 +244,49 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 }
             }
         }
-        public static IList<ServiceDto> GetServices(long? parentId)
+        public static IList<ServiceDto> GetParentServices()
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = parentId.HasValue
-                    ? @"SELECT t1.id,t1.name,t1.can_send_sms,t2.id parent_id, t2.name parent_name FROM CallCenter.RequestTypes t1
-                        left join CallCenter.RequestTypes t2 on t2.id = t1.parrent_id
-                        where t1.parrent_id = @ParentId and t1.enabled = 1 order by t1.name"
-                    : @"SELECT id,name,can_send_sms, null parent_id, null parent_name FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
+                var query = @"SELECT id,name,can_send_sms, null parent_id, null parent_name FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
-                    if (parentId.HasValue)
-                        cmd.Parameters.AddWithValue("@ParentId", parentId.Value);
-
+                    var services = new List<ServiceDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            services.Add(new ServiceDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                CanSendSms = dataReader.GetBoolean("can_send_sms"),
+                                ParentId = dataReader.GetNullableInt("parent_id"),
+                                ParentName = dataReader.GetNullableString("parent_name")
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return services;
+                }
+            }
+        }
+        public static IList<ServiceDto> GetServices(int[] parentIds)
+        {
+            if (parentIds == null || parentIds.Length == 0)
+                return new List<ServiceDto>(0);
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var ids = parentIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j);
+                var query =
+                    $@"SELECT t1.id,t1.name,t1.can_send_sms,t2.id parent_id, t2.name parent_name FROM CallCenter.RequestTypes t1
+                        left join CallCenter.RequestTypes t2 on t2.id = t1.parrent_id
+                        where t1.parrent_id in ({ids}) and t1.enabled = 1 order by t2.name,t1.name";
+                    
+                using (var cmd = new MySqlCommand(query, conn))
+                {
                     var services = new List<ServiceDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -287,7 +315,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             {
                 conn.Open();
                 var sqlQuery =
-                    "CALL CallCenter.WebGetRequestsArrayParam(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@BadWork,@Garanty,@ClientPhone,@RatingIds)";
+                    "CALL CallCenter.DispexGetRequests(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@BadWork,@Garanty,@ClientPhone,@RatingIds)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -355,6 +383,8 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 Entrance = dataReader.GetNullableString("entrance"),
                                 FirstRecordId = recordId,
                                 HasRecord = recordId.HasValue,
+                                HasAttachment = dataReader.GetBoolean("has_attach"),
+                                IsBadWork = dataReader.GetBoolean("bad_work"),
                                 Floor = dataReader.GetNullableString("floor"),
                                 CreateTime = dataReader.GetDateTime("create_time"),
                                 Description = dataReader.GetNullableString("description"),
@@ -395,6 +425,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 StatusId = dataReader.GetInt32("req_status_id"),
                                 Status = dataReader.GetNullableString("Req_Status"),
                                 TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
+                                RatingDescription = dataReader.GetNullableString("RatingDesc"),
                             });
                         }
                         dataReader.Close();

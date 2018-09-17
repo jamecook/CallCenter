@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -120,6 +121,11 @@ namespace PjSIPClient
                 Console.WriteLine("Exception: " + e.Message);
                 return;
             }
+        }
+
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            (DataContext as SipViewModel)?.Dispose();
         }
     }
 }

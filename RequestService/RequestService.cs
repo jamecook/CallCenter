@@ -1029,6 +1029,38 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 return requests;
             }
         }
+        public IList<DispexForListDto> GetDispexRequests()
+        {
+            var sqlQuery = "SELECT * FROM Dispex.requests r order by id desc;";
+            using (var cmd =
+                new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                var requests = new List<DispexForListDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        requests.Add(new DispexForListDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            BitrixId = dataReader.GetNullableString("bitrix_id"),
+                            FromPhone = dataReader.GetNullableString("from_phone"),
+                            CreateDate = dataReader.GetDateTime("create_date"),
+                            StreetName = dataReader.GetNullableString("street_name"),
+                            Building = dataReader.GetNullableString("building"),
+                            Corpus = dataReader.GetNullableString("corpus"),
+                            Flat = dataReader.GetNullableString("flat"),
+                            BitrixServiceId = dataReader.GetNullableInt("bitrix_service_id"),
+                            BitrixServiceName = dataReader.GetNullableString("bitrix_service_name"),
+                            Description = dataReader.GetNullableString("descript"),
+                            Status = dataReader.GetNullableString("status"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return requests;
+            }
+        }
         public IList<RequestForListDto> GetAlertRequestList(int? serviceCompanyId,bool showDoned)
         {
             var sqlQuery =

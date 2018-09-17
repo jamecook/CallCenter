@@ -110,7 +110,7 @@ namespace WebApi.Controllers
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.GetStatusesAllowedInWeb();
+            return RequestService.GetStatusesAllowedInWeb(workerId);
         }
         [HttpGet("streets")]
         public IEnumerable<StreetDto> GetStreets()
@@ -129,12 +129,12 @@ namespace WebApi.Controllers
         [HttpGet("parent_services")]
         public IEnumerable<ServiceDto> GetParrentServices()
         {
-            return RequestService.GetServices(null);
+            return RequestService.GetParentServices();
         }
-        [HttpGet("services/{id}")]
-        public IEnumerable<ServiceDto> GetServices(int id)
+        [HttpGet("services")]
+        public IEnumerable<ServiceDto> GetServices([ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] parentIds)
         {
-            return RequestService.GetServices(id);
+            return RequestService.GetServices(parentIds);
         }
         [HttpGet("request_records/{id}")]
         public IEnumerable<WebCallsDto> GetRequestRecords(int id)
