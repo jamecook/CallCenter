@@ -1,12 +1,15 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Xml.Linq;
 using CRMPhone.Annotations;
 using CRMPhone.Dialogs.Admins;
 using CRMPhone.ViewModel.Admins;
+using Microsoft.Win32;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 
@@ -26,6 +29,7 @@ namespace CRMPhone.ViewModel
         private ICommand _newCommand;
         public ICommand NewCommand { get { return _newCommand ?? (_newCommand = new CommandHandler(NewRingUp, true)); } }
         private ICommand _abortCommand;
+        private ObservableCollection<RingUpInfoDto> _ringUpInfoList;
         public ICommand AbortCommand { get { return _abortCommand ?? (_abortCommand = new CommandHandler(AbortRingUp, true)); } }
 
         private void AbortRingUp()
@@ -42,7 +46,54 @@ namespace CRMPhone.ViewModel
                 Refresh();
             }
         }
+        private ICommand _exportCommand;
+        public ICommand ExportCommand { get { return _exportCommand ?? (_exportCommand = new CommandHandler(Export, true)); } }
 
+        private void Export()
+        {
+            if (RingUpInfoList.Count == 0)
+            {
+                MessageBox.Show("Нельзя экспортировать пустой список!", "Ошибка");
+                return;
+            }
+            try
+            {
+                var saveDialog = new SaveFileDialog();
+                saveDialog.AddExtension = true;
+                saveDialog.DefaultExt = ".xml";
+                saveDialog.Filter = "XML Файл|*.xml";
+                if (saveDialog.ShowDialog() == true)
+                {
+                    var fileName = saveDialog.FileName;
+                    if (fileName.EndsWith(".xml"))
+                    {
+                        XElement root = new XElement("Records");
+                        foreach (var record in RingUpInfoList)
+                        {
+                            root.AddFirst(
+                                new XElement("Record",
+                                    new[]
+                                    {
+                                        new XElement("Телефон", record.Phone),
+                                        new XElement("ВремяПоследнегоЗвонка", record.LastCallTime?.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("Продолжительность", record.LastCallLength),
+                                        new XElement("Попыток", record.CalledCount),
+                                        new XElement("Результат", record.DoneCalls),
+                                    }));
+                        }
+                        var saver = new FileStream(fileName, FileMode.Create);
+                        root.Save(saver);
+                        saver.Close();
+                    }
+                    MessageBox.Show("Данные сохранены в файл\r\n" + fileName);
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("Произошла ошибка:\r\n" + exc.Message);
+            }
+
+        }
         private void NewRingUp()
         {
             var model = new RingUpNewDialogViewModel(RequestService);
@@ -59,13 +110,26 @@ namespace CRMPhone.ViewModel
         public RingUpHistoryDto CurrentRingUp
         {
             get { return _currentRingUp; }
-            set { _currentRingUp = value; OnPropertyChanged(nameof(CurrentRingUp));}
+            set { _currentRingUp = value;
+                SetRingUpInfo(value);
+                OnPropertyChanged(nameof(CurrentRingUp));}
+        }
+
+        private void SetRingUpInfo(RingUpHistoryDto value)
+        {
+            RingUpInfoList = new ObservableCollection<RingUpInfoDto>(_requestService.GetRingUpInfo(value.Id));
         }
 
         public ObservableCollection<RingUpHistoryDto> RingUpList
         {
             get { return _ringUpList; }
             set { _ringUpList = value; OnPropertyChanged(nameof(RingUpList)); }
+        }
+
+        public ObservableCollection<RingUpInfoDto> RingUpInfoList
+        {
+            get { return _ringUpInfoList; }
+            set { _ringUpInfoList = value; OnPropertyChanged(nameof(RingUpInfoList));}
         }
 
         private void EditPhone()
@@ -92,6 +156,7 @@ namespace CRMPhone.ViewModel
 
         public void Refresh()
         {
+            RingUpInfoList = new ObservableCollection<RingUpInfoDto>();
             RingUpList = new ObservableCollection<RingUpHistoryDto>(RequestService.GetRingUpHistory());
         }
     }

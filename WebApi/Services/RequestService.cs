@@ -513,5 +513,37 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
 
             }
         }
+
+        public static void AddNewState(int requestId, int stateId, int userId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"insert into CallCenter.RequestStateHistory (request_id,operation_date,user_id,state_id) 
+    values(@RequestId,sysdate(),@UserId,@StatusId);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.Parameters.AddWithValue("@StatusId", stateId);
+                        cmd.ExecuteNonQuery();
+                    }
+                    using (var cmd =
+                        new MySqlCommand(
+                            @"update CallCenter.Requests set state_id = @StatusId where id = @RequestId", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@StatusId", stateId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                }
+            }
+
+        }
     }
 }

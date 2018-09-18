@@ -170,6 +170,15 @@ namespace WebApi.Controllers
             return RequestService.GetNotes(id);
         }
 
+        [HttpPut("status/{id}")]
+        public void SetStatus(int id,[FromBody]int statusId)
+        {
+            var userIdStr = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            if (int.TryParse(userIdStr, out int userId))
+            {
+                RequestService.AddNewState(id,statusId, userId);
+            }
+        }
         private string GetRootFolder()
         {
             return Configuration.GetValue<string>("Settings:RootFolder");

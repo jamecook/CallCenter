@@ -433,10 +433,10 @@
   <wsdl:service name="SmsService">
     <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Сервис позволяющий отправлять сообщения и получать их статусы</wsdl:documentation>
     <wsdl:port name="SmsServiceSoap" binding="tns:SmsServiceSoap">
-      <soap:address location="http://ws-wsdl.devinotele.com/SmsService.asmx" />
+      <soap:address location="https://ws-wsdl.devinotele.com/SmsService.asmx" />
     </wsdl:port>
     <wsdl:port name="SmsServiceSoap12" binding="tns:SmsServiceSoap12">
-      <soap12:address location="http://ws-wsdl.devinotele.com/SmsService.asmx" />
+      <soap12:address location="https://ws-wsdl.devinotele.com/SmsService.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

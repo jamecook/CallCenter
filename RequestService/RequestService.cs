@@ -3055,6 +3055,31 @@ where C.Direction is not null";
                 }
             }
 
+        }public List<RingUpInfoDto> GetRingUpInfo(int id)
+        {
+            using (var cmd = new MySqlCommand("CALL CallCenter.GetRingUpInfo(@RingUpId)", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@RingUpId", id);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var ringUpHistoryDtos = new List<RingUpInfoDto>();
+                    while (dataReader.Read())
+                    {
+                        ringUpHistoryDtos.Add(new RingUpInfoDto
+                        {
+
+                            Phone = dataReader.GetNullableString("phone"),
+                            LastCallLength = dataReader.GetNullableInt("last_call_length"),
+                            LastCallTime = dataReader.GetNullableDateTime("last_call_time"),
+                            CalledCount = dataReader.GetNullableInt("called_count"),
+                            DoneCalls = dataReader.GetNullableString("done_calls")
+                        });
+                        }
+                    dataReader.Close();
+                    return ringUpHistoryDtos;
+                }
+            }
+
         }
         public void DeleteNotAnswered()
         {

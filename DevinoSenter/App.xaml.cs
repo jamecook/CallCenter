@@ -19,11 +19,6 @@ namespace DevinoSender
 
         private void App_OnStartup(object app_sender, StartupEventArgs e)
         {
-            var buf = new byte[] {0x1e,0x04,0x42,0x04,0x3a,0x04,0x40,0x04,0x4b,0x04,0x42,0x04, 0x3e, 0x04 };
-            var sss = Encoding.Unicode.GetString(buf);
-
-            var str = "\u041e\u0442\u043a\u0440\u044b\u0442\u043e";
-            var bbb = Encoding.Unicode.GetBytes(str);
             _logger = LogManager.GetCurrentClassLogger();
             _logger.Debug("Run");
             try
