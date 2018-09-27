@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using WebApi.Models;
 using WebApi.Services;
 
@@ -45,12 +49,16 @@ namespace WebApi.Controllers
     }
 
     [Route("[controller]")]
+    [Produces("application/json")]
+    [Consumes("application/json","multipart/form-data")]
     public class RequestController : Controller
     {
         public IConfiguration Configuration { get; }
-        public RequestController(IConfiguration configuration)
+        private readonly ILogger<RequestController> _logger;
+        public RequestController(IConfiguration configuration, ILogger<RequestController> logger)
         {
             Configuration = configuration;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -65,6 +73,8 @@ namespace WebApi.Controllers
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] workers,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] executors,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] ratings,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] companies,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]string[] flats,
             [FromQuery] bool? badWork,
             [FromQuery] bool? garanty,
             [FromQuery] string clientPhone)
@@ -93,7 +103,7 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                 fromDate ?? DateTime.Today,
                 toDate ?? DateTime.Today.AddDays(1),
-                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,
+                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,flats,
                 badWork ?? false,
                 garanty.HasValue && garanty.Value, clientPhone);
         }
@@ -110,8 +120,16 @@ namespace WebApi.Controllers
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetStatusesAll(workerId);
+        }
+        [HttpGet("statuses_for_set")]
+        public IEnumerable<StatusDto> GetStatusesForSet()
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
             return RequestService.GetStatusesAllowedInWeb(workerId);
         }
+
         [HttpGet("streets")]
         public IEnumerable<StreetDto> GetStreets()
         {
@@ -136,10 +154,20 @@ namespace WebApi.Controllers
         {
             return RequestService.GetServices(parentIds);
         }
+       [HttpGet("companies")]
+        public IEnumerable<ServiceCompanyDto> GetCompanies()
+        {
+            return RequestService.GetServicesCompanies();
+        }
         [HttpGet("request_records/{id}")]
         public IEnumerable<WebCallsDto> GetRequestRecords(int id)
         {
             return RequestService.GetWebCallsByRequestId(id);
+        }
+        [HttpGet("house_flats/{id}")]
+        public IEnumerable<FlatDto> GetHouseFlats(int id)
+        {
+            return RequestService.GetFlats(id);
         }
         [HttpGet("record/{id}")]
         public byte[] GetRecord(int id)
@@ -164,6 +192,27 @@ namespace WebApi.Controllers
             var rootFolder = GetRootFolder();
             return RequestService.DownloadFile(rId.Value, fileName, rootFolder);
         }
+
+        [HttpPost("add_file/{id}")]
+        [DisableFormValueModelBinding]
+        public async Task<IActionResult> AddFileToRequest(int id, IFormFile file)
+        {
+            var files = Request?.Form?.Files;
+            if (file == null || file.Length == 0)
+                return Content("file not selected");
+            _logger.LogDebug($"FileLen: {file.Length}, Name: {file.Name}, FileName: {file.FileName}");
+            var uploads = Path.Combine(GetRootFolder(), "uploads");
+
+            if (file.Length > 0)
+            {
+                using (var fileStream = new FileStream(Path.Combine(uploads, file.FileName), FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+            }
+            return Content("file uploaded");
+        }
+
         [HttpGet("request_notes/{id}")]
         public IEnumerable<NoteDto> GetNotes(int id)
         {
@@ -171,7 +220,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("status/{id}")]
-        public void SetStatus(int id,[FromBody]int statusId)
+        public void SetStatus(int id, [FromBody]int statusId)
         {
             var userIdStr = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
             if (int.TryParse(userIdStr, out int userId))
@@ -182,6 +231,33 @@ namespace WebApi.Controllers
         private string GetRootFolder()
         {
             return Configuration.GetValue<string>("Settings:RootFolder");
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    public class DisableFormValueModelBindingAttribute : Attribute, IResourceFilter
+    {
+        public void OnResourceExecuting(ResourceExecutingContext context)
+        {
+            var formValueProviderFactory = context.ValueProviderFactories
+                    .OfType<FormValueProviderFactory>()
+                    .FirstOrDefault();
+            if (formValueProviderFactory != null)
+            {
+                context.ValueProviderFactories.Remove(formValueProviderFactory);
+            }
+
+            var jqueryFormValueProviderFactory = context.ValueProviderFactories
+                .OfType<JQueryFormValueProviderFactory>()
+                .FirstOrDefault();
+            if (jqueryFormValueProviderFactory != null)
+            {
+                context.ValueProviderFactories.Remove(jqueryFormValueProviderFactory);
+            }
+        }
+
+        public void OnResourceExecuted(ResourceExecutedContext context)
+        {
         }
     }
 }

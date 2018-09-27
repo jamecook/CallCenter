@@ -79,13 +79,41 @@ namespace WebApi.Services
                 }
             }
         }
-        public static StatusDto[] GetStatusesAllowedInWeb(int workerId)
+        public static StatusDto[] GetStatusesAll(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
 
                 var sqlQuery = "CALL CallCenter.DispexGetStatuses(@CurWorker)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", workerId);
+                    var types = new List<StatusDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            types.Add(new StatusDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                Description = dataReader.GetString("Description")
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return types.ToArray();
+                }
+            }
+        }
+        public static StatusDto[] GetStatusesAllowedInWeb(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = "CALL CallCenter.DispexGetStatusesForSet(@CurWorker)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", workerId);
@@ -272,6 +300,33 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 }
             }
         }
+        public static List<ServiceCompanyDto> GetServicesCompanies()
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var query = "SELECT id,name FROM CallCenter.ServiceCompanies S where Enabled = 1 order by S.Name";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var companies = new List<ServiceCompanyDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            companies.Add(new ServiceCompanyDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name")
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return companies.OrderBy(i => i.Name).ToList();
+                }
+            }
+        }
+
         public static IList<ServiceDto> GetServices(int[] parentIds)
         {
             if (parentIds == null || parentIds.Length == 0)
@@ -307,7 +362,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 }
             }
         }
-        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds, bool badWork = false, bool garanty = false, string clientPhone = null)
+        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, string[] flats, bool badWork = false, bool garanty = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -315,7 +370,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             {
                 conn.Open();
                 var sqlQuery =
-                    "CALL CallCenter.DispexGetRequests(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@BadWork,@Garanty,@ClientPhone,@RatingIds)";
+                    "CALL CallCenter.DispexGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@Flats)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -364,6 +419,14 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                         ratingIds != null && ratingIds.Length > 0
                             ? ratingIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
                             : null);
+                    cmd.Parameters.AddWithValue("@CompaniesIds",
+                        companies != null && companies.Length > 0
+                            ? companies.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@Flats",
+                        flats != null && flats.Length > 0
+                            ? flats.Select(s=>$"'{s}'").Aggregate((i, j) => i + "," + j)
+                            : null);
 
                     var requests = new List<RequestForListDto>();
                     using (var dataReader = cmd.ExecuteReader())
@@ -377,6 +440,8 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 StreetPrefix = dataReader.GetString("prefix_name"),
                                 StreetName = dataReader.GetString("street_name"),
                                 AddressType = dataReader.GetString("address_type"),
+                                CompanyId = dataReader.GetNullableInt("service_company_id"),
+                                CompanyName = dataReader.GetNullableString("company_name"),
                                 Flat = dataReader.GetString("flat"),
                                 Building = dataReader.GetString("building"),
                                 Corpus = dataReader.GetNullableString("corps"),
@@ -431,6 +496,36 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                         dataReader.Close();
                     }
                     return requests.ToArray();
+                }
+            }
+        }
+        public static FlatDto[] GetFlats(int houseId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"SELECT A.id,A.type_id,A.flat,T.Name FROM CallCenter.Addresses A
+    join CallCenter.AddressesTypes T on T.id = A.type_id
+    where A.enabled = true and A.house_id = @HouseId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@HouseId", houseId);
+
+                    var flats = new List<FlatDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            flats.Add(new FlatDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Flat = dataReader.GetString("flat"),
+                                TypeId = dataReader.GetInt32("type_id"),
+                                TypeName = dataReader.GetString("Name"),
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return flats.OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6, '0')).ToArray();
                 }
             }
         }
