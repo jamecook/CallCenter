@@ -450,6 +450,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 HasRecord = recordId.HasValue,
                                 HasAttachment = dataReader.GetBoolean("has_attach"),
                                 IsBadWork = dataReader.GetBoolean("bad_work"),
+                                IsImmediate = dataReader.GetBoolean("is_immediate"),
                                 Floor = dataReader.GetNullableString("floor"),
                                 CreateTime = dataReader.GetDateTime("create_time"),
                                 Description = dataReader.GetNullableString("description"),

@@ -8,6 +8,7 @@ namespace WebApi.Models
         public bool HasAttachment { get; set; }
         public bool HasRecord { get; set; }
         public bool IsBadWork { get; set; }
+        public bool IsImmediate { get; set; }
         public bool IsRetry { get; set; }
         public string IsRetryText => IsRetry ? "да" : "нет";
         public int? FirstRecordId { get; set; }
