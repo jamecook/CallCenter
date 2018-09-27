@@ -530,6 +530,32 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
         }
 
+        public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId, int? executerId, string description)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query =
+                    "call CallCenter.WebCreateRequest(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Phone", phone);
+                    cmd.Parameters.AddWithValue("@Fio", fio);
+                    cmd.Parameters.AddWithValue("@AddressId", addressId);
+                    cmd.Parameters.AddWithValue("@TypeId", typeId);
+                    cmd.Parameters.AddWithValue("@MasterId", masterId);
+                    cmd.Parameters.AddWithValue("@ExecuterId", executerId);
+                    cmd.Parameters.AddWithValue("@Desc", description);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        dataReader.Read();
+                        return dataReader.GetNullableString("requestId");
+                    }
+                }
+            }
+        }
+
         public static List<AttachmentDto> GetAttachments(int requestId)
         {
             using (var conn = new MySqlConnection(_connectionString))

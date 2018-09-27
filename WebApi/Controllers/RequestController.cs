@@ -108,6 +108,14 @@ namespace WebApi.Controllers
                 garanty.HasValue && garanty.Value, clientPhone);
         }
 
+        [HttpPost]
+        public string Post([FromBody]CreateRequestDto value)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.CreateRequest(workerId, value.Phone, value.Name, value.AddressId, value.TypeId, value.MasterId, value.ExecuterId, value.Description);
+        }
+
         [HttpGet("workers")]
         public IEnumerable<WorkerDto> GetWorkers()
         {
