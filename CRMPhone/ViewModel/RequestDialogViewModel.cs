@@ -76,12 +76,15 @@ namespace CRMPhone.ViewModel
             requestModel.IsImmediate = request.IsImmediate;
             requestModel.IsBadWork = request.IsBadWork;
             requestModel.IsRetry = request.IsRetry;
-            requestModel.Gatanty = request.Garanty;
+            //requestModel.Gatanty = request.Garanty;
+            requestModel.SelectedGaranty = requestModel.GarantyList.FirstOrDefault(g => g.Id == request.GarantyId);
+
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
             requestModel.RequestState = request.State.Description;
-            requestModel.SelectedMaster = requestModel.MasterList.SingleOrDefault(w => w.Id == request.MasterId);
-            requestModel.SelectedExecuter = requestModel.ExecuterList.SingleOrDefault(w => w.Id == request.ExecuterId);
+            requestModel.SelectedMaster = request.MasterId.HasValue ? _requestService.GetWorkerById(request.MasterId.Value) : null;
+            requestModel.SelectedExecuter = request.ExecuterId.HasValue ? _requestService.GetWorkerById(request.ExecuterId.Value) : null;
+
             requestModel.SelectedEquipment = requestModel.EquipmentList.SingleOrDefault(e => e.Id == request.Equipment.Id);
             requestModel.RequestId = request.Id;
             requestModel.Rating = request.Rating;
@@ -635,7 +638,7 @@ namespace CRMPhone.ViewModel
             if (requestModel.RequestId.HasValue)
             {
                 _requestService.EditRequest(requestModel.RequestId.Value, requestModel.SelectedService.Id,
-                    requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork,requestModel.Gatanty, requestModel.IsRetry, requestModel.AlertTime, requestModel.TermOfExecution);
+                    requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork,requestModel.SelectedGaranty?.Id??0, requestModel.IsRetry, requestModel.AlertTime, requestModel.TermOfExecution);
                 MessageBox.Show($"Данные успешно сохранены!", "Заявка", MessageBoxButton.OK);
                 return;
             }

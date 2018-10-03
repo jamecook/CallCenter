@@ -44,6 +44,8 @@ namespace CRMPhone.ViewModel
         private bool _showAllExecuters;
         private int? _selectedHouseId;
         private DateTime? _termOfExecution;
+        private ObservableCollection<GarantyDto> _garantyList;
+        private GarantyDto _selectedGaranty;
 
 
         public RequestItemViewModel()
@@ -60,6 +62,12 @@ namespace CRMPhone.ViewModel
             CompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
             SelectedCompany = CompanyList.FirstOrDefault();
             Rating = new RequestRatingDto();
+            GarantyList = new ObservableCollection<GarantyDto>(new GarantyDto[] {
+                new GarantyDto{Id=0,Name = "Обычная"},
+            new GarantyDto{Id=2,Name = "Вероятно гарантия"},
+            new GarantyDto{Id=1,Name = "Ганантия"},
+            });
+            SelectedGaranty = GarantyList.FirstOrDefault();
         }
 
         public int? RequestId
@@ -130,6 +138,18 @@ namespace CRMPhone.ViewModel
         {
             get { return _isBadWork; }
             set { _isBadWork = value; OnPropertyChanged(nameof(IsBadWork));}
+        }
+
+        public ObservableCollection<GarantyDto> GarantyList
+        {
+            get { return _garantyList; }
+            set { _garantyList = value; OnPropertyChanged(nameof(GarantyList)); }
+        }
+
+        public GarantyDto SelectedGaranty
+        {
+            get { return _selectedGaranty; }
+            set { _selectedGaranty = value; OnPropertyChanged(nameof(SelectedGaranty)); }
         }
 
         public bool Gatanty

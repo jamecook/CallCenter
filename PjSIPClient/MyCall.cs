@@ -4,23 +4,25 @@ namespace PjSIPClient
 {
     public class MyCall : Call
     {
-        public delegate void CallState(object sender, CallInfo info, OnCallStateParam prm);
+        public delegate void CallState(object sender, CallInfo info, OnCallStateParam prm, MyAccount account);
         public CallState OnCallState;
+        private MyAccount _account;
 
         public MyCall(Account acc, int callId) : base(acc, callId)
         {
             var t = callId;
+            _account = (MyAccount)acc;
         }
 
         public MyCall(Account acc) : base(acc)
         {
-            var t = acc;
+            _account = (MyAccount)acc;
         }
 
         public override void onCallState(OnCallStateParam prm)
         {
             var info = getInfo();
-            OnCallState?.Invoke(this, info, prm);
+            OnCallState?.Invoke(this, info, prm, _account);
         }
 
         //public override void onCallMediaState(OnCallMediaStateParam prm)

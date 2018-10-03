@@ -74,7 +74,6 @@ namespace WebApi.Controllers
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] executors,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] ratings,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] companies,
-            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]string[] flats,
             [FromQuery] bool? badWork,
             [FromQuery] bool? garanty,
             [FromQuery] string clientPhone)
@@ -103,7 +102,7 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                 fromDate ?? DateTime.Today,
                 toDate ?? DateTime.Today.AddDays(1),
-                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,flats,
+                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,
                 badWork ?? false,
                 garanty.HasValue && garanty.Value, clientPhone);
         }
@@ -162,10 +161,24 @@ namespace WebApi.Controllers
         {
             return RequestService.GetServices(parentIds);
         }
-       [HttpGet("companies")]
+        [HttpGet("companies")]
         public IEnumerable<ServiceCompanyDto> GetCompanies()
         {
             return RequestService.GetServicesCompanies();
+        }
+        [HttpGet("address_ids")]
+        public IEnumerable<int> GetAddressIds()
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetAddressesId(workerId);
+        }
+        [HttpGet("house_ids")]
+        public IEnumerable<int> GetHouseIds()
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetHousesId(workerId);
         }
         [HttpGet("request_records/{id}")]
         public IEnumerable<WebCallsDto> GetRequestRecords(int id)
@@ -202,23 +215,26 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("add_file/{id}")]
-        [DisableFormValueModelBinding]
-        public async Task<IActionResult> AddFileToRequest(int id, IFormFile file)
+        public async Task<IActionResult> AddFileToRequest(int id, [FromForm] IFormFile file)
         {
-            var files = Request?.Form?.Files;
             if (file == null || file.Length == 0)
-                return Content("file not selected");
-            _logger.LogDebug($"FileLen: {file.Length}, Name: {file.Name}, FileName: {file.FileName}");
-            var uploads = Path.Combine(GetRootFolder(), "uploads");
-
-            if (file.Length > 0)
+                return BadRequest();
+            _logger.LogDebug($"FileLen: {file.Length}, FileName: {file.FileName}");
+            var uploadFolder = Path.Combine(GetRootFolder(), id.ToString());
+            if (!Directory.Exists(uploadFolder))
             {
-                using (var fileStream = new FileStream(Path.Combine(uploads, file.FileName), FileMode.Create))
-                {
-                    await file.CopyToAsync(fileStream);
-                }
+                Directory.CreateDirectory(uploadFolder);
             }
-            return Content("file uploaded");
+            var fileExtension = Path.GetExtension(file.FileName);
+            var fileName = Guid.NewGuid() + fileExtension;
+            using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+            var userIdStr = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            int.TryParse(userIdStr, out int userId);
+            RequestService.AttachFileToRequest(userId, id, file.FileName, fileName);
+            return Ok();
         }
 
         [HttpGet("request_notes/{id}")]

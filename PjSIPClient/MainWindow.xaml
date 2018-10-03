@@ -22,6 +22,9 @@
             <Button  Margin="5" Command="{Binding CallInfoCommand}">
                 CallInfo
             </Button>
+            <Button  Margin="5" Command="{Binding AnswerCommand}">
+                Answer
+            </Button>
             <TextBox Text="{Binding Messages}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Height="600"></TextBox>
         </StackPanel>
     </Grid>

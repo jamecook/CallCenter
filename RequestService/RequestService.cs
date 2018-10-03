@@ -37,7 +37,7 @@ namespace RequestServiceImpl
             }
         }
 
-        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, bool garanty,bool isRetry,DateTime? alertTime, DateTime? termOfExecution)
+        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, int garanty,bool isRetry,DateTime? alertTime, DateTime? termOfExecution)
         {
             using (var cmd = new MySqlCommand(
                    @"call CallCenter.UpdateRequest(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable,@badWork,@garanty,@retry,@alertTime,@termOfExecution);",
@@ -691,7 +691,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                                 IsImmediate = dataReader.GetBoolean("is_immediate"),
                                 IsBadWork = dataReader.GetBoolean("bad_work"),
                                 IsRetry = dataReader.GetBoolean("retry"),
-                                Garanty = dataReader.GetBoolean("garanty"),
+                                GarantyId = dataReader.GetInt32("garanty"),
                                 Description = dataReader.GetNullableString("description"),
                                 Entrance = dataReader.GetNullableString("entrance"),
                                 Floor = dataReader.GetNullableString("floor"),

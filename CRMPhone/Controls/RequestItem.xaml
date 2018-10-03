@@ -33,6 +33,7 @@
                     <TextBlock Margin = "3" VerticalAlignment="Center" Text="{Binding RequestState}"/>
                     <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsBadWork}">Для обсуждения</CheckBox>
                     <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding Gatanty}">Гарантия</CheckBox>
+                    <ComboBox Margin="3" Width="100" DisplayMemberPath="Name" SelectedItem="{Binding SelectedGaranty}" ItemsSource="{Binding GarantyList}"></ComboBox>
                     <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsRetry}">Повтор</CheckBox>
                 </WrapPanel>
                     <WrapPanel Grid.Row="1" Grid.Column="0">

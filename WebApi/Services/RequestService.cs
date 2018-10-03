@@ -79,6 +79,52 @@ namespace WebApi.Services
                 }
             }
         }
+        public static int[] GetAddressesId(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL CallCenter.DispexGetAddresses(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var list = new List<int>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                                list.Add(dataReader.GetInt32("id"));
+                        }
+                        dataReader.Close();
+                    }
+                    return list.ToArray();
+                }
+            }
+        }
+        public static int[] GetHousesId(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL CallCenter.DispexGetAllHouses(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var list = new List<int>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                                list.Add(dataReader.GetInt32("id"));
+                        }
+                        dataReader.Close();
+                    }
+                    return list.ToArray();
+                }
+            }
+        }
         public static StatusDto[] GetStatusesAll(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -362,7 +408,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 }
             }
         }
-        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, string[] flats, bool badWork = false, bool garanty = false, string clientPhone = null)
+        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, bool badWork = false, bool garanty = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -370,7 +416,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             {
                 conn.Open();
                 var sqlQuery =
-                    "CALL CallCenter.DispexGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@Flats)";
+                    "CALL CallCenter.DispexGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -423,11 +469,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                         companies != null && companies.Length > 0
                             ? companies.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
                             : null);
-                    cmd.Parameters.AddWithValue("@Flats",
-                        flats != null && flats.Length > 0
-                            ? flats.Select(s=>$"'{s}'").Aggregate((i, j) => i + "," + j)
-                            : null);
-
+                    
                     var requests = new List<RequestForListDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -553,6 +595,24 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                         dataReader.Read();
                         return dataReader.GetNullableString("requestId");
                     }
+                }
+            }
+        }
+
+        public static void AttachFileToRequest(int userId, int requestId, string fileName, string generatedFileName)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd =
+                        new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id)
+ values(@RequestId,@Name,@FileName,sysdate(),@userId);", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    cmd.Parameters.AddWithValue("@Name", fileName);
+                    cmd.Parameters.AddWithValue("@FileName", generatedFileName);
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
