@@ -534,6 +534,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 Status = dataReader.GetNullableString("Req_Status"),
                                 TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
                                 RatingDescription = dataReader.GetNullableString("RatingDesc"),
+                                LastNote = dataReader.GetNullableString("last_note")
                             });
                         }
                         dataReader.Close();

@@ -65,10 +65,10 @@
                     <Button  Margin="5" Width="36" Height="36" Command="{Binding HoldCommand}" ToolTip="Hold/UnHold">
                         <Image Source="pack://application:,,,/Images/hold.png" Width="24" Height="24" />
                     </Button>
-                    <Button  Margin="5" Width="36" Height="36" Command="{Binding BridgeCommand}" ToolTip="Соединить линии">
+                    <Button  Margin="5" Width="36" Height="36" Command="{Binding BridgeCommand}" Visibility="Hidden" ToolTip="Соединить линии">
                         <Image Source="pack://application:,,,/Images/bridgeBlack.png" Width="32" Height="32" />
                     </Button>
-                    <Button  Margin="5" Width="36" Height="36" Command="{Binding ConferenceCommand}" ToolTip="Конференция">
+                    <Button  Margin="5" Width="36" Height="36" Command="{Binding ConferenceCommand}" Visibility="Hidden" ToolTip="Конференция">
                         <Image Source="pack://application:,,,/Images/merge.png" Width="24" Height="24" />
                     </Button>
                     <Button  Margin="5" Width="36" Height="36" Command="{Binding QueuePauseCommand}" ToolTip="Не принимать звонки">

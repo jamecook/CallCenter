@@ -252,6 +252,7 @@
     <Compile Include="ViewModel\Admins\WorkerHouseAndTypeAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
     <Compile Include="ViewModel\ChangeExecuterDialogViewModel.cs" />
+    <Compile Include="ViewModel\CRMContextNewSIP.cs" />
     <Compile Include="ViewModel\DispexRequestControlModel.cs" />
     <Compile Include="ViewModel\EditAddressOnRequestDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkDialogViewModel.cs" />
@@ -664,8 +665,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="SIPEVOActiveXLib">
-      <Guid>{21785C9C-E97E-4723-A1FE-0B362DA953B0}</Guid>
+    <COMReference Include="conaito">
+      <Guid>{C925F211-6A67-4E38-93AB-8B2F30ABE8FD}</Guid>
       <VersionMajor>1</VersionMajor>
       <VersionMinor>0</VersionMinor>
       <Lcid>0</Lcid>
