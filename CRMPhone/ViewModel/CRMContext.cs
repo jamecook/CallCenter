@@ -1393,7 +1393,14 @@ namespace CRMPhone.ViewModel
  
         public void HangUp()
         {
-            _sipAgent.CallMaker.Hangup(SelectedLine.Id);
+            if (_sipAgent.CallMaker.callStatus[SelectedLine.Id] == 200)
+            {
+                _sipAgent.CallMaker.Hangup(SelectedLine.Id);
+            }
+            else
+            {
+                _sipAgent.CallMaker.Decline(SelectedLine.Id, 486); //486 "Busy Here"
+            }
             IncomingCallFrom = "";
             CallFromServiceCompany = null;
         }

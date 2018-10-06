@@ -252,6 +252,18 @@ namespace WebApi.Controllers
                 RequestService.AddNewState(id,statusId, userId);
             }
         }
+        [HttpPost("add_note/{id}")]
+        public IActionResult AddNote(int id, [FromBody]string note)
+        {
+            if (string.IsNullOrEmpty(note))
+                return BadRequest();
+            var userIdStr = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            if (int.TryParse(userIdStr, out int userId))
+            {
+                RequestService.AddNewNote(id, note, userId);
+            }
+            return Ok();
+        }
         private string GetRootFolder()
         {
             return Configuration.GetValue<string>("Settings:RootFolder");
