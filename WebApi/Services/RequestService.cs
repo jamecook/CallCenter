@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MySql.Data.MySqlClient;
+using Stimulsoft.Report;
 using WebApi.Models;
 
 namespace WebApi.Services
@@ -39,7 +40,8 @@ namespace WebApi.Services
                                 WorkerId = dataReader.GetInt32("worker_id"),
                                 ServiceCompanyId = dataReader.GetInt32("service_company_id"),
                                 SpecialityId = dataReader.GetInt32("speciality_id"),
-                                CanCreateRequestInWeb = dataReader.GetBoolean("can_create_in_web")
+                                CanCreateRequestInWeb = dataReader.GetBoolean("can_create_in_web"),
+                                AllowStatistics = dataReader.GetBoolean("allow_statistics")
                             };
                         }
                         dataReader.Close();
@@ -47,6 +49,27 @@ namespace WebApi.Services
                 }
                 return null;
             }
+        }
+
+        public static byte[] GetRequestActs(int workerId, int[] requestIds)
+        {
+            var requests = WebRequestsByIds(workerId, requestIds);
+            var stiReport = new StiReport();
+            stiReport.Load("templates\\act.mrt");
+            StiOptions.Engine.HideRenderingProgress = true;
+            StiOptions.Engine.HideExceptions = true;
+            StiOptions.Engine.HideMessages = true;
+
+            var acts = requests.Select(r => new { Address = r.FullAddress, Workers = r.Master?.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": " + r.Service, Description = r.Description }).ToArray();
+
+            stiReport.RegBusinessObject("", "Acts", acts);
+            stiReport.Render();
+            var reportStream = new MemoryStream();
+            stiReport.ExportDocument(StiExportFormat.Pdf, reportStream);
+            reportStream.Position = 0;
+            //File.WriteAllBytes("\\111.pdf",reportStream.GetBuffer());
+            return reportStream.GetBuffer();
+
         }
 
         public static WorkerDto[] GetWorkersByWorkerId(int workerId)
@@ -470,6 +493,94 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                             ? companies.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
                             : null);
                     
+                    var requests = new List<RequestForListDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var recordId = dataReader.GetNullableInt("recordId");
+                            requests.Add(new RequestForListDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                StreetPrefix = dataReader.GetString("prefix_name"),
+                                StreetName = dataReader.GetString("street_name"),
+                                AddressType = dataReader.GetString("address_type"),
+                                CompanyId = dataReader.GetNullableInt("service_company_id"),
+                                CompanyName = dataReader.GetNullableString("company_name"),
+                                Flat = dataReader.GetString("flat"),
+                                Building = dataReader.GetString("building"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                Entrance = dataReader.GetNullableString("entrance"),
+                                FirstRecordId = recordId,
+                                HasRecord = recordId.HasValue,
+                                HasAttachment = dataReader.GetBoolean("has_attach"),
+                                IsBadWork = dataReader.GetBoolean("bad_work"),
+                                IsImmediate = dataReader.GetBoolean("is_immediate"),
+                                Floor = dataReader.GetNullableString("floor"),
+                                CreateTime = dataReader.GetDateTime("create_time"),
+                                Description = dataReader.GetNullableString("description"),
+                                ContactPhones = dataReader.GetNullableString("client_phones"),
+                                ParentService = dataReader.GetNullableString("parent_name"),
+                                Service = dataReader.GetNullableString("service_name"),
+                                Master = dataReader.GetNullableInt("worker_id") != null
+                                    ? new UserDto
+                                    {
+                                        Id = dataReader.GetInt32("worker_id"),
+                                        SurName = dataReader.GetNullableString("sur_name"),
+                                        FirstName = dataReader.GetNullableString("first_name"),
+                                        PatrName = dataReader.GetNullableString("patr_name"),
+                                    }
+                                    : null,
+                                Executer = dataReader.GetNullableInt("executer_id") != null
+                                    ? new UserDto
+                                    {
+                                        Id = dataReader.GetInt32("executer_id"),
+                                        SurName = dataReader.GetNullableString("exec_sur_name"),
+                                        FirstName = dataReader.GetNullableString("exec_first_name"),
+                                        PatrName = dataReader.GetNullableString("exec_patr_name"),
+                                    }
+                                    : null,
+                                CreateUser = new UserDto
+                                {
+                                    Id = dataReader.GetInt32("create_user_id"),
+                                    SurName = dataReader.GetNullableString("surname"),
+                                    FirstName = dataReader.GetNullableString("firstname"),
+                                    PatrName = dataReader.GetNullableString("patrname"),
+                                },
+                                ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                                ExecutePeriod = dataReader.GetNullableString("Period_Name"),
+                                Rating = dataReader.GetNullableString("Rating"),
+                                BadWork = dataReader.GetBoolean("bad_work"),
+                                IsRetry = dataReader.GetBoolean("retry"),
+                                Garanty = dataReader.GetBoolean("garanty"),
+                                StatusId = dataReader.GetInt32("req_status_id"),
+                                Status = dataReader.GetNullableString("Req_Status"),
+                                TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
+                                RatingDescription = dataReader.GetNullableString("RatingDesc"),
+                                LastNote = dataReader.GetNullableString("last_note")
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return requests.ToArray();
+                }
+            }
+        }
+        public static RequestForListDto[] WebRequestsByIds(int currentWorkerId, int[] requestIds)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery =
+                    "CALL CallCenter.DispexGetRequestsByIds(@CurWorker,@RequestIds)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@RequestIds",
+                        requestIds != null && requestIds.Length > 0
+                            ? requestIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+
                     var requests = new List<RequestForListDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {

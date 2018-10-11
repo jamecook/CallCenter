@@ -107,6 +107,17 @@ namespace WebApi.Controllers
                 garanty.HasValue && garanty.Value, clientPhone);
         }
 
+        [HttpGet("get_pdf")]
+        public byte[] GetPdf([ModelBinder(typeof(CommaDelimitedArrayModelBinder))] int[] requestIds)
+
+        {
+            //var ttt = User.Claims.ToArray();
+            //var login = User.Claims.FirstOrDefault(c => c.Type == "Login")?.Value;
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetRequestActs(workerId, requestIds);
+        }
+
         [HttpPost]
         public string Post([FromBody]CreateRequestDto value)
         {

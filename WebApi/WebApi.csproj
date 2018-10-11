@@ -5,6 +5,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="templates\act.mrt" />
+    <None Remove="templates\exportToExcel.mrt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="templates\act.mrt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="templates\exportToExcel.mrt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -19,6 +33,18 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>..\packages\Stimulsoft.Base.2014.1.1900.0\lib\net20\Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Controls.Win">
+      <HintPath>..\packages\Stimulsoft.Controls.Win.2014.1.1900.0\lib\net20\Stimulsoft.Controls.Win.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Report">
+      <HintPath>..\packages\Stimulsoft.Report.2014.1.1900.0\lib\net20\Stimulsoft.Report.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

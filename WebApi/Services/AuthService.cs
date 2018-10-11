@@ -107,6 +107,7 @@ namespace WebApi.Services
                 new Claim("FirstName", user.FirstName??""),
                 new Claim("PatrName", user.PatrName??""),
                 new Claim("CanCreateRequestInWeb", user.CanCreateRequestInWeb.ToString()),
+                new Claim("AllowStatistics", user.AllowStatistics.ToString()),
                  new Claim("WorkerId", user.WorkerId.ToString())
             };
             var jwt = new JwtSecurityToken(

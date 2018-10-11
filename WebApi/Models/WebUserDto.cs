@@ -11,6 +11,7 @@ namespace WebApi.Models
         public int ServiceCompanyId { get; set; }
         public int SpecialityId { get; set; }
         public bool CanCreateRequestInWeb { get; set; }
+        public bool AllowStatistics { get; set; }
         public string FullName => SurName + " " + FirstName + " " + PatrName;
     }
 }
