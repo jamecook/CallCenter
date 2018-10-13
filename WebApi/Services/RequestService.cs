@@ -557,7 +557,9 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 Status = dataReader.GetNullableString("Req_Status"),
                                 TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
                                 RatingDescription = dataReader.GetNullableString("RatingDesc"),
-                                LastNote = dataReader.GetNullableString("last_note")
+                                LastNote = dataReader.GetNullableString("last_note"),
+                                IsChargeable = dataReader.GetBoolean("is_chargeable"),
+                                ClientName = dataReader.GetNullableString("client_name"),
                             });
                         }
                         dataReader.Close();
@@ -645,7 +647,9 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 Status = dataReader.GetNullableString("Req_Status"),
                                 TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
                                 RatingDescription = dataReader.GetNullableString("RatingDesc"),
-                                LastNote = dataReader.GetNullableString("last_note")
+                                LastNote = dataReader.GetNullableString("last_note"),
+                                IsChargeable = dataReader.GetBoolean("is_chargeable"),
+                                ClientName = dataReader.GetNullableString("client_name"),
                             });
                         }
                         dataReader.Close();

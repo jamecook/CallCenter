@@ -9,11 +9,13 @@ namespace WebApi.Models
         public bool HasRecord { get; set; }
         public bool IsBadWork { get; set; }
         public bool IsImmediate { get; set; }
+        public bool IsChargeable { get; set; }
         public bool IsRetry { get; set; }
         public string IsRetryText => IsRetry ? "да" : "нет";
         public int? FirstRecordId { get; set; }
         public int? CompanyId { get; set; }
         public string CompanyName { get; set; }
+        public string ClientName { get; set; }
         public DateTime CreateTime { get; set; }
         public string StreetPrefix { get; set; }
         public string StreetName { get; set; }
