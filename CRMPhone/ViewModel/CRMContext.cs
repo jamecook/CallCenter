@@ -786,13 +786,16 @@ namespace CRMPhone.ViewModel
                                         new XElement("Дом", record.Building),
                                         new XElement("Корпус", record.Corpus),
                                         new XElement("Квартира", record.Flat),
+                                        new XElement("ЛицСчет", record.PersonalAccount),
                                         new XElement("ЭлектроТ1", record.Electro1),
                                         new XElement("ЭлектроТ2", record.Electro2),
                                         new XElement("ГВСстояк1", record.HotWater1),
                                         new XElement("ХВСстояк1", record.ColdWater1),
                                         new XElement("ГВСстояк2", record.HotWater2),
                                         new XElement("ХВСстояк2", record.ColdWater2),
-                                        new XElement("Отопление", record.Heating)
+                                        new XElement("Отопление", record.Heating),
+                                        new XElement("Отопление2", record.Heating2),
+                                        new XElement("Отопление3", record.Heating3)
                                     }));
                         }
                         var saver = new FileStream(fileName, FileMode.Create);
@@ -839,7 +842,10 @@ namespace CRMPhone.ViewModel
                             ConstructCell(record.ColdWater1.ToString(), CellValues.String),
                             ConstructCell(record.HotWater2.ToString(), CellValues.String),
                             ConstructCell(record.ColdWater2.ToString(), CellValues.String),
-                            ConstructCell(record.Heating.ToString(), CellValues.String));
+                            ConstructCell(record.Heating.ToString(), CellValues.String),
+                            ConstructCell(record.PersonalAccount, CellValues.String),
+                            ConstructCell(record.Heating2.ToString(), CellValues.String),
+                            ConstructCell(record.Heating3.ToString(), CellValues.String));
 
                         sheetData.AppendChild(row);
                     }

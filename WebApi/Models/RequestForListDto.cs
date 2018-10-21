@@ -40,6 +40,7 @@ namespace WebApi.Models
         public string RatingDescription { get; set; }
         public bool BadWork { get; set; }
         public bool Garanty { get; set; }
+        public int GarantyId { get; set; }
         public string GarantyTest => Garanty ? "Да" : "Нет";
         public int StatusId { get; set; }
         public string Status { get; set; }
@@ -47,6 +48,7 @@ namespace WebApi.Models
         public DateTime? FromTime { get; set; }
         public DateTime? ToTime { get; set; }
         public DateTime? AlertTime { get; set; }
+        public DateTime? CloseDate { get; set; }
         public string LastNote { get; set; }
 
 

@@ -6,6 +6,7 @@ namespace RequestServiceImpl
     public class MeterListDto
     {
         public int Id { get; set; }
+        public string PersonalAccount { get; set; }
         public string ServiceCompany { get; set; }
         public string StreetName { get; set; }
         public int StreetId { get; set; }
@@ -22,6 +23,8 @@ namespace RequestServiceImpl
         public double ColdWater2 { get; set; }
         public double HotWater2 { get; set; }
         public double Heating { get; set; }
+        public double? Heating2 { get; set; }
+        public double? Heating3 { get; set; }
         public string FullAddress
         {
            get

@@ -431,7 +431,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 }
             }
         }
-        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, bool badWork = false, bool garanty = false, string clientPhone = null)
+        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -439,7 +439,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             {
                 conn.Open();
                 var sqlQuery =
-                    "CALL CallCenter.DispexGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds)";
+                    "CALL CallCenter.DispexGetRequests(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -449,6 +449,8 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     cmd.Parameters.AddWithValue("@ToDate", toDate);
                     cmd.Parameters.AddWithValue("@ExecuteFromDate", executeFromDate);
                     cmd.Parameters.AddWithValue("@ExecuteToDate", executeToDate);
+                    cmd.Parameters.AddWithValue("@OnlyRetry", onlyRetry);
+                    cmd.Parameters.AddWithValue("@OnlyChargeable", chargeable);
                     cmd.Parameters.AddWithValue("@StreetIds",
                         streetIds != null && streetIds.Length > 0
                             ? streetIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
@@ -560,6 +562,8 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 LastNote = dataReader.GetNullableString("last_note"),
                                 IsChargeable = dataReader.GetBoolean("is_chargeable"),
                                 ClientName = dataReader.GetNullableString("client_name"),
+                                CloseDate = dataReader.GetNullableDateTime("close_date"),
+                                GarantyId = dataReader.GetInt32("garanty"),
                             });
                         }
                         dataReader.Close();
@@ -714,13 +718,13 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
         }
 
-        public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId, int? executerId, string description)
+        public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId, int? executerId, string description,bool isChargeable = false)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 var query =
-                    "call CallCenter.WebCreateRequest(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc);";
+                    "call CallCenter.DispexCreateRequest(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc,@IsChargeable);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -731,6 +735,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     cmd.Parameters.AddWithValue("@MasterId", masterId);
                     cmd.Parameters.AddWithValue("@ExecuterId", executerId);
                     cmd.Parameters.AddWithValue("@Desc", description);
+                    cmd.Parameters.AddWithValue("@IsChargeable", isChargeable);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         dataReader.Read();
@@ -867,6 +872,26 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 }
             }
 
+        }
+
+        public static void SetGarantyState(int id, int newState, int type, string name, DateTime docDate, string fileName, int userId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.DispexSetGarantyState(@UserId,@Id,@NewState,@TypeId,@Name,@DocDate,@FileName);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.Parameters.AddWithValue("@NewState", newState);
+                    cmd.Parameters.AddWithValue("@TypeId", type);
+                    cmd.Parameters.AddWithValue("@Name", name);
+                    cmd.Parameters.AddWithValue("@DocDate", docDate);
+                    cmd.Parameters.AddWithValue("@FileName", fileName);
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using WebApi.Models;
 using WebApi.Services;
 
@@ -76,6 +77,8 @@ namespace WebApi.Controllers
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] companies,
             [FromQuery] bool? badWork,
             [FromQuery] bool? garanty,
+            [FromQuery] bool? onlyRetry,
+            [FromQuery] bool? chargeable,
             [FromQuery] string clientPhone)
 
         {
@@ -104,7 +107,7 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                 streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,
                 badWork ?? false,
-                garanty.HasValue && garanty.Value, clientPhone);
+                garanty ?? false, onlyRetry ?? false,chargeable ?? false, clientPhone);
         }
 
         [HttpGet("get_pdf")]
@@ -121,9 +124,10 @@ namespace WebApi.Controllers
         [HttpPost]
         public string Post([FromBody]CreateRequestDto value)
         {
+            _logger.LogDebug("Create Request: "+JsonConvert.SerializeObject(value));
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.CreateRequest(workerId, value.Phone, value.Name, value.AddressId, value.TypeId, value.MasterId, value.ExecuterId, value.Description);
+            return RequestService.CreateRequest(workerId, value.Phone, value.Name, value.AddressId, value.TypeId, value.MasterId, value.ExecuterId, value.Description,value.IsChargeable ?? false);
         }
 
         [HttpGet("workers")]
@@ -273,6 +277,33 @@ namespace WebApi.Controllers
             {
                 RequestService.AddNewNote(id, note, userId);
             }
+            return Ok();
+        }
+
+        [HttpPutAttribute("set_garanty_state/{id}")]
+        public IActionResult SetGarantyState(int id, [FromForm] IFormFile file, [FromForm] int type, [FromForm] int newState,
+            [FromForm] string name, [FromForm] DateTime docDate)
+        {
+            if (id == 0 || file == null || file.Length == 0 || type == 0)
+            {
+                return BadRequest();
+            }
+            var uploadFolder = Path.Combine(GetRootFolder(), id.ToString());
+            if (!Directory.Exists(uploadFolder))
+            {
+                Directory.CreateDirectory(uploadFolder);
+            }
+            var fileExtension = Path.GetExtension(file.FileName);
+            var fileName = Guid.NewGuid() + fileExtension;
+            using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
+            {
+                file.CopyTo(fileStream);
+            }
+            var userIdStr = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            int.TryParse(userIdStr, out int userId);
+
+
+            RequestService.SetGarantyState(id, newState, type,  name, docDate, fileName, userId);
             return Ok();
         }
         private string GetRootFolder()

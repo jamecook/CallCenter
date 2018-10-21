@@ -8,6 +8,7 @@ namespace WebApi.Models
         public int TypeId { get; set; }
         public int? MasterId { get; set; }
         public int? ExecuterId { get; set; }
+        public bool? IsChargeable { get; set; }
         public string Description { get; set; }
     }
 }

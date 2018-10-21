@@ -31,6 +31,12 @@ namespace CRMPhone
             set { _phoneNumber = value; OnPropertyChanged(nameof(PhoneNumber)); }
         }
 
+        public string PersonalAccount
+        {
+            get { return _personalAccount; }
+            set { _personalAccount = value; OnPropertyChanged(nameof(PersonalAccount));}
+        }
+
         public double Electro1
         {
             get { return _electro1; }
@@ -65,6 +71,18 @@ namespace CRMPhone
         {
             get { return _coldWater2; }
             set { _coldWater2 = value; OnPropertyChanged(nameof(ColdWater2));}
+        }
+
+        public double Heating2
+        {
+            get { return _heating2; }
+            set { _heating2 = value; OnPropertyChanged(nameof(Heating2));}
+        }
+
+        public double Heating3
+        {
+            get { return _heating3; }
+            set { _heating3 = value; OnPropertyChanged(nameof(Heating3));}
         }
 
         public double Heating
@@ -187,6 +205,7 @@ namespace CRMPhone
         private void LoadRequestsBySelectedAddress(int addressId)
         {
             MetersHistoryList = new ObservableCollection<MetersDto>(_requestService.GetMetersByAddressId(addressId));
+            PersonalAccount = MetersHistoryList.LastOrDefault()?.PersonalAccount;
         }
 
         private ICommand _saveCommand;
@@ -201,7 +220,7 @@ namespace CRMPhone
                 MessageBox.Show("Необходимо выбрать правильный адрес!", "Ошибка");
                 return;
             }
-            _requestService.SaveMeterValues(PhoneNumber,SelectedFlat.Id,Electro1,Electro2,HotWater1,ColdWater1,HotWater2,ColdWater2,Heating, _meterId);
+            _requestService.SaveMeterValues(PhoneNumber,SelectedFlat.Id,Electro1,Electro2,HotWater1,ColdWater1,HotWater2,ColdWater2,Heating, _meterId,PersonalAccount,Heating2,Heating3);
             LoadRequestsBySelectedAddress(SelectedFlat.Id);
             MessageBox.Show("Данные успешно сохранены!", "Приборы учёта");
 
@@ -217,6 +236,9 @@ namespace CRMPhone
         private double _heating;
         private ObservableCollection<MetersDto> _metersHistoryList;
         private int? _meterId;
+        private string _personalAccount;
+        private double _heating2;
+        private double _heating3;
 
         public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new CommandHandler(Close, true)); } }
 
@@ -275,6 +297,8 @@ namespace CRMPhone
                 Electro1 = meter.Electro1;
                 Electro2 = meter.Electro2;
                 Heating = meter.Heating;
+                Heating2 = meter.Heating2??0;
+                Heating3 = meter.Heating3??0;
             }
         }
 
