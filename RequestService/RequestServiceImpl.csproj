@@ -104,7 +104,9 @@
     <Compile Include="Dto\SmsListDto.cs" />
     <Compile Include="Dto\SmsSettingDto.cs" />
     <Compile Include="Dto\SpecialityDto.cs" />
+    <Compile Include="Dto\StatCallListDto.cs" />
     <Compile Include="Dto\StatInfoDto.cs" />
+    <Compile Include="Dto\StatIvrCallListDto.cs" />
     <Compile Include="Dto\StatusDto.cs" />
     <Compile Include="Dto\StatusHistoryDto.cs" />
     <Compile Include="Dto\StreetDto.cs" />

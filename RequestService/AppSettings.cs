@@ -18,6 +18,7 @@ namespace RequestServiceImpl
         {
             _dbConnection = connection;
         }
+        public static string ConnectionString { get; set; }
 
         public static SipDto SipInfo
         {

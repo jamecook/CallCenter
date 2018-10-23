@@ -786,6 +786,15 @@
                 </TabItem.Header>
                 <controls:DispexRequestControl DataContext="{Binding DispexRequestControlModel}"/>
             </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/PhoneList.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Отчеты"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <controls:ReportControl DataContext="{Binding ReportControlModel}"/>
+            </TabItem>
         </TabControl>
         <TextBlock Margin ="10,0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Height="24" Text="{Binding SipState}" />
     </Grid>

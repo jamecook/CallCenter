@@ -1040,6 +1040,72 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 return requests;
             }
         }
+        public IList<StatCallListDto> GetStatCalls(DateTime fromDate,DateTime toDate)
+        {
+            var sqlQuery = "call CallCenter.StatGetRings(@From,@To);";
+            using (var cmd =
+                new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@From", fromDate);
+                cmd.Parameters.AddWithValue("@To", toDate);
+
+                var requests = new List<StatCallListDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        requests.Add(new StatCallListDto
+                        {
+                            Direction = dataReader.GetNullableString("Direction"),
+                            Exten = dataReader.GetNullableString("ExtenNum"),
+                            ServiceCompany = dataReader.GetNullableString("ServiceComp"),
+                            PhoneNum = dataReader.GetNullableString("PhoneNum"),
+                            CreateDate = dataReader.GetNullableString("CreateDate"),
+                            CreateTime = dataReader.GetNullableString("CreateTime"),
+                            BridgeDate = dataReader.GetNullableString("BridgedDate"),
+                            BridgeTime = dataReader.GetNullableString("BridgedTime"),
+                            EndDate = dataReader.GetNullableString("EndDate"),
+                            EndTime = dataReader.GetNullableString("EndTime"),
+                            WaitSec = dataReader.GetNullableInt("waitSec"),
+                            CallTime = dataReader.GetInt32("callTime"),
+                            UserId = dataReader.GetNullableInt("Id"),
+                            Fio = dataReader.GetNullableString("Fio")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return requests;
+            }
+        } public IList<StatIvrCallListDto> GetIvrStatCalls(DateTime fromDate,DateTime toDate)
+        {
+            var sqlQuery = "call CallCenter.StatGetIvrRedirects(@From,@To);";
+            using (var cmd =
+                new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@From", fromDate);
+                cmd.Parameters.AddWithValue("@To", toDate);
+
+                var requests = new List<StatIvrCallListDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        requests.Add(new StatIvrCallListDto
+                        {
+                            CallerIdNum = dataReader.GetNullableString("CallerIDNum"),
+                            CreateTime = dataReader.GetDateTime("CreateTime"),
+                            EndTime = dataReader.GetDateTime("EndTime"),
+                            AnswerTime = dataReader.GetNullableDateTime("AnswerTime"),
+                            Result = dataReader.GetNullableString("result"),
+                            WaitSec = dataReader.GetNullableInt("waitSec"),
+                            CallTime = dataReader.GetInt32("callTime")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return requests;
+            }
+        }
         public IList<DispexForListDto> GetDispexRequests()
         {
             var sqlQuery = "SELECT * FROM Dispex.requests r order by id desc;";

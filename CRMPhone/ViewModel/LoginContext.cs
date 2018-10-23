@@ -44,6 +44,7 @@ namespace CRMPhone.ViewModel
         {
             var connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", server, "asterisk", "mysqlasterisk", "asterisk");
             AppSettings.SetDbConnection(new MySqlConnection(connectionString));
+            AppSettings.ConnectionString = connectionString;
             try
             {
                 AppSettings.DbConnection.Open();

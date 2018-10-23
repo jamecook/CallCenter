@@ -120,6 +120,7 @@ namespace CRMPhone.ViewModel
             AlertAndWorkContext = new AlertAndWorkControlContext();
             AlertRequestControlModel = new AlertRequestControlModel();
             DispexRequestControlModel = new DispexRequestControlModel();
+            ReportControlModel = new ReportControlModel();
         }
 
         public AlertRequestControlModel AlertRequestControlModel
@@ -134,6 +135,12 @@ namespace CRMPhone.ViewModel
             set { _dispexRequestControlModel = value;
                 OnPropertyChanged(nameof(DispexRequestControlModel));
             }
+        }
+
+        public ReportControlModel ReportControlModel
+        {
+            get { return _reportControlModel; }
+            set { _reportControlModel = value; OnPropertyChanged(nameof(ReportControlModel));}
         }
 
         public void InitMysqlAndSip()
@@ -959,6 +966,7 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<SipLine> _sipLines;
         private SipLine _selectedLine;
         private DispexRequestControlModel _dispexRequestControlModel;
+        private ReportControlModel _reportControlModel;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 

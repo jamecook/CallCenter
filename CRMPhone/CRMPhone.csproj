@@ -146,6 +146,9 @@
     <Compile Include="Controls\AlertRequestControl.xaml.cs">
       <DependentUpon>AlertRequestControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ReportControl.xaml.cs">
+      <DependentUpon>ReportControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\DispexRequestControl.xaml.cs">
       <DependentUpon>DispexRequestControl.xaml</DependentUpon>
     </Compile>
@@ -154,6 +157,9 @@
     </Compile>
     <Compile Include="Dialogs\Admins\WorkerHouseAndTypeAddOrEditDialog.xaml.cs">
       <DependentUpon>WorkerHouseAndTypeAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\SelectPeriodDialog.xaml.cs">
+      <DependentUpon>SelectPeriodDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\GetScInfoDialog.xaml.cs">
       <DependentUpon>GetScInfoDialog.xaml</DependentUpon>
@@ -251,8 +257,10 @@
     <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\WorkerHouseAndTypeAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
+    <Compile Include="ViewModel\SelectPeriodDialogViewModel.cs" />
     <Compile Include="ViewModel\ChangeExecuterDialogViewModel.cs" />
     <Compile Include="ViewModel\CRMContextNewSIP.cs" />
+    <Compile Include="ViewModel\ReportControlModel.cs" />
     <Compile Include="ViewModel\DispexRequestControlModel.cs" />
     <Compile Include="ViewModel\EditAddressOnRequestDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkDialogViewModel.cs" />
@@ -354,6 +362,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\ReportControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\DispexRequestControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -363,6 +375,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\Admins\WorkerHouseAndTypeAddOrEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\SelectPeriodDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
