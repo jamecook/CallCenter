@@ -1347,8 +1347,9 @@ namespace CRMPhone.ViewModel
         {
             if (SelectedCall == null)
                 return;
-            SipPhone = SelectedCall.CallerId;
-            string callId = string.Format("sip:{0}@{1}", SelectedCall.CallerId, _serverIP);
+            var phone = SelectedCall.CallerId.Substring(SelectedCall.CallerId.Length - 10);
+            SipPhone = phone;
+            string callId = string.Format("sip:{2}{0}@{1}", phone, _serverIP,SelectedCall.Prefix);
             _sipAgent.CallMaker.Invite(callId);
         }
 
@@ -1502,19 +1503,25 @@ namespace CRMPhone.ViewModel
         private void RefreshNotAnsweredCalls()
         {
             var callList = new List<NotAnsweredDto>();
-            using (var cmd = new MySqlCommand("SELECT UniqueID, CallerIDNum, CreateTime FROM asterisk.NotAnswered", _dbRefreshConnection))
-            using (var dataReader = cmd.ExecuteReader())
+            using (var connection = new MySqlConnection(AppSettings.ConnectionString))
             {
-                while (dataReader.Read())
+                connection.Open();
+                using (var cmd = new MySqlCommand("CALL CallCenter.GetNotAnswered()", connection))
+                using (var dataReader = cmd.ExecuteReader())
                 {
-                    callList.Add(new NotAnsweredDto
+                    while (dataReader.Read())
                     {
-                        UniqueId = dataReader.GetNullableString("UniqueID"),
-                        CallerId = dataReader.GetNullableString("CallerIDNum"),
-                        CreateTime = dataReader.GetNullableDateTime("CreateTime")
-                    });
+                        callList.Add(new NotAnsweredDto
+                        {
+                            UniqueId = dataReader.GetNullableString("UniqueID"),
+                            CallerId = dataReader.GetNullableString("CallerIDNum"),
+                            CreateTime = dataReader.GetNullableDateTime("CreateTime"),
+                            ServiceCompany = dataReader.GetNullableString("short_name"),
+                            Prefix = dataReader.GetNullableString("prefix"),
+                        });
+                    }
+                    dataReader.Close();
                 }
-                dataReader.Close();
             }
             var remotedCalls = NotAnsweredCalls.Where(n => !callList.Any(c=>c.CallerId == n.CallerId && c.CreateTime == n.CreateTime)).ToList();
             var newCalls = callList.Where(n => !NotAnsweredCalls.Any(c => c.CallerId == n.CallerId && c.CreateTime == n.CreateTime)).ToList();

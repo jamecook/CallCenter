@@ -129,7 +129,8 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <DockPanel Margin="0,2">
-                            <TextBlock Margin ="2" Text="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}" />
+                            <TextBlock Margin ="2" Text="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yy HH:mm}'}" />
+                            <TextBlock Margin ="2" Width="60" Text="{Binding Path=ServiceCompany}" />
                             <TextBlock Margin ="2" Foreground="Blue" FontWeight="DemiBold" Text="{Binding Path=CallerId}" />
                         </DockPanel>
                     </DataTemplate>

@@ -79,7 +79,9 @@ namespace WebApi.Controllers
             [FromQuery] bool? garanty,
             [FromQuery] bool? onlyRetry,
             [FromQuery] bool? chargeable,
-            [FromQuery] string clientPhone)
+            [FromQuery] string clientPhone,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties
+            )
 
         {
             //var ttt = User.Claims.ToArray();
@@ -105,7 +107,7 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                 fromDate ?? DateTime.Today,
                 toDate ?? DateTime.Today.AddDays(1),
-                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,
+                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,warranties,
                 badWork ?? false,
                 garanty ?? false, onlyRetry ?? false,chargeable ?? false, clientPhone);
         }

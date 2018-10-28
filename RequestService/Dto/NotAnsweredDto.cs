@@ -7,6 +7,8 @@ namespace RequestServiceImpl.Dto
         public string UniqueId { get; set; }
 
         public string CallerId { get; set; }
+        public string ServiceCompany { get; set; }
+        public string Prefix { get; set; }
 
         public DateTime? CreateTime { get; set; }
     }
