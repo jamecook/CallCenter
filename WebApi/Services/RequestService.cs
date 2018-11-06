@@ -41,6 +41,8 @@ namespace WebApi.Services
                                 ServiceCompanyId = dataReader.GetInt32("service_company_id"),
                                 SpecialityId = dataReader.GetInt32("speciality_id"),
                                 CanCreateRequestInWeb = dataReader.GetBoolean("can_create_in_web"),
+                                CanCloseRequest = dataReader.GetBoolean("can_close_request"),
+                                CanSetRating = dataReader.GetBoolean("can_set_rating"),
                                 AllowStatistics = dataReader.GetBoolean("allow_statistics")
                             };
                         }
@@ -690,6 +692,27 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
 
 
         }
+        public static void SetRating(int workerId, int requestId, int ratingId, string description)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"CALL CallCenter.DispexSetRating(@WorkerId,@RequestId,@RatingId,@Desc);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                        cmd.Parameters.AddWithValue("@RatingId", ratingId);
+                        cmd.Parameters.AddWithValue("@Desc", description);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+        }
 
         public static FlatDto[] GetFlats(int houseId)
         {
@@ -722,13 +745,13 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
         }
 
-        public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId, int? executerId, string description,bool isChargeable = false)
+        public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId, int? executerId, string description, bool isChargeable = false, DateTime? executeDate = null)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 var query =
-                    "call CallCenter.DispexCreateRequest(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc,@IsChargeable);";
+                    "call CallCenter.DispexCreateRequest(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc,@IsChargeable,@ExecuteDate);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -740,6 +763,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     cmd.Parameters.AddWithValue("@ExecuterId", executerId);
                     cmd.Parameters.AddWithValue("@Desc", description);
                     cmd.Parameters.AddWithValue("@IsChargeable", isChargeable);
+                    cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         dataReader.Read();

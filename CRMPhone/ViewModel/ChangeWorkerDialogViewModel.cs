@@ -30,7 +30,7 @@ namespace CRMPhone.ViewModel
             SelectedWorker = WorkerList.SingleOrDefault(w => w.Id == request.MasterId);
             Refresh(null);
         }
-
+        public string WorkerTitle { get; set; }
         public void SetView(Window view)
         {
             _view = view;

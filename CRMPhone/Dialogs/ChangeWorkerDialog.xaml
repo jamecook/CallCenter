@@ -24,7 +24,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <DockPanel Grid.Row="0">
-                        <TextBlock Margin="5" VerticalAlignment="Center" Text="Исполнитель:"/>
+                        <TextBlock Margin="5" VerticalAlignment="Center" Text="{Binding WorkerTitle}"/>
                         <ComboBox Margin="5" HorizontalAlignment="Right" Width="185" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedWorker}" ItemsSource="{Binding WorkerList}" IsEditable="True">
                             <ComboBox.Resources>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>

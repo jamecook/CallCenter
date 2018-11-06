@@ -35,7 +35,7 @@ namespace CRMPhone.ViewModel
         {
             _view = view;
         }
-
+        public string WorkerTitle { get; set; }
         private ICommand _refreshCommand;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new RelayCommand(Refresh)); } }
         private ICommand _saveCommand;

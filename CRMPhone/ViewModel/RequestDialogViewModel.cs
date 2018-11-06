@@ -422,6 +422,7 @@ namespace CRMPhone.ViewModel
 
         private void AddCall(object obj)
         {
+            //var callUniqueId = _requestService.GetActiveCallUniqueIdByPhone(AppSettings.LastIncomingCall);
             var callUniqueId = _requestService.GetActiveCallUniqueId();
             _requestService.AddCallToRequest(RequestId,callUniqueId);
             if(!string.IsNullOrEmpty(callUniqueId))
@@ -510,6 +511,7 @@ namespace CRMPhone.ViewModel
             if(!requestModel.RequestId.HasValue)
                 return;
             var model = new ChangeWorkerDialogViewModel(_requestService, requestModel.RequestId.Value);
+            model.WorkerTitle = "Мастер:";
             var view = new ChangeWorkerDialog();
             model.SetView(view);
             view.Owner = _view;
@@ -531,6 +533,7 @@ namespace CRMPhone.ViewModel
             if(!requestModel.RequestId.HasValue)
                 return;
             var model = new ChangeExecuterDialogViewModel(_requestService, requestModel.RequestId.Value);
+            model.WorkerTitle = "Исполнитель:";
             var view = new ChangeWorkerDialog();
             model.SetView(view);
             view.Owner = _view;

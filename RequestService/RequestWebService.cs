@@ -64,6 +64,42 @@ namespace RequestServiceImpl
             return result.ToArray();
         }
 
+        public List<RequestRatingListDto> GetRequestRatings(int requestId)
+        {
+            var result = new List<RequestRatingListDto>();
+            using (var cmd = new MySqlCommand(@"SELECT r.id,request_id,create_date,rating_id,Description,t.name rating_name,
+ u.Id user_id, u.SurName, u.FirstName,u.PatrName FROM CallCenter.RequestRating r
+ join CallCenter.Users u on u.id = r.user_id
+ join CallCenter.RatingTypes t on t.id = rating_id
+ where request_id = @RequestId;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        result.Add(new RequestRatingListDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            CreateDate = dataReader.GetDateTime("create_date"),
+                            Description = dataReader.GetNullableString("Description"),
+                            Rating = dataReader.GetNullableString("rating_name"),
+                            CreateUser = new RequestUserDto()
+                            {
+                                Id = dataReader.GetInt32("user_id"),
+                                SurName = dataReader.GetNullableString("SurName"),
+                                FirstName = dataReader.GetNullableString("FirstName"),
+                                PatrName = dataReader.GetNullableString("PatrName"),
+                            }
+                        });
+                    }
+                    dataReader.Close();
+                }
+            }
+            return result;
+        }
+
         public StatInfoDto[] GetRequestByWorkersInfo()
         {
             var result = new List<StatInfoDto>();
@@ -846,6 +882,15 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     dataReader.Close();
                 }
                 return transferList;
+            }
+        }
+        public void DeleteRequestRatingById(int itemId)
+        {
+            var query = "delete from CallCenter.RequestRating where id = @Id;";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Id", itemId);
+                cmd.ExecuteNonQuery();
             }
         }
     }

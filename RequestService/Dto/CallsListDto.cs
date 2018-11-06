@@ -4,6 +4,7 @@ namespace RequestServiceImpl.Dto
 {
     public class CallsListDto
     {
+        public int Id { get; set; }
         public string UniqueId { get; set; }
 
         public string CallerId { get; set; }
@@ -36,6 +37,8 @@ namespace RequestServiceImpl.Dto
                 return false;
             }
         }
+        public bool CanDeleteRecord => AppSettings.CurrentUser != null && AppSettings.CurrentUser.Roles.Exists(r => r.Name == "admin"); 
+        
         public RequestUserDto User { get; set; }
         public string Requests { get; set; }
         public string ImagePath => Direction == "in" ? "pack://application:,,,/Images/incalls.png" : "pack://application:,,,/Images/outcalls.png";

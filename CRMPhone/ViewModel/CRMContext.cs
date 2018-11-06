@@ -295,7 +295,27 @@ namespace CRMPhone.ViewModel
 
         private ICommand _playCommand;
         public ICommand PlayCommand { get { return _playCommand ?? (_playCommand = new RelayCommand(PlayRecord)); } }
+        private ICommand _downloadRecordCommand;
+        public ICommand DownloadRecordCommand { get { return _downloadRecordCommand ?? (_downloadRecordCommand = new RelayCommand(DownloadRecord)); } }
 
+        private void DownloadRecord(object obj)
+        {
+            var record = obj as CallsListDto;
+            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
+            var saveDialog = new SaveFileDialog();
+            saveDialog.AddExtension = true;
+            saveDialog.DefaultExt = ".wav";
+            saveDialog.Filter = "Audio файл|*.wav";
+            if (saveDialog.ShowDialog() == true)
+            {
+                var localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/", "\\");
+                var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
+                if (File.Exists(localFileNameMp3))
+                    File.Copy(localFileNameMp3, saveDialog.FileName);
+                else if (File.Exists(localFileName))
+                    File.Copy(localFileName, saveDialog.FileName);
+            }
+        }
         private void PlayRecord(object obj)
         {
             var record = obj as CallsListDto;

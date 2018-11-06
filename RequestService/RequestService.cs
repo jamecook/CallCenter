@@ -571,6 +571,24 @@ select LAST_INSERT_ID();", _dbConnection))
                 return retVal;
             }
         }
+        public string GetActiveCallUniqueIdByPhone(string phone)
+        {
+            string retVal = null;
+            var query = @"call asterisk.GetUniqueIdByPhone(@Phone)";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Phone", phone);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        retVal = dataReader.GetNullableString("uniqueId");
+                    }
+                    dataReader.Close();
+                }
+                return retVal;
+            }
+        }
 
         public void AddNewNote(int requestId, string note, int? userId = null)
         {
@@ -2276,7 +2294,7 @@ where C.Direction is not null";
         }
         public List<CallsListDto> GetCallListByRequestId(int requestId)
         {
-            var sqlQuery = @"SELECT ch.UniqueID,Direction,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime,
+            var sqlQuery = @"SELECT rc.id,ch.UniqueID,Direction,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime,
  MonitorFile, timestampdiff(SECOND,ch.BridgedTime,ch.EndTime) AS TalkTime,
 (timestampdiff(SECOND,ch.CreateTime,ch.EndTime) - ifnull(timestampdiff(SECOND,ch.BridgedTime,ch.EndTime),0)) AS WaitingTime,
  group_concat(rc.request_id order by rc.request_id separator ', ') AS RequestId
@@ -2296,6 +2314,7 @@ where C.Direction is not null";
                     {
                         callList.Add(new CallsListDto
                         {
+                            Id = dataReader.GetInt32("id"),
                             UniqueId = dataReader.GetNullableString("UniqueID"),
                             CallerId = dataReader.GetNullableString("CallerIDNum"),
                             Direction = dataReader.GetNullableString("Direction"),
@@ -2710,7 +2729,7 @@ where C.Direction is not null";
             }
             else
             {
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.Workers(sur_name,first_name,patr_name,phone,service_company_id,speciality_id,can_assign, parent_worker_id) values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@canAssign,@parentWorkerId);", _dbConnection))
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.Workers(sur_name,first_name,patr_name,phone,service_company_id,speciality_id,can_assign, parent_worker_id,is_master) values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@canAssign,@parentWorkerId,@isMaster);", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@surName", surName);
                     cmd.Parameters.AddWithValue("@firstName", firstName);
@@ -2719,6 +2738,7 @@ where C.Direction is not null";
                     cmd.Parameters.AddWithValue("@serviceCompanyId", serviceCompanyId);
                     cmd.Parameters.AddWithValue("@specialityId", specialityId);
                     cmd.Parameters.AddWithValue("@canAssign", canAssign);
+                    cmd.Parameters.AddWithValue("@isMaster", isMaster);
                     cmd.Parameters.AddWithValue("@parentWorkerId", parentWorkerId);
                     cmd.ExecuteNonQuery();
                 }
@@ -2791,7 +2811,8 @@ where C.Direction is not null";
             }
             else
             {
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestTypes(parrent_id,Name) values(@parentId, @serviceName);", _dbConnection))
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestTypes(parrent_id,Name) values(@parentId, @serviceName)
+                ON DUPLICATE KEY UPDATE enabled = true;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@serviceName", serviceName);
                     cmd.Parameters.AddWithValue("@parentId", parentId);
@@ -3495,6 +3516,16 @@ where C.Direction is not null";
                 }
                 return result;
             }
+        }
+
+        public void DeleteCallListRecord(int recordId)
+        {
+            using (var cmd = new MySqlCommand(@"delete from CallCenter.RequestCalls where id = @ID;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ID", recordId);
+                cmd.ExecuteNonQuery();
+            }
+
         }
     }
 

@@ -552,6 +552,7 @@
     <Resource Include="Images\NoAnswer.png" />
     <Resource Include="Images\CanAnswer.png" />
     <Resource Include="Images\dispex.png" />
+    <Resource Include="Images\floppy.ico" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

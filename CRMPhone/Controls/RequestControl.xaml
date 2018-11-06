@@ -466,7 +466,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Последний комментарий исполнителя" Width="280"
+                <DataGridTextColumn Header="Комментарий исполнителя" Width="280"
                              Binding="{Binding Path=LastNote}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">

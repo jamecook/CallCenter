@@ -129,7 +129,7 @@ namespace WebApi.Controllers
             _logger.LogDebug("Create Request: "+JsonConvert.SerializeObject(value));
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.CreateRequest(workerId, value.Phone, value.Name, value.AddressId, value.TypeId, value.MasterId, value.ExecuterId, value.Description,value.IsChargeable ?? false);
+            return RequestService.CreateRequest(workerId, value.Phone, value.Name, value.AddressId, value.TypeId, value.MasterId, value.ExecuterId, value.Description,value.IsChargeable ?? false, value.ExecuteDate);
         }
 
         [HttpGet("workers")]
@@ -281,8 +281,19 @@ namespace WebApi.Controllers
             }
             return Ok();
         }
+        [HttpPut("set_rating/{id}")]
+        public IActionResult SetRating(int id,[FromBody]int ratingId, [FromBody]string description)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if (int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.SetRating(workerId, id, ratingId, description);
+                return Ok();
+            }
+            return BadRequest();
+        }
 
-        [HttpPutAttribute("set_garanty_state/{id}")]
+        [HttpPut("set_garanty_state/{id}")]
         public IActionResult SetGarantyState(int id, [FromForm] IFormFile file, [FromForm] int type, [FromForm] int newState,
             [FromForm] string name, [FromForm] DateTime docDate)
         {

@@ -29,7 +29,7 @@ namespace WebApi.Services
 
         public TokenDto GetToken(AuthDto authDto)
         {
-                var user = RequestService.WebLogin(authDto.Login, authDto.Password); ;
+                var user = RequestService.WebLogin(authDto.Login, authDto.Password);
                 if (user == null)
                 {
                     return null;
@@ -108,6 +108,8 @@ namespace WebApi.Services
                 new Claim("PatrName", user.PatrName??""),
                 new Claim("CanCreateRequestInWeb", user.CanCreateRequestInWeb.ToString()),
                 new Claim("AllowStatistics", user.AllowStatistics.ToString()),
+                new Claim("CanSetRating", user.CanSetRating.ToString()),
+                new Claim("CanCloseRequest", user.CanCloseRequest.ToString()),
                  new Claim("WorkerId", user.WorkerId.ToString())
             };
             var jwt = new JwtSecurityToken(

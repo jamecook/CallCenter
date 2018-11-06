@@ -1,3 +1,5 @@
+using System;
+
 namespace WebApi.Models
 {
     public class CreateRequestDto
@@ -10,5 +12,6 @@ namespace WebApi.Models
         public int? ExecuterId { get; set; }
         public bool? IsChargeable { get; set; }
         public string Description { get; set; }
+        public DateTime? ExecuteDate { get; set; }
     }
 }

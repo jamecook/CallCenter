@@ -493,7 +493,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Width="50" >
+                            <DataGridTemplateColumn Width="60" >
                                 <DataGridTemplateColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="ContentTemplate">
@@ -507,10 +507,17 @@
                                 </DataGridTemplateColumn.HeaderStyle>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate DataType="dto:CallsListDto">
-                                        <Button Width="20" Command="{Binding ElementName=RecordGrid, Path=DataContext.PlayCommand}" CommandParameter="{Binding ElementName=RecordGrid, Path=SelectedItem}"
+                                        <DockPanel HorizontalAlignment="Center">
+                                            <Button Width="20" Command="{Binding ElementName=RecordGrid, Path=DataContext.PlayCommand}" CommandParameter="{Binding ElementName=RecordGrid, Path=SelectedItem}"
                                             Visibility="{Binding EnablePlayButton, Converter={StaticResource BooleanToVisibility} }">
-                                            <Image Source="pack://application:,,,/Images/play.png"/>
-                                        </Button>
+                                                <Image Source="pack://application:,,,/Images/play.png"/>
+                                            </Button>
+                                            <Button Width="20" Margin="3,0" Command="{Binding ElementName=RecordGrid, Path=DataContext.DownloadRecordCommand}" CommandParameter="{Binding ElementName=RecordGrid, Path=SelectedItem}"
+                                    Visibility="{Binding EnablePlayButton, Converter={StaticResource BooleanToVisibility} }">
+                                                <Image Source="pack://application:,,,/Images/floppy.ico"/>
+                                            </Button>
+
+                                        </DockPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

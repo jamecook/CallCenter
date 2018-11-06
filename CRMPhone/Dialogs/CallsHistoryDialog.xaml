@@ -94,13 +94,13 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="50" >
+                <DataGridTemplateColumn Width="90" >
                     <DataGridTemplateColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="ContentTemplate">
                                 <Setter.Value>
                                     <DataTemplate>
-                                        <TextBlock Text="Запись" />
+                                        <TextBlock Text="Операции" />
                                     </DataTemplate>
                                 </Setter.Value>
                             </Setter>
@@ -108,10 +108,20 @@
                     </DataGridTemplateColumn.HeaderStyle>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate DataType="dto:CallsListDto">
-                            <Button Width="20" Command="{Binding ElementName=RecordGrid, Path=DataContext.PlayCommand}" CommandParameter="{Binding ElementName=RecordGrid, Path=SelectedItem}"
+                            <DockPanel HorizontalAlignment="Center">
+                                <Button Width="20" Margin="3,0" Command="{Binding ElementName=RecordGrid, Path=DataContext.PlayCommand}" CommandParameter="{Binding ElementName=RecordGrid, Path=SelectedItem}"
                                     Visibility="{Binding EnablePlayButton, Converter={StaticResource BooleanToVisibility} }">
-                                <Image Source="pack://application:,,,/Images/play.png"/>
-                            </Button>
+                                    <Image Source="pack://application:,,,/Images/play.png"/>
+                                </Button>
+                                <Button Width="20" Margin="3,0" Command="{Binding ElementName=RecordGrid, Path=DataContext.DownloadRecordCommand}" CommandParameter="{Binding ElementName=RecordGrid, Path=SelectedItem}"
+                                    Visibility="{Binding EnablePlayButton, Converter={StaticResource BooleanToVisibility} }">
+                                    <Image Source="pack://application:,,,/Images/floppy.ico"/>
+                                </Button>
+                                <Button Width="20" Margin="3,0" Command="{Binding ElementName=RecordGrid, Path=DataContext.DeleteRecordCommand}" CommandParameter="{Binding ElementName=RecordGrid, Path=SelectedItem}"
+                                    Visibility="{Binding CanDeleteRecord, Converter={StaticResource BooleanToVisibility} }">
+                                    <Image Source="pack://application:,,,/Images/button_delete.png"/>
+                                </Button>
+                            </DockPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
