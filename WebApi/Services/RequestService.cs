@@ -921,5 +921,64 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 }
             }
         }
+
+        public static IEnumerable<WarrantyTypesDto> GetWarrantyTypes(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL CallCenter.WarrantyGetTypes(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var list = new List<WarrantyTypesDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var type = new WarrantyTypesDto()
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                IsAct = dataReader.GetBoolean("is_act"),
+                            };
+                            list.Add(type);
+                        }
+                        dataReader.Close();
+                    }
+                    return list;
+                }
+            }
+        }
+        public static IEnumerable<WarrantyOrganizationDto> GetWarrantyOrganizations(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL CallCenter.WarrantyGetOrgs(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var list = new List<WarrantyOrganizationDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var type = new WarrantyOrganizationDto()
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                Inn = dataReader.GetString("inn"),
+                            };
+                            list.Add(type);
+                        }
+                        dataReader.Close();
+                    }
+                    return list;
+                }
+            }
+        }
     }
 }

@@ -49,6 +49,7 @@ namespace WebApi.Models
         public DateTime? ToTime { get; set; }
         public DateTime? AlertTime { get; set; }
         public DateTime? CloseDate { get; set; }
+        public DateTime? DoneDate { get; set; }
         public string LastNote { get; set; }
 
 
