@@ -14,6 +14,8 @@ namespace RequestServiceImpl.Dto
         public int? EntranceCount { get; set; }
         public int? FlatCount { get; set; }
         public int? FloorCount { get; set; }
+        public int? ElevatorCount { get; set; }
+        public bool HaveParking { get; set; }
         public DateTime? CommissioningDate { get; set; }
 
         public string FullName

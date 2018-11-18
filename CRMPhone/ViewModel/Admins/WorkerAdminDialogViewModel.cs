@@ -27,6 +27,11 @@ namespace CRMPhone.ViewModel.Admins
         private WorkerDto _selectedParentWorker;
         private bool _canAssign;
         private bool _isMaster;
+        private bool _sendSms;
+        private bool _isExecuter;
+        private bool _isDispetcher;
+        private string _login;
+        private string _password;
 
         public ObservableCollection<SpecialityDto> SpecialityList
         {
@@ -50,7 +55,7 @@ namespace CRMPhone.ViewModel.Admins
         {
             get => _selectedServiceCompany;
             set { _selectedServiceCompany = value;
-                ChangeParentWorkerList(value);
+                //ChangeParentWorkerList(value);
                 OnPropertyChanged(nameof(SelectedServiceCompany)); }
         }
 
@@ -97,6 +102,18 @@ namespace CRMPhone.ViewModel.Admins
             set { _phone = value; OnPropertyChanged(nameof(Phone)); }
         }
 
+        public string Login
+        {
+            get { return _login; }
+            set { _login = value; OnPropertyChanged(nameof(Login));}
+        }
+
+        public string Password
+        {
+            get { return _password; }
+            set { _password = value; OnPropertyChanged(nameof(Password));}
+        }
+
         public bool CanAssign
         {
             get { return _canAssign; }
@@ -109,6 +126,24 @@ namespace CRMPhone.ViewModel.Admins
             set { _isMaster = value; OnPropertyChanged(nameof(IsMaster));}
         }
 
+        public bool IsExecuter
+        {
+            get { return _isExecuter; }
+            set { _isExecuter = value; OnPropertyChanged(nameof(IsExecuter));}
+        }
+
+        public bool IsDispetcher
+        {
+            get { return _isDispetcher; }
+            set { _isDispetcher = value; OnPropertyChanged(nameof(IsDispetcher));}
+        }
+
+        public bool SendSms
+        {
+            get { return _sendSms; }
+            set { _sendSms = value; OnPropertyChanged(nameof(SendSms));}
+        }
+
         public WorkerAdminDialogViewModel(RequestServiceImpl.RequestService requestService, int? workerId)
         {
             _requestService = requestService;
@@ -116,6 +151,9 @@ namespace CRMPhone.ViewModel.Admins
             ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
             SpecialityList = new ObservableCollection<SpecialityDto>(_requestService.GetSpecialities());
             ParentWorkerList = new ObservableCollection<WorkerDto>();
+            ParentWorkerList.Clear();
+            ParentWorkerList.Add(new WorkerDto() { Id = 0, SurName = "Нет руководителя" });
+            _requestService.GetAllWorkers(null).ToList().ForEach(w => ParentWorkerList.Add(w));
             if (workerId.HasValue)
             {
                 var worker = _requestService.GetWorkerById(workerId.Value);
@@ -123,8 +161,13 @@ namespace CRMPhone.ViewModel.Admins
                 FirstName = worker.FirstName;
                 PatrName = worker.PatrName;
                 Phone = worker.Phone;
+                Login = worker.Login;
+                Password = worker.Password;
                 CanAssign = worker.CanAssign;
                 IsMaster = worker.IsMaster;
+                IsExecuter = worker.IsExecuter;
+                IsDispetcher = worker.IsDispetcher;
+                SendSms = worker.SendSms;
                 SelectedServiceCompany = ServiceCompanyList.SingleOrDefault(s => s.Id == worker.ServiceCompanyId);
                 SelectedSpeciality = SpecialityList.SingleOrDefault(s => s.Id == worker.SpecialityId);
                 var selectParentWorkerId = worker.ParentWorkerId ?? 0;
@@ -142,7 +185,7 @@ namespace CRMPhone.ViewModel.Admins
         {
             if (SelectedServiceCompany != null && !string.IsNullOrEmpty(SurName) && SelectedSpeciality != null)
             {
-                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id, CanAssign, IsMaster, (SelectedParentWorker!=null && SelectedParentWorker.Id>0)? SelectedParentWorker.Id :(int?) null);
+                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id, CanAssign, IsMaster, IsExecuter, IsDispetcher, SendSms, Login, Password, (SelectedParentWorker!=null && SelectedParentWorker.Id>0)? SelectedParentWorker.Id :(int?) null);
                 _view.DialogResult = true;
             }
             else

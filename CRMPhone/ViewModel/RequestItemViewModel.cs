@@ -6,6 +6,7 @@ using CRMPhone.Annotations;
 using System.Windows;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
+using RudiGrobler.Calendar.Common;
 
 namespace CRMPhone.ViewModel
 {
@@ -70,6 +71,12 @@ namespace CRMPhone.ViewModel
             SelectedGaranty = GarantyList.FirstOrDefault();
         }
 
+        private Appointment _selectedAppointment;
+        public Appointment SelectedAppointment
+        {
+            get { return _selectedAppointment; }
+            set { _selectedAppointment = value; OnPropertyChanged(nameof(SelectedAppointment)); }
+        }
         public int? RequestId
         {
             get { return _requestId; }
@@ -179,7 +186,13 @@ namespace CRMPhone.ViewModel
         private void UpdateMastets()
         {
             var selectedMaster = SelectedMaster?.Id;
-            MasterList.Clear();
+            //Какой-то магический кастыль. Иногда Clear не очищает список, а делает первый и единственный элемент = null
+            var i = 0;
+            do
+            {
+                MasterList.Clear();
+                i++;
+            } while (MasterList.Count>0 && i<10);
             if (_showAllMasters)
             {
                 foreach (var master in _requestService.GetMasters(null))

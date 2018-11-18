@@ -54,8 +54,12 @@
                 </WrapPanel>
             </WrapPanel>
             <DockPanel>
+                <TextBlock Margin="3" VerticalAlignment="Center" Text="УК:"/>
+                <TextBlock Margin="3" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding ServiceCompany}"/>
                 <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата ввода в эксплуатацию:"/>
                 <TextBlock Margin="3" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding CommissioningDate, StringFormat='{}{0:dd.MM.yyyy}'}"/>
+                <TextBlock Margin="3" VerticalAlignment="Center" Text="Количество лифток в подъезде:"/>
+                <TextBlock Margin="3" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding ElevatorCount}"/>
             </DockPanel>
             <StackPanel>
             <!--<StackPanel Visibility ="{Binding CanEdit, Converter={StaticResource BooleanToVisibility}}">-->

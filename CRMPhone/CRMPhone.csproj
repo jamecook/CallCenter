@@ -158,6 +158,12 @@
     <Compile Include="Dialogs\Admins\WorkerHouseAndTypeAddOrEditDialog.xaml.cs">
       <DependentUpon>WorkerHouseAndTypeAddOrEditDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\CalendarDialog.xaml.cs">
+      <DependentUpon>CalendarDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\NewAppointment.xaml.cs">
+      <DependentUpon>NewAppointment.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\SelectPeriodDialog.xaml.cs">
       <DependentUpon>SelectPeriodDialog.xaml</DependentUpon>
     </Compile>
@@ -257,6 +263,7 @@
     <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\WorkerHouseAndTypeAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
+    <Compile Include="ViewModel\CalendarDialogViewModel.cs" />
     <Compile Include="ViewModel\SelectPeriodDialogViewModel.cs" />
     <Compile Include="ViewModel\ChangeExecuterDialogViewModel.cs" />
     <Compile Include="ViewModel\CRMContextNewSIP.cs" />
@@ -375,6 +382,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\Admins\WorkerHouseAndTypeAddOrEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\CalendarDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\NewAppointment.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -553,6 +568,9 @@
     <Resource Include="Images\CanAnswer.png" />
     <Resource Include="Images\dispex.png" />
     <Resource Include="Images\floppy.ico" />
+    <Resource Include="Images\Calendar.png" />
+    <Resource Include="Images\Calendar_new.png" />
+    <Resource Include="Images\Calendar_small.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -666,6 +684,10 @@
     <ProjectReference Include="..\RequestService\RequestServiceImpl.csproj">
       <Project>{f8832d54-a8e8-44ea-a64b-26202d7b64c9}</Project>
       <Name>RequestServiceImpl</Name>
+    </ProjectReference>
+    <ProjectReference Include="RudiGrobler.Controls\RudiGrobler.Controls.csproj">
+      <Project>{73ca44ce-7dc1-4edd-8f32-303d51e09911}</Project>
+      <Name>RudiGrobler.Controls</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

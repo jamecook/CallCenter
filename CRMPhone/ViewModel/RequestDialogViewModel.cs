@@ -8,6 +8,7 @@ using CRMPhone.Annotations;
 using CRMPhone.Dialogs;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
+using RudiGrobler.Calendar.Common;
 
 namespace CRMPhone.ViewModel
 {
@@ -179,10 +180,13 @@ namespace CRMPhone.ViewModel
             {
                 var house = _requestService.GetHouseById(houseId.Value);
                 CommissioningDate = house.CommissioningDate;
+                ElevatorCount = house.ElevatorCount;
+                ServiceCompany = house.ServiceCompanyName;
             }
             else
             {
                 CommissioningDate = null;
+                ElevatorCount = null;
             }
 
             OnPropertyChanged(nameof(FlatList));
@@ -239,6 +243,18 @@ namespace CRMPhone.ViewModel
         {
             get { return _commissioningDate; }
             set { _commissioningDate = value; OnPropertyChanged(nameof(CommissioningDate)); }
+        }
+
+        public string ServiceCompany
+        {
+            get { return _serviceCompany; }
+            set { _serviceCompany = value; OnPropertyChanged(nameof(ServiceCompany)); }
+        }
+
+        public int? ElevatorCount
+        {
+            get { return _elevatorCount; }
+            set { _elevatorCount = value; OnPropertyChanged(nameof(ElevatorCount));}
         }
 
         public FlatDto SelectedFlat
@@ -441,6 +457,43 @@ namespace CRMPhone.ViewModel
         public ICommand RatingCommand { get { return _ratingCommand ?? (_ratingCommand = new RelayCommand(AddRating)); } }
         private ICommand _saveDescCommand;
         public ICommand SaveDescCommand { get { return _saveDescCommand ?? (_saveDescCommand = new RelayCommand(SaveDesc)); } }
+        private ICommand _openCalendarCommand;
+        public ICommand OpenCalendarCommand { get { return _openCalendarCommand ?? (_openCalendarCommand = new RelayCommand(OpenCalendar)); } }
+
+        
+
+        private void OpenCalendar(object sender)
+        {
+            if (!(sender is RequestItemViewModel))
+                return;
+            var requestModel = sender as RequestItemViewModel;
+            var model = new CalendarDialogViewModel(_requestService,2);
+            if (requestModel.SelectedExecuter == null)
+            {
+                MessageBox.Show(_view, "Необходимо выбрать исполнителя!");
+                return;
+            }
+            var sched = _requestService.GetScheduleTasks(requestModel.SelectedExecuter.Id, DateTime.Now.Date,
+                DateTime.Now.Date.AddDays(14));
+            var app = sched.Select(s => new Appointment()
+            {
+                Id = s.Id,
+                RequestId = s.RequestId,
+                Subject = string.Format($"{0}", s.RequestId),
+                StartTime = s.FromDate,
+                EndTime = s.ToDate,
+                WorkerInfo = s.Worker.FullName
+            });
+            model.ScheduleTaskList = new ObservableCollection<Appointment>(app);
+            var view = new CalendarDialog(model);
+            view.DataContext = model;
+            model.SetView(view);
+            view.ShowDialog();
+            var t = model;
+            requestModel.SelectedAppointment = model.ScheduleTaskList.LastOrDefault(s => s.Id == 0);
+
+        }
+
         private ICommand _changeAlertTimeCommand;
         public ICommand ChangeAlertTimeCommand { get { return _changeAlertTimeCommand ?? (_changeAlertTimeCommand = new RelayCommand(ChangeAlertTime)); } }
 
@@ -650,12 +703,15 @@ namespace CRMPhone.ViewModel
             {
                 _callUniqueId = _requestService.GetActiveCallUniqueId();
             }
-            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.SelectedCompany.Id, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id);
+            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id);
             if (!request.HasValue)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");
                 return;
             }
+            //Делаем назначение в расписании
+            _requestService.AddScheduleTask(requestModel.SelectedExecuter.Id,request.Value,requestModel.SelectedAppointment.StartTime, requestModel.SelectedAppointment.EndTime,null);
+
             var smsSettings = _requestService.GetSmsSettingsForServiceCompany(requestModel.SelectedCompany.Id);
             if (smsSettings.SendToClient && ContactList.Any(c => c.IsMain) && requestModel.SelectedParentService.CanSendSms && requestModel.SelectedService.CanSendSms)
             {
@@ -692,6 +748,8 @@ namespace CRMPhone.ViewModel
         private bool _alertExists;
         private bool _canEditAddress;
         private DateTime? _commissioningDate;
+        private int? _elevatorCount;
+        private string _serviceCompany;
 
         public bool CanEditAddress
         {

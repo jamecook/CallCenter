@@ -104,6 +104,36 @@ namespace WebApi.Services
                 }
             }
         }
+        public static WorkerDto[] GetExecutersByWorkerId(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL CallCenter.DispexGetExecuters(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var workers = new List<WorkerDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            workers.Add(new WorkerDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                SurName = dataReader.GetString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                                SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return workers.ToArray();
+                }
+            }
+        }
         public static int[] GetAddressesId(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -569,6 +599,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 IsChargeable = dataReader.GetBoolean("is_chargeable"),
                                 ClientName = dataReader.GetNullableString("client_name"),
                                 CloseDate = dataReader.GetNullableDateTime("close_date"),
+                                DoneDate = dataReader.GetNullableDateTime("done_date"),
                                 GarantyId = dataReader.GetInt32("garanty"),
                             });
                         }
@@ -707,6 +738,27 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                         cmd.Parameters.AddWithValue("@WorkerId", workerId);
                         cmd.Parameters.AddWithValue("@RatingId", ratingId);
                         cmd.Parameters.AddWithValue("@Desc", description);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+        }
+        public static void SetExecuteDate(int workerId, int requestId, DateTime executeDate,string note )
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"CALL CallCenter.DispexSetExecuteDate(@WorkerId,@RequestId,@ExecuteDate,@Note);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                        cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
+                        cmd.Parameters.AddWithValue("@Note", note);
                         cmd.ExecuteNonQuery();
                     }
                     transaction.Commit();

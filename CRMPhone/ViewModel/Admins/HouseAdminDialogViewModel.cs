@@ -27,6 +27,8 @@ namespace CRMPhone.ViewModel.Admins
         private ObservableCollection<ServiceCompanyDto> _serviceCompanyList;
         private ServiceCompanyDto _selectedServiceCompany;
         private DateTime? _commissioningDate;
+        private int? _elevatorCount;
+        private bool _haveParking;
 
         public string StreetName
         {
@@ -76,6 +78,18 @@ namespace CRMPhone.ViewModel.Admins
             set { _flatsCount = value; OnPropertyChanged(nameof(FlatsCount));}
         }
 
+        public int? ElevatorCount
+        {
+            get { return _elevatorCount; }
+            set { _elevatorCount = value; OnPropertyChanged(nameof(ElevatorCount));}
+        }
+
+        public bool HaveParking
+        {
+            get { return _haveParking; }
+            set { _haveParking = value; OnPropertyChanged(nameof(HaveParking));}
+        }
+
         public DateTime? CommissioningDate
         {
             get { return _commissioningDate; }
@@ -98,6 +112,8 @@ namespace CRMPhone.ViewModel.Admins
                   EntranceCount = house.EntranceCount;
                   FlatsCount = house.FlatCount;
                   FloorCount = house.FloorCount;
+                  HaveParking = house.HaveParking;
+                  ElevatorCount = house.ElevatorCount;
                   CommissioningDate = house.CommissioningDate;
                   SelectedServiceCompany = ServiceCompanyList.FirstOrDefault(s => s.Id == house.ServiceCompanyId);
               }
@@ -126,7 +142,7 @@ namespace CRMPhone.ViewModel.Admins
                     return;
                 }
             }
-            _requestService.SaveHouse(_houseId, _streetId, BuildingNumber, corpus, SelectedServiceCompany.Id, EntranceCount, FloorCount, FlatsCount, CommissioningDate);
+            _requestService.SaveHouse(_houseId, _streetId, BuildingNumber, corpus, SelectedServiceCompany.Id, EntranceCount, FloorCount, FlatsCount, ElevatorCount, HaveParking, CommissioningDate);
             _view.DialogResult = true;
         }
 

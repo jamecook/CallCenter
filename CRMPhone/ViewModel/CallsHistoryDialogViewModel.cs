@@ -95,6 +95,8 @@ namespace CRMPhone.ViewModel
             if (!request.MasterId.HasValue)
                 return;
             var worker = _requestService.GetWorkerById(request.MasterId.Value);
+            if(!worker.SendSms)
+                return;
             string phones = "";
             if (request.Contacts != null && request.Contacts.Length > 0)
                 phones = request.Contacts.OrderBy(c=>c.IsMain).Select(c =>
@@ -130,6 +132,8 @@ namespace CRMPhone.ViewModel
             if (!request.ExecuterId.HasValue)
                 return;
             var worker = _requestService.GetWorkerById(request.ExecuterId.Value);
+            if (!worker.SendSms)
+                return;
             string phones = "";
             if (request.Contacts != null && request.Contacts.Length > 0)
                 phones = request.Contacts.OrderBy(c=>c.IsMain).Select(c =>

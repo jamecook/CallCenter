@@ -26,7 +26,7 @@
             <WrapPanel HorizontalAlignment="Center">
             <TextBlock Margin="3" VerticalAlignment="Center" Text="Улица:"/>
                 <ComboBox Margin="3" Width="120" VerticalAlignment="Center" ItemsSource="{Binding FilterStreetList}" IsEditable="True"
-                      IsReadOnly="True" SelectionChanged="CbOnSelectionChanged" DropDownClosed="CbOnDropDownClosed" Text="{Binding StreetText}">
+                      IsReadOnly="False" TextInput ="UIElement_OnTextInput" SelectionChanged="CbOnSelectionChanged" DropDownClosed="CbOnDropDownClosed" Text="{Binding StreetText}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" Margin="2">

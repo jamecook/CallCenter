@@ -99,6 +99,7 @@
     <Compile Include="Dto\RingUpImportDto.cs" />
     <Compile Include="Dto\RingUpInfoDto.cs" />
     <Compile Include="Dto\RoleDto.cs" />
+    <Compile Include="Dto\ScheduleTaskDto.cs" />
     <Compile Include="Dto\ServiceCompanyDto.cs" />
     <Compile Include="Dto\ServiceDto.cs" />
     <Compile Include="Dto\SipDto.cs" />

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using WebApi.Models;
+using WebApi.Models.Parameters;
 using WebApi.Services;
 
 namespace WebApi.Controllers
@@ -138,6 +140,14 @@ namespace WebApi.Controllers
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
             return RequestService.GetWorkersByWorkerId(workerId);
+        }
+
+        [HttpGet("executers")]
+        public IEnumerable<WorkerDto> GetExecuters()
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetExecutersByWorkerId(workerId);
         }
         [HttpGet("statuses")]
         public IEnumerable<StatusDto> GetStatuses()
@@ -288,6 +298,17 @@ namespace WebApi.Controllers
             if (int.TryParse(workerIdStr, out int workerId))
             {
                 RequestService.SetRating(workerId, id, ratingId, description);
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpPut("set_execute_date/{id}")]
+        public IActionResult SetExecuteDate(int id,[FromBody]SetExecuteDateParams param)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if (int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.SetExecuteDate(workerId, id, param.ExecuteDate, param.Note);
                 return Ok();
             }
             return BadRequest();

@@ -94,5 +94,10 @@ namespace CRMPhone.Controls
                 {
                 }
         }
+
+        private void UIElement_OnTextInput(object sender, TextCompositionEventArgs e)
+        {
+            var t = e.Text;
+        }
     }
 }
