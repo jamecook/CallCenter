@@ -81,7 +81,7 @@ namespace RudiGrobler.Calendar.Common
         
         public override string ToString()
         {
-            return string.Format("{0}-{1}",StartTime,EndTime);
+            return string.Format("{0} {1}-{2}",RequestId==null?"Новая заявка.":"Заявка №"+RequestId+".", StartTime.ToString("HH:mm"),EndTime.ToString("HH:mm"));
         }
     }
 }

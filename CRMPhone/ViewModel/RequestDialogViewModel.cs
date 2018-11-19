@@ -709,10 +709,9 @@ namespace CRMPhone.ViewModel
                 MessageBox.Show("Произошла непредвиденная ошибка!");
                 return;
             }
-            //Делаем назначение в расписании
-            _requestService.AddScheduleTask(requestModel.SelectedExecuter.Id,request.Value,requestModel.SelectedAppointment.StartTime, requestModel.SelectedAppointment.EndTime,null);
-
-            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(requestModel.SelectedCompany.Id);
+            //Надо УК брать из сохраненной заявки
+            var requestDto = _requestService.GetRequest(request.Value);
+            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(requestDto.ServiceCompanyId);
             if (smsSettings.SendToClient && ContactList.Any(c => c.IsMain) && requestModel.SelectedParentService.CanSendSms && requestModel.SelectedService.CanSendSms)
             {
                 var mainClient = ContactList.FirstOrDefault(c => c.IsMain);
@@ -734,6 +733,14 @@ namespace CRMPhone.ViewModel
             requestModel.RequestDate = newRequest.CreateTime;
             requestModel.RequestState = newRequest.State.Description;
             requestModel.Rating = newRequest.Rating;
+
+            //Делаем назначение в расписании
+            if (requestModel.SelectedExecuter != null && requestModel.SelectedAppointment != null)
+            {
+                _requestService.AddScheduleTask(requestModel.SelectedExecuter.Id, request.Value,
+                    requestModel.SelectedAppointment.StartTime, requestModel.SelectedAppointment.EndTime, null);
+            }
+
             MessageBox.Show($"Номер заявки №{request}", "Заявка", MessageBoxButton.OK);
 
         }

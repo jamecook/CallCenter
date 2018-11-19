@@ -43,6 +43,7 @@ namespace RequestServiceImpl.Dto
         public DateTime? ToTime { get; set; }
         public DateTime? AlertTime { get; set; }
         public string LastNote { get; set; }
+        public string ServiceCompany { get; set; }
 
 
         public string FullAddress

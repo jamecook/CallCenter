@@ -69,7 +69,7 @@ namespace RequestServiceImpl
                 using (var transaction = _dbConnection.BeginTransaction())
                 {
                     //Определяем УК по адресу
-                    var serviceCompanyId = 1;
+                    var serviceCompanyId = (int?)null;
                     using (var scCmd = new MySqlCommand(@"SELECT h.service_company_id FROM CallCenter.Addresses a
  join CallCenter.Houses h on h.id = a.house_id
  where a.id = @AddressId", _dbConnection))
@@ -80,9 +80,7 @@ namespace RequestServiceImpl
                         {
                             if (dataReader.Read())
                             {
-                                var sId = dataReader.GetNullableInt("service_company_id");
-                                if (sId != null)
-                                    serviceCompanyId = sId.Value;
+                                serviceCompanyId = dataReader.GetNullableInt("service_company_id");
                             }
                             dataReader.Close();
                         }
@@ -859,7 +857,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     min(rcalls.uniqueID) recordId, R.alert_time,
     (SELECT note FROM CallCenter.RequestNoteHistory rnh where rnh.request_id = R.id
     order by operation_date desc limit 1) last_note,
-    R.executer_id,execw.sur_name exec_sur_name, execw.first_name exec_first_name, execw.patr_name exec_patr_name,R.term_of_execution
+    R.executer_id,execw.sur_name exec_sur_name, execw.first_name exec_first_name, execw.patr_name exec_patr_name,R.term_of_execution,
+    sc.name service_company_name
 
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
@@ -878,6 +877,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     left join CallCenter.Workers execw on execw.id = R.executer_id
     left join CallCenter.RequestContacts rc on rc.request_id = R.id
     left join CallCenter.ClientPhones cp on cp.id = rc.clientPhone_id
+    left join CallCenter.ServiceCompanies sc on sc.id= R.service_company_id
     join CallCenter.Users u on u.id = create_user_id
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
     left join CallCenter.RequestCalls rcalls on rcalls.request_id = R.id";
@@ -1013,6 +1013,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             AlertTime = dataReader.GetNullableDateTime("alert_time"),
                             MainFio = dataReader.GetNullableString("clinet_fio"),
                             LastNote = dataReader.GetNullableString("last_note"),
+                            ServiceCompany = dataReader.GetNullableString("service_company_name"),
                         });
                     }
                     dataReader.Close();
@@ -1616,7 +1617,7 @@ where wh.worker_id = {workerId}";
     FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
-    where w.enabled = 1 and w.id = @WorkerId";
+    where w.id = @WorkerId";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@WorkerId", workerId);

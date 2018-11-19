@@ -251,6 +251,7 @@ namespace CRMPhone.ViewModel
                                         new XElement("Дом", request.Building),
                                         new XElement("Корпус", request.Corpus),
                                         new XElement("Квартира", request.Flat),
+                                        new XElement("УК", request.ServiceCompany),
                                         new XElement("Телефоны", request.ContactPhones),
                                         new XElement("ФИО", request.MainFio),
                                         new XElement("Услуга", request.ParentService),
@@ -267,7 +268,7 @@ namespace CRMPhone.ViewModel
                                         new XElement("Оценка", request.Rating),
                                         new XElement("Комментарий_К_Оценке", request.RatingDescription),
                                         new XElement("Повторная", request.IsRetry?"Да":""),
-                                        new XElement("Последний_Комментарий_исполнителя", request.LastNote),
+                                        new XElement("Комментарий_исполнителя", request.LastNote),
                                     }));
                         }
                         var saver = new FileStream(fileName, FileMode.Create);
@@ -738,8 +739,34 @@ namespace CRMPhone.ViewModel
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
             requestModel.RequestState = request.State.Description;
-            requestModel.SelectedMaster = request.MasterId.HasValue? _requestService.GetWorkerById(request.MasterId.Value):null;
-            requestModel.SelectedExecuter = request.ExecuterId.HasValue ? _requestService.GetWorkerById(request.ExecuterId.Value) : null;
+
+            var master = request.MasterId.HasValue ? _requestService.GetWorkerById(request.MasterId.Value) : null;
+            if (master != null)
+            {
+                if (requestModel.MasterList.All(e => e.Id != master.Id))
+                {
+                    requestModel.MasterList.Add(master);
+                }
+                requestModel.SelectedMaster = requestModel.MasterList.SingleOrDefault(i => i.Id == master.Id);
+            }
+            else
+            {
+                requestModel.SelectedMaster = null;
+            }
+
+            var executer = request.ExecuterId.HasValue ? _requestService.GetWorkerById(request.ExecuterId.Value) : null;
+            if (executer != null)
+            {
+                if (requestModel.ExecuterList.All(e => e.Id != executer.Id))
+                {
+                    requestModel.ExecuterList.Add(executer);
+                }
+                requestModel.SelectedExecuter = requestModel.ExecuterList.SingleOrDefault(i => i.Id == executer.Id);
+            }
+            else
+            {
+                requestModel.SelectedExecuter = null;
+            }
             requestModel.SelectedEquipment = requestModel.EquipmentList.SingleOrDefault(e => e.Id == request.Equipment?.Id);
             requestModel.RequestId = request.Id;
             requestModel.Rating = request.Rating;
