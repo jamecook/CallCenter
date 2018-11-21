@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 
 namespace RudiGrobler.Controls
 {
-    public sealed class CalendarAppointmentItem : ButtonBase
+    public class CalendarAppointmentItem : ButtonBase
     {
         public const string StateNormal = "Normal";
         public const string StateMouseOver = "MouseOver";
@@ -32,9 +32,42 @@ namespace RudiGrobler.Controls
             var tt = this;
             base.OnClick();
 
-           // RaiseAddAppointmentEvent();
+            RaiseEditAppointmentEvent();
         }
 
+        #region EditAppointment
+
+        private void RaiseEditAppointmentEvent()
+        {
+            RoutedEventArgs e = new RoutedEventArgs();
+            e.RoutedEvent = EditAppointmentEvent;
+            e.Source = this;
+
+            OnEditAppointment(e);
+        }
+
+        public static readonly RoutedEvent EditAppointmentEvent =
+            EventManager.RegisterRoutedEvent("EditAppointment", RoutingStrategy.Bubble,
+            typeof(RoutedEventArgs), typeof(CalendarAppointmentItem));
+
+        public event RoutedEventHandler EditAppointment
+        {
+            add
+            {
+                AddHandler(EditAppointmentEvent, value);
+            }
+            remove
+            {
+                RemoveHandler(EditAppointmentEvent, value);
+            }
+        }
+
+        protected virtual void OnEditAppointment(RoutedEventArgs e)
+        {
+            RaiseEvent(e);
+        }
+
+        #endregion
         #region StartTime/EndTime
 
         public static readonly DependencyProperty StartTimeProperty =

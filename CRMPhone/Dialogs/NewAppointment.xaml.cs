@@ -61,7 +61,7 @@ namespace RudiGrobler.Samples.Calendar
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Close();
+            DialogResult = true;
         }
     }
 }

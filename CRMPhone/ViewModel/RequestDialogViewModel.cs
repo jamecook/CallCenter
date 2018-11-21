@@ -77,6 +77,15 @@ namespace CRMPhone.ViewModel
             requestModel.IsImmediate = request.IsImmediate;
             requestModel.IsBadWork = request.IsBadWork;
             requestModel.IsRetry = request.IsRetry;
+            var sched = _requestService.GetScheduleTaskByRequestId(request.Id);
+            requestModel.SelectedAppointment = sched != null ? new Appointment()
+            {
+                Id = sched.Id,
+                RequestId = sched.RequestId,
+                StartTime = sched.FromDate,
+                EndTime = sched.ToDate,
+            } : null;
+            requestModel.OpenAppointment = requestModel.SelectedAppointment;
             //requestModel.Gatanty = request.Garanty;
             requestModel.SelectedGaranty = requestModel.GarantyList.FirstOrDefault(g => g.Id == request.GarantyId);
 
@@ -467,13 +476,13 @@ namespace CRMPhone.ViewModel
             if (!(sender is RequestItemViewModel))
                 return;
             var requestModel = sender as RequestItemViewModel;
-            var model = new CalendarDialogViewModel(_requestService,2);
+            var model = new CalendarDialogViewModel(_requestService,requestModel.RequestId);
             if (requestModel.SelectedExecuter == null)
             {
                 MessageBox.Show(_view, "Необходимо выбрать исполнителя!");
                 return;
             }
-            var sched = _requestService.GetScheduleTasks(requestModel.SelectedExecuter.Id, DateTime.Now.Date,
+            var sched = _requestService.GetScheduleTasks(requestModel.SelectedExecuter.Id, DateTime.Now.Date.AddDays(-7),
                 DateTime.Now.Date.AddDays(14));
             var app = sched.Select(s => new Appointment()
             {
@@ -695,6 +704,16 @@ namespace CRMPhone.ViewModel
             {
                 _requestService.EditRequest(requestModel.RequestId.Value, requestModel.SelectedService.Id,
                     requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork,requestModel.SelectedGaranty?.Id??0, requestModel.IsRetry, requestModel.AlertTime, requestModel.TermOfExecution);
+                //Делаем назначение в расписании
+                if (requestModel.SelectedExecuter != null && requestModel.SelectedAppointment != null && requestModel.SelectedAppointment.RequestId == null)
+                {
+                    if (requestModel.OpenAppointment != null && requestModel.OpenAppointment.RequestId != null)
+                    {
+                        _requestService.DeleteScheduleTask(requestModel.OpenAppointment.Id);
+                    }
+                    _requestService.AddScheduleTask(requestModel.SelectedExecuter.Id, requestModel.RequestId.Value,
+                        requestModel.SelectedAppointment.StartTime, requestModel.SelectedAppointment.EndTime, null);
+                }
                 MessageBox.Show($"Данные успешно сохранены!", "Заявка", MessageBoxButton.OK);
                 return;
             }

@@ -1429,7 +1429,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         {
             var query = @"SELECT s.id,w.id worker_id,w.sur_name,w.first_name,w.patr_name,s.request_id,s.from_date,s.to_date,s.event_description FROM CallCenter.ScheduleTasks s
 join CallCenter.Workers w on s.worker_id = w.id
-where w.id = @WorkerId and s.from_date between @FromDate and @ToDate;";
+where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted = 0;";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1462,6 +1462,41 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate;";
                 return items;
             }
         }
+        public ScheduleTaskDto GetScheduleTaskByRequestId(int requestId)
+        {
+            ScheduleTaskDto result = null;
+            var query = @"SELECT s.id,w.id worker_id,w.sur_name,w.first_name,w.patr_name,s.request_id,s.from_date,s.to_date,s.event_description FROM CallCenter.ScheduleTasks s
+join CallCenter.Workers w on s.worker_id = w.id
+where s.request_id = @RequestId and deleted = 0;";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+                
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if(dataReader.Read())
+                    {
+                        result = new ScheduleTaskDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            RequestId = dataReader.GetNullableInt("request_id"),
+                            Worker = new WorkerDto()
+                            {
+                                Id = dataReader.GetInt32("worker_id"),
+                            SurName = dataReader.GetString("sur_name"),
+                            FirstName = dataReader.GetNullableString("first_name"),
+                            PatrName = dataReader.GetNullableString("patr_name"),
+},
+                            FromDate = dataReader.GetDateTime("from_date"),
+                            ToDate = dataReader.GetDateTime("to_date"),
+                            EventDescription = dataReader.GetNullableString("event_description")
+                        };
+                    }
+                    dataReader.Close();
+                }
+                return result;
+            }
+        }
 
         public void AddScheduleTask(int workerId, int? requestId, DateTime fromDate, DateTime toDate, string eventDescription)
         {
@@ -1479,6 +1514,28 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate;";
                         cmd.Parameters.AddWithValue("@FromDate", fromDate);
                         cmd.Parameters.AddWithValue("@ToDate", toDate);
                         cmd.Parameters.AddWithValue("@Desc", eventDescription);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+            catch (Exception exc)
+            {
+                _logger.Error(exc);
+                throw;
+            }
+        }
+        public void DeleteScheduleTask(int sheduleId)
+        {
+            try
+            {
+                using (var transaction = _dbConnection.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"update CallCenter.ScheduleTasks set deleted = 1 where id = @Id;", _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", sheduleId);
                         cmd.ExecuteNonQuery();
                     }
                     transaction.Commit();

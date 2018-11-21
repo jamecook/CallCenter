@@ -16,6 +16,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Win32;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
+using RudiGrobler.Calendar.Common;
 using Stimulsoft.Report;
 
 namespace CRMPhone.ViewModel
@@ -739,11 +740,19 @@ namespace CRMPhone.ViewModel
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
             requestModel.RequestState = request.State.Description;
-
+            var sched = _requestService.GetScheduleTaskByRequestId(request.Id);
+            requestModel.SelectedAppointment = sched!=null?new Appointment()
+            {
+                Id = sched.Id,
+                RequestId = sched.RequestId,
+                StartTime = sched.FromDate,
+                EndTime = sched.ToDate,
+            }: null;
+            requestModel.OpenAppointment = requestModel.SelectedAppointment;
             var master = request.MasterId.HasValue ? _requestService.GetWorkerById(request.MasterId.Value) : null;
             if (master != null)
             {
-                if (requestModel.MasterList.All(e => e.Id != master.Id))
+                if (requestModel.MasterList.Count == 0 || requestModel.MasterList.All(e => e.Id != master.Id))
                 {
                     requestModel.MasterList.Add(master);
                 }

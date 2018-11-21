@@ -23,7 +23,7 @@ namespace CRMPhone.Dialogs
     /// </summary>
     public partial class CalendarDialog : Window
     {
-        ObservableCollection<Appointment> appointments;// = new ObservableCollection<Appointment>();
+        ObservableCollection<Appointment> appointments;
         private CalendarDialogViewModel _model;
         public CalendarDialog(CalendarDialogViewModel model)
         {
@@ -44,18 +44,41 @@ namespace CRMPhone.Dialogs
                 NewAppointment napp = new NewAppointment();
                 napp.BuildTimeComboBox(appointment.StartTime, appointment.EndTime);
                 napp.DataContext = appointment;
-                napp.ShowDialog();
-
-                appointment.StartTime = napp.ComposeStartTime();
-                appointment.EndTime = napp.ComposeEndTime();
-
-                appointments.Add(appointment);
+                if (napp.ShowDialog() == true)
+                {
+                    appointment.StartTime = napp.ComposeStartTime();
+                    appointment.EndTime = napp.ComposeEndTime();
+                    var toRemove = appointments.Where(a => a.RequestId == null).ToList();
+                    foreach (var app in toRemove)
+                    {
+                        appointments.Remove(app);
+                    }
+                    appointments.Add(appointment);
+                }
             }
         }
 
         private void On_Loaded(object sender, RoutedEventArgs e)
         {
             calendar.Appointments = appointments;
+        }
+
+        private void Calendar_OnEditAppointment(object sender, RoutedEventArgs e)
+        {
+            return;
+            CalendarAppointmentItem item = e.OriginalSource as CalendarAppointmentItem;
+            if (item != null)
+            {
+                var element = item.Content as Appointment;
+                NewAppointment napp = new NewAppointment();
+                napp.BuildTimeComboBox(element.StartTime, element.EndTime);
+                napp.DataContext = element;
+                if (napp.ShowDialog() == true)
+                {
+                    element.StartTime = napp.ComposeStartTime();
+                    element.EndTime = napp.ComposeEndTime();
+                }
+            }
         }
     }
 }

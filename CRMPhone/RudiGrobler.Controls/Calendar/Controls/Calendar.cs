@@ -108,6 +108,24 @@ namespace RudiGrobler.Controls
         }
 
         #endregion
+        #region EditAppointment
+
+        public static readonly RoutedEvent EditAppointmentEvent =
+            CalendarAppointmentItem.EditAppointmentEvent.AddOwner(typeof(CalendarDay));
+
+        public event RoutedEventHandler EditAppointment
+        {
+            add
+            {
+                AddHandler(EditAppointmentEvent, value);
+            }
+            remove
+            {
+                RemoveHandler(EditAppointmentEvent, value);
+            }
+        }
+
+        #endregion
 
         #region Appointments
 

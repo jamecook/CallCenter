@@ -17,7 +17,7 @@
         </Style>
     </Window.Resources>
     <Grid>
-        <controls:Calendar x:Name="calendar" Appointments="{Binding ScheduleTasks}"  AddAppointment="Calendar_AddAppointment">
+        <controls:Calendar x:Name="calendar" Appointments="{Binding ScheduleTasks}"  AddAppointment="Calendar_AddAppointment" EditAppointment="Calendar_OnEditAppointment">
         </controls:Calendar>
     </Grid>
     

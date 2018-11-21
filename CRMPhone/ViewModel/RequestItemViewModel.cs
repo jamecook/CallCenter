@@ -72,6 +72,8 @@ namespace CRMPhone.ViewModel
         }
 
         private Appointment _selectedAppointment;
+        public Appointment OpenAppointment { get; set; }
+
         public Appointment SelectedAppointment
         {
             get { return _selectedAppointment; }
@@ -186,13 +188,13 @@ namespace CRMPhone.ViewModel
         private void UpdateMastets()
         {
             var selectedMaster = SelectedMaster?.Id;
-            //Какой-то магический кастыль. Иногда Clear не очищает список, а делает первый и единственный элемент = null
+            //Какой - то магический кастыль. Иногда Clear не очищает список, а делает первый и единственный элемент = null
             var i = 0;
             do
             {
                 MasterList.Clear();
                 i++;
-            } while (MasterList.Count>0 && i<10);
+            } while (MasterList.Count > 0 && i < 10);
             if (_showAllMasters)
             {
                 foreach (var master in _requestService.GetMasters(null))
@@ -291,7 +293,7 @@ namespace CRMPhone.ViewModel
         {
             get { return _selectedMaster; }
             set { _selectedMaster = value;
-                if (!MasterList.Contains(_selectedMaster))
+                if (value!= null && !MasterList.Contains(_selectedMaster))
                 {
                     MasterList.Add(_selectedMaster);
                 }
