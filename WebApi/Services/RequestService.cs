@@ -1032,5 +1032,46 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 }
             }
         }
+
+        public static ScheduleTaskDto[] GetScheduleTask(int currentWorkerId, int? workerId, DateTime fromDate,DateTime toDate)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.DispexGetScheduleTask(@CurrentWorkerId,@WorkerId,@FromDate,@ToDate)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurrentWorkerId", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate);
+
+                    var taskDtos = new List<ScheduleTaskDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            taskDtos.Add(new ScheduleTaskDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                RequestId = dataReader.GetInt32("request_id"),
+                                FromDate = dataReader.GetDateTime("from_date"),
+                                ToDate = dataReader.GetDateTime("to_date"),
+                                Worker = new ScheduleWorkerDto
+                                {
+                                    Id = dataReader.GetInt32("worker_id"),
+                                    SurName = dataReader.GetString("sur_name"),
+                                    FirstName = dataReader.GetString("first_name"),
+                                    PatrName = dataReader.GetString("patr_name"),
+                                    Phone = dataReader.GetString("phone"),
+                                }
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return taskDtos.ToArray();
+                }
+            }
+        }
+
     }
 }

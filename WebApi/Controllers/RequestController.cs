@@ -114,6 +114,15 @@ namespace WebApi.Controllers
                 garanty ?? false, onlyRetry ?? false,chargeable ?? false, clientPhone);
         }
 
+        [HttpGet("get_tasks")]
+        public IEnumerable<ScheduleTaskDto> GetTasks([FromQuery]int? workerId,
+            [FromQuery] DateTime fromDate,[FromQuery] DateTime toDate)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int currentWorkerId);
+            return RequestService.GetScheduleTask(currentWorkerId,workerId,fromDate,toDate);
+        }
+
         [HttpGet("get_pdf")]
         public byte[] GetPdf([ModelBinder(typeof(CommaDelimitedArrayModelBinder))] int[] requestIds)
 
