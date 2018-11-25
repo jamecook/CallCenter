@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
+using CRMPhone.Dialogs.Admins;
 using RequestServiceImpl.Dto;
 
 namespace CRMPhone.ViewModel.Admins
@@ -15,6 +16,7 @@ namespace CRMPhone.ViewModel.Admins
         private RequestServiceImpl.RequestService _requestService;
         private int? _workerId;
         private ICommand _saveCommand;
+        private ICommand _addressesCommand;
         private string _surName;
         private string _firstName;
         private string _patrName;
@@ -137,6 +139,14 @@ namespace CRMPhone.ViewModel.Admins
             get { return _isDispetcher; }
             set { _isDispetcher = value; OnPropertyChanged(nameof(IsDispetcher));}
         }
+        public bool CanCreateRequest { get; set; }
+        public bool ShowAllRequest { get; set; }
+        public bool CanCloseRequest { get; set; }
+        public bool CanSetRating { get; set; }
+        public bool CanShowStatistic { get; set; }
+        public bool CanChangeExecutor { get; set; }
+        public bool ShowOnlyGaranty { get; set; }
+        public bool FilterByHouses { get; set; }
 
         public bool SendSms
         {
@@ -168,6 +178,16 @@ namespace CRMPhone.ViewModel.Admins
                 IsExecuter = worker.IsExecuter;
                 IsDispetcher = worker.IsDispetcher;
                 SendSms = worker.SendSms;
+
+                CanSetRating = worker.CanSetRating;
+                CanChangeExecutor = worker.CanChangeExecutor;
+                CanCreateRequest = worker.CanCreateRequest;
+                ShowAllRequest = worker.ShowAllRequest;
+                CanCloseRequest = worker.CanCloseRequest;
+                CanShowStatistic = worker.CanShowStatistic;
+                ShowOnlyGaranty = worker.ShowOnlyGaranty;
+                FilterByHouses = worker.FilterByHouses;
+
                 SelectedServiceCompany = ServiceCompanyList.SingleOrDefault(s => s.Id == worker.ServiceCompanyId);
                 SelectedSpeciality = SpecialityList.SingleOrDefault(s => s.Id == worker.SpecialityId);
                 var selectParentWorkerId = worker.ParentWorkerId ?? 0;
@@ -180,17 +200,35 @@ namespace CRMPhone.ViewModel.Admins
             _view = view;
         }
         public ICommand SaveCommand { get { return _saveCommand ?? (_saveCommand = new RelayCommand(Save)); } }
+        public ICommand AddressesCommand { get { return _addressesCommand ?? (_addressesCommand = new RelayCommand(AddressesBinding)); } }
+
+        private void AddressesBinding(object obj)
+        {
+            if (!_workerId.HasValue)
+            {
+                MessageBox.Show(_view, "Адреса можно привязывать только предварительно сохранив исполнителя!(Сохраните, закройте и войдите повторно в это окно)");
+                return;
+            }
+            var model = new BindAddressToWorkerDialogViewModel(_requestService,_workerId.Value);
+            var view = new BindAddressToWorkerDialog();
+            view.DataContext = model;
+            view.Owner = _view;
+            model.SetView(view);
+            view.ShowDialog();
+        }
 
         private void Save(object sender)
         {
             if (SelectedServiceCompany != null && !string.IsNullOrEmpty(SurName) && SelectedSpeciality != null)
             {
-                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id, CanAssign, IsMaster, IsExecuter, IsDispetcher, SendSms, Login, Password, (SelectedParentWorker!=null && SelectedParentWorker.Id>0)? SelectedParentWorker.Id :(int?) null);
+                _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id,CanAssign,
+                    IsMaster, IsExecuter, IsDispetcher, SendSms, Login, Password, (SelectedParentWorker!=null && SelectedParentWorker.Id>0)? SelectedParentWorker.Id :(int?) null,
+                     CanSetRating, CanCloseRequest, CanChangeExecutor, CanCreateRequest, CanShowStatistic, FilterByHouses, ShowAllRequest, ShowOnlyGaranty);
                 _view.DialogResult = true;
             }
             else
             {
-                MessageBox.Show("Необходимо заполнить УК и фамилию и специальность!");
+                MessageBox.Show("Необходимо заполнить УК, фамилию и специальность!");
             }
         }
 

@@ -23,7 +23,7 @@ namespace WebApi.Services
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand($"Call CallCenter.DispexLogin('{userName}','{password}')", conn)
+                using (var cmd = new MySqlCommand($"Call CallCenter.DispexLogin2('{userName}','{password}')", conn)
                 )
                 {
                     using (var dataReader = cmd.ExecuteReader())
@@ -34,16 +34,18 @@ namespace WebApi.Services
                             {
                                 UserId = dataReader.GetInt32("UserId"),
                                 Login = dataReader.GetNullableString("Login"),
-                                SurName = dataReader.GetNullableString("SurName"),
-                                FirstName = dataReader.GetNullableString("FirstName"),
-                                PatrName = dataReader.GetNullableString("PatrName"),
+                                SurName = dataReader.GetNullableString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
                                 WorkerId = dataReader.GetInt32("worker_id"),
                                 ServiceCompanyId = dataReader.GetInt32("service_company_id"),
                                 SpecialityId = dataReader.GetInt32("speciality_id"),
                                 CanCreateRequestInWeb = dataReader.GetBoolean("can_create_in_web"),
                                 CanCloseRequest = dataReader.GetBoolean("can_close_request"),
                                 CanSetRating = dataReader.GetBoolean("can_set_rating"),
-                                AllowStatistics = dataReader.GetBoolean("allow_statistics")
+                                AllowStatistics = dataReader.GetBoolean("allow_statistics"),
+                                CanChangeExecutors = dataReader.GetBoolean("can_change_executors"),
+                                ServiceCompanyFilter = dataReader.GetBoolean("show_all_request"),
                             };
                         }
                         dataReader.Close();
@@ -700,7 +702,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
         }
 
-        public static void AddNewNote(int requestId, string note, int userId)
+        public static void AddNewNote(int requestId, string note, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -709,11 +711,11 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"insert into CallCenter.RequestNoteHistory (request_id,operation_date,user_id,note)
- values(@RequestId,sysdate(),@UserId,@Note);", conn))
+                            new MySqlCommand(@"insert into CallCenter.RequestNoteHistory (request_id,operation_date,user_id,note,worker_id)
+ values(@RequestId,sysdate(),0,@Note,@WorkerId);", conn))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
-                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.Parameters.AddWithValue("@WorkerId", workerId);
                         cmd.Parameters.AddWithValue("@Note", note);
                         cmd.ExecuteNonQuery();
                     }
@@ -732,12 +734,31 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"CALL CallCenter.DispexSetRating(@WorkerId,@RequestId,@RatingId,@Desc);", conn))
+                            new MySqlCommand(@"CALL CallCenter.DispexSetRating2(@WorkerId,@RequestId,@RatingId,@Desc);", conn))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
                         cmd.Parameters.AddWithValue("@WorkerId", workerId);
                         cmd.Parameters.AddWithValue("@RatingId", ratingId);
                         cmd.Parameters.AddWithValue("@Desc", description);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+        }
+        public static void SetExecutor(int workerId, int requestId, int executorId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (var cmd =
+                            new MySqlCommand(@"CALL CallCenter.DispexSetExecutor(@WorkerId,@RequestId,@ExecutorId);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                        cmd.Parameters.AddWithValue("@ExecutorId", executorId);
                         cmd.ExecuteNonQuery();
                     }
                     transaction.Commit();
@@ -753,7 +774,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"CALL CallCenter.DispexSetExecuteDate(@WorkerId,@RequestId,@ExecuteDate,@Note);", conn))
+                            new MySqlCommand(@"CALL CallCenter.DispexSetExecuteDate2(@WorkerId,@RequestId,@ExecuteDate,@Note);", conn))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
                         cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -803,7 +824,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             {
                 conn.Open();
                 var query =
-                    "call CallCenter.DispexCreateRequest(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc,@IsChargeable,@ExecuteDate);";
+                    "call CallCenter.DispexCreateRequest2(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc,@IsChargeable,@ExecuteDate);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -825,16 +846,16 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
         }
 
-        public static void AttachFileToRequest(int userId, int requestId, string fileName, string generatedFileName)
+        public static void AttachFileToRequest(int workerId, int requestId, string fileName, string generatedFileName)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 using (var cmd =
-                        new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id)
- values(@RequestId,@Name,@FileName,sysdate(),@userId);", conn))
+                        new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id,worker_id)
+ values(@RequestId,@Name,@FileName,sysdate(),0,@WorkerId);", conn))
                 {
-                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
                     cmd.Parameters.AddWithValue("@RequestId", requestId);
                     cmd.Parameters.AddWithValue("@Name", fileName);
                     cmd.Parameters.AddWithValue("@FileName", generatedFileName);
@@ -922,7 +943,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             }
         }
 
-        public static void AddNewState(int requestId, int stateId, int userId)
+        public static void AddNewState(int requestId, int stateId, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -931,11 +952,11 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"insert into CallCenter.RequestStateHistory (request_id,operation_date,user_id,state_id) 
-    values(@RequestId,sysdate(),@UserId,@StatusId);", conn))
+                            new MySqlCommand(@"insert into CallCenter.RequestStateHistory (request_id,operation_date,user_id,state_id,worker_id) 
+    values(@RequestId,sysdate(),0,@StatusId,@WorkerId);", conn))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
-                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.Parameters.AddWithValue("@WorkerId", workerId);
                         cmd.Parameters.AddWithValue("@StatusId", stateId);
                         cmd.ExecuteNonQuery();
                     }
@@ -954,15 +975,15 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
 
         }
 
-        public static void SetGarantyState(int id, int newState, int type, string name, DateTime docDate, string fileName, int userId)
+        public static void SetGarantyState(int id, int newState, int type, string name, DateTime docDate, string fileName, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = "call CallCenter.DispexSetGarantyState(@UserId,@Id,@NewState,@TypeId,@Name,@DocDate,@FileName);";
+                var query = "call CallCenter.DispexSetGarantyState2(@WorkerId,@Id,@NewState,@TypeId,@Name,@DocDate,@FileName);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
-                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
                     cmd.Parameters.AddWithValue("@Id", id);
                     cmd.Parameters.AddWithValue("@NewState", newState);
                     cmd.Parameters.AddWithValue("@TypeId", type);

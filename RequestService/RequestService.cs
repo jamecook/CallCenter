@@ -1617,6 +1617,54 @@ where wh.worker_id = {workerId}";
                 return result;
             }
         }
+        public IList<HouseDto> GetBindedToWorkerHouse(int workerId)
+        {
+            var query = @"SELECT w.id binding_id,w.house_id,s.name,h.building,h.corps FROM CallCenter.WebWorkerHouses w
+join CallCenter.Houses h on h.id = w.house_id
+join CallCenter.Streets s on s.id = h.street_id
+where w.worker_id = @WorkerId";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                var result = new List<HouseDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        var house = new HouseDto()
+                        {
+                            Id = dataReader.GetInt32("house_id"),
+                            StreetName = dataReader.GetNullableString("name"),
+                            Building = dataReader.GetNullableString("building"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                        };
+                        result.Add(house);
+                    }
+                    dataReader.Close();
+                }
+                return result;
+            }
+        }
+        public void AddBindedToWorkerHouse(int workerId, int houseId)
+        {
+            using (var cmd = new MySqlCommand(@"insert into CallCenter.WebWorkerHouses(worker_id, house_id) 
+    values(@WorkerId,@HouseId);", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                cmd.Parameters.AddWithValue("@HouseId", houseId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void DeleteBindedToWorkerHouse(int workerId, int houseId)
+        {
+            using (var cmd = new MySqlCommand(@"delete from CallCenter.WebWorkerHouses where worker_id = @WorkerId and house_id = @HouseId;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                cmd.Parameters.AddWithValue("@HouseId", houseId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         public void DeleteHouseAndTypesByWorkerId(int recordId)
         {
             using (var cmd = new MySqlCommand(@"delete from CallCenter.WorkerHouseAndType where id = @recordId;", _dbConnection))
@@ -1670,7 +1718,9 @@ where wh.worker_id = {workerId}";
         {
             WorkerDto worker = null;
             var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,
-    w.can_assign,w.parent_worker_id,w.is_master,w.is_executer,w.is_dispetcher, sp.name speciality_name,send_sms,w.login,w.password
+    w.can_assign,w.parent_worker_id,w.is_master,w.is_executer,w.is_dispetcher, sp.name speciality_name,send_sms,w.login,w.password,
+    w.filter_by_houses,w.can_create_in_web,w.show_all_request,w.show_only_garanty,w.allow_statistics,w.can_set_rating,w.can_close_request,
+    w.can_change_executors
     FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
@@ -1701,6 +1751,14 @@ where wh.worker_id = {workerId}";
                             IsDispetcher = dataReader.GetBoolean("is_dispetcher"),
                             SendSms = dataReader.GetBoolean("send_sms"),
                             ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
+                            CanSetRating = dataReader.GetBoolean("can_set_rating"),
+                            CanCloseRequest = dataReader.GetBoolean("can_close_request"),
+                            CanChangeExecutor = dataReader.GetBoolean("can_change_executors"),
+                            CanCreateRequest = dataReader.GetBoolean("can_create_in_web"),
+                            CanShowStatistic = dataReader.GetBoolean("allow_statistics"),
+                            FilterByHouses = dataReader.GetBoolean("filter_by_houses"),
+                            ShowAllRequest = dataReader.GetBoolean("show_all_request"),
+                            ShowOnlyGaranty = dataReader.GetBoolean("show_only_garanty"),
                         };
                     }
                     dataReader.Close();
@@ -2911,12 +2969,17 @@ where C.Direction is not null";
             }
 
         }
-        public void SaveWorker(int? workerId, int serviceCompanyId,string surName,string firstName,string patrName,string phone,int specialityId,bool canAssign, bool isMaster, bool isExecuter, bool isDispetcher, bool sendSms,string login, string password, int? parentWorkerId)
+        public void  SaveWorker(int? workerId, int serviceCompanyId,string surName,string firstName,string patrName,string phone,int specialityId,bool canAssign, bool isMaster,
+            bool isExecuter, bool isDispetcher, bool sendSms,string login, string password, int? parentWorkerId, bool canSetRating, bool canCloseRequest,
+            bool canChangeExecutor, bool canCreateRequest, bool canShowStatistic, bool filterByHouses, bool showAllRequest, bool showOnlyGaranty)
         {
             if (workerId.HasValue)
             {
                 using (var cmd = new MySqlCommand(@"update CallCenter.Workers set sur_name = @surName,first_name = @firstName,patr_name = @patrName,phone = @phone,service_company_id = @serviceCompanyId, speciality_id = @specialityId, can_assign = @canAssign,
-is_master = @isMaster, is_executer = @IsExecuter, is_dispetcher = @IsDispetcher, send_sms = @SendSms,  parent_worker_id = @parentWorkerId, login = @Login, password = @Password where id = @ID;", _dbConnection))
+is_master = @isMaster, is_executer = @IsExecuter, is_dispetcher = @IsDispetcher, send_sms = @SendSms,  parent_worker_id = @parentWorkerId,
+login = @Login, password = @Password,can_set_rating = @CanSetRating,can_close_request = @CanCloseRequest,can_change_executors = @CanChangeExecutor,
+can_create_in_web = @CanCreateRequest, allow_statistics = @CanShowStatistic, filter_by_houses = @FilterByHouses,show_all_request = @ShowAllRequest,
+show_only_garanty = @ShowOnlyGaranty where id = @ID;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@ID", workerId.Value);
                     cmd.Parameters.AddWithValue("@surName", surName);
@@ -2933,14 +2996,26 @@ is_master = @isMaster, is_executer = @IsExecuter, is_dispetcher = @IsDispetcher,
                     cmd.Parameters.AddWithValue("@Password", password);
                     cmd.Parameters.AddWithValue("@SendSms", sendSms);
                     cmd.Parameters.AddWithValue("@parentWorkerId", parentWorkerId);
+                    cmd.Parameters.AddWithValue("@CanCreateRequest", canCreateRequest);
+                    cmd.Parameters.AddWithValue("@CanShowStatistic", canShowStatistic);
+                    cmd.Parameters.AddWithValue("@FilterByHouses", filterByHouses);
+                    cmd.Parameters.AddWithValue("@ShowAllRequest", showAllRequest);
+                    cmd.Parameters.AddWithValue("@CanSetRating", canSetRating);
+                    cmd.Parameters.AddWithValue("@CanCloseRequest", canCloseRequest);
+                    cmd.Parameters.AddWithValue("@CanChangeExecutor", canChangeExecutor);
+                    cmd.Parameters.AddWithValue("@ShowOnlyGaranty", showOnlyGaranty);
                     cmd.ExecuteNonQuery();
                 }
 
             }
             else
             {
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.Workers(sur_name,first_name,patr_name,phone,service_company_id,speciality_id,can_assign, parent_worker_id,is_master,is_executer, is_dispetcher, send_sms,login,password) 
-values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@canAssign,@parentWorkerId,@isMaster,@IsExecuter,@IsDispetcher,@SendSms,@Login,@Password);", _dbConnection))
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.Workers(sur_name,first_name,patr_name,phone,service_company_id,
+speciality_id,can_assign, parent_worker_id,is_master,is_executer, is_dispetcher, send_sms,login,password,can_set_rating,can_close_request,
+can_change_executors,can_create_in_web, allow_statistics,filter_by_houses, show_all_request, show_only_garanty) 
+values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@canAssign,@parentWorkerId,@isMaster,@IsExecuter,@IsDispetcher,
+@SendSms,@Login,@Password, @CanSetRating, @CanCloseRequest, @CanChangeExecutor, @CanCreateRequest, @CanShowStatistic, @FilterByHouses,
+@ShowAllRequest, @ShowOnlyGaranty);", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@surName", surName);
                     cmd.Parameters.AddWithValue("@firstName", firstName);
@@ -2956,6 +3031,14 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
                     cmd.Parameters.AddWithValue("@parentWorkerId", parentWorkerId);
                     cmd.Parameters.AddWithValue("@Login", login);
                     cmd.Parameters.AddWithValue("@Password", password);
+                    cmd.Parameters.AddWithValue("@CanCreateRequest", canCreateRequest);
+                    cmd.Parameters.AddWithValue("@CanShowStatistic", canShowStatistic);
+                    cmd.Parameters.AddWithValue("@FilterByHouses", filterByHouses);
+                    cmd.Parameters.AddWithValue("@ShowAllRequest", showAllRequest);
+                    cmd.Parameters.AddWithValue("@CanSetRating", canSetRating);
+                    cmd.Parameters.AddWithValue("@CanCloseRequest", canCloseRequest);
+                    cmd.Parameters.AddWithValue("@CanChangeExecutor", canChangeExecutor);
+                    cmd.Parameters.AddWithValue("@ShowOnlyGaranty", showOnlyGaranty);
                     cmd.ExecuteNonQuery();
                 }
             }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:admins="clr-namespace:CRMPhone.ViewModel.Admins"
         mc:Ignorable="d"
-        Title="Исполнитель" Height="390" Width="320" MinWidth ="320" MinHeight="390"
+        Title="Исполнитель" Height="490" Width="520" MinWidth ="520" MinHeight="490"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         d:DataContext="{d:DesignInstance admins:WorkerAdminDialogViewModel}">
@@ -71,19 +71,38 @@
                 </TextBox>
             </DockPanel>
             <StackPanel>
-            <DockPanel>
-                <CheckBox Margin="5" IsChecked="{Binding Path=IsMaster}">Мастер</CheckBox>
-                <CheckBox Margin="5" IsChecked="{Binding Path=IsExecuter}">Исполнитель</CheckBox>
-                <CheckBox Margin="5" IsChecked="{Binding Path=IsDispetcher}">Диспетчер</CheckBox>
-            </DockPanel>
-                <DockPanel>
-                    <CheckBox Margin="5" IsChecked="{Binding Path=SendSms}">Отпр. SMS</CheckBox>
-                    <CheckBox Margin="5" IsChecked="{Binding Path=CanAssign}">Выполняет заявки</CheckBox>
-                </DockPanel>
+                <Border BorderThickness="1" BorderBrush="Black">
+                    <DockPanel>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=IsMaster}">Мастер</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=IsExecuter}">Исполнитель</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=IsDispetcher}">Диспетчер</CheckBox>
+                    </DockPanel>
+                </Border>
+                <Border BorderThickness="1" BorderBrush="Black">
+                    <WrapPanel>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=CanCreateRequest}">Создание</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=ShowAllRequest}">Отображать Все</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=CanCloseRequest}">Может закрывать</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=CanSetRating}">Рейтинг</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=CanShowStatistic}">Статистика</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=CanChangeExecutor}">Смена исполнителя</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=ShowOnlyGaranty}">Только гарантия</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=FilterByHouses}">Список домов</CheckBox>
+                    </WrapPanel>
+                </Border>
+                <Border BorderThickness="1" BorderBrush="Black">
+
+                    <DockPanel>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=SendSms}">Отпр. SMS</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=CanAssign}">Выполняет заявки</CheckBox>
+                    </DockPanel>
+                </Border>
+
             </StackPanel>
         </StackPanel>
-        <StackPanel Grid.Row="2" HorizontalAlignment="Right">
+        <DockPanel Grid.Row="2" HorizontalAlignment="Right">
             <Button Margin="5" Width="120" Height="24" Command="{Binding Path=SaveCommand}">Сохранить</Button>
-        </StackPanel>
+            <Button Margin="5" Width="180" Height="24" Command="{Binding Path=AddressesCommand}">Адреса для доступа в Вебе</Button>
+        </DockPanel>
     </Grid>
 </Window>

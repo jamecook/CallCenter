@@ -20,5 +20,13 @@ namespace RequestServiceImpl.Dto
         public bool IsDispetcher { get; set; }
         public bool SendSms { get; set; }
         public int? ParentWorkerId { get; set; }
+        public bool CanCreateRequest { get; set; }
+        public bool ShowAllRequest { get; set; }
+        public bool CanCloseRequest { get; set; }
+        public bool CanSetRating { get; set; }
+        public bool CanShowStatistic { get; set; }
+        public bool CanChangeExecutor { get; set; }
+        public bool ShowOnlyGaranty { get; set; }
+        public bool FilterByHouses { get; set; }
     }
 }

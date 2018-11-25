@@ -14,6 +14,8 @@ namespace WebApi.Models
         public bool AllowStatistics { get; set; }
         public bool CanSetRating { get; set; }
         public bool CanCloseRequest { get; set; }
+        public bool CanChangeExecutors { get; set; }
+        public bool ServiceCompanyFilter { get; set; }
         public string FullName => SurName + " " + FirstName + " " + PatrName;
     }
 }

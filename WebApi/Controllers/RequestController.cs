@@ -267,9 +267,9 @@ namespace WebApi.Controllers
             {
                 await file.CopyToAsync(fileStream);
             }
-            var userIdStr = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            int.TryParse(userIdStr, out int userId);
-            RequestService.AttachFileToRequest(userId, id, file.FileName, fileName);
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            RequestService.AttachFileToRequest(workerId, id, file.FileName, fileName);
             return Ok();
         }
 
@@ -282,10 +282,10 @@ namespace WebApi.Controllers
         [HttpPut("status/{id}")]
         public void SetStatus(int id, [FromBody]int statusId)
         {
-            var userIdStr = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            if (int.TryParse(userIdStr, out int userId))
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if(int.TryParse(workerIdStr, out int workerId))
             {
-                RequestService.AddNewState(id,statusId, userId);
+                RequestService.AddNewState(id,statusId, workerId);
             }
         }
         [HttpPost("add_note/{id}")]
@@ -293,10 +293,10 @@ namespace WebApi.Controllers
         {
             if (string.IsNullOrEmpty(note))
                 return BadRequest();
-            var userIdStr = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            if (int.TryParse(userIdStr, out int userId))
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if(int.TryParse(workerIdStr, out int workerId))
             {
-                RequestService.AddNewNote(id, note, userId);
+                RequestService.AddNewNote(id, note, workerId);
             }
             return Ok();
         }
@@ -307,6 +307,17 @@ namespace WebApi.Controllers
             if (int.TryParse(workerIdStr, out int workerId))
             {
                 RequestService.SetRating(workerId, id, ratingId, description);
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpPut("set_executor/{id}")]
+        public IActionResult SetExecutor(int id,[FromBody]int executorId)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if (int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.SetExecutor(workerId, id, executorId);
                 return Ok();
             }
             return BadRequest();
@@ -331,23 +342,24 @@ namespace WebApi.Controllers
             {
                 return BadRequest();
             }
-            var uploadFolder = Path.Combine(GetRootFolder(), id.ToString());
-            if (!Directory.Exists(uploadFolder))
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if (int.TryParse(workerIdStr, out int workerId))
             {
-                Directory.CreateDirectory(uploadFolder);
+                var uploadFolder = Path.Combine(GetRootFolder(), id.ToString());
+                if (!Directory.Exists(uploadFolder))
+                {
+                    Directory.CreateDirectory(uploadFolder);
+                }
+                var fileExtension = Path.GetExtension(file.FileName);
+                var fileName = Guid.NewGuid() + fileExtension;
+                using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
+                {
+                    file.CopyTo(fileStream);
+                }
+                RequestService.SetGarantyState(id, newState, type, name, docDate, fileName, workerId);
+                return Ok();
             }
-            var fileExtension = Path.GetExtension(file.FileName);
-            var fileName = Guid.NewGuid() + fileExtension;
-            using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
-            {
-                file.CopyTo(fileStream);
-            }
-            var userIdStr = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            int.TryParse(userIdStr, out int userId);
-
-
-            RequestService.SetGarantyState(id, newState, type,  name, docDate, fileName, userId);
-            return Ok();
+            return BadRequest();
         }
         private string GetRootFolder()
         {
