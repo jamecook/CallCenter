@@ -46,6 +46,7 @@ namespace WebApi.Services
                                 AllowStatistics = dataReader.GetBoolean("allow_statistics"),
                                 CanChangeExecutors = dataReader.GetBoolean("can_change_executors"),
                                 ServiceCompanyFilter = dataReader.GetBoolean("show_all_request"),
+                                EnableAdminPage = dataReader.GetBoolean("enable_admin_page"),
                             };
                         }
                         dataReader.Close();

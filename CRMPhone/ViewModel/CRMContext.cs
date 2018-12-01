@@ -121,6 +121,7 @@ namespace CRMPhone.ViewModel
             AlertRequestControlModel = new AlertRequestControlModel();
             DispexRequestControlModel = new DispexRequestControlModel();
             ReportControlModel = new ReportControlModel();
+            CallsNotificationContext = new CallsNotificationContext();
         }
 
         public AlertRequestControlModel AlertRequestControlModel
@@ -162,6 +163,7 @@ namespace CRMPhone.ViewModel
             RedirectAdminContext.Refresh();
             RingUpAdminContext.Refresh();
             BlackListContext.RefreshList();
+            CallsNotificationContext.Init();
             AlertAndWorkContext.InitCollections();
             OnPropertyChanged(nameof(IsAdminRoleExist));
             if (!string.IsNullOrEmpty(AppSettings.SipInfo?.SipUser))
@@ -353,7 +355,10 @@ namespace CRMPhone.ViewModel
         public ICommand RegistrationCommand { get {return _registrationCommand ?? (_registrationCommand = new CommandHandler(SipRegister, _canRegistration));}}
 
         private ICommand _callCommand;
+        private ICommand _dtmfCommand;
         public ICommand CallCommand { get {return _callCommand ?? (_callCommand = new CommandHandler(Call, _canExecute));}}
+        public ICommand DtmfCommand { get {return _dtmfCommand ?? (_dtmfCommand = new CommandHandler(SendDtmf, _canExecute));}}
+
 
         private ICommand _serviceCompanyInfoCommand;
         public ICommand ServiceCompanyInfoCommand { get { return _serviceCompanyInfoCommand ?? (_serviceCompanyInfoCommand = new CommandHandler(ServiceCompanyInfo, _canExecute)); } }
@@ -987,6 +992,7 @@ namespace CRMPhone.ViewModel
         private SipLine _selectedLine;
         private DispexRequestControlModel _dispexRequestControlModel;
         private ReportControlModel _reportControlModel;
+        private CallsNotificationContext _callsNotificationContext;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 
@@ -1086,6 +1092,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _blackListContext; }
             set { _blackListContext = value; OnPropertyChanged(nameof(BlackListContext));}
+        }
+
+        public CallsNotificationContext CallsNotificationContext
+        {
+            get { return _callsNotificationContext; }
+            set { _callsNotificationContext = value; OnPropertyChanged(nameof(CallsNotificationContext)); }
         }
 
         public SpecialityControlContext SpecialityAdminContext
@@ -1329,6 +1341,11 @@ namespace CRMPhone.ViewModel
             bridgeThread.Start(item); //запускаем поток
 
         }
+        private void SendDtmf()
+        {
+                _sipAgent.CallMaker.SendDtmf(SelectedLine.Id, _sipPhone);
+        }
+
 
         public void Call()
         {
@@ -1343,7 +1360,6 @@ namespace CRMPhone.ViewModel
                 //    return;
                 //}
                 LastAnsweredPhoneNumber = IncomingCallFrom;
-
                 _sipAgent.CallMaker.Accept(SelectedLine.Id);
                 return;
             }

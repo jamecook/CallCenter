@@ -37,6 +37,42 @@ namespace RequestServiceImpl
             }
         }
 
+        public bool IsEnableIvrNotification(int serviceCompanyId)
+        {
+            using (var transaction = _dbConnection.BeginTransaction())
+            {
+                using (var scCmd = new MySqlCommand(
+                            @"SELECT enabled FROM CallCenter.IvrNotification  where service_company_id = @ServiceCompanyId",_dbConnection))
+                {
+                    scCmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+
+                    using (var dataReader = scCmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            return dataReader.GetBoolean("enabled");
+                        }
+                        dataReader.Close();
+                    }
+                    return false;
+                }
+            }
+        }
+        public void SaveIvrNotification(int serviceCompanyId,bool isEnabled)
+        {
+            using (var transaction = _dbConnection.BeginTransaction())
+            {
+                using (var scCmd = new MySqlCommand(
+                            @"Update CallCenter.IvrNotification set enabled = @Enabled where service_company_id = @ServiceCompanyId",_dbConnection))
+                {
+                    scCmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+                    scCmd.Parameters.AddWithValue("@Enabled", isEnabled);
+                    scCmd.ExecuteNonQuery();
+                }
+                transaction.Commit();
+            }
+        }
+
         public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, int garanty,bool isRetry,DateTime? alertTime, DateTime? termOfExecution)
         {
             using (var cmd = new MySqlCommand(
@@ -691,7 +727,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             try
             {
                 using (var cmd =
-                    new MySqlCommand(@"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_chargeable,R.is_immediate,R.period_time_id,R.Create_user_id,R.state_id,R.worker_id,R.execute_date,R.service_company_id,
+                    new MySqlCommand(@"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_chargeable,R.is_immediate,R.period_time_id,R.state_id,R.worker_id,R.execute_date,R.service_company_id,
     RS.name state_name,RS.description state_descript,
     RT.parrent_id,RT.name as rt_name,RT2.name rt_parrent_name,
     A.type_id address_type_id,A.house_id,A.flat,
@@ -700,7 +736,10 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     S.name street_name,S.prefix_id,S.city_id,
     SP.Name prefix_name,
     C.name City_name,
-    U.SurName,U.FirstName,U.PatrName,
+    case when create_user_id = 0 then cw.id else create_user_id end create_user_id,
+    case when create_user_id = 0 then cw.sur_name else u.surname end surname,
+    case when create_user_id = 0 then cw.first_name else u.firstname end firstname,
+    case when create_user_id = 0 then cw.patr_name else u.patrname end patrname,
     entrance,floor,
     rtype.rating_id,rating.name RatingName,rtype.Description RatingDesc,
     R.from_time,R.to_time,R.bad_work,R.alert_time,R.garanty,R.retry,
@@ -715,12 +754,13 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     join CallCenter.Streets S on S.id = H.street_id
     join CallCenter.StreetPrefixes SP on SP.id = S.prefix_id
     join CallCenter.Cities C on C.id = S.city_id
-    join CallCenter.Users U on U.id = R.Create_user_id
+    join CallCenter.Users u on u.id = R.Create_user_id
     left join (select a.request_id,max(a.id) as max_id from CallCenter.RequestRating a group by a.request_id ) max_rtype on max_rtype.request_id = R.id
     left join CallCenter.RequestRating rtype on rtype.id = max_rtype.max_id
     left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
     left join CallCenter.Equipments eq on eq.id = R.equipment_id
     left join CallCenter.EquipmentTypes eqt on eqt.id = eq.type_id
+    left join CallCenter.Workers cw on cw.id = R.create_worker_id
     where R.id = @reqId", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@reqId", requestId);
@@ -845,7 +885,10 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
             var sqlQuery =
                 @"SELECT R.id,case when count(ra.id)=0 then false else true end has_attach,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
-    R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
+    R.worker_id, w.sur_name,w.first_name,w.patr_name,case when create_user_id = 0 then cw.id else create_user_id end create_user_id,
+    case when create_user_id = 0 then cw.sur_name else u.surname end surname,
+    case when create_user_id = 0 then cw.first_name else u.firstname end firstname,
+    case when create_user_id = 0 then cw.patr_name else u.patrname end patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
     (SELECT name from CallCenter.RequestContacts rc2
     join CallCenter.ClientPhones cp2 on cp2.id = rc2.ClientPhone_id
@@ -880,7 +923,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     left join CallCenter.ServiceCompanies sc on sc.id= R.service_company_id
     join CallCenter.Users u on u.id = create_user_id
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
-    left join CallCenter.RequestCalls rcalls on rcalls.request_id = R.id";
+    left join CallCenter.RequestCalls rcalls on rcalls.request_id = R.id
+    left join CallCenter.Workers cw on cw.id = R.create_worker_id";
             if (string.IsNullOrEmpty(requestId))
             {
                 if (filterByCreateDate)
@@ -1183,7 +1227,10 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         {
             var sqlQuery =
                 @"SELECT R.id,case when count(ra.id)=0 then false else true end has_attach,R.create_time,sp.name as prefix_name,s.name as street_name,h.building,h.corps,at.Name address_type, a.flat,
-    R.worker_id, w.sur_name,w.first_name,w.patr_name, create_user_id,u.surname,u.firstname,u.patrname,
+    R.worker_id, w.sur_name,w.first_name,w.patr_name, case when create_user_id = 0 then cw.id else create_user_id end create_user_id,
+    case when create_user_id = 0 then cw.sur_name else u.surname end surname,
+    case when create_user_id = 0 then cw.first_name else u.firstname end firstname,
+    case when create_user_id = 0 then cw.patr_name else u.patrname end patrname,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
     rating.Name Rating, rtype.Description RatingDesc,
     RS.Description Req_Status,R.to_time, R.from_time, TIMEDIFF(R.to_time,R.from_time) spend_time,
@@ -1207,6 +1254,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     left join CallCenter.RequestRating rtype on rtype.id = rr_max.max_id
     left join CallCenter.RatingTypes rating on rtype.rating_id = rating.id
     left join CallCenter.RequestCalls rcalls on rcalls.request_id = R.id
+    left join CallCenter.Workers cw on cw.id = R.create_worker_id
     where is_immediate = 1";
                 if (serviceCompanyId.HasValue)
                     sqlQuery += $" and h.service_company_id = {serviceCompanyId.Value}";

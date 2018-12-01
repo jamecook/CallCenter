@@ -315,7 +315,7 @@ namespace WebApi.Controllers
         public IActionResult SetExecutor(int id,[FromBody]int executorId)
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
-            if (int.TryParse(workerIdStr, out int workerId))
+            if (int.TryParse(workerIdStr, out int workerId)&& executorId > 0)
             {
                 RequestService.SetExecutor(workerId, id, executorId);
                 return Ok();

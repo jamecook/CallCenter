@@ -51,6 +51,9 @@
                     <Button  Margin="5" Width="48" Height="48" Command="{Binding CallCommand}" ToolTip="Ответить на звонок/набрать номер">
                         <Image Source="pack://application:,,,/Images/answer.png" Width="32" Height="32" />
                     </Button>
+                    <!--<Button  Margin="5" Width="48" Height="48" Command="{Binding DtmfCommand}" ToolTip="DTMF">
+                        <Image Source="pack://application:,,,/Images/answer.png" Width="32" Height="32" />
+                    </Button>-->
                     <Button Margin="5" Width="48" Height="48" Command="{Binding HangUpCommand}" ToolTip="Положить трубку">
                         <Image Source="pack://application:,,,/Images/hangupsmall.png" Width="32" Height="32" />
                     </Button>
@@ -781,6 +784,15 @@
                                 </StackPanel>
                             </TabItem.Header>
                             <admins:BlackListControl DataContext="{Binding BlackListContext}"/>
+                        </TabItem>
+                        <TabItem Name="CallsNotificationTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Уведомления в IVR"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:CallsNotificationControl DataContext="{Binding CallsNotificationContext}"/>
                         </TabItem>
                     </TabControl>
                 </Grid>

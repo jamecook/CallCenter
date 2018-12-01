@@ -119,6 +119,9 @@
     </ApplicationDefinition>
     <Compile Include="AmiService.cs" />
     <Compile Include="ContextSaver.cs" />
+    <Compile Include="Controls\Admins\CallsNotificationControl.xaml.cs">
+      <DependentUpon>CallsNotificationControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Admins\HouseAdminControl.xaml.cs">
       <DependentUpon>HouseAdminControl.xaml</DependentUpon>
     </Compile>
@@ -268,6 +271,8 @@
     <Compile Include="ViewModel\Admins\WorkerHouseAndTypeAdminDialogViewModel.cs" />
     <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
     <Compile Include="ViewModel\CalendarDialogViewModel.cs" />
+    <Compile Include="ViewModel\CallsNotificationContext.cs" />
+    <Compile Include="ViewModel\NotificationYesNo.cs" />
     <Compile Include="ViewModel\SelectPeriodDialogViewModel.cs" />
     <Compile Include="ViewModel\ChangeExecuterDialogViewModel.cs" />
     <Compile Include="ViewModel\CRMContextNewSIP.cs" />
@@ -337,6 +342,10 @@
     <Compile Include="ViewModel\ServiceCompanyControlContext.cs" />
     <Compile Include="ViewModel\WorkerAdminControlContext.cs" />
     <Compile Include="ViewModel\WorkerInfoViewModel.cs" />
+    <Page Include="Controls\Admins\CallsNotificationControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\Admins\HouseAdminControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
