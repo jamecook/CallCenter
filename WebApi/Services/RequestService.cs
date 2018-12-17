@@ -37,7 +37,7 @@ namespace WebApi.Services
                                 SurName = dataReader.GetNullableString("sur_name"),
                                 FirstName = dataReader.GetNullableString("first_name"),
                                 PatrName = dataReader.GetNullableString("patr_name"),
-                                WorkerId = dataReader.GetInt32("worker_id"),
+                                WorkerId = dataReader.GetInt32("id"),
                                 ServiceCompanyId = dataReader.GetInt32("service_company_id"),
                                 SpecialityId = dataReader.GetInt32("speciality_id"),
                                 CanCreateRequestInWeb = dataReader.GetBoolean("can_create_in_web"),
@@ -47,6 +47,7 @@ namespace WebApi.Services
                                 CanChangeExecutors = dataReader.GetBoolean("can_change_executors"),
                                 ServiceCompanyFilter = dataReader.GetBoolean("show_all_request"),
                                 EnableAdminPage = dataReader.GetBoolean("enable_admin_page"),
+                                PushId = dataReader.GetString("guid"),
                             };
                         }
                         dataReader.Close();
@@ -65,14 +66,14 @@ namespace WebApi.Services
             StiOptions.Engine.HideExceptions = true;
             StiOptions.Engine.HideMessages = true;
 
-            var acts = requests.Select(r => new { Address = r.FullAddress, Workers = r.Master?.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": " + r.Service, Description = r.Description }).ToArray();
+            var acts = requests.Select(r => new { Id = r.Id, ContactPhones = r.ContactPhones, Address = r.FullAddress, Workers = r.Master?.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": " + r.Service, Description = r.Description }).ToArray();
 
             stiReport.RegBusinessObject("", "Acts", acts);
             stiReport.Render();
             var reportStream = new MemoryStream();
             stiReport.ExportDocument(StiExportFormat.Pdf, reportStream);
             reportStream.Position = 0;
-            //File.WriteAllBytes("\\111.pdf",reportStream.GetBuffer());
+            //File.WriteAllBytes("C:\\1\\111.pdf",reportStream.GetBuffer());
             return reportStream.GetBuffer();
 
         }
@@ -694,6 +695,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 LastNote = dataReader.GetNullableString("last_note"),
                                 IsChargeable = dataReader.GetBoolean("is_chargeable"),
                                 ClientName = dataReader.GetNullableString("client_name"),
+                                
                             });
                         }
                         dataReader.Close();
@@ -1044,7 +1046,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             {
                                 Id = dataReader.GetInt32("id"),
                                 Name = dataReader.GetString("name"),
-                                Inn = dataReader.GetString("inn"),
+                                Inn = dataReader.GetNullableString("inn"),
+                                DirectorFio = dataReader.GetNullableString("director_fio"),
                             };
                             list.Add(type);
                         }
@@ -1054,6 +1057,39 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 }
             }
         }
+        public static void AddWarrantyOrg(int workerId, WarrantyOrganizationDto organization)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.WarrantyCreateOrgs(@WorkerId,@Name,@Inn,@Fio);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Name", organization.Name);
+                    cmd.Parameters.AddWithValue("@Inn", organization.Inn);
+                    cmd.Parameters.AddWithValue("@Fio", organization.DirectorFio);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static void EditWarrantyOrg(int workerId, WarrantyOrganizationDto organization)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.WarrantySetOrgs(@WorkerId,@Id,@Inn,@Fio);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", organization.Id);
+                    cmd.Parameters.AddWithValue("@Inn", organization.Inn);
+                    cmd.Parameters.AddWithValue("@Fio", organization.DirectorFio);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
 
         public static ScheduleTaskDto[] GetScheduleTask(int currentWorkerId, int? workerId, DateTime fromDate,DateTime toDate)
         {
@@ -1064,8 +1100,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 {
                     cmd.Parameters.AddWithValue("@CurrentWorkerId", currentWorkerId);
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
-                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
-                    cmd.Parameters.AddWithValue("@ToDate", toDate);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate.Date);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate.Date.AddDays(1).AddSeconds(-1));
 
                     var taskDtos = new List<ScheduleTaskDto>();
                     using (var dataReader = cmd.ExecuteReader())
@@ -1081,10 +1117,10 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                                 Worker = new ScheduleWorkerDto
                                 {
                                     Id = dataReader.GetInt32("worker_id"),
-                                    SurName = dataReader.GetString("sur_name"),
-                                    FirstName = dataReader.GetString("first_name"),
-                                    PatrName = dataReader.GetString("patr_name"),
-                                    Phone = dataReader.GetString("phone"),
+                                    SurName = dataReader.GetNullableString("sur_name"),
+                                    FirstName = dataReader.GetNullableString("first_name"),
+                                    PatrName = dataReader.GetNullableString("patr_name"),
+                                    Phone = dataReader.GetNullableString("phone"),
                                 }
                             });
                         }

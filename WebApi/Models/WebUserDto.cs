@@ -17,6 +17,7 @@ namespace WebApi.Models
         public bool CanChangeExecutors { get; set; }
         public bool ServiceCompanyFilter { get; set; }
         public bool EnableAdminPage { get; set; }
+        public string PushId { get; set; }
         public string FullName => SurName + " " + FirstName + " " + PatrName;
     }
 }

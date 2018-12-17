@@ -60,7 +60,7 @@
                     </ComboBox>
                     <DockPanel>
                         <CheckBox Margin="3" VerticalAlignment="Center" IsChecked="{Binding IsChargeable}">Платная</CheckBox>
-                        <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsImmediate}">Срочная</CheckBox>
+                        <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsImmediate}">Аварийная</CheckBox>
                     </DockPanel>
 
                 </WrapPanel>

@@ -36,5 +36,36 @@ namespace WebApi.Controllers
             int.TryParse(workerIdStr, out int workerId);
             return RequestService.GetWarrantyOrganizations(workerId);
         }
+        [HttpPost("orgs")]
+        public IActionResult AddOrganization([FromBody]WarrantyOrganizationDto org)
+        {
+            try
+            {
+                var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+                int.TryParse(workerIdStr, out int workerId);
+                RequestService.AddWarrantyOrg(workerId, org);
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+        [HttpPut("orgs/{id}")]
+        public IActionResult EditOrganization(int id,[FromBody]WarrantyOrganizationDto org)
+        {
+            try
+            {
+                var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+                int.TryParse(workerIdStr, out int workerId);
+                org.Id = id;
+                RequestService.EditWarrantyOrg(workerId, org);
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
     }
 }

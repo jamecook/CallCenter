@@ -114,6 +114,7 @@ namespace WebApi.Services
                  new Claim("CanChangeExecutors", user.CanChangeExecutors.ToString()),
                  new Claim("ServiceCompanyFilter", user.ServiceCompanyFilter.ToString()),
                  new Claim("EnableAdminPage", user.EnableAdminPage.ToString()),
+                 new Claim("PushId", user.PushId),
             };
             var jwt = new JwtSecurityToken(
                 issuer: _configuration["Auth:Issuer"],

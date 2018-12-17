@@ -35,6 +35,7 @@ namespace RequestServiceImpl
         }
 
         public static string LastIncomingCall { get; set; }
+        public static string LastCallId { get; set; }
 
         public static void SetUser(UserDto user)
         {

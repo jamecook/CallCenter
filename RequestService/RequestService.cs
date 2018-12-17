@@ -344,11 +344,14 @@ namespace RequestServiceImpl
                 throw;
             }
         }
-        public void AddNewMaster(int requestId, int workerId)
+        public void AddNewMaster(int requestId, int? workerId)
         {
+            
             _logger.Debug($"RequestService.AddNewMaster({requestId},{workerId})");
-
-            SendSmsToWorker(requestId, workerId);
+            if (workerId.HasValue)
+            {
+                SendSmsToWorker(requestId, workerId.Value);
+            }
 
             try
             {
@@ -421,10 +424,13 @@ namespace RequestServiceImpl
             //SendSms(requestId, smsSettings.Sender, worker.Phone, $"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
         }
 
-        public void AddNewExecuter(int requestId, int workerId)
+        public void AddNewExecuter(int requestId, int? workerId)
         {
             _logger.Debug($"RequestService.AddNewExecuter({requestId},{workerId})");
-            SendSmsToWorker(requestId, workerId);
+            if (workerId.HasValue)
+            {
+                SendSmsToWorker(requestId, workerId.Value);
+            }
             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())
@@ -626,6 +632,41 @@ namespace RequestServiceImpl
                 }
                 return retVal;
             }
+        }
+        public string GetActiveCallUniqueIdByCallId(string callId)
+        {
+            string retVal = null;
+            var query = $@"SELECT case when A.MonitorFile is null then ifnull(A2.UniqueId,A.UniqueId) else A.UniqueId end uniqueId FROM asterisk.ActiveChannels A
+ left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
+ where A.call_id like '{callId}%'";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        retVal = dataReader.GetNullableString("uniqueId");
+                    }
+                    dataReader.Close();
+                }
+            }
+            if(!string.IsNullOrEmpty(retVal))
+                    return retVal;
+                query = $@"SELECT case when A.MonitorFile is null then ifnull(A2.UniqueId,A.UniqueId) else A.UniqueId end uniqueId FROM asterisk.ChannelHistory A
+ left join asterisk.ChannelHistory A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
+ where A.call_id like '{callId}%'";
+                using (var cmd = new MySqlCommand(query, _dbConnection))
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            retVal = dataReader.GetNullableString("uniqueId");
+                        }
+                        dataReader.Close();
+                    }
+                }
+            return retVal;
         }
         public string GetActiveCallUniqueIdByPhone(string phone)
         {
@@ -1352,7 +1393,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         }
         public IList<WorkerDto> GetExecuters(int? serviceCompanyId, bool showOnlyExecutors = true)
         {
-            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher FROM CallCenter.Workers w
+            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher,send_notification FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
     where w.enabled = 1 and w.is_executer = true";
@@ -1380,6 +1421,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             Phone = dataReader.GetNullableString("phone"),
                             CanAssign = dataReader.GetBoolean("can_assign"),
                             SendSms = dataReader.GetBoolean("send_sms"),
+                            AppNotification = dataReader.GetBoolean("send_notification"),
                             IsMaster = dataReader.GetBoolean("is_master"),
                             IsExecuter = dataReader.GetBoolean("is_executer"),
                             IsDispetcher = dataReader.GetBoolean("is_dispetcher"),
@@ -1393,7 +1435,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
         }
         public IList<WorkerDto> GetAllWorkers(int? serviceCompanyId)
         {
-            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher FROM CallCenter.Workers w
+            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher,w.login,w.send_notification FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
     where w.enabled = 1";
@@ -1417,8 +1459,10 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             SpecialityId = dataReader.GetNullableInt("speciality_id"),
                             SpecialityName = dataReader.GetNullableString("speciality_name"),
                             Phone = dataReader.GetNullableString("phone"),
+                            Login = dataReader.GetNullableString("login"),
                             CanAssign = dataReader.GetBoolean("can_assign"),
                             SendSms = dataReader.GetBoolean("send_sms"),
+                            AppNotification = dataReader.GetBoolean("send_notification"),
                             IsMaster = dataReader.GetBoolean("is_master"),
                             IsExecuter = dataReader.GetBoolean("is_executer"),
                             IsDispetcher = dataReader.GetBoolean("is_dispetcher"),
@@ -1434,7 +1478,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
 
         public IList<WorkerDto> GetMasters(int? serviceCompanyId, bool showOnlyExecutors = true)
         {
-            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,send_sms,is_master,is_executer,is_dispetcher FROM CallCenter.Workers w
+            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,send_sms,is_master,is_executer,is_dispetcher,w.send_notification FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
     where w.enabled = 1 and w.is_master = 1";
@@ -1462,6 +1506,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             Phone = dataReader.GetNullableString("phone"),
                             CanAssign = dataReader.GetBoolean("can_assign"),
                             SendSms = dataReader.GetBoolean("send_sms"),
+                            AppNotification = dataReader.GetBoolean("send_notification"),
                             IsMaster = dataReader.GetBoolean("is_master"),
                             IsExecuter = dataReader.GetBoolean("is_executer"),
                             IsDispetcher = dataReader.GetBoolean("is_dispetcher"),
@@ -1598,7 +1643,7 @@ where s.request_id = @RequestId and deleted = 0;";
         public IList<WorkerDto> GetMastersByHouseAndService(int houseId, int parentServiceTypeId, bool showOnlyExecutors = true)
         {
             var query =
-                $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms
+                $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms, w.send_notification
     FROM CallCenter.WorkerHouseAndType wh
     join CallCenter.Workers w on wh.worker_id = w.id
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
@@ -1627,6 +1672,7 @@ where s.request_id = @RequestId and deleted = 0;";
                             Phone = dataReader.GetNullableString("phone"),
                             CanAssign = dataReader.GetBoolean("can_assign"),
                             SendSms = dataReader.GetBoolean("send_sms"),
+                            AppNotification = dataReader.GetBoolean("send_notification"),
                             ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
                         });
                     }
@@ -1768,7 +1814,7 @@ where w.worker_id = @WorkerId";
             var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,
     w.can_assign,w.parent_worker_id,w.is_master,w.is_executer,w.is_dispetcher, sp.name speciality_name,send_sms,w.login,w.password,
     w.filter_by_houses,w.can_create_in_web,w.show_all_request,w.show_only_garanty,w.allow_statistics,w.can_set_rating,w.can_close_request,
-    w.can_change_executors
+    w.can_change_executors,w.send_notification
     FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
@@ -1798,6 +1844,7 @@ where w.worker_id = @WorkerId";
                             IsExecuter = dataReader.GetBoolean("is_executer"),
                             IsDispetcher = dataReader.GetBoolean("is_dispetcher"),
                             SendSms = dataReader.GetBoolean("send_sms"),
+                            AppNotification = dataReader.GetBoolean("send_notification"),
                             ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
                             CanSetRating = dataReader.GetBoolean("can_set_rating"),
                             CanCloseRequest = dataReader.GetBoolean("can_close_request"),
@@ -2345,7 +2392,7 @@ where w.worker_id = @WorkerId";
         public List<WorkerHistoryDto> GetMasterHistoryByRequest(int requestId)
         {
             var query = @"SELECT operation_date, R.worker_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestWorkerHistory R
- join CallCenter.Workers w on w.id = R.worker_id
+ left join CallCenter.Workers w on w.id = R.worker_id
  join CallCenter.Users u on u.id = user_id
  where request_id = @RequestId";
             using (var cmd = new MySqlCommand(query, _dbConnection))
@@ -2356,16 +2403,17 @@ where w.worker_id = @WorkerId";
                 {
                     while (dataReader.Read())
                     {
+                        var workerId = dataReader.GetNullableInt("worker_id");
                         historyDtos.Add(new WorkerHistoryDto
                         {
                             CreateTime = dataReader.GetDateTime("operation_date"),
-                            Worker = new RequestUserDto
+                            Worker = workerId!= null ? new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("worker_id"),
                                 SurName = dataReader.GetNullableString("sur_name"),
                                 FirstName = dataReader.GetNullableString("first_name"),
                                 PatrName = dataReader.GetNullableString("patr_name"),
-                            },
+                            } : new RequestUserDto { Id = -1, SurName = "Нет мастера" },
                             CreateUser = new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("user_id"),
@@ -2383,7 +2431,7 @@ where w.worker_id = @WorkerId";
         public List<WorkerHistoryDto> GetExecuterHistoryByRequest(int requestId)
         {
             var query = @"SELECT operation_date, R.executer_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestExecuterHistory R
- join CallCenter.Workers w on w.id = R.executer_id
+ left join CallCenter.Workers w on w.id = R.executer_id
  join CallCenter.Users u on u.id = user_id
  where request_id = @RequestId";
             using (var cmd = new MySqlCommand(query, _dbConnection))
@@ -2394,16 +2442,17 @@ where w.worker_id = @WorkerId";
                 {
                     while (dataReader.Read())
                     {
+                        var executerId = dataReader.GetNullableInt("executer_id");
                         historyDtos.Add(new WorkerHistoryDto
                         {
                             CreateTime = dataReader.GetDateTime("operation_date"),
-                            Worker = new RequestUserDto
+                            Worker = executerId!= null ? new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("executer_id"),
                                 SurName = dataReader.GetNullableString("sur_name"),
                                 FirstName = dataReader.GetNullableString("first_name"),
                                 PatrName = dataReader.GetNullableString("patr_name"),
-                            },
+                            } : new  RequestUserDto {Id = -1, SurName = "Нет исполнителя"},
                             CreateUser = new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("user_id"),
@@ -3019,14 +3068,14 @@ where C.Direction is not null";
         }
         public void  SaveWorker(int? workerId, int serviceCompanyId,string surName,string firstName,string patrName,string phone,int specialityId,bool canAssign, bool isMaster,
             bool isExecuter, bool isDispetcher, bool sendSms,string login, string password, int? parentWorkerId, bool canSetRating, bool canCloseRequest,
-            bool canChangeExecutor, bool canCreateRequest, bool canShowStatistic, bool filterByHouses, bool showAllRequest, bool showOnlyGaranty)
+            bool canChangeExecutor, bool canCreateRequest, bool canShowStatistic, bool filterByHouses, bool showAllRequest, bool showOnlyGaranty,bool appNotification)
         {
             if (workerId.HasValue)
             {
                 using (var cmd = new MySqlCommand(@"update CallCenter.Workers set sur_name = @surName,first_name = @firstName,patr_name = @patrName,phone = @phone,service_company_id = @serviceCompanyId, speciality_id = @specialityId, can_assign = @canAssign,
 is_master = @isMaster, is_executer = @IsExecuter, is_dispetcher = @IsDispetcher, send_sms = @SendSms,  parent_worker_id = @parentWorkerId,
 login = @Login, password = @Password,can_set_rating = @CanSetRating,can_close_request = @CanCloseRequest,can_change_executors = @CanChangeExecutor,
-can_create_in_web = @CanCreateRequest, allow_statistics = @CanShowStatistic, filter_by_houses = @FilterByHouses,show_all_request = @ShowAllRequest,
+can_create_in_web = @CanCreateRequest, allow_statistics = @CanShowStatistic, filter_by_houses = @FilterByHouses,show_all_request = @ShowAllRequest, send_notification = @AppNotification,
 show_only_garanty = @ShowOnlyGaranty where id = @ID;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@ID", workerId.Value);
@@ -3043,6 +3092,7 @@ show_only_garanty = @ShowOnlyGaranty where id = @ID;", _dbConnection))
                     cmd.Parameters.AddWithValue("@Login", login);
                     cmd.Parameters.AddWithValue("@Password", password);
                     cmd.Parameters.AddWithValue("@SendSms", sendSms);
+                    cmd.Parameters.AddWithValue("@AppNotification", appNotification);
                     cmd.Parameters.AddWithValue("@parentWorkerId", parentWorkerId);
                     cmd.Parameters.AddWithValue("@CanCreateRequest", canCreateRequest);
                     cmd.Parameters.AddWithValue("@CanShowStatistic", canShowStatistic);
@@ -3060,10 +3110,10 @@ show_only_garanty = @ShowOnlyGaranty where id = @ID;", _dbConnection))
             {
                 using (var cmd = new MySqlCommand(@"insert into CallCenter.Workers(sur_name,first_name,patr_name,phone,service_company_id,
 speciality_id,can_assign, parent_worker_id,is_master,is_executer, is_dispetcher, send_sms,login,password,can_set_rating,can_close_request,
-can_change_executors,can_create_in_web, allow_statistics,filter_by_houses, show_all_request, show_only_garanty) 
+can_change_executors,can_create_in_web, allow_statistics,filter_by_houses, show_all_request, show_only_garanty,send_notification) 
 values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@canAssign,@parentWorkerId,@isMaster,@IsExecuter,@IsDispetcher,
 @SendSms,@Login,@Password, @CanSetRating, @CanCloseRequest, @CanChangeExecutor, @CanCreateRequest, @CanShowStatistic, @FilterByHouses,
-@ShowAllRequest, @ShowOnlyGaranty);", _dbConnection))
+@ShowAllRequest, @ShowOnlyGaranty, @AppNotification);", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@surName", surName);
                     cmd.Parameters.AddWithValue("@firstName", firstName);
@@ -3087,6 +3137,7 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
                     cmd.Parameters.AddWithValue("@CanCloseRequest", canCloseRequest);
                     cmd.Parameters.AddWithValue("@CanChangeExecutor", canChangeExecutor);
                     cmd.Parameters.AddWithValue("@ShowOnlyGaranty", showOnlyGaranty);
+                    cmd.Parameters.AddWithValue("@AppNotification", appNotification);
                     cmd.ExecuteNonQuery();
                 }
             }

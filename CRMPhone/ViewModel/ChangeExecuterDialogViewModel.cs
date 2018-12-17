@@ -24,10 +24,19 @@ namespace CRMPhone.ViewModel
         {
             _requestService = requestService;
             _requestId = requestId;
-            WorkerList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
+            WorkerList = new ObservableCollection<WorkerDto>();
+            WorkerList.Add(new WorkerDto()
+            {
+                Id = -1,
+                SurName = "Нет исполнителя"
+            });
+            foreach (var executer in _requestService.GetExecuters(null))
+            {
+                WorkerList.Add(executer);
+            }
             var request = _requestService.GetRequest(_requestId);
             _oldMasterId = request.ExecuterId;
-            SelectedWorker = WorkerList.SingleOrDefault(w => w.Id == request.ExecuterId);
+            SelectedWorker = WorkerList.SingleOrDefault(w => w.Id == (request.ExecuterId ?? -1));
             Refresh(null);
         }
 
@@ -48,7 +57,7 @@ namespace CRMPhone.ViewModel
             var t = FromTime;
             if (_oldMasterId == SelectedWorker.Id)
                 return;
-            _requestService.AddNewExecuter(_requestId,SelectedWorker.Id);
+            _requestService.AddNewExecuter(_requestId,SelectedWorker.Id==-1 ? (int?) null : SelectedWorker.Id);
             _oldMasterId = SelectedWorker.Id;
             _view.DialogResult = true;
         }

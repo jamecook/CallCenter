@@ -1186,6 +1186,9 @@ namespace CRMPhone.ViewModel
                 _sipAgent.OnIncomingCall += IncomingCall;
                 _sipAgent.OnTerminated += TerminateCall;
                 _sipAgent.OnHold += SipAgentOnOnHold;
+                _sipAgent.OnTxRequest += SipAgentOnOnTxRequest;
+                _sipAgent.OnRxRequest += SipAgentOnOnRxRequest;
+
 
                 _sipAgent.AddTransport(1, 5060);
                 var mediaPort = _sipAgent.FindPort(60000, 64000, 2, 1);
@@ -1216,6 +1219,34 @@ namespace CRMPhone.ViewModel
             }
 
             #endregion
+        }
+
+        private void SipAgentOnOnRxRequest(string remoteHost, int remotePort, string message)
+        {
+            if (message.StartsWith("INVITE"))
+            {
+                var subindex = message.IndexOf("Call-ID:");
+                if (subindex > 0)
+                {
+                    var callIdStr = message.Substring(subindex);
+                    var endPos = callIdStr.IndexOf("\r\n");
+                    AppSettings.LastCallId = callIdStr.Substring(9, endPos - 9);
+                }
+            }
+        }
+
+        private void SipAgentOnOnTxRequest(string remoteHost, int remotePort, string message)
+        {
+            if (message.StartsWith("INVITE"))
+            {
+                var subindex = message.IndexOf("Call-ID:");
+                if (subindex > 0)
+                {
+                    var callIdStr = message.Substring(subindex);
+                    var endPos = callIdStr.IndexOf("\r\n");
+                    AppSettings.LastCallId = callIdStr.Substring(9, endPos - 9);
+                }
+            }
         }
 
         private void TerminateCall(int callid, string remoteuri, string contact, int code, string statustext)

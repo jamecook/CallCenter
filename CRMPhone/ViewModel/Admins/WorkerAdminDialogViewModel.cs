@@ -34,6 +34,7 @@ namespace CRMPhone.ViewModel.Admins
         private bool _isDispetcher;
         private string _login;
         private string _password;
+        private bool _appNotification;
 
         public ObservableCollection<SpecialityDto> SpecialityList
         {
@@ -154,6 +155,12 @@ namespace CRMPhone.ViewModel.Admins
             set { _sendSms = value; OnPropertyChanged(nameof(SendSms));}
         }
 
+        public bool AppNotification
+        {
+            get { return _appNotification; }
+            set { _appNotification = value; OnPropertyChanged(nameof(AppNotification));}
+        }
+
         public WorkerAdminDialogViewModel(RequestServiceImpl.RequestService requestService, int? workerId)
         {
             _requestService = requestService;
@@ -178,6 +185,7 @@ namespace CRMPhone.ViewModel.Admins
                 IsExecuter = worker.IsExecuter;
                 IsDispetcher = worker.IsDispetcher;
                 SendSms = worker.SendSms;
+                AppNotification = worker.AppNotification;
 
                 CanSetRating = worker.CanSetRating;
                 CanChangeExecutor = worker.CanChangeExecutor;
@@ -223,7 +231,7 @@ namespace CRMPhone.ViewModel.Admins
             {
                 _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id,CanAssign,
                     IsMaster, IsExecuter, IsDispetcher, SendSms, Login, Password, (SelectedParentWorker!=null && SelectedParentWorker.Id>0)? SelectedParentWorker.Id :(int?) null,
-                     CanSetRating, CanCloseRequest, CanChangeExecutor, CanCreateRequest, CanShowStatistic, FilterByHouses, ShowAllRequest, ShowOnlyGaranty);
+                     CanSetRating, CanCloseRequest, CanChangeExecutor, CanCreateRequest, CanShowStatistic, FilterByHouses, ShowAllRequest, ShowOnlyGaranty,AppNotification);
                 _view.DialogResult = true;
             }
             else

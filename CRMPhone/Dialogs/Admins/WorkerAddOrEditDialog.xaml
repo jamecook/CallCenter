@@ -94,6 +94,7 @@
 
                     <DockPanel>
                         <CheckBox Margin="5" IsChecked="{Binding Path=SendSms}">Отпр. SMS</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=AppNotification}">Уведомления в приложении</CheckBox>
                         <CheckBox Margin="5" IsChecked="{Binding Path=CanAssign}">Выполняет заявки</CheckBox>
                     </DockPanel>
                 </Border>

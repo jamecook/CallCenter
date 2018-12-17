@@ -447,8 +447,8 @@ namespace CRMPhone.ViewModel
 
         private void AddCall(object obj)
         {
-            //var callUniqueId = _requestService.GetActiveCallUniqueIdByPhone(AppSettings.LastIncomingCall);
-            var callUniqueId = _requestService.GetActiveCallUniqueId();
+            var lastCallId = AppSettings.LastCallId;
+            var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(lastCallId);
             _requestService.AddCallToRequest(RequestId,callUniqueId);
             if(!string.IsNullOrEmpty(callUniqueId))
                 MessageBox.Show("Текущий разговор прикреплен к заявке!");

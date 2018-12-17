@@ -19,6 +19,7 @@ namespace RequestServiceImpl.Dto
         public bool IsExecuter { get; set; }
         public bool IsDispetcher { get; set; }
         public bool SendSms { get; set; }
+        public bool AppNotification { get; set; }
         public int? ParentWorkerId { get; set; }
         public bool CanCreateRequest { get; set; }
         public bool ShowAllRequest { get; set; }
