@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
@@ -411,6 +412,32 @@ namespace CRMPhone.ViewModel
         {
             get { return _showMasterInfoCommand ?? (_showMasterInfoCommand = new RelayCommand(ShowMasterInfo)); }
             
+        }
+
+        private ICommand _dialCommand;
+        public ICommand DialCommand
+        {
+            get { return _dialCommand ?? (_dialCommand = new RelayCommand(Dial)); }
+
+        }
+
+        private void Dial(object obj)
+        {
+            var viewModel = obj as RequestItemViewModel;
+            if ((viewModel is null) || string.IsNullOrEmpty(viewModel.PhoneNumber))
+                return;
+
+            ContextSaver.CrmContext.SipPhone = viewModel.PhoneNumber;
+            ContextSaver.CrmContext.Call();
+            if (viewModel.RequestId.HasValue)
+            {
+                Thread.Sleep(500);
+                var callUniqueId = _requestService.GetActiveCallUniqueId();
+                if (!string.IsNullOrEmpty(callUniqueId))
+                {
+                    _requestService.AddCallToRequest(viewModel.RequestId.Value, callUniqueId);
+                }
+            }
         }
 
         private void ShowMasterInfo(object obj)

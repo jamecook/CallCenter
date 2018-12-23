@@ -7,6 +7,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="320" d:DesignWidth="800" Width="920" Height="325"
              d:DataContext="{d:DesignInstance viewModel:RequestItemViewModel}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    </UserControl.Resources>
     <Grid>
         <Border BorderBrush="Black" CornerRadius="5" BorderThickness="1">
             <Grid >
@@ -69,7 +72,7 @@
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Мастер:"/>
                     <Button HorizontalAlignment="Right" Background="Transparent" BorderThickness="0" Command="{Binding ElementName=RequestGrid, Path=DataContext.ShowMasterInfoCommand}"
                             CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">
-                        <Image Source="pack://application:,,,/Images/info_24.png" Height="18" />
+                        <Image Source="pack://application:,,,/Images/info_24.png" Height="24" />
                     </Button>
                     <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedMaster}" ItemsSource="{Binding MasterList}" IsEditable="True">
                         <ComboBox.Resources>
@@ -83,6 +86,12 @@
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
                     </ComboBox>
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="{Binding PhoneNumber}"/>
+                    <Button Visibility="{Binding CanDial, Converter={StaticResource BooleanToVisibility}}" HorizontalAlignment="Right" BorderThickness="1" Command="{Binding ElementName=RequestGrid, Path=DataContext.DialCommand}"
+                            CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">
+                        <Image Source="pack://application:,,,/Images/answer.png" Height="24" />
+                    </Button>
+
                     <CheckBox Margin="3" VerticalAlignment="Center" IsChecked="{Binding ShowAllExecuters}" Visibility="Collapsed">Все</CheckBox>
                     </WrapPanel>
                 <WrapPanel Grid.Row="3" Grid.Column="0">

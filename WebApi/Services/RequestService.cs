@@ -57,6 +57,69 @@ namespace WebApi.Services
             }
         }
 
+        internal static WebUserDto FindUserByToken(Guid refreshToken,DateTime expireDate)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+
+                conn.Open();
+                using (var cmd = new MySqlCommand($"Call CallCenter.DispexGetUserByToken(@Token,@ExpireDate)", conn)
+                )
+                {
+                    cmd.Parameters.AddWithValue("@ExpireDate", expireDate);
+                    cmd.Parameters.AddWithValue("@Token", refreshToken);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            return new WebUserDto
+                            {
+                                UserId = dataReader.GetInt32("UserId"),
+                                Login = dataReader.GetNullableString("Login"),
+                                SurName = dataReader.GetNullableString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                                WorkerId = dataReader.GetInt32("id"),
+                                ServiceCompanyId = dataReader.GetInt32("service_company_id"),
+                                SpecialityId = dataReader.GetInt32("speciality_id"),
+                                CanCreateRequestInWeb = dataReader.GetBoolean("can_create_in_web"),
+                                CanCloseRequest = dataReader.GetBoolean("can_close_request"),
+                                CanSetRating = dataReader.GetBoolean("can_set_rating"),
+                                AllowStatistics = dataReader.GetBoolean("allow_statistics"),
+                                CanChangeExecutors = dataReader.GetBoolean("can_change_executors"),
+                                ServiceCompanyFilter = dataReader.GetBoolean("show_all_request"),
+                                EnableAdminPage = dataReader.GetBoolean("enable_admin_page"),
+                                PushId = dataReader.GetString("guid"),
+                            };
+                        }
+                        dataReader.Close();
+                    }
+                }
+                return null;
+            }
+        }
+
+        internal static void AddRefreshToken(int workerId, Guid refreshToken,DateTime expireDate)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (var cmd =
+                            new MySqlCommand(@"CALL CallCenter.DispexAddToken(@WorkerId,@Token,@ExpireDate);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                        cmd.Parameters.AddWithValue("@Token", refreshToken);
+                        cmd.Parameters.AddWithValue("@ExpireDate", expireDate);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+        }
+
         public static byte[] GetRequestActs(int workerId, int[] requestIds)
         {
             var requests = WebRequestsByIds(workerId, requestIds);
@@ -751,22 +814,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
         }
         public static void SetExecutor(int workerId, int requestId, int executorId)
         {
-            using (var conn = new MySqlConnection(_connectionString))
-            {
-                conn.Open();
-                using (var transaction = conn.BeginTransaction())
-                {
-                    using (var cmd =
-                            new MySqlCommand(@"CALL CallCenter.DispexSetExecutor(@WorkerId,@RequestId,@ExecutorId);", conn))
-                    {
-                        cmd.Parameters.AddWithValue("@RequestId", requestId);
-                        cmd.Parameters.AddWithValue("@WorkerId", workerId);
-                        cmd.Parameters.AddWithValue("@ExecutorId", executorId);
-                        cmd.ExecuteNonQuery();
-                    }
-                    transaction.Commit();
-                }
-            }
+           
         }
         public static void SetExecuteDate(int workerId, int requestId, DateTime executeDate,string note )
         {

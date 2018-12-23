@@ -72,6 +72,7 @@ namespace CRMPhone.ViewModel
         }
 
         private Appointment _selectedAppointment;
+        private string _phoneNumber;
         public Appointment OpenAppointment { get; set; }
 
         public Appointment SelectedAppointment
@@ -309,7 +310,13 @@ namespace CRMPhone.ViewModel
         public WorkerDto SelectedExecuter
         {
             get { return _selectedExecuter; }
-            set { _selectedExecuter = value; OnPropertyChanged(nameof(SelectedExecuter)); }
+            set { _selectedExecuter = value;
+                PhoneNumber = SelectedExecuter?.Phone;
+                CanDial = !string.IsNullOrEmpty(PhoneNumber);
+                OnPropertyChanged(nameof(CanDial));
+                OnPropertyChanged(nameof(SelectedExecuter));
+                OnPropertyChanged(nameof(PhoneNumber));
+            }
         }
 
         public ObservableCollection<PeriodDto> PeriodList
@@ -355,6 +362,13 @@ namespace CRMPhone.ViewModel
             {
                 return !CanSave;
             }
+        }
+        public bool CanDial { get; set; }
+
+        public string PhoneNumber
+        {
+            get { return _phoneNumber; }
+            set { _phoneNumber = value; OnPropertyChanged(nameof(PhoneNumber));}
         }
 
         private void ChangeParentService(int? parentServiceId)

@@ -30,9 +30,7 @@
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" Margin="2">
-                                <CheckBox IsChecked="{Binding Selected}"
-                                      Width="20" />
-                                <TextBlock Text="{Binding Name}"/>
+                                <CheckBox IsChecked="{Binding Selected}" Content="{Binding Name}"/>
                             </StackPanel>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
@@ -52,8 +50,7 @@
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Margin="2">
                                         <CheckBox IsChecked="{Binding Selected}"
-                                      Width="20" />
-                                        <TextBlock Text="{Binding Name}"/>
+                                      Content="{Binding Name}" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
@@ -69,9 +66,7 @@
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="2">
-                                    <CheckBox IsChecked="{Binding Selected}"
-                                      Width="20" />
-                                    <TextBlock Text="{Binding Name}"/>
+                                    <CheckBox IsChecked="{Binding Selected}" Content="{Binding Name}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
@@ -83,9 +78,7 @@
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="2">
-                                    <CheckBox IsChecked="{Binding Selected}"
-                                      Width="20" />
-                                    <TextBlock Text="{Binding Name}"/>
+                                    <CheckBox IsChecked="{Binding Selected}" Content="{Binding Name}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
@@ -96,9 +89,7 @@
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="2">
-                                    <CheckBox IsChecked="{Binding Selected}"
-                                      Width="20" />
-                                    <TextBlock Text="{Binding Name}"/>
+                                    <CheckBox IsChecked="{Binding Selected}" Content="{Binding Name}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
@@ -110,9 +101,7 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Margin="2">
-                                        <CheckBox IsChecked="{Binding Selected}"
-                                      Width="20" />
-                                        <TextBlock Text="{Binding Name}"/>
+                                        <CheckBox IsChecked="{Binding Selected}" Content="{Binding Name}"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
@@ -126,9 +115,7 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Margin="2">
-                                        <CheckBox IsChecked="{Binding Selected}"
-                                      Width="20" />
-                                        <TextBlock Text="{Binding Name}"/>
+                                        <CheckBox IsChecked="{Binding Selected}" Content="{Binding Name}"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
@@ -139,9 +126,7 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Margin="2">
-                                        <CheckBox IsChecked="{Binding Selected}"
-                                      Width="20" />
-                                        <TextBlock Text="{Binding Name}"/>
+                                        <CheckBox IsChecked="{Binding Selected}" Content="{Binding Name}"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>

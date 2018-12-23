@@ -35,66 +35,32 @@ namespace WebApi.Services
                     return null;
                 }
                 var now = DateTime.UtcNow;
+            var refreshToken = CreateRefreshToken(user, now);
+            RequestService.AddRefreshToken(user.WorkerId,refreshToken, now.Add(TimeSpan.FromDays(_configuration.GetValue<int>("Auth:RefreshExpireDays"))));
                 return new TokenDto
                 {
                     Access = CreateAccessToken(user, now),
-                    Refresh = CreateRefreshToken(user, now)
+                    Refresh = refreshToken
                 };
         }
 
         public TokenDto RefreshToken(Guid refreshToken)
         {
-                var userToken = GetUserToken(refreshToken);
-                if (userToken == null)
+            var now = DateTime.UtcNow;
+
+            var newExpireDate = now.Add(TimeSpan.FromDays(_configuration.GetValue<int>("Auth:RefreshExpireDays")));
+            var user = RequestService.FindUserByToken(refreshToken, newExpireDate);
+                if (user == null)
                 {
                     return null;
                 }
-                if (userToken.ExpirationDate < DateTime.UtcNow)
+                 return new TokenDto
                 {
-                    DeleteRefreshToken(userToken);
-                    return null;
-                }
-                var now = DateTime.UtcNow;
-                return new TokenDto
-                {
-                    Access = CreateAccessToken(userToken.User, now),
-                    Refresh = UpdateRefreshToken(userToken, now)
+                    Access = CreateAccessToken(user, now),
+                    Refresh = refreshToken
                 };
         }
 
-        private User GetUser(AuthDto authDto)
-        {
-            var passwordHash = EncodeMD5(authDto.Password);
-            try
-            {
-                var user = new User() {Id = 1, Login = "asdsa", PasswordHash = "sad"};
-                return user;
-            }
-            catch (InvalidOperationException e)
-            {
-                _logger.LogCritical(e, "Found more than one user by '{Login}' login", authDto.Login);
-                return null;
-            }
-        }
-
-        private UserToken GetUserToken(Guid refreshToken)
-        {
-            try
-            {
-                var userToken = new UserToken
-                {
-                    Token = Guid.NewGuid(),
-                    ExpirationDate = DateTime.Now.AddDays(1000),
-                   // User = new User() {Id = 1, Login = "asdsa",PasswordHash = "sad"}
-                };
-                return userToken;
-            }
-            catch (InvalidOperationException e)
-            {
-                _logger.LogCritical(e, "Found more than one users's token by '{RefreshToken}'", refreshToken);
-                return null;
-            }
-        }
 
         private string CreateAccessToken(WebUserDto user, DateTime start)
         {
@@ -116,6 +82,7 @@ namespace WebApi.Services
                  new Claim("EnableAdminPage", user.EnableAdminPage.ToString()),
                  new Claim("PushId", user.PushId),
             };
+            var expires = start.Add(TimeSpan.FromMinutes(_configuration.GetValue<int>("Auth:AccessExpireMinutes")));
             var jwt = new JwtSecurityToken(
                 issuer: _configuration["Auth:Issuer"],
                 notBefore: start,
@@ -125,11 +92,6 @@ namespace WebApi.Services
             return new JwtSecurityTokenHandler().WriteToken(jwt);
         }
         
-        private void UpdateRefreshTokenAttributes(UserToken userToken, DateTime start)
-        {
-            userToken.ExpirationDate = start.Add(TimeSpan.FromDays(_configuration.GetValue<int>("Auth:RefreshExpireDays")));
-        }
-
         private Guid CreateRefreshToken(WebUserDto user, DateTime start)
         {
             var userToken = new UserToken
@@ -137,25 +99,8 @@ namespace WebApi.Services
                 Token = Guid.NewGuid(),
                 User = user
             };
-            UpdateRefreshTokenAttributes(userToken, start);
+            //UpdateRefreshTokenAttributes(userToken, start);
             return userToken.Token;
-        }
-
-        private Guid UpdateRefreshToken(UserToken userToken, DateTime start)
-        {
-            UpdateRefreshTokenAttributes(userToken, start);
-            return userToken.Token;
-        }
-
-        private void DeleteRefreshToken(UserToken userToken)
-        {
-
-        }
-        /**/
-        private static string EncodeMD5(string value)
-        {
-            var hash = MD5.Create().ComputeHash(Encoding.GetEncoding(1251).GetBytes(value));
-            return string.Concat(Array.ConvertAll(hash, ToHex));
         }
 
         private static string ToHex(byte value)
