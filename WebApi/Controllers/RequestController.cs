@@ -134,6 +134,17 @@ namespace WebApi.Controllers
             return RequestService.GetRequestActs(workerId, requestIds);
         }
 
+        [HttpGet("get_excel")]
+        public byte[] GetExcel([ModelBinder(typeof(CommaDelimitedArrayModelBinder))] int[] requestIds)
+
+        {
+            //var ttt = User.Claims.ToArray();
+            //var login = User.Claims.FirstOrDefault(c => c.Type == "Login")?.Value;
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetRequestExcel(workerId, requestIds);
+        }
+
         [HttpPost]
         public string Post([FromBody]CreateRequestDto value)
         {
@@ -280,13 +291,48 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("status/{id}")]
-        public void SetStatus(int id, [FromBody]int statusId)
+        public IActionResult SetStatus(int id, [FromBody]int statusId)
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             if(int.TryParse(workerIdStr, out int workerId))
             {
                 RequestService.AddNewState(id,statusId, workerId);
+                return Ok();
             }
+            return BadRequest();
+        }
+        [HttpPut("set_service/{id}")]
+        public IActionResult SetService(int id, [FromBody]int serviceId)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if(int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.SetNewService(id, serviceId, workerId);
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpPut("set_master/{id}")]
+        public IActionResult SetMaster(int id, [FromBody]int masterId)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if(int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.SetNewMaster(id, masterId, workerId);
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpPut("set_executer/{id}")]
+        public IActionResult SetExecuter(int id, [FromBody]int executerId)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if(int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.SetNewExecuter(id, executerId, workerId);
+                return Ok();
+            }
+            return BadRequest();
         }
         [HttpPost("add_note/{id}")]
         public IActionResult AddNote(int id, [FromBody]string note)
@@ -311,17 +357,7 @@ namespace WebApi.Controllers
             }
             return BadRequest();
         }
-        [HttpPut("set_executor/{id}")]
-        public IActionResult SetExecutor(int id,[FromBody]int executorId)
-        {
-            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
-            if (int.TryParse(workerIdStr, out int workerId)&& executorId > 0)
-            {
-                RequestService.SetExecutor(workerId, id, executorId);
-                return Ok();
-            }
-            return BadRequest();
-        }
+
         [HttpPut("set_execute_date/{id}")]
         public IActionResult SetExecuteDate(int id,[FromBody]SetExecuteDateParams param)
         {

@@ -141,6 +141,28 @@ namespace WebApi.Services
 
         }
 
+        public static byte[] GetRequestExcel(int workerId, int[] requestIds)
+        {
+            //Переделать на шаблон
+            var requests = WebRequestsByIds(workerId, requestIds);
+            var stiReport = new StiReport();
+            stiReport.Load("templates\\requests.mrt");
+            StiOptions.Engine.HideRenderingProgress = true;
+            StiOptions.Engine.HideExceptions = true;
+            StiOptions.Engine.HideMessages = true;
+
+            var requestObj = requests.Select(r => new { Id = r.Id,ExecuteDate = r.ExecuteTime, ContactPhones = r.ContactPhones, Address = r.FullAddress, Workers = r.Master?.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": " + r.Service, Description = r.Description }).ToArray();
+
+            stiReport.RegBusinessObject("", "Requests", requestObj);
+            stiReport.Render();
+            var reportStream = new MemoryStream();
+            stiReport.ExportDocument(StiExportFormat.Excel2007, reportStream);
+            reportStream.Position = 0;
+            File.WriteAllBytes("C:\\1\\111.xlsx",reportStream.GetBuffer());
+            return reportStream.GetBuffer();
+
+        }
+
         public static WorkerDto[] GetWorkersByWorkerId(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -627,6 +649,8 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 ContactPhones = dataReader.GetNullableString("client_phones"),
                                 ParentService = dataReader.GetNullableString("parent_name"),
                                 Service = dataReader.GetNullableString("service_name"),
+                                ParentServiceId = dataReader.GetNullableInt("parent_id"),
+                                ServiceId = dataReader.GetNullableInt("service_id"),
                                 Master = dataReader.GetNullableInt("worker_id") != null
                                     ? new UserDto
                                     {
@@ -720,6 +744,8 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 ContactPhones = dataReader.GetNullableString("client_phones"),
                                 ParentService = dataReader.GetNullableString("parent_name"),
                                 Service = dataReader.GetNullableString("service_name"),
+                                ParentServiceId = dataReader.GetNullableInt("parent_id"),
+                                ServiceId = dataReader.GetNullableInt("service_id"),
                                 Master = dataReader.GetNullableInt("worker_id") != null
                                     ? new UserDto
                                     {
@@ -811,10 +837,6 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     transaction.Commit();
                 }
             }
-        }
-        public static void SetExecutor(int workerId, int requestId, int executorId)
-        {
-           
         }
         public static void SetExecuteDate(int workerId, int requestId, DateTime executeDate,string note )
         {
@@ -1021,6 +1043,54 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     }
 
                     transaction.Commit();
+                }
+            }
+
+        }
+        public static void SetNewService(int requestId, int serviceId, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.DispexSetService(@WorkerId,@Id,@NewService);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", requestId);
+                    cmd.Parameters.AddWithValue("@NewService", serviceId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+        public static void SetNewMaster(int requestId, int masterId, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.DispexSetMaster(@WorkerId,@Id,@NewMaster);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", requestId);
+                    cmd.Parameters.AddWithValue("@NewMaster", masterId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+        public static void SetNewExecuter(int requestId, int executerId, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.DispexSetExecutor(@WorkerId,@Id,@NewExecuter);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", requestId);
+                    cmd.Parameters.AddWithValue("@NewExecuter", executerId);
+                    cmd.ExecuteNonQuery();
                 }
             }
 

@@ -34,6 +34,8 @@ namespace WebApi.Models
         public string Description { get; set; }
         public string ParentService { get; set; }
         public string Service { get; set; }
+        public int? ParentServiceId { get; set; }
+        public int? ServiceId { get; set; }
         public string ContactPhones { get; set; }
         public string MainFio { get; set; }
         public string Rating { get; set; }
