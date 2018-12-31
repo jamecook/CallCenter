@@ -699,6 +699,57 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     return requests.ToArray();
                 }
             }
+        }        public static WarrantyDocDto[] GetWarrantyDocs(int currentWorkerId, int requestId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery =
+                    "CALL CallCenter.WarrantyGetDocs(@CurWorker,@RequestId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+
+                    var docs = new List<WarrantyDocDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            docs.Add(new WarrantyDocDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                RequestId = dataReader.GetNullableInt("request_id"),
+                                CreateDate = dataReader.GetDateTime("create_date"),
+                                Direction = dataReader.GetString("direction"),
+                                
+                                CreateWorker = dataReader.GetNullableInt("worker_id") != null
+                                    ? new WorkerDto()
+                                    {
+                                        Id = dataReader.GetInt32("worker_id"),
+                                        SurName = dataReader.GetNullableString("sur_name"),
+                                        FirstName = dataReader.GetNullableString("first_name"),
+                                        PatrName = dataReader.GetNullableString("patr_name"),
+                                        Phone = dataReader.GetNullableString("phone"),
+                                    }
+                                    : null,
+                                Organization = dataReader.GetNullableInt("org_id") != null
+                                    ? new WarrantyOrganizationDto()
+                                    {
+                                        Id = dataReader.GetInt32("org_id"),
+                                        Name = dataReader.GetNullableString("org_name"),
+                                        Inn = dataReader.GetNullableString("org_inn"),
+                                        DirectorFio = dataReader.GetNullableString("director_fio"),
+                                    }
+                                    : null
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return docs.ToArray();
+                }
+            }
         }
         public static RequestForListDto[] WebRequestsByIds(int currentWorkerId, int[] requestIds)
         {

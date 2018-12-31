@@ -32,6 +32,13 @@ namespace WebApi.Controllers
             int.TryParse(workerIdStr, out int workerId);
             return RequestService.GetWarrantyTypes(workerId);
         }
+        [HttpGet("docs/{id}")]
+        public IEnumerable<WarrantyDocDto> GetDocs(int id)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetWarrantyDocs(workerId, id);
+        }
         [HttpGet("orgs")]
         public IEnumerable<WarrantyOrganizationDto> GetOrganizations()
         {
