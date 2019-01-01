@@ -12,11 +12,15 @@ namespace WebApi.Models
         [Required]
         public DateTime CreateDate { get; set; }
         [Required]
+        public DateTime InsertDate { get; set; }
+        [Required]
         public string Name { get; set; }
         [Required]
         public string Direction { get; set; }
         [Required]
         public WarrantyOrganizationDto Organization { get; set; }
+        [Required]
+        public WarrantyTypeDto Type { get; set; }
         [Required]
         public WorkerDto CreateWorker { get; set; }
     }

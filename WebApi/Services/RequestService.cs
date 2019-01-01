@@ -100,6 +100,7 @@ namespace WebApi.Services
             }
         }
 
+
         internal static void AddRefreshToken(int workerId, Guid refreshToken,DateTime expireDate)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -699,57 +700,6 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     return requests.ToArray();
                 }
             }
-        }        public static WarrantyDocDto[] GetWarrantyDocs(int currentWorkerId, int requestId)
-        {
-            using (var conn = new MySqlConnection(_connectionString))
-            {
-                conn.Open();
-                var sqlQuery =
-                    "CALL CallCenter.WarrantyGetDocs(@CurWorker,@RequestId)";
-                using (var cmd = new MySqlCommand(sqlQuery, conn))
-                {
-                    cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
-                    cmd.Parameters.AddWithValue("@RequestId", requestId);
-
-                    var docs = new List<WarrantyDocDto>();
-                    using (var dataReader = cmd.ExecuteReader())
-                    {
-                        while (dataReader.Read())
-                        {
-                            docs.Add(new WarrantyDocDto
-                            {
-                                Id = dataReader.GetInt32("id"),
-                                Name = dataReader.GetString("name"),
-                                RequestId = dataReader.GetNullableInt("request_id"),
-                                CreateDate = dataReader.GetDateTime("create_date"),
-                                Direction = dataReader.GetString("direction"),
-                                
-                                CreateWorker = dataReader.GetNullableInt("worker_id") != null
-                                    ? new WorkerDto()
-                                    {
-                                        Id = dataReader.GetInt32("worker_id"),
-                                        SurName = dataReader.GetNullableString("sur_name"),
-                                        FirstName = dataReader.GetNullableString("first_name"),
-                                        PatrName = dataReader.GetNullableString("patr_name"),
-                                        Phone = dataReader.GetNullableString("phone"),
-                                    }
-                                    : null,
-                                Organization = dataReader.GetNullableInt("org_id") != null
-                                    ? new WarrantyOrganizationDto()
-                                    {
-                                        Id = dataReader.GetInt32("org_id"),
-                                        Name = dataReader.GetNullableString("org_name"),
-                                        Inn = dataReader.GetNullableString("org_inn"),
-                                        DirectorFio = dataReader.GetNullableString("director_fio"),
-                                    }
-                                    : null
-                            });
-                        }
-                        dataReader.Close();
-                    }
-                    return docs.ToArray();
-                }
-            }
         }
         public static RequestForListDto[] WebRequestsByIds(int currentWorkerId, int[] requestIds)
         {
@@ -1146,28 +1096,182 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             }
 
         }
-
-        public static void SetGarantyState(int id, int newState, int type, string name, DateTime docDate, string fileName, int workerId)
+        public static WarrantyDocDto[] WarrantyGetDocs(int currentWorkerId, int requestId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = "call CallCenter.DispexSetGarantyState2(@WorkerId,@Id,@NewState,@TypeId,@Name,@DocDate,@FileName);";
+                var sqlQuery =
+                    "CALL CallCenter.WarrantyGetDocs(@CurWorker,@RequestId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+
+                    var docs = new List<WarrantyDocDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            docs.Add(new WarrantyDocDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                RequestId = dataReader.GetNullableInt("request_id"),
+                                CreateDate = dataReader.GetDateTime("create_date"),
+                                InsertDate = dataReader.GetDateTime("insert_date"),
+                                Direction = dataReader.GetString("direction"),
+
+                                CreateWorker = new WorkerDto()
+                                    {
+                                        Id = dataReader.GetInt32("worker_id"),
+                                        SurName = dataReader.GetNullableString("sur_name"),
+                                        FirstName = dataReader.GetNullableString("first_name"),
+                                        PatrName = dataReader.GetNullableString("patr_name"),
+                                        Phone = dataReader.GetNullableString("phone"),
+                                    },
+                                Organization = dataReader.GetNullableInt("org_id") != null
+                                 ? new WarrantyOrganizationDto()
+                                    {
+                                        Id = dataReader.GetInt32("org_id"),
+                                        Name = dataReader.GetNullableString("org_name"),
+                                        Inn = dataReader.GetNullableString("org_inn"),
+                                        DirectorFio = dataReader.GetNullableString("director_fio"),
+                                    }
+                                 : null,
+                                Type = new WarrantyTypeDto()
+                                {
+                                    Id = dataReader.GetInt32("type_id"),
+                                    Name = dataReader.GetNullableString("type_name"),
+                                    IsAct = dataReader.GetBoolean("is_act"),
+                                }
+
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return docs.ToArray();
+                }
+            }
+        }
+        public static WarrantyInfoDto WarrantyGetInfo(int currentWorkerId, int requestId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery =
+                    "CALL CallCenter.WarrantyGetInfo(@CurWorker,@RequestId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if(dataReader.Read())
+                        {
+                            return new WarrantyInfoDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                RequestId = dataReader.GetInt32("request_id"),
+                                StartDate = dataReader.GetNullableDateTime("start_date"),
+                                BeginDate = dataReader.GetNullableDateTime("begin_date"),
+                                EndDate = dataReader.GetNullableDateTime("end_date"),
+                                InsertDate = dataReader.GetDateTime("insert_date"),
+                                ContactName = dataReader.GetNullableString("contact_name"),
+                                ContactPhone = dataReader.GetNullableString("contact_phone"),
+                                OrgId = dataReader.GetNullableInt("org_id"),
+                                Organization = dataReader.GetNullableInt("org_id") != null
+                                    ? new WarrantyOrganizationDto()
+                                    {
+                                        Id = dataReader.GetInt32("org_id"),
+                                        Name = dataReader.GetNullableString("org_name"),
+                                        Inn = dataReader.GetNullableString("org_inn"),
+                                        DirectorFio = dataReader.GetNullableString("director_fio"),
+                                    }
+                                    : null,
+
+                            };
+                        }
+                        dataReader.Close();
+                    }
+                    return null;
+                }
+            }
+        }
+        public static void WarrantySetInfo(int workerId, WarrantyInfoDto info)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.WarrantyAddInfo(@WorkerId,@RequestId,@OrgId,@ContactName,@ContactPhone,@StartDate,@BeginDate,@EndDate);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@RequestId", info.RequestId);
+                    cmd.Parameters.AddWithValue("@OrgId", info.OrgId);
+                    cmd.Parameters.AddWithValue("@ContactName", info.ContactName);
+                    cmd.Parameters.AddWithValue("@ContactPhone", info.ContactPhone);
+                    cmd.Parameters.AddWithValue("@StartDate", info.StartDate);
+                    cmd.Parameters.AddWithValue("@BeginDate", info.BeginDate);
+                    cmd.Parameters.AddWithValue("@EndDate", info.EndDate);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+
+        public static void WarrantyAddDoc(int id,int? orgId, int typeId, string name, DateTime docDate, string fileName, string direction, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.WarrantyAddDoc(@WorkerId,@Id,@OrgId,@TypeId,@Name,@FileName,@DocDate,@Direction);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
                     cmd.Parameters.AddWithValue("@Id", id);
-                    cmd.Parameters.AddWithValue("@NewState", newState);
-                    cmd.Parameters.AddWithValue("@TypeId", type);
+                    cmd.Parameters.AddWithValue("@OrgId", orgId);
+                    cmd.Parameters.AddWithValue("@TypeId", typeId);
                     cmd.Parameters.AddWithValue("@Name", name);
                     cmd.Parameters.AddWithValue("@DocDate", docDate);
                     cmd.Parameters.AddWithValue("@FileName", fileName);
+                    cmd.Parameters.AddWithValue("@Direction", direction);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static void WarrantyDeleteDoc(int id, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.WarrantyDeleteDoc(@WorkerId,@Id);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static void WarrantySetState(int id, int stateId, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.WarrantySetState(@WorkerId,@Id,@State);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.Parameters.AddWithValue("@State", stateId);
                     cmd.ExecuteNonQuery();
                 }
             }
         }
 
-        public static IEnumerable<WarrantyTypesDto> GetWarrantyTypes(int workerId)
+        public static IEnumerable<WarrantyTypeDto> WarrantyGetTypes(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -1177,12 +1281,12 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
-                    var list = new List<WarrantyTypesDto>();
+                    var list = new List<WarrantyTypeDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
                         {
-                            var type = new WarrantyTypesDto()
+                            var type = new WarrantyTypeDto()
                             {
                                 Id = dataReader.GetInt32("id"),
                                 Name = dataReader.GetString("name"),
@@ -1196,7 +1300,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 }
             }
         }
-        public static IEnumerable<WarrantyOrganizationDto> GetWarrantyOrganizations(int workerId)
+        public static IEnumerable<WarrantyOrganizationDto> WarrantyGetOrganizations(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -1226,7 +1330,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 }
             }
         }
-        public static void AddWarrantyOrg(int workerId, WarrantyOrganizationDto organization)
+        public static void WarrantyAddOrg(int workerId, WarrantyOrganizationDto organization)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -1242,7 +1346,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 }
             }
         }
-        public static void EditWarrantyOrg(int workerId, WarrantyOrganizationDto organization)
+        public static void WarrantyEditOrg(int workerId, WarrantyOrganizationDto organization)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {

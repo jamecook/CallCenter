@@ -370,33 +370,33 @@ namespace WebApi.Controllers
             return BadRequest();
         }
 
-        [HttpPut("set_garanty_state/{id}")]
-        public IActionResult SetGarantyState(int id, [FromForm] IFormFile file, [FromForm] int type, [FromForm] int newState,
-            [FromForm] string name, [FromForm] DateTime docDate)
-        {
-            if (id == 0 || file == null || file.Length == 0 || type == 0)
-            {
-                return BadRequest();
-            }
-            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
-            if (int.TryParse(workerIdStr, out int workerId))
-            {
-                var uploadFolder = Path.Combine(GetRootFolder(), id.ToString());
-                if (!Directory.Exists(uploadFolder))
-                {
-                    Directory.CreateDirectory(uploadFolder);
-                }
-                var fileExtension = Path.GetExtension(file.FileName);
-                var fileName = Guid.NewGuid() + fileExtension;
-                using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
-                {
-                    file.CopyTo(fileStream);
-                }
-                RequestService.SetGarantyState(id, newState, type, name, docDate, fileName, workerId);
-                return Ok();
-            }
-            return BadRequest();
-        }
+        //[HttpPut("set_garanty_state/{id}")]
+        //public IActionResult SetGarantyState(int id, [FromForm] IFormFile file, [FromForm] int type, [FromForm] int newState,
+        //    [FromForm] string name, [FromForm] DateTime docDate)
+        //{
+        //    if (id == 0 || file == null || file.Length == 0 || type == 0)
+        //    {
+        //        return BadRequest();
+        //    }
+        //    var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+        //    if (int.TryParse(workerIdStr, out int workerId))
+        //    {
+        //        var uploadFolder = Path.Combine(GetRootFolder(), id.ToString());
+        //        if (!Directory.Exists(uploadFolder))
+        //        {
+        //            Directory.CreateDirectory(uploadFolder);
+        //        }
+        //        var fileExtension = Path.GetExtension(file.FileName);
+        //        var fileName = Guid.NewGuid() + fileExtension;
+        //        using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
+        //        {
+        //            file.CopyTo(fileStream);
+        //        }
+        //        RequestService.SetGarantyState(id, newState, type, name, docDate, fileName, workerId);
+        //        return Ok();
+        //    }
+        //    return BadRequest();
+        //}
         private string GetRootFolder()
         {
             return Configuration.GetValue<string>("Settings:RootFolder");

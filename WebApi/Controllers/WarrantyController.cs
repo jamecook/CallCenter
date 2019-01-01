@@ -26,62 +26,24 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("types")]
-        public IEnumerable<WarrantyTypesDto> GetTypes()
+        public IEnumerable<WarrantyTypeDto> GetTypes()
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.GetWarrantyTypes(workerId);
+            return RequestService.WarrantyGetTypes(workerId);
         }
         [HttpGet("docs/{id}")]
         public IEnumerable<WarrantyDocDto> GetDocs(int id)
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.GetWarrantyDocs(workerId, id);
+            return RequestService.WarrantyGetDocs(workerId, id);
         }
-        [HttpGet("orgs")]
-        public IEnumerable<WarrantyOrganizationDto> GetOrganizations()
+        [HttpPost("docs/{id}")]
+        public IActionResult AddDoc(int id, [FromForm] IFormFile file, [FromForm] int typeId, [FromForm] int? orgId,
+           [FromForm] string name, [FromForm] DateTime docDate, [FromForm] string direction)
         {
-            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
-            int.TryParse(workerIdStr, out int workerId);
-            return RequestService.GetWarrantyOrganizations(workerId);
-        }
-        [HttpPost("orgs")]
-        public IActionResult AddOrganization([FromBody]WarrantyOrganizationDto org)
-        {
-            try
-            {
-                var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
-                int.TryParse(workerIdStr, out int workerId);
-                RequestService.AddWarrantyOrg(workerId, org);
-                return Ok();
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-        [HttpPut("orgs/{id}")]
-        public IActionResult EditOrganization(int id,[FromBody]WarrantyOrganizationDto org)
-        {
-            try
-            {
-                var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
-                int.TryParse(workerIdStr, out int workerId);
-                org.Id = id;
-                RequestService.EditWarrantyOrg(workerId, org);
-                return Ok();
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-        [HttpPut("set_state/{id}")]
-        public IActionResult SetWarrantyState(int id, [FromForm] IFormFile file, [FromForm] int type, [FromForm] int newState,
-           [FromForm] string name, [FromForm] DateTime docDate)
-        {
-            if (id == 0 || file == null || file.Length == 0 || type == 0)
+            if (id == 0 || file == null || file.Length == 0 || typeId == 0)
             {
                 return BadRequest();
             }
@@ -99,7 +61,112 @@ namespace WebApi.Controllers
                 {
                     file.CopyTo(fileStream);
                 }
-                RequestService.SetGarantyState(id, newState, type, name, docDate, fileName, workerId);
+                RequestService.WarrantyAddDoc(id, orgId, typeId, name, docDate, fileName, direction, workerId);
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpDelete("docs/{id}")]
+        public IActionResult DeleteDoc(int id)
+        {
+            if (id == 0)
+            {
+                return BadRequest();
+            }
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if (int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.WarrantyDeleteDoc(id, workerId);
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpGet("info/{id}")]
+        public WarrantyInfoDto GetInfo(int id)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.WarrantyGetInfo(workerId, id);
+        }
+
+        [HttpPut("info/{id}")]
+        public IActionResult SetInfo(int id,[FromBody]WarrantyInfoDto info)
+        {
+            try
+            {
+                var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+                int.TryParse(workerIdStr, out int workerId);
+                RequestService.WarrantySetInfo(workerId, info);
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("orgs")]
+        public IEnumerable<WarrantyOrganizationDto> GetOrganizations()
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.WarrantyGetOrganizations(workerId);
+        }
+        [HttpPost("orgs")]
+        public IActionResult AddOrganization([FromBody]WarrantyOrganizationDto org)
+        {
+            try
+            {
+                var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+                int.TryParse(workerIdStr, out int workerId);
+                RequestService.WarrantyAddOrg(workerId, org);
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+        [HttpPut("orgs/{id}")]
+        public IActionResult EditOrganization(int id,[FromBody]WarrantyOrganizationDto org)
+        {
+            try
+            {
+                var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+                int.TryParse(workerIdStr, out int workerId);
+                org.Id = id;
+                RequestService.WarrantyEditOrg(workerId, org);
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+        [HttpPut("set_state/{id}")]
+        public IActionResult SetWarrantyState(int id, [FromForm] IFormFile file, [FromForm] int typeId, [FromForm] int newState,
+           [FromForm] string name, [FromForm] DateTime docDate)
+        {
+            if (id == 0 || file == null || file.Length == 0 || typeId == 0)
+            {
+                return BadRequest();
+            }
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if (int.TryParse(workerIdStr, out int workerId))
+            {
+                var uploadFolder = Path.Combine(GetRootFolder(), id.ToString());
+                if (!Directory.Exists(uploadFolder))
+                {
+                    Directory.CreateDirectory(uploadFolder);
+                }
+                var fileExtension = Path.GetExtension(file.FileName);
+                var fileName = Guid.NewGuid() + fileExtension;
+                using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
+                {
+                    file.CopyTo(fileStream);
+                }
+                RequestService.WarrantyAddDoc(id, null, typeId, name, docDate, fileName, "in", workerId);
+                RequestService.WarrantySetState(id, newState, workerId);
                 return Ok();
             }
             return BadRequest();
