@@ -1271,13 +1271,13 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             }
         }
 
-        public static IEnumerable<WarrantyTypeDto> WarrantyGetTypes(int workerId)
+        public static IEnumerable<WarrantyTypeDto> WarrantyGetDocTypes(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
 
-                var sqlQuery = @"CALL CallCenter.WarrantyGetTypes(@WorkerId)";
+                var sqlQuery = @"CALL CallCenter.WarrantyGetDocTypes(@WorkerId)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1359,6 +1359,36 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     cmd.Parameters.AddWithValue("@Inn", organization.Inn);
                     cmd.Parameters.AddWithValue("@Fio", organization.DirectorFio);
                     cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static WarrantyFileInfoDto WarrantyGetDocFileName(int workerId, int id)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery =
+                    "CALL CallCenter.WarrantyGetDocFileName(@CurWorker,@DocId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", workerId);
+                    cmd.Parameters.AddWithValue("@DocId", id);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            return new WarrantyFileInfoDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                RequestId = dataReader.GetInt32("request_id"),
+                                Name = dataReader.GetNullableString("name"),
+                                FileName = dataReader.GetString("filename")
+                            };
+                        }
+                        dataReader.Close();
+                    }
+                    return null;
                 }
             }
         }

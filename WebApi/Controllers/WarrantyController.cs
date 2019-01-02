@@ -25,12 +25,12 @@ namespace WebApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet("types")]
-        public IEnumerable<WarrantyTypeDto> GetTypes()
+        [HttpGet("doc_types")]
+        public IEnumerable<WarrantyTypeDto> GetDocTypes()
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.WarrantyGetTypes(workerId);
+            return RequestService.WarrantyGetDocTypes(workerId);
         }
         [HttpGet("docs/{id}")]
         public IEnumerable<WarrantyDocDto> GetDocs(int id)
@@ -170,6 +170,19 @@ namespace WebApi.Controllers
                 return Ok();
             }
             return BadRequest();
+        }
+        [HttpGet("docs/file/{id}")]
+        public byte[] GetDocAttachment(int id)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if (int.TryParse(workerIdStr, out int workerId))
+            {
+
+                var rootFolder = GetRootFolder();
+                var fileInfo = RequestService.WarrantyGetDocFileName(workerId, id);
+                return RequestService.DownloadFile(fileInfo.RequestId, fileInfo.FileName, rootFolder);
+            }
+            return null;
         }
         private string GetRootFolder()
         {
