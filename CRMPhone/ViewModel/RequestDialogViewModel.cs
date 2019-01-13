@@ -87,7 +87,7 @@ namespace CRMPhone.ViewModel
                 EndTime = sched.ToDate,
             } : null;
             requestModel.OpenAppointment = requestModel.SelectedAppointment;
-            //requestModel.Gatanty = request.Garanty;
+            //requestModel.Gatanty = request.Warranty;
             requestModel.SelectedGaranty = requestModel.GarantyList.FirstOrDefault(g => g.Id == request.GarantyId);
 
             requestModel.RequestCreator = request.CreateUser.ShortName;

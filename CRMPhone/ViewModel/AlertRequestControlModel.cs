@@ -99,7 +99,7 @@ namespace CRMPhone.ViewModel
             requestModel.IsImmediate = request.IsImmediate;
             requestModel.IsBadWork = request.IsBadWork;
             requestModel.IsRetry = request.IsRetry;
-            //requestModel.Gatanty = request.Garanty;
+            //requestModel.Gatanty = request.Warranty;
             requestModel.SelectedGaranty = requestModel.GarantyList.FirstOrDefault(g => g.Id == request.GarantyId);
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;

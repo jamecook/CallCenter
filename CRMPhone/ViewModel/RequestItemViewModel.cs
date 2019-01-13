@@ -65,8 +65,8 @@ namespace CRMPhone.ViewModel
             Rating = new RequestRatingDto();
             GarantyList = new ObservableCollection<GarantyDto>(new GarantyDto[] {
                 new GarantyDto{Id=0,Name = "Обычная"},
-            //new GarantyDto{Id=2,Name = "Вероятно гарантия"},
             new GarantyDto{Id=1,Name = "Гарантия"},
+            new GarantyDto{Id=2,Name = "Возможно гарантия"},
             });
             SelectedGaranty = GarantyList.FirstOrDefault();
         }
