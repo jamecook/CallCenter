@@ -13,5 +13,6 @@ namespace WebApi.Models
         public bool? IsChargeable { get; set; }
         public string Description { get; set; }
         public DateTime? ExecuteDate { get; set; }
+        public int? WarrantyId { get; set; }
     }
 }

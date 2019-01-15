@@ -82,7 +82,8 @@ namespace WebApi.Controllers
             [FromQuery] bool? onlyRetry,
             [FromQuery] bool? chargeable,
             [FromQuery] string clientPhone,
-            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates
             )
 
         {
@@ -109,7 +110,7 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                 fromDate ?? DateTime.Today,
                 toDate ?? DateTime.Today.AddDays(1),
-                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,warranties,
+                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,warranties, immediates,
                 badWork ?? false,
                 garanty ?? false, onlyRetry ?? false,chargeable ?? false, clientPhone);
         }
@@ -151,7 +152,7 @@ namespace WebApi.Controllers
             _logger.LogDebug("Create Request: "+JsonConvert.SerializeObject(value));
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.CreateRequest(workerId, value.Phone, value.Name, value.AddressId, value.TypeId, value.MasterId, value.ExecuterId, value.Description,value.IsChargeable ?? false, value.ExecuteDate);
+            return RequestService.CreateRequest(workerId, value.Phone, value.Name, value.AddressId, value.TypeId, value.MasterId, value.ExecuterId, value.Description,value.IsChargeable ?? false, value.ExecuteDate, value.WarrantyId ?? 0);
         }
 
         [HttpGet("workers")]

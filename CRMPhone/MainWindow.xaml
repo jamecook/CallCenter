@@ -106,7 +106,8 @@
                     <DataTemplate>
                         <DockPanel Margin="0,2">
                             <TextBlock Margin ="2" Text="{Binding Path=CreateTime, StringFormat='{}{0:HH:mm}'}" />
-                            <TextBlock Margin ="2" Foreground="Blue" FontWeight="DemiBold" Text="{Binding Path=CallerIdNum}" />
+                            <TextBlock Margin ="2" Foreground="{Binding Path=Color}" FontWeight="DemiBold" Text="{Binding Path=CallerIdNum}" />
+                            <TextBlock Margin ="2" FontWeight="DemiBold" Text="{Binding Path=WaitSecondText}" />
                             <Button  Margin="2" Width="24" Height="24" 
                                  Command="{Binding Path=DataContext.GetCallFromQueryCommand, ElementName=ActiveCallsListBox}"
                                      CommandParameter="{Binding}"

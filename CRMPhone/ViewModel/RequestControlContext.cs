@@ -266,6 +266,7 @@ namespace CRMPhone.ViewModel
                                         new XElement("ВыполнениеПо", request.ToTime?.ToString("HH:mm:ss") ?? ""),
                                         new XElement("ПотраченоВремени", request.SpendTime),
                                         new XElement("Гарантийная", request.GarantyTest),
+                                        new XElement("Аварийная", request.ImmediateText),
                                         new XElement("Оценка", request.Rating),
                                         new XElement("Комментарий_К_Оценке", request.RatingDescription),
                                         new XElement("Повторная", request.IsRetry?"Да":""),
@@ -337,7 +338,8 @@ namespace CRMPhone.ViewModel
                     ConstructCell("Гарантийная", CellValues.String),
                     ConstructCell("Оценка", CellValues.String),
                     ConstructCell("Комментарий К Оценке", CellValues.String),
-                    ConstructCell("Повторная", CellValues.String)
+                    ConstructCell("Повторная", CellValues.String),
+                    ConstructCell("Аварийная", CellValues.String)
                 );
                 // Insert the header row to the Sheet Data
                 sheetData.AppendChild(row);
@@ -370,7 +372,8 @@ namespace CRMPhone.ViewModel
                             ConstructCell(request.GarantyTest, CellValues.String),
                             ConstructCell(request.Rating, CellValues.String),
                             ConstructCell(request.RatingDescription, CellValues.String),
-                            ConstructCell(request.IsRetry ? "Да" : "", CellValues.String));
+                            ConstructCell(request.IsRetry ? "Да" : "", CellValues.String),
+                            ConstructCell(request.ImmediateText, CellValues.String));
 
                         sheetData.AppendChild(row);
                     }
@@ -473,6 +476,7 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<FieldForFilterDto> _filterParentServiceList;
         private string _parentServiceText;
         private bool _onlyGaranty;
+        private bool _onlyImmediate;
 
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
@@ -599,6 +603,11 @@ namespace CRMPhone.ViewModel
         {
             get { return _onlyGaranty; }
             set { _onlyGaranty = value; OnPropertyChanged(nameof(OnlyGaranty)); }
+        }
+        public bool OnlyImmediate
+        {
+            get { return _onlyImmediate; }
+            set { _onlyImmediate = value; OnPropertyChanged(nameof(OnlyImmediate)); }
         }
 
         public string ClientPhone
@@ -812,7 +821,7 @@ namespace CRMPhone.ViewModel
                 FilterServiceCompanyList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterUserList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterRatingList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
-                SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone, OnlyGaranty);
+                SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone, OnlyGaranty, OnlyImmediate);
             foreach (var request in requests)
             {
                 RequestList.Add(request);

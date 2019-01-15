@@ -553,7 +553,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 }
             }
         }
-        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, string clientPhone = null)
+        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -561,7 +561,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             {
                 conn.Open();
                 var sqlQuery =
-                    "CALL CallCenter.DispexGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@WarrantyIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable)";
+                    "CALL CallCenter.DispexGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@WarrantyIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable,@ImmediateIds)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -619,6 +619,10 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     cmd.Parameters.AddWithValue("@WarrantyIds",
                         warrantyIds != null && warrantyIds.Length > 0
                             ? warrantyIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@ImmediateIds",
+                        immediateIds != null && immediateIds.Length > 0
+                            ? immediateIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
                             : null);
 
                     var requests = new List<RequestForListDto>();
@@ -892,13 +896,13 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
         }
 
-        public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId, int? executerId, string description, bool isChargeable = false, DateTime? executeDate = null)
+        public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId, int? executerId, string description, bool isChargeable = false, DateTime? executeDate = null,int warrantyId = 0)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 var query =
-                    "call CallCenter.DispexCreateRequest2(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc,@IsChargeable,@ExecuteDate);";
+                    "call CallCenter.DispexCreateRequest(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc,@IsChargeable,@ExecuteDate,@IsWarranty);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -911,6 +915,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     cmd.Parameters.AddWithValue("@Desc", description);
                     cmd.Parameters.AddWithValue("@IsChargeable", isChargeable);
                     cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
+                    cmd.Parameters.AddWithValue("@IsWarranty", warrantyId);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         dataReader.Read();
@@ -1117,6 +1122,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             {
                                 Id = dataReader.GetInt32("id"),
                                 Name = dataReader.GetString("name"),
+                                Extension = dataReader.GetString("extension"),
                                 RequestId = dataReader.GetNullableInt("request_id"),
                                 CreateDate = dataReader.GetDateTime("create_date"),
                                 InsertDate = dataReader.GetDateTime("insert_date"),
@@ -1221,12 +1227,12 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
 
         }
 
-        public static void WarrantyAddDoc(int id,int? orgId, int typeId, string name, DateTime docDate, string fileName, string direction, int workerId)
+        public static void WarrantyAddDoc(int id,int? orgId, int typeId, string name, DateTime docDate, string fileName, string direction, int workerId, string extension)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = "call CallCenter.WarrantyAddDoc(@WorkerId,@Id,@OrgId,@TypeId,@Name,@FileName,@DocDate,@Direction);";
+                var query = "call CallCenter.WarrantyAddDoc(@WorkerId,@Id,@OrgId,@TypeId,@Name,@FileName,@DocDate,@Direction,@Extension);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1237,6 +1243,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     cmd.Parameters.AddWithValue("@DocDate", docDate);
                     cmd.Parameters.AddWithValue("@FileName", fileName);
                     cmd.Parameters.AddWithValue("@Direction", direction);
+                    cmd.Parameters.AddWithValue("@Extension", extension);
                     cmd.ExecuteNonQuery();
                 }
             }

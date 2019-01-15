@@ -1544,7 +1544,7 @@ namespace CRMPhone.ViewModel
         private void RefreshActiveChannels()
         {
             var readedChannels = new List<ActiveChannelsDto>();
-            using (var cmd = new MySqlCommand("SELECT * FROM asterisk.ActiveChannels where Application = 'queue' and BridgeId is null", _dbRefreshConnection))
+            using (var cmd = new MySqlCommand("SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf FROM asterisk.ActiveChannels where Application = 'queue' and BridgeId is null order by UniqueID", _dbRefreshConnection))
             using (var dataReader = cmd.ExecuteReader())
             {
                 while (dataReader.Read())
@@ -1556,6 +1556,8 @@ namespace CRMPhone.ViewModel
                         CallerIdNum = dataReader.GetNullableString("CallerIDNum"),
                         ChannelState = dataReader.GetNullableString("ChannelState"),
                         AnswerTime = dataReader.GetNullableDateTime("AnswerTime"),
+                        WaitSecond = dataReader.GetInt32("waitSec"),
+                        IvrDtmf = dataReader.GetNullableInt("ivr_dtmf"),
                         CreateTime = dataReader.GetNullableDateTime("CreateTime")
                     });
                 }
@@ -1565,6 +1567,14 @@ namespace CRMPhone.ViewModel
             var newChannels = readedChannels.Where(n => ActiveChannels.All(c => c.UniqueId != n.UniqueId)).ToList();
             newChannels.ForEach(c => ActiveChannels.Add(c));
             remotedChannels.ForEach(c => ActiveChannels.Remove(c));
+            foreach (var channel in readedChannels)
+            {
+                var activeChannel = ActiveChannels.Where(c => c.UniqueId == channel.UniqueId).FirstOrDefault();
+                if (activeChannel != null)
+                {
+                    activeChannel.WaitSecond = channel.WaitSecond;
+                }
+            }
         }
 
         private void RefreshNotAnsweredCalls()

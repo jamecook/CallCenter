@@ -40,10 +40,12 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.4.10\lib\net40\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
@@ -128,6 +130,7 @@
     <Compile Include="MeterListDto.cs" />
     <Compile Include="MetersDto.cs" />
     <Compile Include="MysqlDecorator.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="RequestService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestWebService.cs" />

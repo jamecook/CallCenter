@@ -16,6 +16,8 @@ namespace WebApi.Models
         [Required]
         public string Name { get; set; }
         [Required]
+        public string Extension { get; set; }
+        [Required]
         public string Direction { get; set; }
         [Required]
         public WarrantyOrganizationDto Organization { get; set; }

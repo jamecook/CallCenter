@@ -131,7 +131,7 @@ namespace RequestServiceImpl
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
-            var sqlQuery = "CALL CallCenter.WebGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetId,@HouseId,@AddressId,@ParentServiceId,@ServiceId,@StatusId,@WorkerId,@BadWork,@Garanty,@ClientPhone,null,@Rating)";
+            var sqlQuery = "CALL CallCenter.WebGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetId,@HouseId,@AddressId,@ParentServiceId,@ServiceId,@StatusId,@WorkerId,@BadWork,@Warranty,@ClientPhone,null,@Rating)";
             using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -149,7 +149,7 @@ namespace RequestServiceImpl
                 cmd.Parameters.AddWithValue("@StatusId", statusId);
                 cmd.Parameters.AddWithValue("@WorkerId", workerId);
                 cmd.Parameters.AddWithValue("@BadWork", badWork);
-                cmd.Parameters.AddWithValue("@Garanty", garanty);
+                cmd.Parameters.AddWithValue("@Warranty", garanty);
                 cmd.Parameters.AddWithValue("@ClientPhone", clientPhone);
                 cmd.Parameters.AddWithValue("@Rating", rating);
 
@@ -195,7 +195,8 @@ namespace RequestServiceImpl
                             RatingDescription = dataReader.GetNullableString("RatingDesc"),
                             BadWork = dataReader.GetBoolean("bad_work"),
                             IsRetry = dataReader.GetBoolean("retry"),
-                            Garanty = dataReader.GetBoolean("garanty"),
+                            Warranty = dataReader.GetInt32("garanty"),
+                            Immediate = dataReader.GetBoolean("is_immediate"),
                             StatusId = dataReader.GetInt32("req_status_id"),
                             Status = dataReader.GetNullableString("Req_Status"),
                         });
@@ -209,7 +210,7 @@ namespace RequestServiceImpl
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
-            var sqlQuery = "CALL CallCenter.WebGetRequestsArrayParam(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@BadWork,@Garanty,@ClientPhone,@RatingIds)";
+            var sqlQuery = "CALL CallCenter.WebGetRequestsArrayParam(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@BadWork,@Warranty,@ClientPhone,@RatingIds)";
             using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -228,7 +229,7 @@ namespace RequestServiceImpl
                 cmd.Parameters.AddWithValue("@WorkerIds", workerIds != null && workerIds.Length > 0 ? workerIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j) : null);
                 cmd.Parameters.AddWithValue("@ExecuterIds", executerIds != null && executerIds.Length > 0 ? executerIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j) : null);
                 cmd.Parameters.AddWithValue("@BadWork", badWork);
-                cmd.Parameters.AddWithValue("@Garanty", garanty);
+                cmd.Parameters.AddWithValue("@Warranty", garanty);
                 cmd.Parameters.AddWithValue("@ClientPhone", clientPhone);
                 cmd.Parameters.AddWithValue("@RatingIds", ratingIds != null && ratingIds.Length > 0 ? ratingIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j) : null);
 
@@ -279,7 +280,7 @@ namespace RequestServiceImpl
                             Rating = dataReader.GetNullableString("Rating"),
                             BadWork = dataReader.GetBoolean("bad_work"),
                             IsRetry = dataReader.GetBoolean("retry"),
-                            Garanty = dataReader.GetBoolean("garanty"),
+                            Warranty = dataReader.GetInt32("garanty"),
                             StatusId = dataReader.GetInt32("req_status_id"),
                             Status = dataReader.GetNullableString("Req_Status"),
                             TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),

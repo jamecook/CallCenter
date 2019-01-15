@@ -61,7 +61,7 @@ namespace WebApi.Controllers
                 {
                     file.CopyTo(fileStream);
                 }
-                RequestService.WarrantyAddDoc(id, orgId, typeId, name, docDate, fileName, direction, workerId);
+                RequestService.WarrantyAddDoc(id, orgId, typeId, name, docDate, fileName, direction, workerId, fileExtension?.TrimStart('.'));
                 return Ok();
             }
             return BadRequest();
@@ -165,7 +165,7 @@ namespace WebApi.Controllers
                 {
                     file.CopyTo(fileStream);
                 }
-                RequestService.WarrantyAddDoc(id, null, typeId, name, docDate, fileName, "in", workerId);
+                RequestService.WarrantyAddDoc(id, null, typeId, name, docDate, fileName, "in", workerId, fileExtension?.TrimStart('.'));
                 RequestService.WarrantySetState(id, newState, workerId);
                 return Ok();
             }

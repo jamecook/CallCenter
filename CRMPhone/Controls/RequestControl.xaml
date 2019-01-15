@@ -143,6 +143,7 @@
                     <CheckBox Margin="5" VerticalAlignment="Center" Content="Для обсуждения!" Foreground="Red" IsChecked="{Binding ServiceCompanyBadWork}"/>
                     <CheckBox Margin="5" VerticalAlignment="Center" Content="Повторная" Foreground="Red" IsChecked="{Binding OnlyRetry}"/>
                     <CheckBox Margin="5" VerticalAlignment="Center" Content="Гарантия" Foreground="Red" IsChecked="{Binding OnlyGaranty}"/>
+                    <CheckBox Margin="5" VerticalAlignment="Center" Content="Аварийные" Foreground="Red" IsChecked="{Binding OnlyImmediate}"/>
                 </WrapPanel>
             </Expander>
 
@@ -436,6 +437,15 @@
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Гарантийная" Width="100"
                              Binding="{Binding Path=GarantyTest}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Аварийная" Width="80"
+                             Binding="{Binding Path=ImmediateText}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextWrapping" Value="Wrap"/>

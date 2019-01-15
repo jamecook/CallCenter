@@ -34,8 +34,8 @@ namespace RequestServiceImpl.Dto
         public string Rating { get; set; }
         public string RatingDescription { get; set; }
         public bool BadWork { get; set; }
-        public bool Garanty { get; set; }
-        public string GarantyTest => Garanty ? "Да" : "Нет";
+        public int Warranty { get; set; }
+        public string GarantyTest => Warranty==2 ? "Возможно гарантия" : Warranty == 1? "Да" : "Нет";
         public int StatusId { get; set; }
         public string Status { get; set; }
         public string SpendTime { get; set; }
@@ -44,8 +44,8 @@ namespace RequestServiceImpl.Dto
         public DateTime? AlertTime { get; set; }
         public string LastNote { get; set; }
         public string ServiceCompany { get; set; }
-
-
+        public bool Immediate { get; set; }
+        public string ImmediateText => Immediate ? "Да" : "Нет";
         public string FullAddress
         {
             //get { return string.IsNullOrEmpty(Corpus)?$"{StreetPrefix} {StreetName}, {Building}, {AddressType} {Flat}"
@@ -53,7 +53,7 @@ namespace RequestServiceImpl.Dto
             get
             {
                 return string.IsNullOrEmpty(Corpus) ? $"{StreetName}, {Building}, {Flat}"
-                  : $"{StreetName}, {Building}/{Corpus}, {Flat}";
+                  : $"{StreetName}, {Building} к.{Corpus}, {Flat}";
             }
         }
 

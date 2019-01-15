@@ -62,7 +62,7 @@ namespace WebApi.Models
             get
             {
                 return string.IsNullOrEmpty(Corpus) ? $"{StreetName}, {Building}, {Flat}"
-                  : $"{StreetName}, {Building}/{Corpus}, {Flat}";
+                  : $"{StreetName}, {Building} к.{Corpus}, {Flat}";
             }
         }
 

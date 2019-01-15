@@ -920,7 +920,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             return null;
         }
 
-        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone, bool onlyGaranty)
+        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone, bool onlyGaranty, bool onlyImmediate)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -929,7 +929,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
     R.worker_id, w.sur_name,w.first_name,w.patr_name,case when create_user_id = 0 then cw.id else create_user_id end create_user_id,
     case when create_user_id = 0 then cw.sur_name else u.surname end surname,
     case when create_user_id = 0 then cw.first_name else u.firstname end firstname,
-    case when create_user_id = 0 then cw.patr_name else u.patrname end patrname,
+    case when create_user_id = 0 then cw.patr_name else u.patrname end patrname, R.is_immediate,
     R.execute_date,p.Name Period_Name, R.description,rt.name service_name, rt2.name parent_name, group_concat(distinct cp.Number order by rc.IsMain desc separator ', ') client_phones,
     (SELECT name from CallCenter.RequestContacts rc2
     join CallCenter.ClientPhones cp2 on cp2.id = rc2.ClientPhone_id
@@ -1017,6 +1017,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     sqlQuery += " and R.retry = 1";
                 if (onlyGaranty)
                     sqlQuery += " and R.garanty = 1";
+                if (onlyImmediate)
+                    sqlQuery += " and R.is_immediate = 1";
                 if (!string.IsNullOrEmpty(clientPhone))
                     sqlQuery += $" and cp.Number like '%{clientPhone}'";
             }
@@ -1051,7 +1053,8 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                             HasAttachment = dataReader.GetBoolean("has_attach"),
                             IsBadWork = dataReader.GetBoolean("bad_work"),
                             IsRetry = dataReader.GetBoolean("retry"),
-                            Garanty = dataReader.GetBoolean("garanty"),
+                            Warranty = dataReader.GetInt32("garanty"),
+                            Immediate = dataReader.GetBoolean("is_immediate"),
                             HasRecord = !string.IsNullOrEmpty(recordUniqueId),
                             RecordUniqueId = recordUniqueId,
                             StreetPrefix = dataReader.GetString("prefix_name"),
