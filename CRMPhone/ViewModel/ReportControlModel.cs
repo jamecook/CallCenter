@@ -121,13 +121,19 @@ namespace CRMPhone.ViewModel
                                 new XElement("Record",
                                     new[]
                                     {
+                                        new XElement("ID", record.LinkedId),
                                         new XElement("Ќомер", record.CallerIdNum),
-                                        new XElement("ƒата«вонка", record.CreateTime),
-                                        new XElement("ƒатаќтвета", record.AnswerTime),
-                                        new XElement("ƒатаќкончани€", record.EndTime),
-                                        new XElement("ќжидание", record.WaitSec),
-                                        new XElement("ѕродолжительность", record.CallTime),
-                                        new XElement("ќписание", record.Result),
+                                        new XElement("¬х«вонок", record.InCreateTime.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("ќтветЌа¬х", record.InBridgedTime?.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("ќкончани€¬х", record.InEndTime.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("¬нутреннийЌомер", record.Phone),
+                                        new XElement("ќтвет", record.Result),
+                                        new XElement("«вонок¬нут", record.CreateTime.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("ќтвет¬нут", record.BridgedTime?.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("ќкончани€¬нут", record.EndTime.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("ќжидание", record.ClientWaitSec),
+                                        new XElement("¬рем€«вонка", record.CallDuration),
+                                        new XElement("¬рем€–азговора", record.TalkDuration),
                                     }));
                         }
                         var saver = new FileStream(fileName, FileMode.Create);

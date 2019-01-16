@@ -1207,7 +1207,7 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             }
         } public IList<StatIvrCallListDto> GetIvrStatCalls(DateTime fromDate,DateTime toDate)
         {
-            var sqlQuery = "call CallCenter.StatGetIvrRedirects(@From,@To);";
+            var sqlQuery = "call CallCenter.StatGetIvrRedirectsNew(@From,@To);";
             using (var cmd =
                 new MySqlCommand(sqlQuery, _dbConnection))
             {
@@ -1221,13 +1221,19 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                     {
                         requests.Add(new StatIvrCallListDto
                         {
+                            LinkedId = dataReader.GetNullableString("LinkedID"),
                             CallerIdNum = dataReader.GetNullableString("CallerIDNum"),
+                            InCreateTime = dataReader.GetDateTime("InCreateTime"),
+                            InEndTime = dataReader.GetDateTime("InEndTime"),
+                            InBridgedTime = dataReader.GetNullableDateTime("InBridgedTime"),
+                            Phone = dataReader.GetNullableString("phone"),
+                            Result = dataReader.GetNullableString("result"),
                             CreateTime = dataReader.GetDateTime("CreateTime"),
                             EndTime = dataReader.GetDateTime("EndTime"),
-                            AnswerTime = dataReader.GetNullableDateTime("AnswerTime"),
-                            Result = dataReader.GetNullableString("result"),
-                            WaitSec = dataReader.GetNullableInt("waitSec"),
-                            CallTime = dataReader.GetInt32("callTime")
+                            BridgedTime = dataReader.GetNullableDateTime("BridgedTime"),
+                            TalkDuration = dataReader.GetNullableInt("talkDuration"),
+                            ClientWaitSec = dataReader.GetInt32("clientWait"),
+                            CallDuration = dataReader.GetInt32("callDuration")
                         });
                     }
                     dataReader.Close();
