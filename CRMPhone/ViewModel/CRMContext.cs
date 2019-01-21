@@ -368,6 +368,8 @@ namespace CRMPhone.ViewModel
 
         private ICommand _getCallFromQueryCommand;
         public ICommand GetCallFromQueryCommand { get { return _getCallFromQueryCommand ?? (_getCallFromQueryCommand = new RelayCommand(GetCallFromQuery)); } }
+        private ICommand _deleteCallFromListCommand;
+        public ICommand DeleteCallFromListCommand { get { return _deleteCallFromListCommand ?? (_deleteCallFromListCommand = new RelayCommand(DeleteCallFromList)); } }
 
 
         private void BridgeFunc(object number)
@@ -1352,6 +1354,15 @@ namespace CRMPhone.ViewModel
             _sipCallActive = true;
             SipState = $"Связь установлена: {phoneNumber}";
 
+        }
+
+        private void DeleteCallFromList(object currentCall)
+        {
+            var call = currentCall as NotAnsweredDto;
+            if(call == null)
+                return;
+            _requestService.DeleteCallFromNotAnsweredList(call.CallerId);
+            RefreshNotAnsweredCalls();
         }
 
         private void GetCallFromQuery(object currentChannel)

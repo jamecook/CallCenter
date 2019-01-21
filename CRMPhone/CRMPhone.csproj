@@ -588,6 +588,7 @@
     <Resource Include="Images\Calendar.png" />
     <Resource Include="Images\Calendar_new.png" />
     <Resource Include="Images\Calendar_small.png" />
+    <Resource Include="Images\delete.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

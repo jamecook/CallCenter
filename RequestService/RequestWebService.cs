@@ -894,5 +894,15 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 cmd.ExecuteNonQuery();
             }
         }
+
+        public void DeleteCallFromNotAnsweredList(string callerId)
+        {
+            var query = "delete from asterisk.NotAnsweredQueue where CallerIDNum  = @CallerId;";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@CallerId", callerId);
+                cmd.ExecuteNonQuery();
+            }
+        }
     }
 }

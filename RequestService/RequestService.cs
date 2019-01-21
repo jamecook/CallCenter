@@ -727,8 +727,10 @@ namespace RequestServiceImpl
 
         public List<NoteDto> GetNotesCore(int requestId, MySqlConnection dbConnection)
         {
-            var sqlQuery = @"SELECT n.id,n.operation_date,n.request_id,n.user_id,n.note,u.SurName,u.FirstName,u.PatrName from CallCenter.RequestNoteHistory n
-join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order by operation_date";
+            var sqlQuery = @"SELECT n.id,n.operation_date,n.request_id,n.user_id,n.note,n.worker_id,u.SurName,u.FirstName,u.PatrName,w.sur_name,w.first_name,w.patr_name
+    from CallCenter.RequestNoteHistory n
+    join CallCenter.Users u on u.id = n.user_id
+    left join CallCenter.Workers w on w.id = n.worker_id where request_id = @RequestId order by operation_date";
             using (
             var cmd = new MySqlCommand(sqlQuery, dbConnection))
             {
@@ -736,20 +738,37 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     var noteList = new List<NoteDto>();
+                    RequestUserDto user;
                     while (dataReader.Read())
                     {
-                        noteList.Add(new NoteDto
+                        var workerId = dataReader.GetNullableInt("worker_id");
+                        if (workerId.HasValue)
                         {
-                            Id = dataReader.GetInt32("id"),
-                            Date = dataReader.GetDateTime("operation_date"),
-                            Note = dataReader.GetNullableString("note"),
-                            User = new RequestUserDto
+                            user = new RequestUserDto()
+                            {
+                                Id = workerId.Value,
+                                SurName = dataReader.GetNullableString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                            };
+                        }
+                        else
+                        {
+                            user = new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("user_id"),
                                 SurName = dataReader.GetNullableString("SurName"),
                                 FirstName = dataReader.GetNullableString("FirstName"),
                                 PatrName = dataReader.GetNullableString("PatrName"),
-                            },
+                            };
+
+                        }
+                        noteList.Add(new NoteDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Date = dataReader.GetDateTime("operation_date"),
+                            Note = dataReader.GetNullableString("note"),
+                            User = user
                         });
                     }
                     dataReader.Close();
