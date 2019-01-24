@@ -80,6 +80,7 @@
     <Compile Include="Dto\DispexForListDto.cs" />
     <Compile Include="Dto\EquipmentDto.cs" />
     <Compile Include="Dto\ExecuteDateHistoryDto.cs" />
+    <Compile Include="Dto\ExecuterToServiceCompanyDto.cs" />
     <Compile Include="Dto\FlatDto.cs" />
     <Compile Include="Dto\GarantyDto.cs" />
     <Compile Include="Dto\HouseDto.cs" />

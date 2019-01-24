@@ -3424,16 +3424,45 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
         public List<AttachmentDto> GetAttachmentsCore(int requestId,MySqlConnection dbConnection)
         {
             using (
-                var cmd = new MySqlCommand(@"SELECT a.id,a.request_id,a.name,a.file_name,a.create_date,u.id user_id,u.SurName,u.FirstName,u.PatrName FROM CallCenter.RequestAttachments a
- join CallCenter.Users u on u.id = a.user_id where a.deleted = 0 and a.request_id = @requestId", dbConnection))
+                var cmd = new MySqlCommand(@"SELECT a.id,a.request_id,a.name,a.file_name,a.create_date,u.id user_id,u.SurName,u.FirstName,u.PatrName,
+a.worker_id, w.sur_name,w.first_name,w.patr_name
+FROM CallCenter.RequestAttachments a
+ join CallCenter.Users u on u.id = a.user_id
+ left join CallCenter.Workers w on w.id = a.worker_id
+where a.deleted = 0 and a.request_id = @requestId", dbConnection))
             {
                 cmd.Parameters.AddWithValue("@requestId", requestId);
 
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     var attachments = new List<AttachmentDto>();
+                    RequestUserDto user;
+
                     while (dataReader.Read())
                     {
+                        var workerId = dataReader.GetNullableInt("worker_id");
+                        if (workerId.HasValue)
+                        {
+                            user = new RequestUserDto()
+                            {
+                                Id = workerId.Value,
+                                SurName = dataReader.GetNullableString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                            };
+                        }
+                        else
+                        {
+                            user = new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("user_id"),
+                                SurName = dataReader.GetNullableString("SurName"),
+                                FirstName = dataReader.GetNullableString("FirstName"),
+                                PatrName = dataReader.GetNullableString("PatrName"),
+                            };
+
+                        }
+
                         attachments.Add(new AttachmentDto
                         {
                             Id = dataReader.GetInt32("id"),
@@ -3441,12 +3470,7 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
                             FileName = dataReader.GetString("file_name"),
                             CreateDate = dataReader.GetDateTime("create_date"),
                             RequestId = dataReader.GetInt32("request_id"),
-                            User = new UserDto() {
-                                Id = dataReader.GetInt32("user_id"),
-                                SurName = dataReader.GetNullableString("SurName"),
-                                FirstName = dataReader.GetNullableString("FirstName"),
-                                PatrName = dataReader.GetNullableString("PatrName"),
-                            }
+                            User = user
                         });
                     }
                     dataReader.Close();
@@ -3958,6 +3982,66 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
                 cmd.ExecuteNonQuery();
             }
 
+        }
+
+        public List<ExecuterToServiceCompanyDto> LoadExecuterBinding(int serviceCompanyId)
+        {
+            using (var cmd = new MySqlCommand(@"SELECT e.id,e.service_company_id,type_id,e.executer_id,e.weigth,
+ t.name type_name, w.sur_name, w.first_name, w.patr_name
+ FROM CallCenter.executer_to_type e
+ join CallCenter.RequestTypes t on t.id = e.type_id
+ join CallCenter.Workers w on w.id = e.executer_id
+ where e.service_company_id = @CompanyId order by t.name, w.sur_name, w.first_name, w.patr_name", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@CompanyId", serviceCompanyId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var binding = new List<ExecuterToServiceCompanyDto>();
+                    while (dataReader.Read())
+                    {
+                        binding.Add(new ExecuterToServiceCompanyDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            TypeId = dataReader.GetInt32("type_id"),
+                            Type = dataReader.GetString("type_name"),
+                            ServiceCompanyId =  dataReader.GetInt32("service_company_id"),
+                            Executer = new WorkerDto
+                            {
+                                Id = dataReader.GetInt32("executer_id"),
+                                SurName = dataReader.GetString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                            },
+                            Weigth = dataReader.GetInt32("weigth"),
+                        });
+                    }
+                    dataReader.Close();
+                    return binding;
+                }
+            }
+        }
+        public void AddExecuterBinding(int serviceCompanyId, int serviceTypeId, int executerId, int weigth)
+        {
+            using (var cmd = new MySqlCommand(@"insert into CallCenter.executer_to_type(service_company_id,type_id,executer_id,weigth)
+    values(@ServiceCompanyId,@TypeId,@ExecuterId,@Weigth)",
+                        _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+                cmd.Parameters.AddWithValue("@TypeId", serviceTypeId);
+                cmd.Parameters.AddWithValue("@ExecuterId", executerId);
+                cmd.Parameters.AddWithValue("@Weigth", weigth);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void DropExecuterBinding(int bindId)
+        {
+            using (var cmd = new MySqlCommand(@"delete from CallCenter.executer_to_type where id = @Id",
+                        _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Id", bindId);
+                cmd.ExecuteNonQuery();
+            }
         }
     }
 

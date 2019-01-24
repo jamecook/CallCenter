@@ -9,6 +9,6 @@ namespace RequestServiceImpl.Dto
         public string Name { get; set; }
         public string FileName { get; set; }
         public DateTime CreateDate { get; set; }
-        public UserDto User { get; set; }
+        public RequestUserDto User { get; set; }
     }
 }

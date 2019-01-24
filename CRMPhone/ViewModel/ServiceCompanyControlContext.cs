@@ -28,6 +28,22 @@ namespace CRMPhone.ViewModel
         private ICommand _editCommand;
         public ICommand EditCommand { get { return _editCommand ?? (_editCommand = new RelayCommand(EditCompany)); } }
 
+        private ICommand _editBindingCommand;
+        public ICommand EditBindingCommand { get { return _editBindingCommand ?? (_editBindingCommand = new RelayCommand(EditBindingCompany)); } }
+
+        private void EditBindingCompany(object obj)
+        {
+            var company = obj as ServiceCompanyDto;
+            if (company == null)
+                return;
+            var model = new EditExecuterBindDialogViewModel(_requestService, company.Id);
+            var view = new EditExecuterBindDialog();
+            view.DataContext = model;
+            model.SetView(view);
+            view.Owner = Application.Current.MainWindow;
+            view.ShowDialog();
+        }
+
         public ServiceCompanyControlContext()
         {
             ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>();

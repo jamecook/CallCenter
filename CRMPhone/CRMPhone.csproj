@@ -158,11 +158,17 @@
     <Compile Include="Controls\NotifyRequestControl.xaml.cs">
       <DependentUpon>NotifyRequestControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\EditExecuterBindDialog.xaml.cs">
+      <DependentUpon>EditExecuterBindDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\Admins\BindAddressToWorkerDialog.xaml.cs">
       <DependentUpon>BindAddressToWorkerDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\Admins\WorkerHouseAndTypeAddOrEditDialog.xaml.cs">
       <DependentUpon>WorkerHouseAndTypeAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ExecuterBindDialog.xaml.cs">
+      <DependentUpon>ExecuterBindDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\CalendarDialog.xaml.cs">
       <DependentUpon>CalendarDialog.xaml</DependentUpon>
@@ -272,6 +278,8 @@
     <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
     <Compile Include="ViewModel\CalendarDialogViewModel.cs" />
     <Compile Include="ViewModel\CallsNotificationContext.cs" />
+    <Compile Include="ViewModel\EditExecuterBindDialogViewModel.cs" />
+    <Compile Include="ViewModel\ExecuterBindDialogViewModel.cs" />
     <Compile Include="ViewModel\NotificationYesNo.cs" />
     <Compile Include="ViewModel\SelectPeriodDialogViewModel.cs" />
     <Compile Include="ViewModel\ChangeExecuterDialogViewModel.cs" />
@@ -394,11 +402,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Dialogs\EditExecuterBindDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Dialogs\Admins\BindAddressToWorkerDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\Admins\WorkerHouseAndTypeAddOrEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\ExecuterBindDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
