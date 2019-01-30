@@ -86,6 +86,7 @@
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
                     </ComboBox>
+                    <CheckBox Margin="3" VerticalAlignment="Center" IsChecked="{Binding ShowAllExecuters}">Все</CheckBox>
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="{Binding PhoneNumber}"/>
                     <Button Visibility="{Binding CanDial, Converter={StaticResource BooleanToVisibility}}" HorizontalAlignment="Right" BorderThickness="1" Command="{Binding ElementName=RequestGrid, Path=DataContext.DialCommand}"
                             CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">

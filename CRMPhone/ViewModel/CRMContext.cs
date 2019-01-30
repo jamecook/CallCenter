@@ -406,6 +406,18 @@ namespace CRMPhone.ViewModel
             }
         }
 
+        public ObservableCollection<ServiceCompanyDto> ForOutcoinCallsCompanyList
+        {
+            get { return _forOutcoinCallsCompanyList; }
+            set { _forOutcoinCallsCompanyList = value; OnPropertyChanged(nameof(ForOutcoinCallsCompanyList)); }
+        }
+
+        public ServiceCompanyDto SelectedOutcoinCompany
+        {
+            get { return _selectedOutcoinCompany; }
+            set { _selectedOutcoinCompany = value; OnPropertyChanged(nameof(SelectedOutcoinCompany));}
+        }
+
         private ICommand _deleteNotAnsweredCommand;
         public ICommand DeleteNotAnsweredCommand { get { return _deleteNotAnsweredCommand ?? (_deleteNotAnsweredCommand = new CommandHandler(DeleteNotAnswered, _canExecute)); } }
 
@@ -995,6 +1007,8 @@ namespace CRMPhone.ViewModel
         private DispexRequestControlModel _dispexRequestControlModel;
         private ReportControlModel _reportControlModel;
         private CallsNotificationContext _callsNotificationContext;
+        private ServiceCompanyDto _selectedOutcoinCompany;
+        private ObservableCollection<ServiceCompanyDto> _forOutcoinCallsCompanyList;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 
@@ -1152,6 +1166,8 @@ namespace CRMPhone.ViewModel
                 UserList = new ObservableCollection<RequestUserDto>(_requestService.GetOperators());
                 CompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
                 MetersSCList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
+                ForOutcoinCallsCompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompaniesForCalls());
+                SelectedOutcoinCompany = ForOutcoinCallsCompanyList.FirstOrDefault();
                 var curDate = _requestService.GetCurrentDate().Date;
                 FromDate = curDate;
                 ToDate = FromDate.AddDays(1);
@@ -1409,7 +1425,8 @@ namespace CRMPhone.ViewModel
                 return;
             if (_sipAgent.CallMaker.callStatus[SelectedLine.Id] < 0)
             {
-                string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
+                string callId = string.Format("sip:{2}{0}@{1}", _sipPhone, _serverIP, SelectedOutcoinCompany.Prefix);
+                //string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
                 SipState = $"Исходящий вызов на номер {_sipPhone}";
                 _sipAgent.CallMaker.Invite(callId);
             }

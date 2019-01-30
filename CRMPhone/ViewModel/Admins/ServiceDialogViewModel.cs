@@ -15,11 +15,18 @@ namespace CRMPhone.ViewModel.Admins
         private int? _parentId;
         private ICommand _saveCommand;
         private string _serviceName;
+        private bool _immediate;
 
         public string ServiceName
         {
             get { return _serviceName; }
             set { _serviceName = value; OnPropertyChanged(nameof(ServiceName));}
+        }
+
+        public bool Immediate
+        {
+            get { return _immediate; }
+            set { _immediate = value; OnPropertyChanged(nameof(Immediate));}
         }
 
         public ServiceDialogViewModel(RequestServiceImpl.RequestService requestService, int? serviceId, int? parentId)
@@ -31,9 +38,11 @@ namespace CRMPhone.ViewModel.Admins
             {
                 var service = _requestService.GetServiceById(serviceId.Value);
                 ServiceName = service.Name;
+                Immediate = service.Immediate;
             }
         }
 
+        public Visibility CanSetImmediate => _parentId.HasValue ? Visibility.Visible : Visibility.Collapsed;
         public void SetView(Window view)
         {
             _view = view;
@@ -42,7 +51,7 @@ namespace CRMPhone.ViewModel.Admins
 
         private void Save(object sender)
         {
-            _requestService.SaveService(_serviceId, _parentId, ServiceName);
+            _requestService.SaveService(_serviceId, _parentId, ServiceName,Immediate);
             _view.DialogResult = true;
         }
 

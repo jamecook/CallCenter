@@ -189,13 +189,7 @@ namespace CRMPhone.ViewModel
         private void UpdateMastets()
         {
             var selectedMaster = SelectedMaster?.Id;
-            //Какой - то магический кастыль. Иногда Clear не очищает список, а делает первый и единственный элемент = null
-            var i = 0;
-            do
-            {
                 MasterList.Clear();
-                i++;
-            } while (MasterList.Count > 0 && i < 10);
             if (_showAllMasters)
             {
                 foreach (var master in _requestService.GetMasters(null))
@@ -221,7 +215,11 @@ namespace CRMPhone.ViewModel
         public bool ShowAllExecuters
         {
             get { return _showAllExecuters; }
-            set { _showAllExecuters = value; OnPropertyChanged(nameof(ShowAllExecuters));}
+            set {
+                _showAllExecuters = value;
+                RefreshExecuters();
+                OnPropertyChanged(nameof(ShowAllExecuters));
+                }
         }
 
         public string Description
@@ -269,7 +267,22 @@ namespace CRMPhone.ViewModel
         public ServiceDto SelectedService
         {
             get { return _selectedService; }
-            set { _selectedService = value; OnPropertyChanged(nameof(SelectedService)); }
+            set {
+                _selectedService = value;
+                IsImmediate = value.Immediate;
+                RefreshExecuters();
+                OnPropertyChanged(nameof(IsImmediate));
+                OnPropertyChanged(nameof(SelectedService));
+            }
+        }
+
+        public void RefreshExecuters()
+        {
+            if (ShowAllExecuters || SelectedCompany == null || SelectedService == null)
+                ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
+            else
+                ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecutersByServiceType(SelectedCompany.Id,SelectedService.Id));
+            OnPropertyChanged(nameof(ExecuterList));
         }
 
         public ObservableCollection<WorkerDto> MasterList

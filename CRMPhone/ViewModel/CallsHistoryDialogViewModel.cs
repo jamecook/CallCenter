@@ -113,8 +113,11 @@ namespace CRMPhone.ViewModel
             if (smsSettings.SendToWorker)
             {
                 _requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone,
-                    $"№ {request.Id}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
+                    $"№ {request.Id}. {request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
                     false);
+                //_requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone,
+                //    $"№ {request.Id}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
+                //    false);
                 MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
                 RefreshLists();
             }

@@ -43,10 +43,16 @@
                     </Button>
                 </DockPanel>
 
-                <DockPanel HorizontalAlignment ="Center">
-                    <TextBlock Text="Номер:" VerticalAlignment="Center"/>
-                    <TextBox Margin="5" Width="100" Text="{Binding SipPhone}"/>
-                </DockPanel>
+                <StackPanel HorizontalAlignment ="Center">
+                    <DockPanel>
+                        <TextBlock Text="Номер:" VerticalAlignment="Center"/>
+                        <TextBox Margin="5" Width="100" Text="{Binding SipPhone}"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <TextBlock Text="Набрать от:" VerticalAlignment="Center"/>
+                        <ComboBox Margin="5" Width="160" DisplayMemberPath="ShortNameWithPrefix" SelectedItem="{Binding SelectedOutcoinCompany}" ItemsSource="{Binding ForOutcoinCallsCompanyList}"/>
+                    </DockPanel>
+                </StackPanel>
                 <WrapPanel HorizontalAlignment="Center">
                     <Button  Margin="5" Width="48" Height="48" Command="{Binding CallCommand}" ToolTip="Ответить на звонок/набрать номер">
                         <Image Source="pack://application:,,,/Images/answer.png" Width="32" Height="32" />

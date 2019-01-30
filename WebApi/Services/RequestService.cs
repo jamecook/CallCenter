@@ -1441,5 +1441,34 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
             }
         }
 
+        public static IEnumerable<ReportDto> ReportsGetAwailable(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL CallCenter.ReportGetAwailable(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var list = new List<ReportDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var type = new ReportDto()
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                Url = dataReader.GetString("url"),
+                            };
+                            list.Add(type);
+                        }
+                        dataReader.Close();
+                    }
+                    return list;
+                }
+            }
+        }
     }
 }

@@ -1461,6 +1461,53 @@ namespace RequestServiceImpl
                 return workers;
             }
         }
+        public IList<WorkerDto> GetExecutersByServiceType(int serviceCompanyId, int typeId)
+        {
+            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,
+w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher,send_notification
+FROM CallCenter.executer_to_type t
+  join CallCenter.Workers w on t.executer_id = w.id
+    left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
+    left join CallCenter.Speciality sp on sp.id = w.speciality_id
+    where w.enabled = 1 and
+    t.service_company_id = @ServiceCompanyId and t.type_id = @TypeId
+group by w.id
+order by t.weigth, w.sur_name, w.first_name, w.patr_name";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+                cmd.Parameters.AddWithValue("@TypeId", typeId);
+
+                var workers = new List<WorkerDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        workers.Add(new WorkerDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            ServiceCompanyId = dataReader.GetNullableInt("service_id"),
+                            ServiceCompanyName = dataReader.GetNullableString("service_name"),
+                            SurName = dataReader.GetString("sur_name"),
+                            FirstName = dataReader.GetNullableString("first_name"),
+                            PatrName = dataReader.GetNullableString("patr_name"),
+                            SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            SpecialityName = dataReader.GetNullableString("speciality_name"),
+                            Phone = dataReader.GetNullableString("phone"),
+                            CanAssign = dataReader.GetBoolean("can_assign"),
+                            SendSms = dataReader.GetBoolean("send_sms"),
+                            AppNotification = dataReader.GetBoolean("send_notification"),
+                            IsMaster = dataReader.GetBoolean("is_master"),
+                            IsExecuter = dataReader.GetBoolean("is_executer"),
+                            IsDispetcher = dataReader.GetBoolean("is_dispetcher"),
+                            ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return workers;
+            }
+        }
         public IList<WorkerDto> GetAllWorkers(int? serviceCompanyId)
         {
             var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher,w.login,w.send_notification FROM CallCenter.Workers w
@@ -2113,8 +2160,8 @@ where w.worker_id = @WorkerId";
         public IList<ServiceDto> GetServices(long? parentId)
         {
             var query = parentId.HasValue
-                ? @"SELECT id,name,can_send_sms FROM CallCenter.RequestTypes R where parrent_id = @ParentId and enabled = 1 order by name"
-                : @"SELECT id,name,can_send_sms FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
+                ? @"SELECT id,name,can_send_sms,immediate FROM CallCenter.RequestTypes R where parrent_id = @ParentId and enabled = 1 order by name"
+                : @"SELECT id,name,can_send_sms,immediate FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 if (parentId.HasValue)
@@ -2129,7 +2176,8 @@ where w.worker_id = @WorkerId";
                         {
                             Id = dataReader.GetInt32("id"),
                             Name = dataReader.GetString("name"),
-                            CanSendSms = dataReader.GetBoolean("can_send_sms")
+                            CanSendSms = dataReader.GetBoolean("can_send_sms"),
+                            Immediate = dataReader.GetBoolean("immediate")
                         });
                     }
                     dataReader.Close();
@@ -2283,6 +2331,30 @@ where w.worker_id = @WorkerId";
                     dataReader.Close();
                 }
                 return companies.OrderBy(i => i.Name).ToList();
+            }
+        }
+        public List<ServiceCompanyDto> GetServiceCompaniesForCalls()
+        {
+            var query = "SELECT id,name,prefix,short_name,phone FROM CallCenter.ServiceCompanies S where Enabled = 1 and trunk_name is not null order by case when prefix is null then 0 else 1 end,S.Name";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var companies = new List<ServiceCompanyDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        companies.Add(new ServiceCompanyDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetNullableString("name"),
+                            Prefix = dataReader.GetNullableString("prefix"),
+                            Phone = dataReader.GetNullableString("phone"),
+                            ShortName = dataReader.GetNullableString("short_name")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return companies.ToList();
             }
         }
         public List<RingUpConfigDto> GetRingUpConfigs()
@@ -3202,7 +3274,7 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
         public ServiceDto GetServiceById(int serviceId)
         {
             ServiceDto service = null;
-            var query = "SELECT id,name,can_send_sms FROM CallCenter.RequestTypes  where id = @ID";
+            var query = "SELECT id,name,can_send_sms,immediate FROM CallCenter.RequestTypes  where id = @ID";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@ID", serviceId);
@@ -3214,7 +3286,8 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
                         {
                             Id = dataReader.GetInt32("id"),
                             Name = dataReader.GetString("name"),
-                            CanSendSms = dataReader.GetBoolean("can_send_sms")
+                            CanSendSms = dataReader.GetBoolean("can_send_sms"),
+                            Immediate = dataReader.GetBoolean("immediate")
                         };
                     }
                     dataReader.Close();
@@ -3222,26 +3295,28 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
             }
             return service;
         }
-        public void SaveService(int? serviceId, int? parentId,  string serviceName)
+        public void SaveService(int? serviceId, int? parentId,  string serviceName, bool immediate)
         {
             if (serviceId.HasValue)
             {
-                using (var cmd = new MySqlCommand(@"update CallCenter.RequestTypes set Name = @serviceName, parrent_id = @parentId where id = @ID;", _dbConnection))
+                using (var cmd = new MySqlCommand(@"update CallCenter.RequestTypes set Name = @serviceName, parrent_id = @parentId, immediate = @immediate where id = @ID;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@ID", serviceId.Value);
                     cmd.Parameters.AddWithValue("@serviceName", serviceName);
                     cmd.Parameters.AddWithValue("@parentId", parentId);
+                    cmd.Parameters.AddWithValue("@immediate", immediate);
                     cmd.ExecuteNonQuery();
                 }
 
             }
             else
             {
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestTypes(parrent_id,Name) values(@parentId, @serviceName)
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestTypes(parrent_id,Name,immediate) values(@parentId, @serviceName, @immediate)
                 ON DUPLICATE KEY UPDATE enabled = true;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@serviceName", serviceName);
                     cmd.Parameters.AddWithValue("@parentId", parentId);
+                    cmd.Parameters.AddWithValue("@immediate", immediate);
                     cmd.ExecuteNonQuery();
                 }
             }
