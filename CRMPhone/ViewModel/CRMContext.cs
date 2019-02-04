@@ -1623,6 +1623,8 @@ namespace CRMPhone.ViewModel
                             CreateTime = dataReader.GetNullableDateTime("CreateTime"),
                             ServiceCompany = dataReader.GetNullableString("short_name"),
                             Prefix = dataReader.GetNullableString("prefix"),
+                            IvrDtmf = dataReader.GetNullableInt("ivr_dtmf"),
+                            
                         });
                     }
                     dataReader.Close();

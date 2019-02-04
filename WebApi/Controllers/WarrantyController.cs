@@ -171,6 +171,22 @@ namespace WebApi.Controllers
             }
             return BadRequest();
         }
+        [HttpPut("set_warranty/{id}")]
+        public IActionResult SetOnlyWarrantyState(int id, [FromBody] int newState)
+        {
+            if (id == 0)
+            {
+                return BadRequest();
+            }
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if (int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.WarrantySetState(id, newState, workerId);
+                return Ok();
+            }
+            return BadRequest();
+        }
+
         [HttpGet("docs/file/{id}")]
         public byte[] GetDocAttachment(int id)
         {

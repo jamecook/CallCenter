@@ -270,7 +270,6 @@ namespace CRMPhone.ViewModel
             set {
                 _selectedService = value;
                 IsImmediate = value.Immediate;
-                RefreshExecuters();
                 OnPropertyChanged(nameof(IsImmediate));
                 OnPropertyChanged(nameof(SelectedService));
             }
@@ -278,10 +277,10 @@ namespace CRMPhone.ViewModel
 
         public void RefreshExecuters()
         {
-            if (ShowAllExecuters || SelectedCompany == null || SelectedService == null)
+            if (ShowAllExecuters || SelectedCompany == null || SelectedParentService == null)
                 ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
             else
-                ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecutersByServiceType(SelectedCompany.Id,SelectedService.Id));
+                ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecutersByServiceType(SelectedCompany.Id, SelectedParentService.Id));
             OnPropertyChanged(nameof(ExecuterList));
         }
 
@@ -386,6 +385,7 @@ namespace CRMPhone.ViewModel
 
         private void ChangeParentService(int? parentServiceId)
         {
+            RefreshExecuters();
             ServiceList.Clear();
             if (!parentServiceId.HasValue)
                 return;

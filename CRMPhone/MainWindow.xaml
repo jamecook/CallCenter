@@ -141,7 +141,7 @@
                         <DockPanel Margin="0,2">
                             <TextBlock Margin ="2" Text="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yy HH:mm}'}" />
                             <TextBlock Margin ="2" Width="60" Text="{Binding Path=ServiceCompany}" />
-                            <TextBlock Margin ="2" Foreground="Blue" FontWeight="DemiBold" Text="{Binding Path=CallerId}" />
+                            <TextBlock Margin ="2" Foreground="{Binding Color}" FontWeight="DemiBold" Text="{Binding Path=CallerId}" />
                             <Button HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" ToolTip="Удаление звонок!" Visibility="{Binding Path=DataContext.IsAdminRoleExist, ElementName=notAnsweredListBox}"
                                     Command="{Binding Path=DataContext.DeleteCallFromListCommand, ElementName=notAnsweredListBox}"
                                     CommandParameter="{Binding}">

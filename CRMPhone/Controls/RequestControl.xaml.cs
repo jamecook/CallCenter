@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Activities.Expressions;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -73,23 +74,34 @@ namespace CRMPhone.Controls
         {
                 try
                 {
-                    switch (((RequestForListDto)e.Row.DataContext).Status)
+                    if (((RequestForListDto) e.Row.DataContext).Immediate)
                     {
-                    case "Закрыта":
-                    case "Выполнена(обзвон)":
-                        e.Row.Background = new SolidColorBrush(Colors.PaleGreen);
-                        break;
-                    case "Аннулирована":
-                            e.Row.Background = new SolidColorBrush(Colors.DarkKhaki);
-                            break;
-                    case "В работе":
-                            e.Row.Background = new SolidColorBrush(Colors.LightSkyBlue);
-                            break;
-                    default:
-                        e.Row.Background = new SolidColorBrush(Colors.White);
-                        break;
+                    e.Row.FontWeight = FontWeights.Bold;
+                    e.Row.Foreground = Brushes.Red;
+                    }
+                else
+                {
+                    e.Row.FontWeight = FontWeights.Normal;
+                    e.Row.Foreground = Brushes.Black;
                 }
-            }
+
+                switch (((RequestForListDto) e.Row.DataContext).Status)
+                        {
+                            case "Закрыта":
+                            case "Выполнена(обзвон)":
+                                e.Row.Background = new SolidColorBrush(Colors.PaleGreen);
+                                break;
+                            case "Аннулирована":
+                                e.Row.Background = new SolidColorBrush(Colors.DarkKhaki);
+                                break;
+                            case "В работе":
+                                e.Row.Background = new SolidColorBrush(Colors.LightSkyBlue);
+                                break;
+                            default:
+                                e.Row.Background = new SolidColorBrush(Colors.White);
+                                break;
+                        }
+                }
                 catch
                 {
                 }
