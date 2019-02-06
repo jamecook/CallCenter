@@ -123,6 +123,30 @@ namespace WebApi.Controllers
             int.TryParse(workerIdStr, out int currentWorkerId);
             return RequestService.GetScheduleTask(currentWorkerId,workerId,fromDate,toDate);
         }
+        [HttpPost("add_task")]
+        public ActionResult<string> AddTask([FromBody]AddTaskDto taskDto)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int currentWorkerId);
+            return RequestService.AddScheduleTask(currentWorkerId, taskDto.WorkerId, taskDto.RequestId, taskDto.FromDate, taskDto.ToDate, null);
+        }
+
+        [HttpPut("edit_task/{id}")]
+        public ActionResult<string> AddTask(int id, [FromBody]AddTaskDto taskDto)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int currentWorkerId);
+            RequestService.DeleteScheduleTask(currentWorkerId, id);
+            return RequestService.AddScheduleTask(currentWorkerId, taskDto.WorkerId, taskDto.RequestId, taskDto.FromDate, taskDto.ToDate, null);
+        }
+        [HttpDelete("drop_task/{id}")]
+        public ActionResult DropTask(int id)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int currentWorkerId);
+            RequestService.DeleteScheduleTask(currentWorkerId, id);
+            return Ok();
+        }
 
         [HttpGet("get_pdf")]
         public byte[] GetPdf([ModelBinder(typeof(CommaDelimitedArrayModelBinder))] int[] requestIds)

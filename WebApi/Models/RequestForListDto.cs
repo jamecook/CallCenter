@@ -53,6 +53,10 @@ namespace WebApi.Models
         public DateTime? CloseDate { get; set; }
         public DateTime? DoneDate { get; set; }
         public string LastNote { get; set; }
+        public int? TaskId { get; set; }
+        public DateTime? TaskStart { get; set; }
+        public DateTime? TaskEnd { get; set; }
+        public UserDto TaskWorker { get; set; }
 
 
         public string FullAddress

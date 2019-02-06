@@ -77,7 +77,7 @@ namespace CRMPhone.Controls
                     if (((RequestForListDto) e.Row.DataContext).Immediate)
                     {
                     e.Row.FontWeight = FontWeights.Bold;
-                    e.Row.Foreground = Brushes.Red;
+                    e.Row.Foreground = Brushes.Firebrick;
                     }
                 else
                 {

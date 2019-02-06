@@ -697,6 +697,18 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 CloseDate = dataReader.GetNullableDateTime("close_date"),
                                 DoneDate = dataReader.GetNullableDateTime("done_date"),
                                 GarantyId = dataReader.GetInt32("garanty"),
+                                TaskId = dataReader.GetNullableInt("task_id"),
+                                TaskStart = dataReader.GetNullableDateTime("task_from"),
+                                TaskEnd = dataReader.GetNullableDateTime("task_to"),
+                                TaskWorker = dataReader.GetNullableInt("task_worker_id") != null
+                                    ? new UserDto
+                                    {
+                                        Id = dataReader.GetInt32("task_worker_id"),
+                                        SurName = dataReader.GetNullableString("task_sur_name"),
+                                        FirstName = dataReader.GetNullableString("task_first_name"),
+                                        PatrName = dataReader.GetNullableString("task_patr_name"),
+                                    }
+                                    : null,
                             });
                         }
                         dataReader.Close();
@@ -789,7 +801,18 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                 LastNote = dataReader.GetNullableString("last_note"),
                                 IsChargeable = dataReader.GetBoolean("is_chargeable"),
                                 ClientName = dataReader.GetNullableString("client_name"),
-                                
+                                TaskId = dataReader.GetNullableInt("task_id"),
+                                TaskStart = dataReader.GetNullableDateTime("task_from"),
+                                TaskEnd = dataReader.GetNullableDateTime("task_to"),
+                                TaskWorker = dataReader.GetNullableInt("task_worker_id") != null
+                                    ? new UserDto
+                                    {
+                                        Id = dataReader.GetInt32("task_worker_id"),
+                                        SurName = dataReader.GetNullableString("task_sur_name"),
+                                        FirstName = dataReader.GetNullableString("task_first_name"),
+                                        PatrName = dataReader.GetNullableString("task_patr_name"),
+                                    }
+                                    : null,
                             });
                         }
                         dataReader.Close();
@@ -1437,6 +1460,83 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                         dataReader.Close();
                     }
                     return taskDtos.ToArray();
+                }
+            }
+        }
+
+//        public ScheduleTaskDto GetScheduleTaskByRequestId(int requestId)
+//        {
+//            ScheduleTaskDto result = null;
+//            var query = @"SELECT s.id,w.id worker_id,w.sur_name,w.first_name,w.patr_name,s.request_id,s.from_date,s.to_date,s.event_description FROM CallCenter.ScheduleTasks s
+//join CallCenter.Workers w on s.worker_id = w.id
+//where s.request_id = @RequestId and deleted = 0;";
+//            using (var cmd = new MySqlCommand(query, _dbConnection))
+//            {
+//                cmd.Parameters.AddWithValue("@RequestId", requestId);
+
+//                using (var dataReader = cmd.ExecuteReader())
+//                {
+//                    if (dataReader.Read())
+//                    {
+//                        result = new ScheduleTaskDto
+//                        {
+//                            Id = dataReader.GetInt32("id"),
+//                            RequestId = dataReader.GetNullableInt("request_id"),
+//                            Worker = new WorkerDto()
+//                            {
+//                                Id = dataReader.GetInt32("worker_id"),
+//                                SurName = dataReader.GetString("sur_name"),
+//                                FirstName = dataReader.GetNullableString("first_name"),
+//                                PatrName = dataReader.GetNullableString("patr_name"),
+//                            },
+//                            FromDate = dataReader.GetDateTime("from_date"),
+//                            ToDate = dataReader.GetDateTime("to_date"),
+//                            EventDescription = dataReader.GetNullableString("event_description")
+//                        };
+//                    }
+//                    dataReader.Close();
+//                }
+//                return result;
+//            }
+//        }
+
+        public static string AddScheduleTask(int currentWorkerId, int workerId, int? requestId, DateTime fromDate,
+            DateTime toDate, string eventDescription)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd =new MySqlCommand(@"CALL CallCenter.DispexScheduleTaskAdd(@CurrentWorkerId,@WorkerId,@RequestId,@FromDate,@ToDate)",conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurrentWorkerId", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        dataReader.Read();
+                        return dataReader.GetNullableString("taskId");
+                    }
+
+                }
+            }
+        }
+
+        public static void DeleteScheduleTask(int currentWorkerId, int sheduleId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(
+                            @"CALL CallCenter.DispexScheduleTaskDrop(@CurrentWorkerId,@TaskId)",
+                            conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurrentWorkerId", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@TaskId", sheduleId);
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
