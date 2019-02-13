@@ -6,7 +6,7 @@
         <Alias>Acts</Alias>
         <BusinessObjects isList="true" count="0" />
         <Category />
-        <Columns isList="true" count="8">
+        <Columns isList="true" count="7">
           <value>Address,System.String</value>
           <value>Workers,System.String</value>
           <value>ClientPhones,System.String</value>
@@ -14,7 +14,6 @@
           <value>Service,System.String</value>
           <value>Id,System.String</value>
           <value>ContactPhones,System.String</value>
-          <value>CreateTime,System.DateTime</value>
         </Columns>
         <Dictionary isRef="1" />
         <Guid>e307ccd422fb4aff8a39c86632a75266</Guid>
@@ -39,22 +38,21 @@
           <Brush>Transparent</Brush>
           <BusinessObjectGuid>e307ccd422fb4aff8a39c86632a75266</BusinessObjectGuid>
           <ClientRectangle>0,0.4,19,13</ClientRectangle>
-          <Components isList="true" count="15">
+          <Components isList="true" count="13">
             <Text1 Ref="5" type="Text" isKey="true">
               <AutoWidth>True</AutoWidth>
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
               <ClientRectangle>0.4,0,18,1.4</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
+              <Font>Arial,16,Bold</Font>
               <HorAlignment>Center</HorAlignment>
               <Margins>0,0,0,0</Margins>
               <Name>Text1</Name>
               <Page isRef="3" />
               <Parent isRef="4" />
               <Text>Акт выполненных работ
-По заявке № {Acts.Id} 
-от {Format("{0:dd.MM.yyyy}", Acts.CreateTime)}г. {Format("{0:HH:mm}", Acts.CreateTime)}</Text>
+По заявке № {Acts.Id} от «____»______________ 2018г.</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
               <VertAlignment>Center</VertAlignment>
@@ -63,7 +61,7 @@
               <Brush>Transparent</Brush>
               <ClientRectangle>0.4,1.6,18,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
+              <Font>Arial,12,Bold</Font>
               <Margins>0,0,0,0</Margins>
               <Name>Text2</Name>
               <Page isRef="3" />
@@ -75,15 +73,15 @@
             <Text4 Ref="7" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
-              <ClientRectangle>0.4,2.8,18,0.6</ClientRectangle>
+              <ClientRectangle>0.4,3.4,18,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
+              <Font>Arial,12,Bold</Font>
               <Guid>c1b6183de744484c894ca9bba04bdbe8</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text4</Name>
               <Page isRef="3" />
               <Parent isRef="4" />
-              <Text>Содержание заявки: {Acts.Description}</Text>
+              <Text>Содержание заявки: {Acts.Service}</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text4>
@@ -92,7 +90,7 @@
               <CanGrow>True</CanGrow>
               <ClientRectangle>0.4,4,18,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
+              <Font>Arial,12,Bold</Font>
               <Guid>a23804935f4a4f6caa469e185ee36fd1</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text8</Name>
@@ -107,7 +105,7 @@
               <CanGrow>True</CanGrow>
               <ClientRectangle>0.4,4.6,18,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
+              <Font>Arial,12,Bold</Font>
               <Guid>3184d911095f470c9e44d6cd43296941</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text9</Name>
@@ -117,12 +115,57 @@
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text9>
-            <Text13 Ref="10" type="Text" isKey="true">
+            <Text10 Ref="10" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
               <ClientRectangle>0.4,5.2,18,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
+              <Font>Arial,12,Bold</Font>
+              <Guid>29131b46a56341aaac8e4226cf7885fe</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text10</Name>
+              <Page isRef="3" />
+              <Parent isRef="4" />
+              <Text>Работы выполнены вовремя. Претензий не имею.</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text10>
+            <Text11 Ref="11" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0.4,6.4,18,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
+              <Guid>531c68506cd14d0b84d2e0fdf619ccb3</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text11</Name>
+              <Page isRef="3" />
+              <Parent isRef="4" />
+              <Text>Дата выполнения: ________________________________ Время:________________________</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text11>
+            <Text12 Ref="12" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0.4,7,18,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
+              <Guid>f200376e0ae842d2abfe0e372fc37eba</Guid>
+              <Margins>0,0,0,0</Margins>
+              <Name>Text12</Name>
+              <Page isRef="3" />
+              <Parent isRef="4" />
+              <Text>Сумма: ________________________________________________________________________</Text>
+              <TextBrush>Black</TextBrush>
+              <Type>Expression</Type>
+            </Text12>
+            <Text13 Ref="13" type="Text" isKey="true">
+              <Brush>Transparent</Brush>
+              <CanGrow>True</CanGrow>
+              <ClientRectangle>0.4,7.6,18,0.6</ClientRectangle>
+              <Conditions isList="true" count="0" />
+              <Font>Arial,12,Bold</Font>
               <Guid>7c3dce5172384627a0c73a15d49e85c3</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text13</Name>
@@ -132,12 +175,12 @@
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text13>
-            <Text16 Ref="11" type="Text" isKey="true">
+            <Text16 Ref="14" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
               <ClientRectangle>0.4,5.8,18,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
+              <Font>Arial,12,Bold</Font>
               <Guid>44a2d87264f548f49032846c88a29a48</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text16</Name>
@@ -147,12 +190,12 @@
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text16>
-            <Text15 Ref="12" type="Text" isKey="true">
+            <Text15 Ref="15" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
               <ClientRectangle>0.4,2.2,18,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
+              <Font>Arial,12,Bold</Font>
               <Guid>6cb14bcd19314f4aabc2499ca3392ce2</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text15</Name>
@@ -162,112 +205,37 @@
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text15>
-            <Text14 Ref="13" type="Text" isKey="true">
+            <Text14 Ref="16" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
-              <ClientRectangle>0.4,9.4,18,0.6</ClientRectangle>
+              <ClientRectangle>0.4,8.2,18,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
+              <Font>Arial,12,Bold</Font>
               <GrowToHeight>True</GrowToHeight>
               <Guid>da47b76a3b254d018a9d8750d267ef9a</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text14</Name>
               <Page isRef="3" />
               <Parent isRef="4" />
-              <Text>Подпись заявителя: __________________Работы выполнены вовремя. Претензий не имею.</Text>
+              <Text>Подпись заявителя: _____________________________________________________________</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text14>
-            <Text3 Ref="14" type="Text" isKey="true">
+            <Text3 Ref="17" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
-              <ClientRectangle>0.4,3.4,18,0.6</ClientRectangle>
+              <ClientRectangle>0.4,2.8,18,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
-              <Guid>38075885ddcb48ae9a1ca5d8c753fed9</Guid>
+              <Font>Arial,12,Bold</Font>
+              <Guid>237e1b549add42fd9fdd27026e8d1cbb</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text3</Name>
               <Page isRef="3" />
               <Parent isRef="4" />
-              <Text>{Acts.Service}</Text>
+              <Text>Исполнитель: {Acts.Workers}</Text>
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text3>
-            <Text5 Ref="15" type="Text" isKey="true">
-              <Brush>Transparent</Brush>
-              <CanGrow>True</CanGrow>
-              <ClientRectangle>0.4,6.4,18,0.6</ClientRectangle>
-              <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
-              <Guid>b09e362f957b4feb9b6bc09ed934d5ee</Guid>
-              <Margins>0,0,0,0</Margins>
-              <Name>Text5</Name>
-              <Page isRef="3" />
-              <Parent isRef="4" />
-              <Text>________________________________________________________________________________</Text>
-              <TextBrush>Black</TextBrush>
-              <Type>Expression</Type>
-            </Text5>
-            <Text6 Ref="16" type="Text" isKey="true">
-              <Brush>Transparent</Brush>
-              <CanGrow>True</CanGrow>
-              <ClientRectangle>0.4,7,18,0.6</ClientRectangle>
-              <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
-              <Guid>2c1e464011d64469acba4d4b1ab1643a</Guid>
-              <Margins>0,0,0,0</Margins>
-              <Name>Text6</Name>
-              <Page isRef="3" />
-              <Parent isRef="4" />
-              <Text>________________________________________________________________________________</Text>
-              <TextBrush>Black</TextBrush>
-              <Type>Expression</Type>
-            </Text6>
-            <Text7 Ref="17" type="Text" isKey="true">
-              <Brush>Transparent</Brush>
-              <CanGrow>True</CanGrow>
-              <ClientRectangle>0.4,7.6,18,0.6</ClientRectangle>
-              <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
-              <Guid>66592df34ef041a3a6cb1e0ff5d3ad79</Guid>
-              <Margins>0,0,0,0</Margins>
-              <Name>Text7</Name>
-              <Page isRef="3" />
-              <Parent isRef="4" />
-              <Text>________________________________________________________________________________</Text>
-              <TextBrush>Black</TextBrush>
-              <Type>Expression</Type>
-            </Text7>
-            <Text11 Ref="18" type="Text" isKey="true">
-              <Brush>Transparent</Brush>
-              <CanGrow>True</CanGrow>
-              <ClientRectangle>0.4,8.2,18,0.6</ClientRectangle>
-              <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
-              <Guid>f1ffaec213524b4c893a537bb40428de</Guid>
-              <Margins>0,0,0,0</Margins>
-              <Name>Text11</Name>
-              <Page isRef="3" />
-              <Parent isRef="4" />
-              <Text>________________________________________________________________________________</Text>
-              <TextBrush>Black</TextBrush>
-              <Type>Expression</Type>
-            </Text11>
-            <Text12 Ref="19" type="Text" isKey="true">
-              <Brush>Transparent</Brush>
-              <CanGrow>True</CanGrow>
-              <ClientRectangle>0.4,8.8,18,0.6</ClientRectangle>
-              <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
-              <Guid>35d87947a1fa46fa81bee24e2f916878</Guid>
-              <Margins>0,0,0,0</Margins>
-              <Name>Text12</Name>
-              <Page isRef="3" />
-              <Parent isRef="4" />
-              <Text>________________________________________________________________________________</Text>
-              <TextBrush>Black</TextBrush>
-              <Type>Expression</Type>
-            </Text12>
           </Components>
           <Conditions isList="true" count="0" />
           <DataRelationName isNull="true" />
@@ -286,13 +254,13 @@
       <PageHeight>29.7</PageHeight>
       <PageWidth>21</PageWidth>
       <Report isRef="0" />
-      <Watermark Ref="20" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+      <Watermark Ref="18" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
         <Font>Arial,100</Font>
         <TextBrush>[50:0:0:0]</TextBrush>
       </Watermark>
     </Page1>
   </Pages>
-  <PrinterSettings Ref="21" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <PrinterSettings Ref="19" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
   <ReferencedAssemblies isList="true" count="8">
     <value>System.Dll</value>
     <value>System.Drawing.Dll</value>
@@ -304,10 +272,10 @@
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>Report</ReportAlias>
-  <ReportChanged>2/11/2019 11:28:13 PM</ReportChanged>
+  <ReportChanged>12/6/2018 8:31:35 PM</ReportChanged>
   <ReportCreated>7/26/2017 8:11:07 PM</ReportCreated>
   <ReportFile>C:\Users\zerg\Google Диск\CallCenter\CallCenter\WebApi\templates\act.mrt</ReportFile>
-  <ReportGuid>580892f6952d449c9f2c71f83adfbac4</ReportGuid>
+  <ReportGuid>360895bef87f4d43999e42c787c6bd74</ReportGuid>
   <ReportName>Report</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2014.1.1900</ReportVersion>

@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Media;
 using NLog;
 
@@ -12,6 +13,8 @@ namespace RequestServiceImpl.Dto
         public string UniqueId { get; set; }
 
         public string Channel { get; set; }
+        public int? RequestId { get; set; }
+        public Visibility VisibleRequest => RequestId.HasValue ? Visibility.Visible : Visibility.Collapsed;
 
         public string CallerIdNum { get; set; }
 

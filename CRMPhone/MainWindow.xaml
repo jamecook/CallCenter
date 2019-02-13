@@ -112,6 +112,8 @@
                     <DataTemplate>
                         <DockPanel Margin="0,2">
                             <TextBlock Margin ="2" Text="{Binding Path=CreateTime, StringFormat='{}{0:HH:mm}'}" />
+                            <TextBlock Margin ="2" Foreground="Red" Background="LawnGreen" VerticalAlignment="Center" Width="16" TextAlignment="Center" FontWeight="DemiBold" Text="З" Visibility="{Binding VisibleRequest}"/>
+
                             <TextBlock Margin ="2" Foreground="{Binding Path=Color}" FontWeight="DemiBold" Text="{Binding Path=CallerIdNum}" />
                             <TextBlock Margin ="2" FontWeight="DemiBold" Text="{Binding Path=WaitSecondText}" />
                             <Button  Margin="2" Width="24" Height="24" 

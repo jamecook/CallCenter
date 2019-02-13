@@ -376,7 +376,7 @@ namespace CRMPhone.ViewModel
         {
             var item = number as ActiveChannelsDto;
             //if(item == null || string.IsNullOrEmpty(item.Channel))
-              //  return;
+            //  return;
             Thread.Sleep(600);
             var channel1 = _requestService.GetCurrentChannel(_sipUser);
             if(string.IsNullOrEmpty(channel1))
@@ -1391,6 +1391,11 @@ namespace CRMPhone.ViewModel
                 MessageBox.Show("Невозможно взять из очереди если занята первай линия!");
                 return;
             }
+            if (item.RequestId.HasValue)
+            {
+                RequestDataContext.OpenRequest(new RequestForListDto {Id = item.RequestId.Value});
+            }
+
             string callId = string.Format("sip:{0}@{1}", "123123321", _serverIP);
             _sipAgent.CallMaker.Invite(callId);
 
@@ -1572,7 +1577,12 @@ namespace CRMPhone.ViewModel
         private void RefreshActiveChannels()
         {
             var readedChannels = new List<ActiveChannelsDto>();
-            using (var cmd = new MySqlCommand("SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf FROM asterisk.ActiveChannels where Application = 'queue' and BridgeId is null order by UniqueID", _dbRefreshConnection))
+            using (var cmd = new MySqlCommand(@"SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf,
+(SELECT r.id from CallCenter.ClientPhones cp2
+join CallCenter.RequestContacts rc2 on cp2.id = rc2.ClientPhone_id
+join CallCenter.Requests r on r.id = rc2.request_id
+where r.state_id in (1, 2, 6) and substr(cp2.Number, length(cp2.Number) - 9) = substr(CallerIDNum, length(CallerIDNum) - 9) order by id desc limit 1) as request_id
+FROM asterisk.ActiveChannels where Application = 'queue' and BridgeId is null order by UniqueID", _dbRefreshConnection))
             using (var dataReader = cmd.ExecuteReader())
             {
                 while (dataReader.Read())
@@ -1586,6 +1596,7 @@ namespace CRMPhone.ViewModel
                         AnswerTime = dataReader.GetNullableDateTime("AnswerTime"),
                         WaitSecond = dataReader.GetInt32("waitSec"),
                         IvrDtmf = dataReader.GetNullableInt("ivr_dtmf"),
+                        RequestId = dataReader.GetNullableInt("request_id"),
                         CreateTime = dataReader.GetNullableDateTime("CreateTime")
                     });
                 }

@@ -130,15 +130,15 @@ namespace WebApi.Services
             StiOptions.Engine.HideExceptions = true;
             StiOptions.Engine.HideMessages = true;
 
-            var acts = requests.Select(r => new { Id = r.Id, ContactPhones = r.ContactPhones, Address = r.FullAddress, Workers = r.Master?.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": " + r.Service, Description = r.Description }).ToArray();
+            var acts = requests.Select(r => new { Id = r.Id, CreateTime = r.CreateTime, ContactPhones = r.ContactPhones, Address = r.FullAddress, Workers = r.Master?.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": " + r.Service, Description = r.Description }).ToArray();
 
             stiReport.RegBusinessObject("", "Acts", acts);
             stiReport.Render();
             var reportStream = new MemoryStream();
             stiReport.ExportDocument(StiExportFormat.Pdf, reportStream);
             reportStream.Position = 0;
-            //File.WriteAllBytes("C:\\1\\111.pdf",reportStream.GetBuffer());
-            return reportStream.GetBuffer();
+            //File.WriteAllBytes("C:\\1\\act.pdf",reportStream.ToArray());
+            return reportStream.ToArray();
 
         }
 
@@ -159,8 +159,8 @@ namespace WebApi.Services
             var reportStream = new MemoryStream();
             stiReport.ExportDocument(StiExportFormat.Excel2007, reportStream);
             reportStream.Position = 0;
-            File.WriteAllBytes("C:\\1\\111.xlsx",reportStream.GetBuffer());
-            return reportStream.GetBuffer();
+            //File.WriteAllBytes("C:\\1\\excel.xlsx",reportStream.ToArray());
+            return reportStream.ToArray();
 
         }
 
@@ -1463,6 +1463,45 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                 }
             }
         }
+        public static ScheduleTaskDto[] GetAllScheduleTask(int currentWorkerId, int? workerId, DateTime fromDate,DateTime toDate)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.DispexGetAllScheduleTask(@CurrentWorkerId,@WorkerId,@FromDate,@ToDate)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurrentWorkerId", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate.Date);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate.Date.AddDays(1).AddSeconds(-1));
+
+                    var taskDtos = new List<ScheduleTaskDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            taskDtos.Add(new ScheduleTaskDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                RequestId = dataReader.GetInt32("request_id"),
+                                FromDate = dataReader.GetDateTime("from_date"),
+                                ToDate = dataReader.GetDateTime("to_date"),
+                                Worker = new ScheduleWorkerDto
+                                {
+                                    Id = dataReader.GetInt32("worker_id"),
+                                    SurName = dataReader.GetNullableString("sur_name"),
+                                    FirstName = dataReader.GetNullableString("first_name"),
+                                    PatrName = dataReader.GetNullableString("patr_name"),
+                                    Phone = dataReader.GetNullableString("phone"),
+                                }
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return taskDtos.ToArray();
+                }
+            }
+        }
 
 //        public ScheduleTaskDto GetScheduleTaskByRequestId(int requestId)
 //        {
@@ -1519,6 +1558,24 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                         return dataReader.GetNullableString("taskId");
                     }
 
+                }
+            }
+        }
+        public static void UpdateScheduleTask(int currentWorkerId, int taskId, int workerId, int? requestId, DateTime fromDate,
+            DateTime toDate, string eventDescription)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd =new MySqlCommand(@"CALL CallCenter.DispexScheduleTaskUpdate(@CurrentWorkerId,@TaskId,@WorkerId,@RequestId,@FromDate,@ToDate)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurrentWorkerId", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@TaskId", taskId);
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate);
+                    cmd.ExecuteNonQuery();
                 }
             }
         }

@@ -694,7 +694,7 @@ namespace CRMPhone.ViewModel
 
         }
 
-        private void OpenRequest(object sender)
+        public void OpenRequest(object sender)
         {
             var selectedItem = sender as RequestForListDto;
             if (selectedItem == null)

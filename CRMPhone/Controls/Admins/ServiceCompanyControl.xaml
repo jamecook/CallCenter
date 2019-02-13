@@ -47,8 +47,8 @@
                         <DataTemplate DataType="dto:ServiceCompanyDto">
                             <DockPanel>
                             <TextBlock Text="{Binding Path=Name}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                             <Button Margin="3" Width="80" HorizontalAlignment="Right"
-                                     Command="{Binding ElementName=ServiceCompanyGrid, Path=DataContext.EditBindingCommand}" CommandParameter="{Binding ElementName=ServiceCompanyGrid, Path=SelectedItem}">Привязка</Button>
+                             <!--<Button Margin="3" Width="80" HorizontalAlignment="Right"
+                                     Command="{Binding ElementName=ServiceCompanyGrid, Path=DataContext.EditBindingCommand}" CommandParameter="{Binding ElementName=ServiceCompanyGrid, Path=SelectedItem}">Привязка</Button>-->
                             </DockPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

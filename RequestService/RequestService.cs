@@ -407,20 +407,29 @@ namespace RequestServiceImpl
                 phones = request.Contacts.OrderBy(c => c.IsMain).Select(c =>
                         {
                             var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
-                            if (!string.IsNullOrEmpty(c.Name))
-                            {
-                                retVal += $" - {c.Name}";
-                            }
+                            //if (!string.IsNullOrEmpty(c.Name))
+                            //{
+                            //    retVal += $" - {c.Name}";
+                            //}
                             return retVal;
                         }
-                    )
-                    .Aggregate((i, j) => i + ";" + j);
+                    ).FirstOrDefault();
+                    //.Aggregate((i, j) => i + ";" + j);
             //phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}").Aggregate((i, j) => i + ";" + j);
 
             if (smsSettings.SendToWorker)
-                SendSms(requestId, smsSettings.Sender, worker.Phone,
-                    $"№ {requestId}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
-                    false);
+            {
+                var smsText = $"{request.Id} {phones} {request.Address.FullAddress}.{request.Type.Name}({request.Description})";
+                if (smsText.Length > 70)
+                {
+                    smsText = smsText.Substring(0, 70);
+                }
+                //var smsText = $"№ {request.Id}. {request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.";
+                SendSms(requestId, smsSettings.Sender, worker.Phone, smsText, false);
+            }
+                //SendSms(requestId, smsSettings.Sender, worker.Phone,
+                //    $"№ {requestId}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
+                //    false);
             //SendSms(requestId, smsSettings.Sender, worker.Phone, $"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
         }
 
@@ -1715,7 +1724,8 @@ where s.request_id = @RequestId and deleted = 0;";
                 throw;
             }
         }
-        public IList<WorkerDto> GetMastersByHouseAndService(int houseId, int parentServiceTypeId, bool showOnlyExecutors = true)
+        
+        public IList<WorkerDto> GetWorkersByHouseAndService(int houseId, int parentServiceTypeId, bool showMasters = true)
         {
             var query =
                 $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms, w.send_notification
@@ -1723,9 +1733,13 @@ where s.request_id = @RequestId and deleted = 0;";
     join CallCenter.Workers w on wh.worker_id = w.id
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
-    where w.enabled = 1 and w.is_master = 1 and wh.master_weigth is not null and wh.house_id = {houseId}
-    and (wh.type_id is null or wh.type_id = {parentServiceTypeId})
-    group by s.id,s.name ,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name,w.can_assign,w.parent_worker_id
+    where w.enabled = 1 and wh.master_weigth is not null and wh.house_id = {houseId}
+    and (wh.type_id is null or wh.type_id = {parentServiceTypeId})";
+            if (showMasters)
+                query += "and w.is_master = 1";
+            else
+                query += "and w.is_executer = 1";
+    query += @" group by s.id,s.name ,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name,w.can_assign,w.parent_worker_id
     order by wh.master_weigth desc;";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {

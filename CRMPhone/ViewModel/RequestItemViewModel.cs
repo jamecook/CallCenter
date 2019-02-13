@@ -122,6 +122,7 @@ namespace CRMPhone.ViewModel
             {
                 _selectedHouseId = value;
                 UpdateMastets();
+                RefreshExecuters();
                 OnPropertyChanged(nameof(SelectedHouseId));
             }
         }
@@ -202,7 +203,7 @@ namespace CRMPhone.ViewModel
             {
                 if (_selectedHouseId.HasValue)
                 {
-                    foreach (var master in _requestService.GetMastersByHouseAndService(_selectedHouseId.Value, SelectedParentService.Id))
+                    foreach (var master in _requestService.GetWorkersByHouseAndService(_selectedHouseId.Value, SelectedParentService.Id))
                     {
                         MasterList.Add(master);
                     }
@@ -277,10 +278,17 @@ namespace CRMPhone.ViewModel
 
         public void RefreshExecuters()
         {
+            var selectedExecuterId = SelectedExecuter?.Id;
             if (ShowAllExecuters || SelectedCompany == null || SelectedParentService == null)
                 ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
-            else
-                ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecutersByServiceType(SelectedCompany.Id, SelectedParentService.Id));
+            else if (_selectedHouseId.HasValue)
+            {
+                ExecuterList = new ObservableCollection<WorkerDto>(
+                        _requestService.GetWorkersByHouseAndService(_selectedHouseId.Value, SelectedParentService.Id, false));
+            }
+            SelectedExecuter = ExecuterList.FirstOrDefault(m => m.Id == selectedExecuterId);
+            if(SelectedExecuter == null)
+                SelectedExecuter = ExecuterList.FirstOrDefault();
             OnPropertyChanged(nameof(ExecuterList));
         }
 

@@ -123,6 +123,15 @@ namespace WebApi.Controllers
             int.TryParse(workerIdStr, out int currentWorkerId);
             return RequestService.GetScheduleTask(currentWorkerId,workerId,fromDate,toDate);
         }
+        [HttpGet("get_all_tasks")]
+        public IEnumerable<ScheduleTaskDto> GetAllTasks([FromQuery]int workerId,
+            [FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int currentWorkerId);
+            return RequestService.GetAllScheduleTask(currentWorkerId, workerId, fromDate, toDate);
+        }
+
         [HttpPost("add_task")]
         public ActionResult<string> AddTask([FromBody]AddTaskDto taskDto)
         {
@@ -132,12 +141,12 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("edit_task/{id}")]
-        public ActionResult<string> AddTask(int id, [FromBody]AddTaskDto taskDto)
+        public ActionResult UpdateTask(int id, [FromBody]AddTaskDto taskDto)
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int currentWorkerId);
-            RequestService.DeleteScheduleTask(currentWorkerId, id);
-            return RequestService.AddScheduleTask(currentWorkerId, taskDto.WorkerId, taskDto.RequestId, taskDto.FromDate, taskDto.ToDate, null);
+            RequestService.UpdateScheduleTask(currentWorkerId, id, taskDto.WorkerId, taskDto.RequestId, taskDto.FromDate, taskDto.ToDate, null);
+            return Ok();
         }
         [HttpDelete("drop_task/{id}")]
         public ActionResult DropTask(int id)

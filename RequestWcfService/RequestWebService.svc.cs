@@ -192,7 +192,7 @@ namespace RequestWcfService
         }
         public WorkerDto[] GetMastersByHouseAndService(int houseId, int parentServiceTypeId)
         {
-            return _requestService.GetMastersByHouseAndService(houseId, parentServiceTypeId).ToArray();
+            return _requestService.GetWorkersByHouseAndService(houseId, parentServiceTypeId).ToArray();
         }
         public WorkerDto[] GetExecutersByPeriod(bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int workerId)
         {
