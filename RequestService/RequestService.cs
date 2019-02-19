@@ -948,6 +948,45 @@ namespace RequestServiceImpl
             return null;
         }
 
+        public IList<FondDto> GetServiceCompanyFondList(int[] streetsId, int? houseId, int? addressId)
+        {
+            var sqlQuery = @"SELECT s.name street_name, h.building,h.corps,a.flat,c.* FROM CallCenter.CitizenAddresses c
+    join CallCenter.Addresses a on c.address_id = a.id
+    join CallCenter.Houses h on h.id = a.house_id
+    join CallCenter.Streets s on s.id = h.street_id";
+            if (streetsId != null && streetsId.Length > 0)
+                sqlQuery += $" and s.id in ({streetsId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+            if (houseId.HasValue)
+                sqlQuery += $" and h.id = {houseId.Value}";
+            if (addressId.HasValue)
+                sqlQuery += $" and a.id = {addressId.Value}";
+            sqlQuery += " order by s.name,h.building,h.corps,a.flat";
+            using (var cmd =
+                new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                var fondList = new List<FondDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        fondList.Add(new FondDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            StreetName = dataReader.GetString("street_name"),
+                            Flat = dataReader.GetString("flat"),
+                            Building = dataReader.GetString("building"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            Name = dataReader.GetNullableString("name"),
+                            Phones = dataReader.GetNullableString("phones"),
+                            KeyDate = dataReader.GetNullableDateTime("key_date"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return fondList;
+            }
+        }
+
         public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone, bool onlyGaranty, bool onlyImmediate)
         {
             var findFromDate = fromDate.Date;

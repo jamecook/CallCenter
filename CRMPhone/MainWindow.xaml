@@ -173,6 +173,15 @@
                 </TabItem.Header>
                 <controls:NotifyRequestControl DataContext="{Binding AlertRequestControlModel}"/>
             </TabItem>
+            <TabItem Name="ServiceCompanyFond">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Жилой фонд"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <controls:ServiceCompanyFondControl DataContext="{Binding ServiceCompanyFondContext}"/>
+            </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">

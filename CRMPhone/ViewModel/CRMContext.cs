@@ -108,6 +108,7 @@ namespace CRMPhone.ViewModel
             _lastAliveTime = DateTime.Today;
             EnablePhone = false;
             RequestDataContext = new RequestControlContext();
+            ServiceCompanyFondContext = new ServiceCompanyFondControlContext();
             ServiceCompanyDataContext = new ServiceCompanyControlContext();
             WorkerAdminDataContext = new WorkerAdminControlContext();
             SpecialityAdminContext = new SpecialityControlContext();
@@ -155,6 +156,7 @@ namespace CRMPhone.ViewModel
             AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser}) ver. {Assembly.GetEntryAssembly().GetName().Version}";
             AlertRequestDataContext.InitCollections();
             RequestDataContext.InitCollections();
+            ServiceCompanyFondContext.InitCollections();
             ServiceCompanyDataContext.RefreshList();
             WorkerAdminDataContext.RefreshList();
             SpecialityAdminContext.RefreshList();
@@ -1009,6 +1011,7 @@ namespace CRMPhone.ViewModel
         private CallsNotificationContext _callsNotificationContext;
         private ServiceCompanyDto _selectedOutcoinCompany;
         private ObservableCollection<ServiceCompanyDto> _forOutcoinCallsCompanyList;
+        private ServiceCompanyFondControlContext _serviceCompanyFondContext;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 
@@ -1048,6 +1051,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _alertRequestColor; }
             set { _alertRequestColor = value; OnPropertyChanged(nameof(AlertRequestColor));}
+        }
+
+        public ServiceCompanyFondControlContext ServiceCompanyFondContext
+        {
+            get { return _serviceCompanyFondContext; }
+            set { _serviceCompanyFondContext = value; OnPropertyChanged(nameof(ServiceCompanyFondContext));}
         }
 
         public RequestControlContext RequestDataContext

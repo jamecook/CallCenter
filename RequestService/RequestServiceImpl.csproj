@@ -82,6 +82,7 @@
     <Compile Include="Dto\ExecuteDateHistoryDto.cs" />
     <Compile Include="Dto\ExecuterToServiceCompanyDto.cs" />
     <Compile Include="Dto\FlatDto.cs" />
+    <Compile Include="Dto\FondDto.cs" />
     <Compile Include="Dto\GarantyDto.cs" />
     <Compile Include="Dto\HouseDto.cs" />
     <Compile Include="Dto\LoginDto.cs" />

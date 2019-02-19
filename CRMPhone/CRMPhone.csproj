@@ -159,6 +159,9 @@
     <Compile Include="Controls\NotifyRequestControl.xaml.cs">
       <DependentUpon>NotifyRequestControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ServiceCompanyFondControl.xaml.cs">
+      <DependentUpon>ServiceCompanyFondControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\EditExecuterBindDialog.xaml.cs">
       <DependentUpon>EditExecuterBindDialog.xaml</DependentUpon>
     </Compile>
@@ -343,6 +346,7 @@
     </Compile>
     <Compile Include="ViewModel\Admins\ServiceCompanyDialogViewModel.cs" />
     <Compile Include="ViewModel\ServiceAdminControlContext.cs" />
+    <Compile Include="ViewModel\ServiceCompanyFondControlContext.cs" />
     <Compile Include="ViewModel\ServiceCompanyInfoDialogViewModel.cs" />
     <Compile Include="ViewModel\SetWorkingTimesDialogViewModel.cs" />
     <Compile Include="ViewModel\SipLine.cs" />
@@ -400,6 +404,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\NotifyRequestControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\ServiceCompanyFondControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
