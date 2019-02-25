@@ -9,6 +9,8 @@ namespace RequestServiceImpl.Dto
         public string Corpus { get; set; }
         public string StreetName { get; set; }
         public int StreetId { get; set; }
+        public int? RegionId { get; set; }
+        public string RegionName { get; set; }
         public int? ServiceCompanyId { get; set; }
         public string ServiceCompanyName { get; set; }
         public int? EntranceCount { get; set; }

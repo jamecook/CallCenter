@@ -29,6 +29,8 @@ namespace CRMPhone.ViewModel.Admins
         private DateTime? _commissioningDate;
         private int? _elevatorCount;
         private bool _haveParking;
+        private CityRegionDto _selectedCityRegionDto;
+        private ObservableCollection<CityRegionDto> _cityRegionList;
 
         public string StreetName
         {
@@ -46,6 +48,18 @@ namespace CRMPhone.ViewModel.Admins
         {
             get { return _selectedServiceCompany; }
             set { _selectedServiceCompany = value; OnPropertyChanged(nameof(SelectedServiceCompany));}
+        }
+
+        public ObservableCollection<CityRegionDto> CityRegionList
+        {
+            get { return _cityRegionList; }
+            set { _cityRegionList = value; OnPropertyChanged(nameof(CityRegionList));}
+        }
+
+        public CityRegionDto SelectedCityRegion
+        {
+            get { return _selectedCityRegionDto; }
+            set { _selectedCityRegionDto = value; OnPropertyChanged(nameof(SelectedCityRegion));}
         }
 
         public string BuildingNumber
@@ -101,6 +115,7 @@ namespace CRMPhone.ViewModel.Admins
             _requestService = requestService;
             _streetId = streetId;
             ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
+            CityRegionList = new ObservableCollection<CityRegionDto>(_requestService.GetCityRegions());
             var street = _requestService.GetStreetById(streetId);
             StreetName = street.Name;
             _houseId = houseId;
@@ -116,6 +131,7 @@ namespace CRMPhone.ViewModel.Admins
                   ElevatorCount = house.ElevatorCount;
                   CommissioningDate = house.CommissioningDate;
                   SelectedServiceCompany = ServiceCompanyList.FirstOrDefault(s => s.Id == house.ServiceCompanyId);
+                  SelectedCityRegion = CityRegionList.FirstOrDefault(r => r.Id == house.RegionId);
               }
         }
 
@@ -142,7 +158,7 @@ namespace CRMPhone.ViewModel.Admins
                     return;
                 }
             }
-            _requestService.SaveHouse(_houseId, _streetId, BuildingNumber, corpus, SelectedServiceCompany.Id, EntranceCount, FloorCount, FlatsCount, ElevatorCount, HaveParking, CommissioningDate);
+            _requestService.SaveHouse(_houseId, _streetId, BuildingNumber, corpus, SelectedServiceCompany.Id, EntranceCount, FloorCount, FlatsCount, ElevatorCount, HaveParking, CommissioningDate,SelectedCityRegion?.Id);
             _view.DialogResult = true;
         }
 

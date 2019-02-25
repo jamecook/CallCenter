@@ -930,7 +930,7 @@ namespace CRMPhone.ViewModel
                                     {
                                         new XElement("ВремяЗвонка", record.CreateTime?.ToString("dd.MM.yyyy HH:mm")),
                                         new XElement("УК", record.ServiceCompany),
-                                        new XElement("Направление", record.Direction  == "in" ? "вх." : "исх."),
+                                        new XElement("Направление", record.Direction  == "in" ? "вх." :  record.Direction  == "callback" ? "callback" : "исх."),
                                         new XElement("Номер", record.CallerId),
                                         new XElement("ВремяОжидания", record.WaitingTime),
                                         new XElement("ВремяРазговора", record.TalkTime),
@@ -973,7 +973,7 @@ namespace CRMPhone.ViewModel
                         row.Append(
                             ConstructCell(record.CreateTime?.ToString("dd.MM.yyyy HH:mm"), CellValues.String),
                             ConstructCell(record.ServiceCompany, CellValues.String),
-                            ConstructCell(record.Direction == "in" ? "вх." : "исх.", CellValues.String),
+                            ConstructCell(record.Direction == "in" ? "вх." : record.Direction == "callback" ? "callback" : "исх.", CellValues.String),
                             ConstructCell(record.CallerId, CellValues.String),
                             ConstructCell(record.WaitingTime?.ToString(), CellValues.String),
                             ConstructCell(record.TalkTime?.ToString(), CellValues.String),

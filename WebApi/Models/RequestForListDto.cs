@@ -18,6 +18,8 @@ namespace WebApi.Models
         public string ClientName { get; set; }
         public DateTime CreateTime { get; set; }
         public string StreetPrefix { get; set; }
+        public int? RegionId { get; set; }
+        public string RegionName { get; set; }
         public string StreetName { get; set; }
         public string Building { get; set; }
         public string Corpus { get; set; }

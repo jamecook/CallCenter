@@ -52,7 +52,8 @@ namespace WebApi.Controllers
             [FromQuery] bool? chargeable,
             [FromQuery] string clientPhone,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties,
-            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] regions
             )
 
         {
@@ -82,7 +83,7 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                 fromDate ?? DateTime.Today,
                 toDate ?? DateTime.Today.AddDays(1),
-                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings, companies, warranties, immediates,
+                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings, companies, warranties, immediates,regions,
                 badWork ?? false,
                 garanty ?? false, onlyRetry ?? false, chargeable ?? false, clientPhone);
 
@@ -94,6 +95,7 @@ namespace WebApi.Controllers
                         new[]
                         {
                                         new XElement("Заявка", request.Id),
+                                        new XElement("Мк_район", request.StreetName),
                                         new XElement("Улица", request.StreetName),
                                         new XElement("Дом", request.Building),
                                         new XElement("Корпус", request.Corpus),

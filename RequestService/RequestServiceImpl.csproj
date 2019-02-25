@@ -86,6 +86,7 @@
     <Compile Include="Dto\GarantyDto.cs" />
     <Compile Include="Dto\HouseDto.cs" />
     <Compile Include="Dto\LoginDto.cs" />
+    <Compile Include="Dto\CityRegionDto.cs" />
     <Compile Include="Dto\NotAnsweredDto.cs" />
     <Compile Include="Dto\NoteDto.cs" />
     <Compile Include="Dto\NotifyPropertyChangedInvocatorAttribute.cs" />

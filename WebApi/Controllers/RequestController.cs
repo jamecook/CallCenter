@@ -83,7 +83,8 @@ namespace WebApi.Controllers
             [FromQuery] bool? chargeable,
             [FromQuery] string clientPhone,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties,
-            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] regions
             )
 
         {
@@ -110,7 +111,7 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                 fromDate ?? DateTime.Today,
                 toDate ?? DateTime.Today.AddDays(1),
-                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,warranties, immediates,
+                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,warranties, immediates, regions,
                 badWork ?? false,
                 garanty ?? false, onlyRetry ?? false,chargeable ?? false, clientPhone);
         }
@@ -321,7 +322,22 @@ namespace WebApi.Controllers
         [HttpGet("request_notes/{id}")]
         public IEnumerable<NoteDto> GetNotes(int id)
         {
-            return RequestService.GetNotes(id);
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if (int.TryParse(workerIdStr, out int workerId))
+            {
+                return RequestService.GetNotes(workerId, id);
+            }
+            return null;
+        }
+        [HttpGet("city_regions")]
+        public IEnumerable<CityRegionDto> GetCityRegions()
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if (int.TryParse(workerIdStr, out int workerId))
+            {
+                return RequestService.GetRegions(workerId);
+            }
+            return null;
         }
 
         [HttpPut("status/{id}")]

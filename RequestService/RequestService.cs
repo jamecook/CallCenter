@@ -2085,8 +2085,9 @@ where w.worker_id = @WorkerId";
 
         public IList<HouseDto> GetHouses(int streetId,int? serviceCompanyId = null)
         {
-            var sqlQuery = @"SELECT h.id,h.street_id,s.Name street_name,h.building,h.corps,h.entrance_count,h.flat_count,h.floor_count,have_parking,elevator_count,service_company_id,sс.Name service_company_name FROM CallCenter.Houses h
+            var sqlQuery = @"SELECT h.id,h.street_id,s.Name street_name,h.building,h.corps,h.entrance_count,h.flat_count,h.floor_count,have_parking,elevator_count,service_company_id,sс.Name service_company_name,region_id, r.name region_name FROM CallCenter.Houses h
     join CallCenter.Streets s on s.id = h.street_id
+    left join CallCenter.CityRegions r on r.id = h.region_id
     left join CallCenter.ServiceCompanies sс on sс.id = h.service_company_id where h.street_id = @StreetId and h.enabled = 1";
             if (serviceCompanyId.HasValue)
             {
@@ -2111,6 +2112,8 @@ where w.worker_id = @WorkerId";
                             Id = dataReader.GetInt32("id"),
                             Building = dataReader.GetString("building"),
                             StreetId = dataReader.GetInt32("street_id"),
+                            RegionId = dataReader.GetNullableInt("region_id"),
+                            RegionName = dataReader.GetNullableString("region_name"),
                             StreetName = dataReader.GetNullableString("street_name"),
                             Corpus = dataReader.GetNullableString("corps"),
                             ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
@@ -3379,8 +3382,9 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
         public HouseDto GetHouseById(int houseId)
         {
             HouseDto house = null;
-            using (var cmd = new MySqlCommand(@"SELECT h.id, h.street_id, h.building, h.corps, h.service_company_id, h.entrance_count, h.flat_count, h.floor_count, h.service_company_id, s.Name service_company_name,commissioning_date,have_parking,elevator_count FROM CallCenter.Houses h
- left join CallCenter.ServiceCompanies s on s.id = h.service_company_id where h.enabled = 1 and h.id = @HouseId", _dbConnection))
+            using (var cmd = new MySqlCommand(@"SELECT h.id, h.street_id, h.building, h.corps, h.service_company_id, h.entrance_count, h.flat_count, h.floor_count, h.service_company_id, s.Name service_company_name,commissioning_date,have_parking,elevator_count,region_id, r.name region_name FROM CallCenter.Houses h
+ left join CallCenter.ServiceCompanies s on s.id = h.service_company_id
+ left join CallCenter.CityRegions r on r.id = h.region_id where h.enabled = 1 and h.id = @HouseId", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@HouseId", houseId);
 
@@ -3393,6 +3397,8 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
                             Building = dataReader.GetString("building"),
                             StreetId = dataReader.GetInt32("street_id"),
                             Corpus = dataReader.GetNullableString("corps"),
+                            RegionId = dataReader.GetNullableInt("region_id"),
+                            RegionName = dataReader.GetNullableString("region_name"),
                             ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
                             ServiceCompanyName = dataReader.GetNullableString("service_company_name"),
                             EntranceCount = dataReader.GetNullableInt("entrance_count"),
@@ -3411,10 +3417,10 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
         }
 
         public void SaveHouse(int? houseId, int streetId, string buildingNumber, string corpus, int serviceCompanyId,
-            int? entranceCount, int? floorCount, int? flatsCount,int? elevatorCount, bool haveParking, DateTime? commissioningDate)
+            int? entranceCount, int? floorCount, int? flatsCount,int? elevatorCount, bool haveParking, DateTime? commissioningDate,int? regionId)
         {
             using (var cmd = new MySqlCommand(
-                    @"call CallCenter.AddOrUndateHouse(@houseId,@streetId,@buildingNumber,@corpus,@serviceCompanyId,@entranceCount,@floorCount,@flatsCount,@elevatorCount,@haveParking,@commissioningDate);",
+                    @"call CallCenter.AddOrUndateHouse2(@houseId,@streetId,@buildingNumber,@corpus,@serviceCompanyId,@entranceCount,@floorCount,@flatsCount,@elevatorCount,@haveParking,@commissioningDate,@regionId);",
                     _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@houseId", houseId);
@@ -3428,6 +3434,7 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
                 cmd.Parameters.AddWithValue("@elevatorCount", elevatorCount);
                 cmd.Parameters.AddWithValue("@haveParking", haveParking);
                 cmd.Parameters.AddWithValue("@commissioningDate", commissioningDate);
+                cmd.Parameters.AddWithValue("@regionId", regionId);
                 cmd.ExecuteNonQuery();
             }
         }
@@ -3436,8 +3443,9 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
         {
             HouseDto house = null;
             var sqlQuery =
-                @"SELECT h.id, h.street_id, h.building, h.corps, h.service_company_id, h.entrance_count, h.flat_count, h.floor_count,have_parking,elevator_count, h.service_company_id, s.Name service_company_name FROM CallCenter.Houses h
- left join CallCenter.ServiceCompanies s on s.id = h.service_company_id where h.enabled = 1 and h.street_id = @streetId and building = @buildingNumber";
+                @"SELECT h.id, h.street_id, h.building, h.corps, h.service_company_id, h.entrance_count, h.flat_count, h.floor_count,have_parking,elevator_count, h.service_company_id, s.Name service_company_name,region_id, r.name region_name FROM CallCenter.Houses h
+ left join CallCenter.ServiceCompanies s on s.id = h.service_company_id
+ left join CallCenter.CityRegions r on r.id = h.region_id where h.enabled = 1 and h.street_id = @streetId and building = @buildingNumber";
             if (!string.IsNullOrEmpty(corpus))
                 sqlQuery += " and corps = @corpus";
             else
@@ -3457,6 +3465,8 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
                             Building = dataReader.GetString("building"),
                             StreetId = dataReader.GetInt32("street_id"),
                             Corpus = dataReader.GetNullableString("corps"),
+                            RegionId = dataReader.GetNullableInt("region_id"),
+                            RegionName = dataReader.GetNullableString("region_name"),
                             ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
                             ServiceCompanyName = dataReader.GetNullableString("service_company_name"),
                             EntranceCount = dataReader.GetNullableInt("entrance_count"),
@@ -4169,6 +4179,28 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
             {
                 cmd.Parameters.AddWithValue("@Id", bindId);
                 cmd.ExecuteNonQuery();
+            }
+        }
+
+        public List<CityRegionDto> GetCityRegions()
+        {
+            var query = "SELECT id,name FROM CallCenter.CityRegions S where enabled = 1 order by S.Name";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var regions = new List<CityRegionDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        regions.Add(new CityRegionDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return regions.OrderBy(i => i.Name).ToList();
             }
         }
     }

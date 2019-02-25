@@ -553,7 +553,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 }
             }
         }
-        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, string clientPhone = null)
+        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -561,7 +561,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             {
                 conn.Open();
                 var sqlQuery =
-                    "CALL CallCenter.DispexGetRequests2(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@WarrantyIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable,@ImmediateIds)";
+                    "CALL CallCenter.DispexGetRequests(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@WarrantyIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable,@ImmediateIds,@RegionIds)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -624,6 +624,10 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                         immediateIds != null && immediateIds.Length > 0
                             ? immediateIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
                             : null);
+                    cmd.Parameters.AddWithValue("@RegionIds",
+                        regionIds != null && regionIds.Length > 0
+                            ? regionIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
 
                     var requests = new List<RequestForListDto>();
                     using (var dataReader = cmd.ExecuteReader())
@@ -635,6 +639,8 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                             {
                                 Id = dataReader.GetInt32("id"),
                                 StreetPrefix = dataReader.GetString("prefix_name"),
+                                RegionId = dataReader.GetNullableInt("region_id"),
+                                RegionName = dataReader.GetNullableString("region_name"),
                                 StreetName = dataReader.GetString("street_name"),
                                 AddressType = dataReader.GetString("address_type"),
                                 CompanyId = dataReader.GetNullableInt("service_company_id"),
@@ -742,6 +748,8 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                             {
                                 Id = dataReader.GetInt32("id"),
                                 StreetPrefix = dataReader.GetString("prefix_name"),
+                                RegionId = dataReader.GetNullableInt("region_id"),
+                                RegionName = dataReader.GetNullableString("region_name"),
                                 StreetName = dataReader.GetString("street_name"),
                                 AddressType = dataReader.GetString("address_type"),
                                 CompanyId = dataReader.GetNullableInt("service_company_id"),
@@ -1006,17 +1014,16 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
         }
 
-        public static List<NoteDto> GetNotes(int requestId)
+        public static List<NoteDto> GetNotes(int workerId, int requestId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var sqlQuery =
-                    @"SELECT n.id,n.operation_date,n.request_id,n.user_id,n.note,u.SurName,u.FirstName,u.PatrName from CallCenter.RequestNoteHistory n
-join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order by operation_date";
+                var sqlQuery = "call CallCenter.DispexGetNotes(@WorkerId,@RequestId);";
                 using (
                     var cmd = new MySqlCommand(sqlQuery, conn))
                 {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
                     cmd.Parameters.AddWithValue("@RequestId", requestId);
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -1030,15 +1037,43 @@ join CallCenter.Users u on u.id = n.user_id where request_id = @RequestId order 
                                 Note = dataReader.GetNullableString("note"),
                                 User = new UserDto
                                 {
-                                    Id = dataReader.GetInt32("user_id"),
-                                    SurName = dataReader.GetNullableString("SurName"),
-                                    FirstName = dataReader.GetNullableString("FirstName"),
-                                    PatrName = dataReader.GetNullableString("PatrName"),
+                                    Id = dataReader.GetInt32("create_user_id"),
+                                    SurName = dataReader.GetNullableString("surname"),
+                                    FirstName = dataReader.GetNullableString("firstname"),
+                                    PatrName = dataReader.GetNullableString("patrname"),
                                 },
                             });
                         }
                         dataReader.Close();
                         return noteList;
+                    }
+                }
+
+            }
+        }
+        public static List<CityRegionDto> GetRegions(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery = "call CallCenter.DispexGetCityRegions(@WorkerId);";
+                using (
+                    var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var regions = new List<CityRegionDto>();
+                        while (dataReader.Read())
+                        {
+                            regions.Add(new CityRegionDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("note")
+                            });
+                        }
+                        dataReader.Close();
+                        return regions;
                     }
                 }
 
