@@ -31,8 +31,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RudiGrobler.Controls", "CRM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppNotification", "AppNotification\AppNotification.csproj", "{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeechTest2", "SpeechTest2\SpeechTest2.csproj", "{F07203CC-7207-4B53-BC74-B94452C703D7}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,10 +93,6 @@ Global
 		{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F07203CC-7207-4B53-BC74-B94452C703D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F07203CC-7207-4B53-BC74-B94452C703D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F07203CC-7207-4B53-BC74-B94452C703D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F07203CC-7207-4B53-BC74-B94452C703D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
