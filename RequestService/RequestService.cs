@@ -2625,9 +2625,15 @@ where w.worker_id = @WorkerId";
         }
         public List<StatusHistoryDto> GetStatusHistoryByRequest(int requestId)
         {
-            var query = @"SELECT operation_date, R.state_id, s.name, s.description, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestStateHistory R
+            var query = @"SELECT operation_date, R.state_id, s.name, s.description,
+    case when user_id = 0 then cw.id else user_id end user_id,
+    case when user_id = 0 then cw.sur_name else u.surname end surname,
+    case when user_id = 0 then cw.first_name else u.firstname end firstname,
+    case when user_id = 0 then cw.patr_name else u.patrname end patrname
+FROM CallCenter.RequestStateHistory R
  join CallCenter.RequestState s on s.id = R.state_id
  join CallCenter.Users u on u.id = user_id
+ left join CallCenter.Workers cw on cw.id = R.worker_id
  where request_id = @RequestId";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {

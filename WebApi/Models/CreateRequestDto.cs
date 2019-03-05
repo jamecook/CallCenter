@@ -11,6 +11,7 @@ namespace WebApi.Models
         public int? MasterId { get; set; }
         public int? ExecuterId { get; set; }
         public bool? IsChargeable { get; set; }
+        public bool? IsImmediate { get; set; }
         public string Description { get; set; }
         public DateTime? ExecuteDate { get; set; }
         public int? WarrantyId { get; set; }

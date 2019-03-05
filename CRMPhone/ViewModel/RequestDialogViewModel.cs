@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
 using CRMPhone.Dialogs;
+using Newtonsoft.Json;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 using RudiGrobler.Calendar.Common;
@@ -475,6 +476,9 @@ namespace CRMPhone.ViewModel
         private void AddCall(object obj)
         {
             var lastCallId = AppSettings.LastCallId;
+
+            //todo сделать логирование нажатий
+            var appSetting = JsonConvert.SerializeObject(AppSettings.CurrentUser)+ JsonConvert.SerializeObject(AppSettings.SipInfo) + JsonConvert.SerializeObject(AppSettings.LastIncomingCall) + JsonConvert.SerializeObject(AppSettings.LastCallId);
             var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(lastCallId);
             _requestService.AddCallToRequest(RequestId,callUniqueId);
             if(!string.IsNullOrEmpty(callUniqueId))

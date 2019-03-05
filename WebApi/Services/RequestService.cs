@@ -927,13 +927,13 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
         }
 
-        public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId, int? executerId, string description, bool isChargeable = false, DateTime? executeDate = null,int warrantyId = 0)
+        public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId, int? executerId, string description, bool isChargeable = false, DateTime? executeDate = null,int warrantyId = 0, bool isImmediate = false)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 var query =
-                    "call CallCenter.DispexCreateRequest(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc,@IsChargeable,@ExecuteDate,@IsWarranty);";
+                    "call CallCenter.DispexCreateRequest2(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc,@IsChargeable,@ExecuteDate,@IsWarranty,@IsImmediate);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -947,6 +947,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     cmd.Parameters.AddWithValue("@IsChargeable", isChargeable);
                     cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
                     cmd.Parameters.AddWithValue("@IsWarranty", warrantyId);
+                    cmd.Parameters.AddWithValue("@IsImmediate", isImmediate);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         dataReader.Read();
@@ -1069,7 +1070,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                             regions.Add(new CityRegionDto
                             {
                                 Id = dataReader.GetInt32("id"),
-                                Name = dataReader.GetString("note")
+                                Name = dataReader.GetString("name")
                             });
                         }
                         dataReader.Close();
