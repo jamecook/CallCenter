@@ -141,5 +141,61 @@ namespace WebApi.Controllers
             saver.Close();
             return buffer;
         }
+        [HttpGet("newExcel")]
+        public byte[] NewExcelReport([FromQuery]string requestId, [FromQuery] bool? filterByCreateDate,
+            [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] streets,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] houses,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] addresses,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] parentServices,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] services,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] statuses,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] workers,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] executors,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] ratings,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] companies,
+            [FromQuery] bool? badWork,
+            [FromQuery] bool? garanty,
+            [FromQuery] bool? onlyRetry,
+            [FromQuery] bool? chargeable,
+            [FromQuery] string clientPhone,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] regions
+            )
+
+        {
+            //var ttt = User.Claims.ToArray();
+            //var login = User.Claims.FirstOrDefault(c => c.Type == "Login")?.Value;
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            int? rId = null;
+            if (!string.IsNullOrEmpty(requestId))
+            {
+                if (int.TryParse(requestId, out int parseId))
+                {
+                    rId = parseId;
+                }
+                else
+                {
+                    rId = -1;
+                }
+            }
+            var awailableReports = RequestService.ReportsGetAwailable(workerId);
+            if (awailableReports.All(r => r.Url != "/report/newExcel"))
+                return null;
+
+            var requests = RequestService.WebRequestListArrayParam(workerId, rId,
+                filterByCreateDate ?? true,
+                fromDate ?? DateTime.Today,
+                toDate ?? DateTime.Today.AddDays(1),
+                fromDate ?? DateTime.Today,
+                toDate ?? DateTime.Today.AddDays(1),
+                streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings, companies, warranties, immediates,regions,
+                badWork ?? false,
+                garanty ?? false, onlyRetry ?? false, chargeable ?? false, clientPhone);
+            byte[] buffer = RequestService.GenerateExcel(requests);
+            return buffer;
+        }
     }
 }

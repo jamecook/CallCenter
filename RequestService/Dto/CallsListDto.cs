@@ -41,6 +41,7 @@ namespace RequestServiceImpl.Dto
         
         public RequestUserDto User { get; set; }
         public string Requests { get; set; }
+        public string RedirectPhone { get; set; }
         public string ImagePath => Direction == "in" ? "pack://application:,,,/Images/incalls.png" : "pack://application:,,,/Images/outcalls.png";
     }
 }

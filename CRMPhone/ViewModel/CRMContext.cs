@@ -914,8 +914,9 @@ namespace CRMPhone.ViewModel
 
                 var saveDialog = new SaveFileDialog();
                 saveDialog.AddExtension = true;
-                saveDialog.DefaultExt = ".xlsx";
-                saveDialog.Filter = "Excel файл|*.xlsx|XML Файл|*.xml";
+                saveDialog.DefaultExt = ".xml";
+                saveDialog.Filter = "XML Файл|*.xml";
+                //saveDialog.Filter = "Excel файл|*.xlsx|XML Файл|*.xml";
                 if (saveDialog.ShowDialog() == true)
                 {
                     var fileName = saveDialog.FileName;
@@ -936,6 +937,7 @@ namespace CRMPhone.ViewModel
                                         new XElement("ВремяРазговора", record.TalkTime),
                                         new XElement("Заявки", record.Requests),
                                         new XElement("Оператор", record.User?.ShortName),
+                                        new XElement("Переадресация", record.RedirectPhone),
                                     }));
                         }
                         var saver = new FileStream(fileName, FileMode.Create);
@@ -1404,14 +1406,18 @@ namespace CRMPhone.ViewModel
             {
                 RequestDataContext.OpenRequest(new RequestForListDto {Id = item.RequestId.Value});
             }
+            var phone = item.CallerIdNum;
+            string callId = string.Format("sip:#{0}@{1}", phone.Replace("+",""), _serverIP);
+            _sipAgent.CallMaker.Invite(callId);
 
+/*
             string callId = string.Format("sip:{0}@{1}", "123123321", _serverIP);
             _sipAgent.CallMaker.Invite(callId);
 
             var bridgeThread = new Thread(BridgeFunc); //Создаем новый объект потока (Thread)
 
             bridgeThread.Start(item); //запускаем поток
-
+*/
         }
         private void SendDtmf()
         {

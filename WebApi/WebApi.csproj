@@ -58,4 +58,13 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="templates\prefix.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="templates\sufix.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

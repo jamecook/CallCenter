@@ -384,6 +384,17 @@ namespace WebApi.Controllers
             }
             return BadRequest();
         }
+        [HttpPost("view_request")]
+        public IActionResult ViewRequest([FromBody]int requestId)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if(int.TryParse(workerIdStr, out int workerId) && requestId > 0)
+            {
+                RequestService.SetViewRequest(requestId, workerId);
+                return Ok();
+            }
+            return BadRequest();
+        }
         [HttpPost("add_note/{id}")]
         public IActionResult AddNote(int id, [FromBody]string note)
         {

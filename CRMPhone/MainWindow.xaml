@@ -412,9 +412,9 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Время звонка" Width="120"
                              Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
-                            <DataGridTextColumn Header="УК" Width="160"
+                            <DataGridTextColumn Header="УК" Width="120"
                              Binding="{Binding Path=ServiceCompany}"/>
-                            <DataGridTemplateColumn Width="140" >
+                            <DataGridTemplateColumn Width="120" >
                                 <DataGridTemplateColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="ContentTemplate">
@@ -436,7 +436,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Width="110" >
+                            <DataGridTemplateColumn Width="80" >
                                 <DataGridTemplateColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="ContentTemplate">
@@ -457,7 +457,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Width="110" >
+                            <DataGridTemplateColumn Width="80" >
                                 <DataGridTemplateColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="ContentTemplate">
@@ -514,6 +514,26 @@
                                     <DataTemplate DataType="dto:CallsListDto">
                                         <DockPanel>
                                             <TextBlock Margin ="5,0" Text="{Binding Path=User.ShortName}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="*" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Переадресация" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=RedirectPhone}"/>
                                         </DockPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

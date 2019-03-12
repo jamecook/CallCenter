@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using MySql.Data.MySqlClient;
 using Stimulsoft.Report;
 using WebApi.Models;
@@ -247,6 +249,47 @@ namespace WebApi.Services
                 }
             }
         }
+
+        public static byte[] GenerateExcel(RequestForListDto[] requests)
+        {
+            var saver = new MemoryStream();
+            var prefix = File.ReadAllText("templates\\prefix.xml");
+            var sufix = File.ReadAllText("templates\\sufix.xml");
+            prefix = prefix.Replace("RowForReplace", (requests.Length + 1).ToString());
+            var stringBuilder = new StringBuilder();
+
+            //var start = new Stopwatch();
+            //start.Start();
+            foreach (var request in requests)
+            {
+                var row = $@"
+<Row ss:AutoFitHeight=""1"">
+    <Cell ss:StyleID=""s63""><Data ss:Type=""Number"">{request.Id}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.StreetName}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.Building}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.Corpus}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.Flat}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.ContactPhones}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.ParentService}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.Description}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.ExecuteTime?.ToShortDateString()}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.ExecutePeriod}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.LastNote}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String""> </Data></Cell>
+</Row>";
+                stringBuilder.Append(row);
+            }
+            //var rows = start.ElapsedMilliseconds;
+            var writer = new StreamWriter(saver);
+            writer.Write(prefix);
+            writer.Write(stringBuilder.ToString());
+            writer.Write(sufix);
+            writer.Flush();
+            //var writeTime = start.ElapsedMilliseconds - rows;
+            saver.Position = 0;
+            return saver.ToArray();
+        }
+
         public static int[] GetHousesId(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -688,6 +731,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                     PatrName = dataReader.GetNullableString("patrname"),
                                 },
                                 ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                                FirstViewDate = dataReader.GetNullableDateTime("first_view_date"),
                                 ExecutePeriod = dataReader.GetNullableString("Period_Name"),
                                 Rating = dataReader.GetNullableString("Rating"),
                                 BadWork = dataReader.GetBoolean("bad_work"),
@@ -797,6 +841,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                                     PatrName = dataReader.GetNullableString("patrname"),
                                 },
                                 ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                                FirstViewDate = dataReader.GetNullableDateTime("first_view_date"),
                                 ExecutePeriod = dataReader.GetNullableString("Period_Name"),
                                 Rating = dataReader.GetNullableString("Rating"),
                                 BadWork = dataReader.GetBoolean("bad_work"),
@@ -1159,6 +1204,20 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 }
             }
 
+        }
+        public static void SetViewRequest(int requestId, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.DispexViewRequest(@WorkerId,@Id);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", requestId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
         public static WarrantyDocDto[] WarrantyGetDocs(int currentWorkerId, int requestId)
         {

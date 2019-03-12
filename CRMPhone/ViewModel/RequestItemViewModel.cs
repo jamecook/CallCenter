@@ -52,6 +52,7 @@ namespace CRMPhone.ViewModel
         public RequestItemViewModel()
         {
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
+            CanAttach = true;
             ServiceList = new ObservableCollection<ServiceDto>();
             MasterList = new ObservableCollection<WorkerDto>(_requestService.GetMasters(null));
             ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
@@ -73,6 +74,7 @@ namespace CRMPhone.ViewModel
 
         private Appointment _selectedAppointment;
         private string _phoneNumber;
+        private bool _canAttach;
         public Appointment OpenAppointment { get; set; }
 
         public Appointment SelectedAppointment
@@ -383,6 +385,23 @@ namespace CRMPhone.ViewModel
                 return !CanSave;
             }
         }
+
+        public bool CanAttachRecord
+        {
+            get { return CanEdit && CanAttach; }
+        }
+
+        public bool CanAttach
+        {
+            get { return _canAttach; }
+            set
+            {
+                _canAttach = value;
+                OnPropertyChanged(nameof(CanAttach));
+                OnPropertyChanged(nameof(CanAttachRecord));
+            }
+        }
+
         public bool CanDial { get; set; }
 
         public string PhoneNumber

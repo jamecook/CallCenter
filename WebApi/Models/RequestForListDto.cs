@@ -32,6 +32,7 @@ namespace WebApi.Models
         public UserDto CreateUser { get; set; }
         public DateTime? ExecuteTime { get; set; }
         public DateTime? TermOfExecution { get; set; }
+        public DateTime? FirstViewDate { get; set; }
         public string ExecutePeriod { get; set; }
         public string Description { get; set; }
         public string ParentService { get; set; }

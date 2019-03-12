@@ -476,13 +476,23 @@ namespace CRMPhone.ViewModel
         private void AddCall(object obj)
         {
             var lastCallId = AppSettings.LastCallId;
-
+            if (string.IsNullOrEmpty(lastCallId))
+            {
+                MessageBox.Show("ОШИБКА прикрепление звонка! Пустой номер последнего звонка!");
+                return;
+            }
             //todo сделать логирование нажатий
             var appSetting = JsonConvert.SerializeObject(AppSettings.CurrentUser)+ JsonConvert.SerializeObject(AppSettings.SipInfo) + JsonConvert.SerializeObject(AppSettings.LastIncomingCall) + JsonConvert.SerializeObject(AppSettings.LastCallId);
             var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(lastCallId);
             _requestService.AddCallToRequest(RequestId,callUniqueId);
-            if(!string.IsNullOrEmpty(callUniqueId))
+            if (!string.IsNullOrEmpty(callUniqueId))
+            {
+                var viewModel = obj as RequestItemViewModel;
+                if (viewModel is null)
+                    return;
+                viewModel.CanAttach = false;
                 MessageBox.Show("Текущий разговор прикреплен к заявке!");
+            }
         }
 
         private ICommand _changeDateCommand;

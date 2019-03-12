@@ -2719,12 +2719,16 @@ timestampdiff(SECOND, C.BridgedTime, C.EndTime) AS TalkTime,
 u.SurName AS SurName,
 u.FirstName AS FirstName,
 u.PatrName AS PatrName,
-group_concat(r.request_id order by r.request_id separator ', ') AS RequestId, sc.Name ServiceCompanyName from
+group_concat(r.request_id order by r.request_id separator ', ') AS RequestId, sc.Name ServiceCompanyName,
+null as redirect_phone,
+null as ivr_menu,
+null as ivr_dial
+from
 (((asterisk.ChannelHistory C left join asterisk.ChannelHistory C2 on(((C2.BridgeId = C.BridgeId) and(C.UniqueID <> C2.UniqueID))))
 left join CallCenter.Users u on((u.id = ifnull(C.UserId, C2.UserId))))
 left join CallCenter.RequestCalls r on((r.uniqueID = C.UniqueID)))
 left join CallCenter.ServiceCompanies sc on sc.trunk_name = C.ServiceComp
-where C.Direction is not null";
+where C.Direction is not null and C.UniqueId < '1552128123.322928'";
 //where(((C.Context = 'from-trunk') and(C.Exten = 's')) or((C.Context = 'localphones') and(C.CallerIDNum = 'scvip500415')))";
 
             if (!string.IsNullOrEmpty(requestId))
@@ -2750,7 +2754,63 @@ where C.Direction is not null";
                         " and (case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) like @PhoneNumber";
                 }
             }
-            sqlQuery += " group by C.UniqueID order by UniqueId";
+            sqlQuery += " group by C.UniqueID";
+
+            sqlQuery += @"
+union
+select UniqueId,CallDirection,CallerIDNum,CreateTime,AnswerTime,
+EndTime,BridgedTime,MonitorFile,TalkTime,WaitingTime,u.id AS userId,
+u.SurName AS SurName,u.FirstName AS FirstName,u.PatrName AS PatrName,
+RequestId, ServiceCompanyName,redirect_phone,ivr_menu,ivr_dial from
+(
+select C.UniqueID AS UniqueId, C.Direction AS CallDirection,
+(case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) AS CallerIDNum,
+C.CreateTime AS CreateTime,
+C.AnswerTime AS AnswerTime,
+C.EndTime AS EndTime,
+C.BridgedTime AS BridgedTime,
+C.MonitorFile AS MonitorFile,
+timestampdiff(SECOND, C.BridgedTime, C.EndTime) AS TalkTime,
+  (timestampdiff(SECOND, C.CreateTime, C.EndTime) - ifnull(timestampdiff(SECOND, C.BridgedTime, C.EndTime), 0)) AS WaitingTime,
+ifnull(C.UserId, max(C2.UserId)) userId,
+(select group_concat(r.request_id order by r.request_id separator ', ') from CallCenter.RequestCalls r where r.uniqueID = C.UniqueID) AS RequestId,
+sc.Name ServiceCompanyName,
+group_concat(concat(C2.peer_number, ':', C2.ChannelState) order by C2.UniqueId desc separator ',') as redirect_phone,
+C.ivr_menu,C.ivr_dial
+FROM asterisk.ChannelHistory C
+left join asterisk.ChannelBridges B on B.UniqueId = C.UniqueId
+left join asterisk.ChannelHistory C2 on C2.BridgeId = B.BridgeId and C2.UniqueId<> C.UniqueId
+left join CallCenter.ServiceCompanies sc on sc.trunk_name = C.ServiceComp
+where C.UniqueId >= '1552128123.322928' and C.UniqueId = C.LinkedId and C.Direction is not null
+and C.Context not in ('autoring','ringupcalls')
+";
+            if (!string.IsNullOrEmpty(requestId))
+            {
+                sqlQuery += " and r.id = @RequestNum";
+            }
+            else
+            {
+                sqlQuery += " and C.CreateTime between @fromdate and @todate";
+                if (operatorId.HasValue)
+                {
+                    sqlQuery += " and (C.UserId = @UserNum or C2.UserId = @UserNum)";
+
+                }
+                if (serviceCompanyId.HasValue)
+                {
+                    sqlQuery += " and sc.id = @ServiceCompanyId";
+
+                }
+                if (!string.IsNullOrEmpty(phoneNumber))
+                {
+                    sqlQuery +=
+                        " and (case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) like @PhoneNumber";
+                }
+            }
+            sqlQuery += @" group by C.UniqueId
+) a
+left join CallCenter.Users u on u.id = a.userId";
+
 
             using (
             var cmd = new MySqlCommand(sqlQuery, _dbConnection))
@@ -2783,6 +2843,29 @@ where C.Direction is not null";
                     var callList = new List<CallsListDto>();
                     while (dataReader.Read())
                     {
+                        var redirectPhone = dataReader.GetNullableString("redirect_phone");
+                        if (!string.IsNullOrEmpty(redirectPhone))
+                        {
+                            var position = redirectPhone.IndexOf("/");
+                            redirectPhone = redirectPhone.Substring(position+1);
+                            if (!string.IsNullOrEmpty(redirectPhone))
+                            {
+                                var items = redirectPhone.Split(':');
+                                if (items[0].Length > 4)
+                                {
+                                    redirectPhone = "";
+                                }
+                            }
+                        }
+                        var ivrMenu = dataReader.GetNullableString("ivr_menu");
+                        var ivrDial = dataReader.GetNullableString("ivr_dial");
+                        var ivrUser = string.IsNullOrEmpty(ivrMenu) || ivrDial == "dispetcher"
+                            ? (RequestUserDto) null
+                            : new RequestUserDto
+                            {
+                                Id = -1,
+                                SurName = "IVR Переадресация"
+                            };
                         callList.Add(new CallsListDto
                         {
                             UniqueId = dataReader.GetNullableString("UniqueID"),
@@ -2796,6 +2879,7 @@ where C.Direction is not null";
                             WaitingTime = dataReader.GetNullableInt("WaitingTime"),
                             MonitorFileName = dataReader.GetNullableString("MonitorFile"),
                             Requests = dataReader.GetNullableString("RequestId"),
+                            RedirectPhone = redirectPhone,
                             ServiceCompany = dataReader.GetNullableString("ServiceCompanyName"),
                             User = dataReader.GetNullableInt("userId").HasValue
                                 ? new RequestUserDto
@@ -2805,7 +2889,7 @@ where C.Direction is not null";
                                     FirstName = dataReader.GetNullableString("FirstName"),
                                     PatrName = dataReader.GetNullableString("PatrName")
                                 }
-                                : null
+                                : ivrUser
                         });
                     }
                     dataReader.Close();
