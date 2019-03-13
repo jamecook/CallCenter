@@ -5,6 +5,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 
 namespace CRMPhone.ViewModel
@@ -48,7 +49,15 @@ namespace CRMPhone.ViewModel
             ContextSaver.CrmContext.SipPhone = master.Phone;
             ContextSaver.CrmContext.Call();
             Thread.Sleep(500);
-            var callUniqueId = _requestService.GetActiveCallUniqueId();
+
+            var lastCallId = AppSettings.LastCallId;
+            if (string.IsNullOrEmpty(lastCallId))
+            {
+                MessageBox.Show("ОШИБКА прикрепление звонка! Пустой номер последнего звонка!");
+                return;
+            }
+            var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(lastCallId);
+
             if (!string.IsNullOrEmpty(callUniqueId))
             {
                 _requestService.AddCallToRequest(_requestId, callUniqueId);

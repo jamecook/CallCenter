@@ -622,29 +622,31 @@ namespace RequestServiceImpl
             }
         }
 
-        public string GetActiveCallUniqueId()
-        {
-            string retVal = null;
-            var query = @"SELECT case when A.MonitorFile is null then A2.UniqueId else A.UniqueId end uniqueId FROM asterisk.ActiveChannels A
- left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
- where A.UserID = @UserId";
-            using (var cmd = new MySqlCommand(query, _dbConnection))
-            {
-                cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
-                using (var dataReader = cmd.ExecuteReader())
-                {
-                    if (dataReader.Read())
-                    {
-                        retVal = dataReader.GetNullableString("uniqueId");
-                    }
-                    dataReader.Close();
-                }
-                return retVal;
-            }
-        }
+ //       public string GetActiveCallUniqueId()
+ //       {
+ //           string retVal = null;
+ //           var query = @"SELECT case when A.MonitorFile is null then A2.UniqueId else A.UniqueId end uniqueId FROM asterisk.ActiveChannels A
+ //left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
+ //where A.UserID = @UserId";
+ //           using (var cmd = new MySqlCommand(query, _dbConnection))
+ //           {
+ //               cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+ //               using (var dataReader = cmd.ExecuteReader())
+ //               {
+ //                   if (dataReader.Read())
+ //                   {
+ //                       retVal = dataReader.GetNullableString("uniqueId");
+ //                   }
+ //                   dataReader.Close();
+ //               }
+ //               return retVal;
+ //           }
+ //       }
         public string GetActiveCallUniqueIdByCallId(string callId)
         {
             string retVal = null;
+            if (string.IsNullOrEmpty(callId))
+                return null;
             var query = $@"SELECT case when A.MonitorFile is null then ifnull(A2.UniqueId,A.UniqueId) else A.UniqueId end uniqueId FROM asterisk.ActiveChannels A
  left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
  where A.call_id like '{callId}%'";
@@ -2781,6 +2783,7 @@ FROM asterisk.ChannelHistory C
 left join asterisk.ChannelBridges B on B.UniqueId = C.UniqueId
 left join asterisk.ChannelHistory C2 on C2.BridgeId = B.BridgeId and C2.UniqueId<> C.UniqueId
 left join CallCenter.ServiceCompanies sc on sc.trunk_name = C.ServiceComp
+left join CallCenter.RequestCalls r on r.uniqueID = C.UniqueID
 where C.UniqueId >= '1552128123.322928' and C.UniqueId = C.LinkedId and C.Direction is not null
 and C.Context not in ('autoring','ringupcalls')
 ";

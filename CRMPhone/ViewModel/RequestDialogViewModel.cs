@@ -277,7 +277,7 @@ namespace CRMPhone.ViewModel
                     LoadRequestsBySelectedAddress(_selectedFlat.Id);
                     if (string.IsNullOrEmpty(_callUniqueId))
                     {
-                        _callUniqueId = _requestService.GetActiveCallUniqueId();
+                        _callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(AppSettings.LastCallId);
                     }
                 }
                 else
@@ -433,7 +433,8 @@ namespace CRMPhone.ViewModel
             if (viewModel.RequestId.HasValue)
             {
                 Thread.Sleep(500);
-                var callUniqueId = _requestService.GetActiveCallUniqueId();
+                var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(AppSettings.LastCallId);
+
                 if (!string.IsNullOrEmpty(callUniqueId))
                 {
                     _requestService.AddCallToRequest(viewModel.RequestId.Value, callUniqueId);
@@ -475,14 +476,14 @@ namespace CRMPhone.ViewModel
 
         private void AddCall(object obj)
         {
+            //todo сделать логирование нажатий
+            //var appSetting = JsonConvert.SerializeObject(AppSettings.CurrentUser) + JsonConvert.SerializeObject(AppSettings.SipInfo) + JsonConvert.SerializeObject(AppSettings.LastIncomingCall) + JsonConvert.SerializeObject(AppSettings.LastCallId);
             var lastCallId = AppSettings.LastCallId;
             if (string.IsNullOrEmpty(lastCallId))
             {
                 MessageBox.Show("ОШИБКА прикрепление звонка! Пустой номер последнего звонка!");
                 return;
             }
-            //todo сделать логирование нажатий
-            var appSetting = JsonConvert.SerializeObject(AppSettings.CurrentUser)+ JsonConvert.SerializeObject(AppSettings.SipInfo) + JsonConvert.SerializeObject(AppSettings.LastIncomingCall) + JsonConvert.SerializeObject(AppSettings.LastCallId);
             var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(lastCallId);
             _requestService.AddCallToRequest(RequestId,callUniqueId);
             if (!string.IsNullOrEmpty(callUniqueId))
@@ -761,7 +762,7 @@ namespace CRMPhone.ViewModel
 
             if (string.IsNullOrEmpty(_callUniqueId))
             {
-                _callUniqueId = _requestService.GetActiveCallUniqueId();
+                _callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(AppSettings.LastCallId);
             }
             var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id);
             if (!request.HasValue)
@@ -889,7 +890,7 @@ namespace CRMPhone.ViewModel
             AlertExists = false;
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             var contactInfo = new ContactDto {Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall};
-            _callUniqueId = _requestService.GetActiveCallUniqueId();
+            _callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(AppSettings.LastCallId);
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
