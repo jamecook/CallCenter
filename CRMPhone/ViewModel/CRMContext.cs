@@ -198,7 +198,7 @@ namespace CRMPhone.ViewModel
         {
             get { return _incomingCallFrom; }
             set { _incomingCallFrom = value;
-                AppSettings.LastIncomingCall = value;
+                AppSettings.LastIncomingCall = value?.Replace("+","");
                 OnPropertyChanged(nameof(IncomingCallFrom)); }
         }
 
@@ -1406,8 +1406,9 @@ namespace CRMPhone.ViewModel
             {
                 RequestDataContext.OpenRequest(new RequestForListDto {Id = item.RequestId.Value});
             }
-            var phone = item.CallerIdNum;
-            string callId = string.Format("sip:#{0}@{1}", phone.Replace("+",""), _serverIP);
+            var phone = item.CallerIdNum.Replace("+", "");
+            IncomingCallFrom = phone;
+            string callId = string.Format("sip:#{0}@{1}", phone, _serverIP);
             _sipAgent.CallMaker.Invite(callId);
 
 /*
@@ -1447,6 +1448,7 @@ namespace CRMPhone.ViewModel
             {
                 string callId = string.Format("sip:{2}{0}@{1}", _sipPhone, _serverIP, SelectedOutcoinCompany.Prefix);
                 //string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
+                IncomingCallFrom = _sipPhone;
                 SipState = $"Исходящий вызов на номер {_sipPhone}";
                 _sipAgent.CallMaker.Invite(callId);
             }
@@ -1464,6 +1466,7 @@ namespace CRMPhone.ViewModel
                 return;
             var phone = SelectedCall.CallerId.Substring(SelectedCall.CallerId.Length - 10);
             SipPhone = phone;
+            IncomingCallFrom = phone;
             string callId = string.Format("sip:{2}{0}@{1}", phone, _serverIP,SelectedCall.Prefix);
             _sipAgent.CallMaker.Invite(callId);
         }
