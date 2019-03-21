@@ -50,7 +50,7 @@
                     </DockPanel>
                     <DockPanel>
                         <TextBlock Text="Набрать от:" VerticalAlignment="Center"/>
-                        <ComboBox Margin="5" Width="160" DisplayMemberPath="ShortNameWithPrefix" SelectedItem="{Binding SelectedOutcoinCompany}" ItemsSource="{Binding ForOutcoinCallsCompanyList}"/>
+                        <ComboBox Margin="5" Width="160" DisplayMemberPath="ShortNameWithPrefix" SelectedItem="{Binding SelectedOutgoingCompany}" ItemsSource="{Binding ForOutcoinCallsCompanyList}"/>
                     </DockPanel>
                 </StackPanel>
                 <WrapPanel HorizontalAlignment="Center">

@@ -5,7 +5,7 @@ namespace DevinoSender
     public class SmsDto
     {
         public int Id;
-        public int RequestId;
+        public int? RequestId;
         public string Sender;
         public string Phone;
         public string Message;

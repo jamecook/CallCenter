@@ -1722,5 +1722,103 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 }
             }
         }
+
+        public static ClientUserDto ClientLogin(string phone, string code)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand($"Call CallCenter.ClientLogin('{phone}','{code}')", conn)
+                )
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            return new ClientUserDto
+                            {
+                                Id = dataReader.GetInt32("Id"),
+                                Phone = dataReader.GetString("Phone"),
+                                Name = dataReader.GetNullableString("name")
+                            };
+                        }
+                        dataReader.Close();
+                    }
+                }
+                return null;
+            }
+        }
+        public static void AddClientRefreshToken(int clientId, Guid refreshToken, DateTime expireDate)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (var cmd =
+                            new MySqlCommand(@"CALL CallCenter.ClientAddToken(@ClientId,@Token,@ExpireDate);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@ClientId", clientId);
+                        cmd.Parameters.AddWithValue("@Token", refreshToken);
+                        cmd.Parameters.AddWithValue("@ExpireDate", expireDate);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+        }
+        public static ClientUserDto ClientFindByToken(Guid refreshToken, DateTime expireDate)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+
+                conn.Open();
+                using (var cmd = new MySqlCommand($"Call CallCenter.ClientGetByToken(@Token,@ExpireDate)", conn)
+                )
+                {
+                    cmd.Parameters.AddWithValue("@ExpireDate", expireDate);
+                    cmd.Parameters.AddWithValue("@Token", refreshToken);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            return new ClientUserDto
+                            {
+                                Id = dataReader.GetInt32("Id"),
+                                Phone = dataReader.GetString("Phone"),
+                                Name = dataReader.GetNullableString("name")
+                            };
+                        }
+                        dataReader.Close();
+                    }
+                }
+                return null;
+            }
+        }
+
+        public static void ClientValidatePhone(string phone)
+        {
+            Random random = new Random();
+            int randomNumber = random.Next(1000, 9999);
+            var code = randomNumber.ToString();
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (var cmd =
+                            new MySqlCommand(@"CALL CallCenter.ClientValidatePhone(@Phone,@Code);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Phone", phone);
+                        cmd.Parameters.AddWithValue("@Code", code);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+        }
     }
+
+
 }

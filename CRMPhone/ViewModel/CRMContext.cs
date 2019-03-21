@@ -26,6 +26,7 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Win32;
 using NLog;
+using Stimulsoft.Report.Events;
 using Color = System.Windows.Media.Color;
 
 namespace CRMPhone.ViewModel
@@ -414,10 +415,10 @@ namespace CRMPhone.ViewModel
             set { _forOutcoinCallsCompanyList = value; OnPropertyChanged(nameof(ForOutcoinCallsCompanyList)); }
         }
 
-        public ServiceCompanyDto SelectedOutcoinCompany
+        public ServiceCompanyDto SelectedOutgoingCompany
         {
-            get { return _selectedOutcoinCompany; }
-            set { _selectedOutcoinCompany = value; OnPropertyChanged(nameof(SelectedOutcoinCompany));}
+            get { return _selectedOutgoingCompany; }
+            set { _selectedOutgoingCompany = value; OnPropertyChanged(nameof(SelectedOutgoingCompany));}
         }
 
         private ICommand _deleteNotAnsweredCommand;
@@ -1011,7 +1012,7 @@ namespace CRMPhone.ViewModel
         private DispexRequestControlModel _dispexRequestControlModel;
         private ReportControlModel _reportControlModel;
         private CallsNotificationContext _callsNotificationContext;
-        private ServiceCompanyDto _selectedOutcoinCompany;
+        private ServiceCompanyDto _selectedOutgoingCompany;
         private ObservableCollection<ServiceCompanyDto> _forOutcoinCallsCompanyList;
         private ServiceCompanyFondControlContext _serviceCompanyFondContext;
 
@@ -1178,7 +1179,7 @@ namespace CRMPhone.ViewModel
                 CompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
                 MetersSCList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
                 ForOutcoinCallsCompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompaniesForCalls());
-                SelectedOutcoinCompany = ForOutcoinCallsCompanyList.FirstOrDefault();
+                SelectedOutgoingCompany = ForOutcoinCallsCompanyList.FirstOrDefault();
                 var curDate = _requestService.GetCurrentDate().Date;
                 FromDate = curDate;
                 ToDate = FromDate.AddDays(1);
@@ -1280,6 +1281,7 @@ namespace CRMPhone.ViewModel
 
         private void TerminateCall(int callid, string remoteuri, string contact, int code, string statustext)
         {
+            Disconnected = true;
             var phoneNumber = GetPhoneNumberFromUri(remoteuri);
             if (callid < _maxLineNumber)
             {
@@ -1446,11 +1448,14 @@ namespace CRMPhone.ViewModel
                 return;
             if (_sipAgent.CallMaker.callStatus[SelectedLine.Id] < 0)
             {
-                string callId = string.Format("sip:{2}{0}@{1}", _sipPhone, _serverIP, SelectedOutcoinCompany.Prefix);
+                string callId = string.Format("sip:{2}{0}@{1}", _sipPhone, _serverIP, SelectedOutgoingCompany.Prefix);
                 //string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
                 IncomingCallFrom = _sipPhone;
                 SipState = $"Исходящий вызов на номер {_sipPhone}";
                 _sipAgent.CallMaker.Invite(callId);
+                var bridgeThread = new Thread(HungUpThread); //Создаем новый объект потока (Thread)
+
+                bridgeThread.Start(15); //запускаем поток
             }
 
             else
@@ -1459,6 +1464,19 @@ namespace CRMPhone.ViewModel
                     "Предупреждение");
             }
         }
+
+        private void HungUpThread(object waitTime)
+        {
+            int i = 0;
+            var intTimes = 2 * (waitTime as int?);
+            while (i < intTimes.Value)
+            {
+                i++;
+                Thread.Sleep(500);
+                var state = _sipAgent.CallMaker.callStatus[SelectedLine.Id];
+            }
+        }
+        public bool Disconnected { get; set; }
 
         public void CallFromList()
         {

@@ -151,7 +151,7 @@ namespace DevinoSender
                         smsList.Add(new SmsDto
                         {
                             Id = dataReader.GetInt32("id"),
-                            RequestId = dataReader.GetInt32("request_id"),
+                            RequestId = dataReader.GetNullableInt("request_id"),
                             Sender = dataReader.GetString("sender"),
                             Phone = dataReader.GetString("phone"),
                             Message = dataReader.GetString("message"),

@@ -716,6 +716,16 @@ namespace CRMPhone.ViewModel
             viewModel.SelectedCity = viewModel.CityList.SingleOrDefault(i=>i.Id == request.Address.CityId);
             viewModel.SelectedStreet = viewModel.StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
             viewModel.SelectedHouse = viewModel.HouseList.SingleOrDefault(i=>i.Id == request.Address.HouseId);
+            if (viewModel.FlatList.All(i => i.Id != request.Address.Id))
+            {
+                viewModel.FlatList.Add(new FlatDto()
+                {
+                    Id = request.Address.Id,
+                    Flat = request.Address.Flat,
+                    TypeId = request.Address.TypeId,
+                    TypeName = request.Address.Type
+                });
+            }
             viewModel.SelectedFlat =  viewModel.FlatList.SingleOrDefault(i=>i.Id == request.Address.Id);
             viewModel.Floor = request.Floor;
             viewModel.Entrance = request.Entrance;
