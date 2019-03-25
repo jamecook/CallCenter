@@ -15,6 +15,7 @@ namespace WebApi.Services
         TokenDto GetToken(ClientAuthDto authDto);
         TokenDto RefreshToken(Guid refreshToken);
         void ValidatePhone(string phone);
+        string ValidTest(string phone);
     }
 
     public class ClientAuthService : IClientAuthService
@@ -65,6 +66,10 @@ namespace WebApi.Services
         public void ValidatePhone(string phone)
         {
             RequestService.ClientValidatePhone(phone);
+        }
+        public string ValidTest(string phone)
+        {
+            return RequestService.ClientValidTest(phone);
         }
 
         private string CreateAccessToken(ClientUserDto user, DateTime start)

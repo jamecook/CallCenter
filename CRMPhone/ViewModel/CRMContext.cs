@@ -1030,6 +1030,7 @@ namespace CRMPhone.ViewModel
             if (view.ShowDialog()??false)
             {
                 _requestService.AddCallToRequest(model.RequestId,SelectedRecordCall.UniqueId);
+                _requestService.AddCallHistory(model.RequestId, SelectedRecordCall.UniqueId, AppSettings.CurrentUser.Id, null, "AddRequestToCall");
             }
         }
 

@@ -81,7 +81,7 @@
                     </ComboBox>
                     <CheckBox Margin="3" VerticalAlignment="Center" IsChecked="{Binding ShowAllMasters}">Все</CheckBox>
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Исполнитель:"/>
-                    <ComboBox Margin="3" IsEnabled="{Binding CanSave}" Width="125" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedExecuter}" ItemsSource="{Binding ExecuterList}" IsEditable="True">
+                    <ComboBox Margin="3"  Width="125" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedExecuter}" ItemsSource="{Binding ExecuterList}" IsEditable="True">
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>

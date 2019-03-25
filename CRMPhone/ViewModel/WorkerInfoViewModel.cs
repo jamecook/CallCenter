@@ -61,6 +61,8 @@ namespace CRMPhone.ViewModel
             if (!string.IsNullOrEmpty(callUniqueId))
             {
                 _requestService.AddCallToRequest(_requestId, callUniqueId);
+                _requestService.AddCallHistory(_requestId, callUniqueId, AppSettings.CurrentUser.Id, AppSettings.LastCallId,"WorkerInfoDial");
+
             }
 
         }

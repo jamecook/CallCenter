@@ -1800,7 +1800,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
         public static void ClientValidatePhone(string phone)
         {
             Random random = new Random();
-            int randomNumber = random.Next(1000, 9999);
+            int randomNumber = random.Next(100000, 999999);
             var code = randomNumber.ToString();
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -1816,6 +1816,28 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     }
                     transaction.Commit();
                 }
+            }
+        }
+        public static string ClientValidTest(string phone)
+        {
+            Random random = new Random();
+            int randomNumber = random.Next(100000, 999999);
+            var code = randomNumber.ToString();
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (var cmd =
+                            new MySqlCommand(@"CALL CallCenter.ClientValidTest(@Phone,@Code);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Phone", phone);
+                        cmd.Parameters.AddWithValue("@Code", code);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+                return code;
             }
         }
     }

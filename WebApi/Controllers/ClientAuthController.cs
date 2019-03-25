@@ -28,6 +28,16 @@ namespace WebApi.Controllers
             _authService.ValidatePhone(param.Phone);
             return Ok();
         }
+        [HttpPost("valid_test"), AllowAnonymous]
+        public ActionResult<string> ValidTest([FromBody]ClientValidateParameter param)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var code = _authService.ValidTest(param.Phone);
+            return Ok(code);
+        }
 
         [HttpPost, AllowAnonymous]
         public ActionResult<TokenModel> Auth([FromBody]ClientAuthParameter authParameter)

@@ -419,7 +419,7 @@ namespace RequestServiceImpl
 
             if (smsSettings.SendToWorker)
             {
-                var smsText = $"{request.Id} {phones} {request.Address.FullAddress}.{request.Type.Name}({request.Description})";
+                var smsText = $"{request.Id} {phones ?? ""} {request.Address.FullAddress}.{request.Type.Name}({request.Description ?? ""})";
                 if (smsText.Length > 70)
                 {
                     smsText = smsText.Substring(0, 70);
@@ -2902,7 +2902,7 @@ left join CallCenter.Users u on u.id = a.userId";
         }
         public List<CallsListDto> GetCallListByRequestId(int requestId)
         {
-            var sqlQuery = @"SELECT rc.id,ch.UniqueID,Direction,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime,
+            var sqlQuery = @"SELECT rc.id,ch.UniqueID,Direction,PhoneNum CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime,
  MonitorFile, timestampdiff(SECOND,ch.BridgedTime,ch.EndTime) AS TalkTime,
 (timestampdiff(SECOND,ch.CreateTime,ch.EndTime) - ifnull(timestampdiff(SECOND,ch.BridgedTime,ch.EndTime),0)) AS WaitingTime,
  group_concat(rc.request_id order by rc.request_id separator ', ') AS RequestId
@@ -3771,15 +3771,36 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
                 return equipment;
             };
         }
+
         public void AddCallToRequest(int requestId, string callUniqueId)
         {
-            if(requestId<=0 || string.IsNullOrEmpty(callUniqueId))
+            if (requestId <= 0 || string.IsNullOrEmpty(callUniqueId))
                 return;
+            using (var cmd =
+                new MySqlCommand(
+                    "insert into CallCenter.RequestCalls(request_id,uniqueID) values(@Request, @UniqueId) ON DUPLICATE KEY UPDATE uniqueID = @UniqueId",
+                    _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Request", requestId);
+                cmd.Parameters.AddWithValue("@UniqueId", callUniqueId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void AddCallHistory(int requestId, string callUniqueId, int userId, string callId,string methodName)
+            {
+                if (requestId <= 0 || string.IsNullOrEmpty(callUniqueId))
+                    return;
+
                 using (var cmd =
-                    new MySqlCommand("insert into CallCenter.RequestCalls(request_id,uniqueID) values(@Request, @UniqueId) ON DUPLICATE KEY UPDATE uniqueID = @UniqueId", _dbConnection))
+                    new MySqlCommand(@"insert into CallCenter.RequestCallsHistory (request_id, unique_Id, add_date, user_id, call_id,method_name)
+ values(@Request, @UniqueId,sysdate(),@UserID,@CallId,@MethodName)", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@Request", requestId);
                     cmd.Parameters.AddWithValue("@UniqueId", callUniqueId);
+                    cmd.Parameters.AddWithValue("@UserID", userId);
+                    cmd.Parameters.AddWithValue("@CallId", callId);
+                    cmd.Parameters.AddWithValue("@MethodName", methodName);
                     cmd.ExecuteNonQuery();
                 }
         }

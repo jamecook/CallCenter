@@ -300,7 +300,7 @@ namespace CRMPhone.ViewModel
         private void LoadRequestsBySelectedAddress(int addressId)
         {
             var currentDate = _requestService.GetCurrentDate();
-            AddressRequestList = new ObservableCollection<RequestForListDto>(_requestService.GetRequestList(null, true, currentDate.AddDays(-90), currentDate.AddDays(1), DateTime.Today,
+            AddressRequestList = new ObservableCollection<RequestForListDto>(_requestService.GetRequestList(null, true, currentDate.AddDays(-365), currentDate.AddDays(1), DateTime.Today,
                 DateTime.Today, null, null, addressId, null, null,null,null,null,null,null,null,null,false,false,null,false,false));
         }
 
@@ -443,11 +443,20 @@ namespace CRMPhone.ViewModel
             if (viewModel.RequestId.HasValue)
             {
                 Thread.Sleep(500);
+                if (string.IsNullOrEmpty(AppSettings.LastCallId))
+                {
+                    var sipState = JsonConvert.SerializeObject(ContextSaver.CrmContext.SipLines);
+                    _requestService.AddCallHistory(viewModel.RequestId.Value, "-------",
+                        AppSettings.CurrentUser.Id, sipState, "RequestDialogDial");
+                    return;
+                }
                 var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(AppSettings.LastCallId);
 
                 if (!string.IsNullOrEmpty(callUniqueId))
                 {
                     _requestService.AddCallToRequest(viewModel.RequestId.Value, callUniqueId);
+                    _requestService.AddCallHistory(viewModel.RequestId.Value, callUniqueId,
+                        AppSettings.CurrentUser.Id, AppSettings.LastCallId, "RequestDialogDial");
                 }
             }
         }
@@ -496,6 +505,8 @@ namespace CRMPhone.ViewModel
             }
             var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(lastCallId);
             _requestService.AddCallToRequest(RequestId,callUniqueId);
+            _requestService.AddCallHistory(RequestId, callUniqueId, AppSettings.CurrentUser.Id, AppSettings.LastCallId,"RequestDialogAddCall");
+
             if (!string.IsNullOrEmpty(callUniqueId))
             {
                 var viewModel = obj as RequestItemViewModel;
