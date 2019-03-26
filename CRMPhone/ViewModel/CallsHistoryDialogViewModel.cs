@@ -112,12 +112,12 @@ namespace CRMPhone.ViewModel
                         //.Aggregate((i, j) => i + ";" + j);
             if (smsSettings.SendToWorker)
             {
-                var smsText = $"{request.Id} {phones??""} {request.Address.FullAddress}.{request.Type.Name}({request.Description??""})".Substring(0,70);
-                //var smsText = $"№ {request.Id}. {request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.";
+                var smsText = $"{request.Id} {phones ?? ""} {request.Address.FullAddress}.{request.Type.Name}({request.Description ?? ""})";
+                if (smsText.Length > 70)
+                {
+                    smsText = smsText.Substring(0, 70);
+                }
                 _requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone, smsText,false);
-                //_requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone,
-                //    $"№ {request.Id}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
-                //    false);
                 MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
                 RefreshLists();
             }

@@ -1840,6 +1840,164 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 return code;
             }
         }
+        public static StreetDto[] GetStreetsByClient(int clientId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery = "CALL CallCenter.ClientGetStreets(@ClientId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    var streets = new List<StreetDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            streets.Add(new StreetDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                Prefix = new StreetPrefixDto
+                                {
+                                    Id = dataReader.GetInt32("Prefix_id"),
+                                    Name = dataReader.GetString("Prefix_Name"),
+                                    ShortName = dataReader.GetString("ShortName")
+                                },
+                                CityId = dataReader.GetInt32("city_id")
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return streets.ToArray();
+                }
+            }
+        }
+        public static WebHouseDto[] GetHousesByStreetAndClientId(int clientId, int streetId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery = @"CALL CallCenter.ClientGetHouses(@ClientId,@StreetId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@StreetId", streetId);
+                    var houses = new List<HouseDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            houses.Add(new HouseDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Building = dataReader.GetString("building"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                StreetId = streetId
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return houses.Select(h => new WebHouseDto { Id = h.Id, Name = h.FullName }).ToArray();
+                }
+            }
+        }
+
+        public static FlatDto[] GetFlatsForClient(int clientId, int houseId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetHouses(@ClientId,@HouseId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@HouseId", houseId);
+
+                    var flats = new List<FlatDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            flats.Add(new FlatDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Flat = dataReader.GetString("flat"),
+                                TypeId = dataReader.GetInt32("type_id"),
+                                TypeName = dataReader.GetString("Name"),
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return flats.OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6, '0')).ToArray();
+                }
+            }
+        }
+        public static ServiceDto[] GetParentServicesForClient(int clientId, int? parentServiceId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = @"call CallCenter.ClientGetServices(@ClientId,@ParentServiceId)";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@ParentServiceId", parentServiceId);
+
+                    var services = new List<ServiceDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            services.Add(new ServiceDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                CanSendSms = dataReader.GetBoolean("can_send_sms"),
+                                ParentId = dataReader.GetNullableInt("parent_id"),
+                                ParentName = dataReader.GetNullableString("parent_name")
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return services.ToArray();
+                }
+            }
+        }
+        public static ServiceDto[] GetServicesForClient(int clientId,int[] parentIds)
+        {
+            if (parentIds == null || parentIds.Length == 0)
+                return new ServiceDto[0];
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var ids = parentIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j);
+                var query =
+                    $@"SELECT t1.id,t1.name,t1.can_send_sms,t2.id parent_id, t2.name parent_name FROM CallCenter.RequestTypes t1
+                        left join CallCenter.RequestTypes t2 on t2.id = t1.parrent_id
+                        where t1.parrent_id in ({ids}) and t1.enabled = 1 order by t2.name,t1.name";
+
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var services = new List<ServiceDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            services.Add(new ServiceDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                CanSendSms = dataReader.GetBoolean("can_send_sms"),
+                                ParentId = dataReader.GetNullableInt("parent_id"),
+                                ParentName = dataReader.GetNullableString("parent_name")
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return services.ToArray();
+                }
+            }
+        }
     }
 
 
