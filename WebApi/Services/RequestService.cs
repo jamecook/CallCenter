@@ -1908,7 +1908,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetHouses(@ClientId,@HouseId)", conn))
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetFlats(@ClientId,@HouseId)", conn))
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
                     cmd.Parameters.AddWithValue("@HouseId", houseId);
@@ -1997,6 +1997,63 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     return services.ToArray();
                 }
             }
+        }
+
+        public static void AddAddress(int clientId, int addressId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientAddAddress(@ClientId,@AddressId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@AddressId", addressId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static void DeleteAddress(int clientId, int addressId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientDeleteAddress(@ClientId,@AddressId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@AddressId", addressId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static AddressDto[] GetAddresses(int clientId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetAddresses(@ClientId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    var addresses = new List<AddressDto>();
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            while (dataReader.Read())
+                            {
+                            addresses.Add(new AddressDto()
+                                {
+                                    Id = dataReader.GetInt32("id"),
+                                    StreetPrefix = dataReader.GetNullableString("prefix_name"),
+                                    StreetName = dataReader.GetNullableString("street_name"),
+                                    Building = dataReader.GetNullableString("building"),
+                                    Corpus = dataReader.GetNullableString("corps"),
+                                    Flat = dataReader.GetNullableString("flat"),
+                                    AddressType = dataReader.GetNullableString("address_type"),
+                                });
+                            }
+                            dataReader.Close();
+                        }
+                        return addresses.ToArray();
+                    }
+                }
         }
     }
 

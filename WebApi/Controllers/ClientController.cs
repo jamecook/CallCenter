@@ -50,7 +50,7 @@ namespace WebApi.Controllers
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0)
                 return BadRequest();
-            return RequestService.GetFlatsForClient(id, clientId);
+            return RequestService.GetFlatsForClient(clientId, id);
         }
 
         [HttpGet("parent_services")]
@@ -74,13 +74,34 @@ namespace WebApi.Controllers
             return RequestService.GetServicesForClient(clientId, parentIds);
         }
 
-        [HttpPost]
-        public string Post([FromBody]CreateRequestDto value)
+        [HttpPost("address")]
+        public ActionResult AddAddress([FromBody]AddressIdDto value)
         {
-            _logger.LogDebug("Create Request: " + JsonConvert.SerializeObject(value));
-            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
-            int.TryParse(workerIdStr, out int workerId);
-            return RequestService.CreateRequest(workerId, value.Phone, value.Name, value.AddressId, value.TypeId, value.MasterId, value.ExecuterId, value.Description, value.IsChargeable ?? false, value.ExecuteDate, value.WarrantyId ?? 0, value.IsImmediate ?? false);
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest();
+            RequestService.AddAddress(clientId, value.AddressId);
+            return Ok();
+        }
+        [HttpGet("address")]
+        public ActionResult<AddressDto[]> GetAddresses()
+        {
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest();
+            return RequestService.GetAddresses(clientId);
+        }
+        [HttpDelete("address")]
+        public ActionResult DeleteAddress([FromBody]AddressIdDto value)
+        {
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest();
+            RequestService.DeleteAddress(clientId, value.AddressId);
+            return Ok();
         }
     }
 }
