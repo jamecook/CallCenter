@@ -159,6 +159,7 @@ namespace RequestServiceImpl
                             cmd.Parameters.AddWithValue("@UniqueId", callUniqueId);
                             cmd.ExecuteNonQuery();
                         }
+                        AddCallHistory(newId, callUniqueId, AppSettings.CurrentUser.Id, AppSettings.LastCallId, "CreateNewRequest");
                     }
 
                     #endregion
