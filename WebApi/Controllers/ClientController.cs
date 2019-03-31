@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
@@ -30,7 +31,7 @@ namespace WebApi.Controllers
             var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0)
-                return BadRequest();
+                return BadRequest("1000:Error in JWT");
             return RequestService.GetStreetsByClient(clientId);
         }
         [HttpGet("houses/{id}")]
@@ -39,7 +40,7 @@ namespace WebApi.Controllers
             var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0)
-                return BadRequest();
+                return BadRequest("1000:Error in JWT");
 
             return RequestService.GetHousesByStreetAndWorkerId(id, clientId);
         }
@@ -49,7 +50,7 @@ namespace WebApi.Controllers
             var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0)
-                return BadRequest();
+                return BadRequest("1000:Error in JWT");
             return RequestService.GetFlatsForClient(clientId, id);
         }
 
@@ -59,7 +60,7 @@ namespace WebApi.Controllers
             var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0)
-                return BadRequest();
+                return BadRequest("1000:Error in JWT");
 
             return RequestService.GetParentServicesForClient(clientId, null);
         }
@@ -69,9 +70,48 @@ namespace WebApi.Controllers
             var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0)
-                return BadRequest();
+                return BadRequest("1000:Error in JWT");
 
             return RequestService.GetServicesForClient(clientId, parentIds);
+        }
+
+        [HttpPost("request")]
+        public ActionResult<string> Post([FromBody]ClientRequestDto value)
+        {
+            _logger.LogDebug("Create Request: " + JsonConvert.SerializeObject(value));
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest("1000:Error in JWT");
+            return RequestService.ClientCreateRequest(clientId, value.AddressId, value.TypeId, value.Description);
+        }
+        [HttpGet("request")]
+        public ActionResult<ClientRequestForListDto[]> GetRequests([FromQuery]string requestId,
+            [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] addresses)
+        {
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest("1000:Error in JWT");
+
+            int? rId = null;
+            if (!string.IsNullOrEmpty(requestId))
+            {
+                if (int.TryParse(requestId, out int parseId))
+                {
+                    rId = parseId;
+                }
+                else
+                {
+                    rId = -1;
+                }
+            }
+
+            return RequestService.ClientRequestListArrayParam(clientId, rId,
+                fromDate ?? DateTime.Today,
+                toDate ?? DateTime.Today.AddDays(1),
+                 addresses);
         }
 
         [HttpPost("address")]
@@ -80,9 +120,11 @@ namespace WebApi.Controllers
             var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0)
-                return BadRequest();
-            RequestService.AddAddress(clientId, value.AddressId);
-            return Ok();
+                return BadRequest("1000:Error in JWT");
+            var result = RequestService.AddAddress(clientId, value.AddressId);
+            if(result == 0)
+                return Ok();
+            return BadRequest(result);
         }
         [HttpGet("address")]
         public ActionResult<AddressDto[]> GetAddresses()
@@ -90,17 +132,17 @@ namespace WebApi.Controllers
             var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0)
-                return BadRequest();
+                return BadRequest("1000:Error in JWT");
             return RequestService.GetAddresses(clientId);
         }
-        [HttpDelete("address")]
-        public ActionResult DeleteAddress([FromBody]AddressIdDto value)
+        [HttpDelete("address/{id}")]
+        public ActionResult DeleteAddress(int id)
         {
             var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0)
-                return BadRequest();
-            RequestService.DeleteAddress(clientId, value.AddressId);
+                return BadRequest("1000:Error in JWT");
+            RequestService.DeleteAddress(clientId, id);
             return Ok();
         }
     }

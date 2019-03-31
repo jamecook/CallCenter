@@ -252,6 +252,7 @@ namespace CRMPhone.ViewModel
                                         new XElement("Дом", request.Building),
                                         new XElement("Корпус", request.Corpus),
                                         new XElement("Квартира", request.Flat),
+                                        new XElement("Район", request.RegionName),
                                         new XElement("УК", request.ServiceCompany),
                                         new XElement("Телефоны", request.ContactPhones),
                                         new XElement("ФИО", request.MainFio),

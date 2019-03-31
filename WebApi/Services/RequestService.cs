@@ -1999,7 +1999,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
         }
 
-        public static void AddAddress(int clientId, int addressId)
+        public static int AddAddress(int clientId, int addressId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -2008,7 +2008,8 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
                     cmd.Parameters.AddWithValue("@AddressId", addressId);
-                    cmd.ExecuteNonQuery();
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
                 }
             }
         }
@@ -2022,6 +2023,27 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
                     cmd.Parameters.AddWithValue("@AddressId", addressId);
                     cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static string ClientCreateRequest(int clientId, int addressId, int typeId, string description)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query =
+                    "call CallCenter.ClientCreateRequest(@ClientId,@AddressId,@TypeId,@Desc);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@AddressId", addressId);
+                    cmd.Parameters.AddWithValue("@TypeId", typeId);
+                    cmd.Parameters.AddWithValue("@Desc", description);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        dataReader.Read();
+                        return dataReader.GetNullableString("requestId");
+                    }
                 }
             }
         }
@@ -2054,6 +2076,107 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                         return addresses.ToArray();
                     }
                 }
+        }
+
+        public static ClientRequestForListDto[] ClientRequestListArrayParam(int clientId, int? requestId, DateTime fromDate, DateTime toDate, int[] addressIds)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery =
+                    "CALL CallCenter.ClientGetRequests(@ClientId,@RequestId,@FromDate,@ToDate,@AddressIds)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate);
+                    cmd.Parameters.AddWithValue("@AddressIds",
+                        addressIds != null && addressIds.Length > 0
+                            ? addressIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                   
+
+                    var requests = new List<ClientRequestForListDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var recordId = dataReader.GetNullableInt("recordId");
+                            requests.Add(new ClientRequestForListDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                StreetPrefix = dataReader.GetString("prefix_name"),
+                                RegionId = dataReader.GetNullableInt("region_id"),
+                                RegionName = dataReader.GetNullableString("region_name"),
+                                StreetName = dataReader.GetString("street_name"),
+                                AddressType = dataReader.GetString("address_type"),
+                                CompanyId = dataReader.GetNullableInt("service_company_id"),
+                                CompanyName = dataReader.GetNullableString("company_name"),
+                                Flat = dataReader.GetString("flat"),
+                                Building = dataReader.GetString("building"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                Entrance = dataReader.GetNullableString("entrance"),
+                                FirstRecordId = recordId,
+                                HasRecord = recordId.HasValue,
+                                HasAttachment = dataReader.GetBoolean("has_attach"),
+                                Floor = dataReader.GetNullableString("floor"),
+                                CreateTime = dataReader.GetDateTime("create_time"),
+                                Description = dataReader.GetNullableString("description"),
+                                ParentService = dataReader.GetNullableString("parent_name"),
+                                Service = dataReader.GetNullableString("service_name"),
+                                ParentServiceId = dataReader.GetNullableInt("parent_id"),
+                                ServiceId = dataReader.GetNullableInt("service_id"),
+                                Master = dataReader.GetNullableInt("worker_id") != null
+                                    ? new UserDto
+                                    {
+                                        Id = dataReader.GetInt32("worker_id"),
+                                        SurName = dataReader.GetNullableString("sur_name"),
+                                        FirstName = dataReader.GetNullableString("first_name"),
+                                        PatrName = dataReader.GetNullableString("patr_name"),
+                                    }
+                                    : null,
+                                Executer = dataReader.GetNullableInt("executer_id") != null
+                                    ? new UserDto
+                                    {
+                                        Id = dataReader.GetInt32("executer_id"),
+                                        SurName = dataReader.GetNullableString("exec_sur_name"),
+                                        FirstName = dataReader.GetNullableString("exec_first_name"),
+                                        PatrName = dataReader.GetNullableString("exec_patr_name"),
+                                    }
+                                    : null,
+                                ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                                ExecutePeriod = dataReader.GetNullableString("Period_Name"),
+                                Rating = dataReader.GetNullableString("Rating"),
+                                Garanty = dataReader.GetBoolean("garanty"),
+                                StatusId = dataReader.GetInt32("req_status_id"),
+                                Status = dataReader.GetNullableString("Req_Status"),
+                                TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
+                                RatingDescription = dataReader.GetNullableString("RatingDesc"),
+                                LastNote = dataReader.GetNullableString("last_note"),
+                                IsChargeable = dataReader.GetBoolean("is_chargeable"),
+                                CloseDate = dataReader.GetNullableDateTime("close_date"),
+                                DoneDate = dataReader.GetNullableDateTime("done_date"),
+                                GarantyId = dataReader.GetInt32("garanty"),
+                                TaskId = dataReader.GetNullableInt("task_id"),
+                                TaskStart = dataReader.GetNullableDateTime("task_from"),
+                                TaskEnd = dataReader.GetNullableDateTime("task_to"),
+                                TaskWorker = dataReader.GetNullableInt("task_worker_id") != null
+                                    ? new UserDto
+                                    {
+                                        Id = dataReader.GetInt32("task_worker_id"),
+                                        SurName = dataReader.GetNullableString("task_sur_name"),
+                                        FirstName = dataReader.GetNullableString("task_first_name"),
+                                        PatrName = dataReader.GetNullableString("task_patr_name"),
+                                    }
+                                    : null,
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return requests.ToArray();
+                }
+            }
         }
     }
 

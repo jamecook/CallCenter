@@ -14,6 +14,7 @@ using MySql.Data.MySqlClient;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Security.RightsManagement;
@@ -27,6 +28,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Win32;
 using NLog;
 using Stimulsoft.Report.Events;
+using Brush = System.Windows.Media.Brush;
 using Color = System.Windows.Media.Color;
 
 namespace CRMPhone.ViewModel
@@ -391,6 +393,7 @@ namespace CRMPhone.ViewModel
                     SipLines[0].Phone = item.CallerIdNum;
                     LastAnsweredPhoneNumber = item.CallerIdNum;
                     IncomingCallFrom = item.CallerIdNum;
+                    SipLines[0].LastAnswerTime = DateTime.Now;
                 }
             }
         }
@@ -1289,6 +1292,7 @@ namespace CRMPhone.ViewModel
                 SipLines[callid].State = "Free";
                 SipLines[callid].Uri = remoteuri;
                 SipLines[callid].Phone = phoneNumber;
+                SipLines[callid].LastAnswerTime = null;
             }
 
             SipState = $"Звонок завершен {phoneNumber}";
@@ -1305,6 +1309,8 @@ namespace CRMPhone.ViewModel
                 SipLines[callId].State = "Incoming";
                 SipLines[callId].Uri = remoteUri;
                 SipLines[callId].Phone = phoneNumber;
+                SipLines[callId].LastAnswerTime = DateTime.Now;
+
                 SelectedLine = SipLines.FirstOrDefault(s => s.Id == callId);
             }
             CallFromServiceCompany = _requestService?.ServiceCompanyByIncommingPhoneNumber(phoneNumber);
@@ -1363,6 +1369,8 @@ namespace CRMPhone.ViewModel
                 line.State = "Free";
                 line.Phone = "";
                 line.Uri = "";
+                line.LastAnswerTime = null;
+
             }
             SipState = "Успешная регистрация!";
             _canRegistration = false;
@@ -1379,6 +1387,8 @@ namespace CRMPhone.ViewModel
                 SipLines[callId].State = "Connect";
                 SipLines[callId].Uri = remoteUri;
                 SipLines[callId].Phone = phoneNumber;
+                SipLines[callId].LastAnswerTime = DateTime.Now;
+
             }
             _ringPlayer.Stop();
             _sipCallActive = true;
@@ -1578,6 +1588,7 @@ namespace CRMPhone.ViewModel
             {
                 RefreshActiveChannels();
                 RefreshNotAnsweredCalls();
+                RefreshCallTimeLines();
                 TimeSpan t = DateTime.Now - _lastAliveTime;
                 if (t.TotalSeconds > 30)
                 {
@@ -1589,6 +1600,26 @@ namespace CRMPhone.ViewModel
             catch
             {
                 // ignored
+            }
+        }
+
+        private void RefreshCallTimeLines()
+        {
+            foreach (var sipLine in SipLines)
+            {
+                if (sipLine.LastAnswerTime.HasValue && sipLine.State == "Connect")
+                {
+                    var times = DateTime.Now.Subtract(sipLine.LastAnswerTime.Value);
+                    sipLine.CallTime = $"{times.Hours:D2}:{times.Minutes:D2}:{times.Seconds:D2}";
+                    if (times.TotalSeconds > 45)
+                    {
+                        sipLine.CallTimeColor = new SolidColorBrush(System.Windows.Media.Colors.Red);
+                    }
+                    else
+                    {
+                        sipLine.CallTimeColor = new SolidColorBrush(System.Windows.Media.Colors.Black);
+                    }
+                }
             }
         }
 

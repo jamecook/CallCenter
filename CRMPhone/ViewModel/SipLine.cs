@@ -1,4 +1,6 @@
+using System;
 using System.ComponentModel;
+using System.Windows.Media;
 using CRMPhone.Annotations;
 using RequestServiceImpl.Dto;
 
@@ -9,6 +11,8 @@ namespace CRMPhone.ViewModel
         private string _state;
         private string _uri;
         private string _phone;
+        private string _callTime;
+        private Brush _callTimeColor;
 
         public int Id { get; set; }
         public string Name { get; set; }
@@ -28,6 +32,19 @@ namespace CRMPhone.ViewModel
         {
             get { return _uri; }
             set { _uri = value; OnPropertyChanged(nameof(Uri));}
+        }
+        public DateTime? LastAnswerTime { get; set; }
+
+        public string CallTime
+        {
+            get { return _callTime; }
+            set { _callTime = value; OnPropertyChanged(nameof(CallTime)); }
+        }
+
+        public Brush CallTimeColor
+        {
+            get { return _callTimeColor; }
+            set { _callTimeColor = value; OnPropertyChanged(nameof(CallTimeColor));}
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

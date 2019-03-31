@@ -1012,13 +1012,15 @@ namespace RequestServiceImpl
     (SELECT note FROM CallCenter.RequestNoteHistory rnh where rnh.request_id = R.id
     order by operation_date desc limit 1) last_note,
     R.executer_id,execw.sur_name exec_sur_name, execw.first_name exec_first_name, execw.patr_name exec_patr_name,R.term_of_execution,
-    sc.name service_company_name
+    sc.name service_company_name,
+    reg.Name region_name
 
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.Addresses a on a.id = R.address_id
     join CallCenter.AddressesTypes at on at.id = a.type_id
     join CallCenter.Houses h on h.id = house_id
+    left join CallCenter.CityRegions reg on reg.id = h.region_id
     join CallCenter.Streets s on s.id = street_id
     join CallCenter.StreetPrefixes sp on sp.id = s.prefix_id
     join CallCenter.RequestTypes rt on rt.id = R.type_id
@@ -1128,6 +1130,7 @@ namespace RequestServiceImpl
                             HasRecord = !string.IsNullOrEmpty(recordUniqueId),
                             RecordUniqueId = recordUniqueId,
                             StreetPrefix = dataReader.GetString("prefix_name"),
+                            RegionName = dataReader.GetNullableString("region_name"),
                             StreetName = dataReader.GetString("street_name"),
                             AddressType = dataReader.GetString("address_type"),
                             Flat = dataReader.GetString("flat"),

@@ -95,6 +95,7 @@
                                     <TextBlock Margin ="2" Text="{Binding Path=Name}" />
                                     <TextBlock Margin ="2" Text="{Binding Path=State}" />
                                     <TextBlock Margin ="2" Foreground="Blue" FontWeight="DemiBold" Text="{Binding Path=Phone}" />
+                                    <TextBlock Margin ="2" Foreground="{Binding Path=CallTimeColor}" FontWeight="DemiBold" Text="{Binding Path=CallTime}" />
                                 </DockPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

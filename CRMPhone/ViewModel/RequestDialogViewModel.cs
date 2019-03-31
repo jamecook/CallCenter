@@ -203,6 +203,7 @@ namespace CRMPhone.ViewModel
                 CommissioningDate = house.CommissioningDate;
                 ElevatorCount = house.ElevatorCount;
                 ServiceCompany = house.ServiceCompanyName;
+                CityRegion = house.RegionName;
             }
             else
             {
@@ -270,6 +271,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _serviceCompany; }
             set { _serviceCompany = value; OnPropertyChanged(nameof(ServiceCompany)); }
+        }
+
+        public string CityRegion
+        {
+            get { return _cityRegion; }
+            set { _cityRegion = value; OnPropertyChanged(nameof(CityRegion));}
         }
 
         public int? ElevatorCount
@@ -840,6 +847,7 @@ namespace CRMPhone.ViewModel
         private DateTime? _commissioningDate;
         private int? _elevatorCount;
         private string _serviceCompany;
+        private string _cityRegion;
 
         public bool CanEditAddress
         {
