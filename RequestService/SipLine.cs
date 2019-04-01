@@ -1,10 +1,9 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Media;
-using CRMPhone.Annotations;
 using RequestServiceImpl.Dto;
 
-namespace CRMPhone.ViewModel
+namespace RequestServiceImpl
 {
     public class SipLine : INotifyPropertyChanged
     {

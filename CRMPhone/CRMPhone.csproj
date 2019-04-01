@@ -352,7 +352,6 @@
     <Compile Include="ViewModel\ServiceCompanyFondControlContext.cs" />
     <Compile Include="ViewModel\ServiceCompanyInfoDialogViewModel.cs" />
     <Compile Include="ViewModel\SetWorkingTimesDialogViewModel.cs" />
-    <Compile Include="ViewModel\SipLine.cs" />
     <Compile Include="ViewModel\SpecialityControlContext.cs" />
     <Compile Include="ViewModel\TrasferDialogViewModel.cs" />
     <Compile Include="ViewModel\ServiceCompanyControlContext.cs" />

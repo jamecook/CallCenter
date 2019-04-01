@@ -897,6 +897,9 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
 
         public void DeleteCallFromNotAnsweredList(string callerId)
         {
+            var t = AppSettings.SipLines;
+
+
             var query = "delete from asterisk.NotAnsweredQueue where CallerIDNum  = @CallerId;";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {

@@ -105,6 +105,7 @@ namespace CRMPhone.ViewModel
             MetersHistoryList = new ObservableCollection<MeterListDto>();
             CallsList = new ObservableCollection<CallsListDto>();
             SipLines = new ObservableCollection<SipLine>(_sipLinesArray);
+            AppSettings.SipLines = SipLines;
             SelectedLine = SipLines.FirstOrDefault();
             var uri = new Uri(@"pack://application:,,,/Resources/ringin.wav");
             _ringPlayer = new SoundPlayer(Application.GetResourceStream(uri).Stream);

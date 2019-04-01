@@ -7,8 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
 using NLog;
 using NLog.LayoutRenderers;
+using NLog.Targets;
 using RequestServiceImpl.Dto;
 
 namespace RequestServiceImpl
@@ -678,6 +680,49 @@ namespace RequestServiceImpl
                         dataReader.Close();
                     }
                 }
+            return retVal;
+        }
+        public string GetOnlyActiveCallUniqueIdByCallId(string callId)
+        {
+            string retVal = null;
+            if (!string.IsNullOrEmpty(callId))
+            {
+                var query =
+                    $@"SELECT case when A.MonitorFile is null then ifnull(A2.UniqueId,A.UniqueId) else A.UniqueId end uniqueId FROM asterisk.ActiveChannels A
+ left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
+ where A.call_id like '{callId}%'";
+                using (var cmd = new MySqlCommand(query, _dbConnection))
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            retVal = dataReader.GetNullableString("uniqueId");
+                        }
+                        dataReader.Close();
+                    }
+                }
+            }
+            //Логирование состояния
+            var lineState = JsonConvert.SerializeObject(AppSettings.SipLines);
+            var sipInfo = JsonConvert.SerializeObject(AppSettings.SipInfo);
+
+            using (var transaction = _dbConnection.BeginTransaction())
+            {
+                using (var cmd =
+                        new MySqlCommand(@"insert into CallCenter.GetOnlyActiveCall (call_id,line_info,oper_date,user_id,sip_info)
+ values(@CallId,@LineInfo,sysdate(),@UserId,@SipInfo);", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@CallId", callId);
+                    cmd.Parameters.AddWithValue("@LineInfo", lineState);
+                    cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
+                    cmd.Parameters.AddWithValue("@SipInfo", sipInfo);
+                    cmd.ExecuteNonQuery();
+                }
+                transaction.Commit();
+            }
+
+
             return retVal;
         }
         public string GetActiveCallUniqueIdByPhone(string phone)
@@ -3909,6 +3954,7 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
         }
         public void DeleteNotAnswered()
         {
+
             using (var cmd =
                 new MySqlCommand("delete FROM asterisk.NotAnsweredQueue where CreateTime < sysdate() - interval 1 day", _dbConnection))
             {

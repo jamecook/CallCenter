@@ -13,7 +13,7 @@ namespace RequestServiceImpl
         {
             get { return _dbConnection; }
         }
-
+        public static object SipLines { get; set; }
         public static void SetDbConnection(MySqlConnection connection)
         {
             _dbConnection = connection;
