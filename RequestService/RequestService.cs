@@ -1345,6 +1345,7 @@ namespace RequestServiceImpl
                             InEndTime = dataReader.GetDateTime("InEndTime"),
                             InBridgedTime = dataReader.GetNullableDateTime("InBridgedTime"),
                             Phone = dataReader.GetNullableString("phone"),
+                            HangupCause = dataReader.GetNullableString("hangup_cause"),
                             Result = dataReader.GetNullableString("result"),
                             CreateTime = dataReader.GetDateTime("CreateTime"),
                             EndTime = dataReader.GetDateTime("EndTime"),

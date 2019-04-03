@@ -128,6 +128,7 @@ namespace CRMPhone.ViewModel
                                         new XElement("ќкончани€¬х", record.InEndTime.ToString("dd.MM.yyyy HH:mm")),
                                         new XElement("¬нутреннийЌомер", record.Phone),
                                         new XElement("ќтвет", record.Result),
+                                        new XElement("«ан€тость", record.HangupCause),
                                         new XElement("«вонок¬нут", record.CreateTime.ToString("dd.MM.yyyy HH:mm")),
                                         new XElement("ќтвет¬нут", record.BridgedTime?.ToString("dd.MM.yyyy HH:mm")),
                                         new XElement("ќкончани€¬нут", record.EndTime.ToString("dd.MM.yyyy HH:mm")),

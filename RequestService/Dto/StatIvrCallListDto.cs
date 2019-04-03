@@ -10,6 +10,7 @@ namespace RequestServiceImpl.Dto
         public DateTime InEndTime { get; set; }
         public DateTime? InBridgedTime { get; set; }
         public string Phone { get; set; }
+        public string HangupCause { get; set; }
         public string Result { get; set; }
         public DateTime CreateTime { get; set; }
         public DateTime EndTime { get; set; }

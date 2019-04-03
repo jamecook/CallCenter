@@ -88,7 +88,9 @@ namespace CRMPhone.ViewModel
             set { _requestId = value;
                 OnPropertyChanged(nameof(CanSave));
                 OnPropertyChanged(nameof(CanEdit));
-                OnPropertyChanged(nameof(RequestId)); }
+                OnPropertyChanged(nameof(RequestId));
+                OnPropertyChanged(nameof(CanAttachRecord));
+            }
         }
 
         public RequestRatingDto Rating
