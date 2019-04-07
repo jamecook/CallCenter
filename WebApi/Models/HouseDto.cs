@@ -22,7 +22,7 @@ namespace WebApi.Models
             {
                 if (string.IsNullOrEmpty(Corpus))
                     return Building;
-                return Building + "/" + Corpus;
+                return Building + "ê." + Corpus;
             }
         }
     }

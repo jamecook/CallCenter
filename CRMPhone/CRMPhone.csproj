@@ -153,6 +153,7 @@
     <Compile Include="Controls\AlertRequestControl.xaml.cs">
       <DependentUpon>AlertRequestControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FilteredComboBox.cs" />
     <Compile Include="Controls\ReportControl.xaml.cs">
       <DependentUpon>ReportControl.xaml</DependentUpon>
     </Compile>

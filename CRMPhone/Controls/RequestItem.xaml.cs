@@ -23,5 +23,37 @@ namespace CRMPhone.Controls
         {
             InitializeComponent();
         }
+
+        private void UIElement_OnKeyUp(object sender, KeyEventArgs e)
+        {
+            var comboBoxControl = sender as ComboBox;
+            CollectionView itemsViewOriginal = (CollectionView)CollectionViewSource.GetDefaultView(comboBoxControl.ItemsSource);
+            //var displayPath = comboBoxControl.DisplayMemberPath;
+
+            itemsViewOriginal.Filter = ((o) =>
+            {
+                if (String.IsNullOrEmpty(comboBoxControl.Text))
+                    return true;
+                return (o.ToString().ToUpper()).Contains(comboBoxControl.Text.ToUpper());
+            });
+
+            itemsViewOriginal.Refresh();
+        }
+
+        private void UIElement_OnTextInput(object sender, TextCompositionEventArgs e)
+        {
+            var comboBoxControl = sender as ComboBox;
+            CollectionView itemsViewOriginal = (CollectionView)CollectionViewSource.GetDefaultView(comboBoxControl.ItemsSource);
+            //var displayPath = comboBoxControl.DisplayMemberPath;
+
+            itemsViewOriginal.Filter = ((o) =>
+            {
+                if (String.IsNullOrEmpty(comboBoxControl.Text))
+                    return true;
+                return (o.ToString().ToUpper()).Contains(comboBoxControl.Text.ToUpper());
+            });
+
+            itemsViewOriginal.Refresh();
+        }
     }
 }

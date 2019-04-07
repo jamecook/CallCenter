@@ -75,6 +75,7 @@ namespace CRMPhone.ViewModel
         private Appointment _selectedAppointment;
         private string _phoneNumber;
         private bool _canAttach;
+        private string _selectedServiceText;
         public Appointment OpenAppointment { get; set; }
 
         public Appointment SelectedAppointment
@@ -244,6 +245,8 @@ namespace CRMPhone.ViewModel
             get { return _selectedParentService; }
             set
             {
+                if(_selectedParentService==value)
+                    return;
                 _selectedParentService = value;
                 ChangeParentService(value?.Id);
                 UpdateMastets();
@@ -274,7 +277,7 @@ namespace CRMPhone.ViewModel
             get { return _selectedService; }
             set {
                 _selectedService = value;
-                IsImmediate = value.Immediate;
+                IsImmediate = value?.Immediate??false;
                 OnPropertyChanged(nameof(IsImmediate));
                 OnPropertyChanged(nameof(SelectedService));
             }
@@ -422,9 +425,18 @@ namespace CRMPhone.ViewModel
             {
                 ServiceList.Add(source);
             }
+            SelectedService = null;
+            SelectedServiceText = "";
+            OnPropertyChanged(nameof(SelectedServiceText));
+            OnPropertyChanged(nameof(SelectedService));
             OnPropertyChanged(nameof(ServiceList));
         }
 
+        public string SelectedServiceText
+        {
+            get { return _selectedServiceText; }
+            set { _selectedServiceText = value; OnPropertyChanged(nameof(SelectedServiceText));}
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

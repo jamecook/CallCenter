@@ -2178,6 +2178,62 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 }
             }
         }
+        public static AttachmentDto[] ClientGetAttachments(int clientId, int requestId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(@"call CallCenter.ClientGetAttachments(@clientId,@requestId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@clientId", clientId);
+                    cmd.Parameters.AddWithValue("@requestId", requestId);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var attachments = new List<AttachmentDto>();
+                        while (dataReader.Read())
+                        {
+                            attachments.Add(new AttachmentDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                FileName = dataReader.GetString("file_name"),
+                                CreateDate = dataReader.GetDateTime("create_date"),
+                                RequestId = dataReader.GetInt32("request_id"),
+                                User = new UserDto()
+                                {
+                                    Id = dataReader.GetInt32("user_id"),
+                                    SurName = dataReader.GetNullableString("SurName"),
+                                    FirstName = dataReader.GetNullableString("FirstName"),
+                                    PatrName = dataReader.GetNullableString("PatrName"),
+                                }
+                            });
+                        }
+                        dataReader.Close();
+                        return attachments.ToArray();
+                    }
+                }
+            }
+        }
+        public static void ClientAttachFileToRequest(int clientId, int requestId, string fileName, string generatedFileName)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd =
+                        new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id,client_id)
+ values(@RequestId,@Name,@FileName,sysdate(),100,@ClientId);", conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    cmd.Parameters.AddWithValue("@Name", fileName);
+                    cmd.Parameters.AddWithValue("@FileName", generatedFileName);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
 
 

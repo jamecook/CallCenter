@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
+             xmlns:controls="clr-namespace:CRMPhone.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="320" d:DesignWidth="800" Width="920" Height="325"
              d:DataContext="{d:DesignInstance viewModel:RequestItemViewModel}">
@@ -41,26 +42,31 @@
                     <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsRetry}">Повтор</CheckBox>
                 </WrapPanel>
                     <WrapPanel Grid.Row="1" Grid.Column="0">
-                    <!--<WrapPanel IsEnabled="{Binding CanSave}" Grid.Row="1" Grid.Column="0">-->
-                    <!--<TextBlock Margin="3" VerticalAlignment="Center" Text="УК:"/>
-                    <ComboBox IsEnabled ="{Binding CanSave}" Margin="3" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCompany}" ItemsSource="{Binding CompanyList}" IsEditable="True" >
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="Услуга:"/>
+                    <!--<ComboBox IsEnabled ="{Binding CanSave}" Margin="3" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedParentService}" ItemsSource="{Binding ParentServiceList}" IsEditable="True" >
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
                     </ComboBox>-->
+                    <controls:FilteredComboBox Margin="3" Width="125" FilterPath="Name" 
+                           FilterText="{Binding RelativeSource={RelativeSource Self}, Path=Text, Mode=OneWay}" 
+                           DisplayMemberPath="Name" SelectedItem="{Binding SelectedParentService}" StaysOpenOnEdit="True"
+                           IsTextSearchEnabled="False" ItemsSource="{Binding ParentServiceList}" IsEditable="True">
+                        <ComboBox.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
+                        </ComboBox.Resources>
+                    </controls:FilteredComboBox>
 
-                    <TextBlock Margin="3" VerticalAlignment="Center" Text="Услуга:"/>
-                    <ComboBox IsEnabled ="{Binding CanSave}" Margin="3" Width="125" DisplayMemberPath="Name" SelectedItem="{Binding SelectedParentService}" ItemsSource="{Binding ParentServiceList}" IsEditable="True" >
-                        <ComboBox.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
-                        </ComboBox.Resources>
-                    </ComboBox>
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="/"/>
-                    <ComboBox Margin="3" Width="240" DisplayMemberPath="Name" SelectedItem="{Binding SelectedService}" ItemsSource="{Binding ServiceList}" IsEditable="True" >
+                    <controls:FilteredComboBox Margin="3" Width="240" FilterPath="Name"
+                           Text="{Binding Path=SelectedServiceText}"
+                           FilterText="{Binding RelativeSource={RelativeSource Self}, Path=Text, Mode=OneWay}" 
+                           DisplayMemberPath="Name" SelectedItem="{Binding SelectedService}" StaysOpenOnEdit="True"
+                           IsTextSearchEnabled="False" ItemsSource="{Binding ServiceList}" IsEditable="True">
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                         </ComboBox.Resources>
-                    </ComboBox>
+                    </controls:FilteredComboBox>
                     <DockPanel>
                         <CheckBox Margin="3" VerticalAlignment="Center" IsChecked="{Binding IsChargeable}">Платная</CheckBox>
                         <CheckBox Margin="3" VerticalAlignment="Center" FontWeight="Bold" Foreground ="Red" IsChecked="{Binding IsImmediate}">Аварийная</CheckBox>

@@ -32,7 +32,12 @@
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="город:"/>
                         <ComboBox Margin="3" Width="100" TabIndex ="1" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCity}" ItemsSource="{Binding CityList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="улица:"/>
-                        <ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="NameWithPrefix" SelectedItem="{Binding SelectedStreet}" ItemsSource="{Binding StreetList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+                        <controls:FilteredComboBox Margin="3" Width="150" TabIndex ="2" FilterPath="NameWithPrefix" 
+                           FilterText="{Binding RelativeSource={RelativeSource Self}, Path=Text, Mode=OneWay}" 
+                           DisplayMemberPath="NameWithPrefix" SelectedItem="{Binding SelectedStreet}" StaysOpenOnEdit="True"
+                           IsTextSearchEnabled="False" ItemsSource="{Binding StreetList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+
+                        <!--<ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="NameWithPrefix" SelectedItem="{Binding SelectedStreet}" ItemsSource="{Binding StreetList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>-->
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="дом:"/>
                         <ComboBox Margin="3" Width="65" TabIndex ="3" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
                         <Button Margin="3" Width="32" TabIndex ="3" Visibility="{Binding AlertExists, Converter={StaticResource BooleanToVisibility}}" 

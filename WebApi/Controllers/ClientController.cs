@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -42,7 +45,7 @@ namespace WebApi.Controllers
             if (clientId == 0)
                 return BadRequest("1000:Error in JWT");
 
-            return RequestService.GetHousesByStreetAndWorkerId(id, clientId);
+            return RequestService.GetHousesByStreetAndClientId(clientId, id);
         }
         [HttpGet("house_flats/{id}")]
         public ActionResult<FlatDto[]> GetHouseFlats(int id)
@@ -144,6 +147,61 @@ namespace WebApi.Controllers
                 return BadRequest("1000:Error in JWT");
             RequestService.DeleteAddress(clientId, id);
             return Ok();
+        }
+
+        [HttpGet("attachments/{id}")]
+        public ActionResult<AttachmentDto[]> GetAttachments(int id)
+        {
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest("1000:Error in JWT");
+            return RequestService.ClientGetAttachments(clientId, id);
+        }
+        [HttpGet("attachment")]
+        public byte[] GetAttachment([FromQuery]string requestId, [FromQuery]string fileName)
+        {
+            int? rId = null;
+            if (!string.IsNullOrEmpty(requestId) && int.TryParse(requestId, out int parseId))
+            {
+                rId = parseId;
+            }
+            if (!rId.HasValue) return null;
+
+            var rootFolder = GetRootFolder();
+            return RequestService.DownloadFile(rId.Value, fileName, rootFolder);
+        }
+
+        [HttpPost("attachment/{id}")]
+        public async Task<IActionResult> AddFileToRequest(int id, [FromForm(Name = "file")] IFormFile[] files)
+        {
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest("1000:Error in JWT");
+            if (files == null || files.Length == 0)
+                return BadRequest("2000:Empty file");
+            foreach (var file in files)
+            {
+                _logger.LogDebug($"FileLen: {file.Length}, FileName: {file.FileName}");
+                var uploadFolder = Path.Combine(GetRootFolder(), id.ToString());
+                if (!Directory.Exists(uploadFolder))
+                {
+                    Directory.CreateDirectory(uploadFolder);
+                }
+                var fileExtension = Path.GetExtension(file.FileName);
+                var fileName = Guid.NewGuid() + fileExtension;
+                using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+                RequestService.ClientAttachFileToRequest(clientId, id, file.FileName, fileName);
+            }
+            return Ok();
+        }
+        private string GetRootFolder()
+        {
+            return Configuration.GetValue<string>("Settings:RootFolder");
         }
     }
 }
