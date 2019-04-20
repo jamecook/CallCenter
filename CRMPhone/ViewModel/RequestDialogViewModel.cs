@@ -65,6 +65,7 @@ namespace CRMPhone.ViewModel
             viewModel.RequestId = request.Id;
             viewModel.SelectedCity = viewModel.CityList.SingleOrDefault(i => i.Id == request.Address.CityId);
             viewModel.SelectedStreet = viewModel.StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
+            viewModel.StreetName = request.Address.StreetName;
             viewModel.SelectedHouse = viewModel.HouseList.SingleOrDefault(i => i.Id == request.Address.HouseId);
             if (viewModel.FlatList.All(i => i.Id != request.Address.Id))
             {
@@ -218,6 +219,12 @@ namespace CRMPhone.ViewModel
         {
             get { return _streetList;}
             set { _streetList = value; OnPropertyChanged(nameof(StreetList));}
+        }
+
+        public string StreetName
+        {
+            get { return _streetName; }
+            set { _streetName = value; OnPropertyChanged(nameof(StreetName)); }
         }
 
         public StreetDto SelectedStreet
@@ -504,24 +511,23 @@ namespace CRMPhone.ViewModel
         {
             //todo сделать логирование нажатий
             //var appSetting = JsonConvert.SerializeObject(AppSettings.CurrentUser) + JsonConvert.SerializeObject(AppSettings.SipInfo) + JsonConvert.SerializeObject(AppSettings.LastIncomingCall) + JsonConvert.SerializeObject(AppSettings.LastCallId);
+
             var lastCallId = AppSettings.LastCallId;
             if (string.IsNullOrEmpty(lastCallId))
             {
                 MessageBox.Show("ОШИБКА прикрепление звонка! Пустой номер последнего звонка!");
                 return;
             }
-            var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(lastCallId);
-            _requestService.AddCallToRequest(RequestId,callUniqueId);
-            _requestService.AddCallHistory(RequestId, callUniqueId, AppSettings.CurrentUser.Id, AppSettings.LastCallId,"RequestDialogAddCall");
+            if (!(obj is RequestItemViewModel))
+                return;
+            var requestModel = obj as RequestItemViewModel;
+            if (!requestModel.RequestId.HasValue)
+                return;
 
-            if (!string.IsNullOrEmpty(callUniqueId))
-            {
-                var viewModel = obj as RequestItemViewModel;
-                if (viewModel is null)
-                    return;
-                viewModel.CanAttach = false;
-                MessageBox.Show("Текущий разговор прикреплен к заявке!");
-            }
+            var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(lastCallId);
+            _requestService.AddCallToRequest(requestModel.RequestId.Value, callUniqueId);
+            _requestService.AddCallHistory(requestModel.RequestId.Value, callUniqueId, AppSettings.CurrentUser.Id, AppSettings.LastCallId,"RequestDialogAddCall");
+            MessageBox.Show("Текущий разговор прикреплен к заявке!");
         }
 
         private ICommand _changeDateCommand;
@@ -847,6 +853,7 @@ namespace CRMPhone.ViewModel
         private int? _elevatorCount;
         private string _serviceCompany;
         private string _cityRegion;
+        private string _streetName;
 
         public bool CanEditAddress
         {

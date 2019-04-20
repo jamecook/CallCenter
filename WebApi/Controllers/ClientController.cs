@@ -171,6 +171,19 @@ namespace WebApi.Controllers
             var rootFolder = GetRootFolder();
             return RequestService.DownloadFile(rId.Value, fileName, rootFolder);
         }
+        [HttpGet("preview")]
+        public byte[] GetPreview([FromQuery]string requestId, [FromQuery]string fileName)
+        {
+            int? rId = null;
+            if (!string.IsNullOrEmpty(requestId) && int.TryParse(requestId, out int parseId))
+            {
+                rId = parseId;
+            }
+            if (!rId.HasValue) return null;
+
+            var rootFolder = GetRootFolder();
+            return RequestService.DownloadPreview(rId.Value, fileName, rootFolder);
+        }
 
         [HttpPost("attachment/{id}")]
         public async Task<IActionResult> AddFileToRequest(int id, [FromForm(Name = "file")] IFormFile[] files)
@@ -202,6 +215,35 @@ namespace WebApi.Controllers
         private string GetRootFolder()
         {
             return Configuration.GetValue<string>("Settings:RootFolder");
+        }
+        [HttpGet("notes/{id}")]
+        public ActionResult<NoteDto[]> GetNotes(int id)
+        {
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest("1000:Error in JWT");
+
+            {
+                return RequestService.ClientGetNotes(clientId, id);
+            }
+            return null;
+        }
+
+        [HttpPost("add_note/{id}")]
+        public IActionResult AddNote(int id, [FromBody]string note)
+        {
+            if (string.IsNullOrEmpty(note))
+                return BadRequest("3000:Note is empty");
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest("1000:Error in JWT");
+
+            {
+                RequestService.ClientAddNewNote(clientId, id, note);
+            }
+            return Ok();
         }
     }
 }

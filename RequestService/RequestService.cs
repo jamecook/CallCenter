@@ -3045,7 +3045,7 @@ left join CallCenter.Users u on u.id = a.userId";
 
         public List<MetersDto> GetMetersByPeriod(int addressId)
         {
-            var sqlQuery = @"select id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id  from CallCenter.MeterDeviceValues
+            var sqlQuery = @"select id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating,heating2,heating3,heating4, client_phone_id  from CallCenter.MeterDeviceValues
  where address_id = @AddressId and meters_date > sysdate() - INTERVAL 3 month
  order by meters_date desc";
 
@@ -3072,6 +3072,7 @@ left join CallCenter.Users u on u.id = a.userId";
                             Heating = dataReader.GetDouble("heating"),
                             Heating2 = dataReader.GetNullableDouble("heating2"),
                             Heating3 = dataReader.GetNullableDouble("heating3"),
+                            Heating4 = dataReader.GetNullableDouble("heating4"),
                         });
                     }
                     dataReader.Close();
@@ -3081,7 +3082,7 @@ left join CallCenter.Users u on u.id = a.userId";
         }
         public List<MetersDto> GetMetersByAddressId(int addressId)
         {
-            var sqlQuery = @"select id, meters_date, personal_account, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating,heating2,heating3, client_phone_id  from CallCenter.MeterDeviceValues
+            var sqlQuery = @"select id, meters_date, personal_account, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating,heating2,heating3,heating4, client_phone_id  from CallCenter.MeterDeviceValues
  where address_id = @AddressId and meters_date > sysdate() - INTERVAL 3 month
  order by meters_date desc";
 
@@ -3108,6 +3109,7 @@ left join CallCenter.Users u on u.id = a.userId";
                             Heating = dataReader.GetDouble("heating"),
                             Heating2 = dataReader.GetNullableDouble("heating2"),
                             Heating3 = dataReader.GetNullableDouble("heating3"),
+                            Heating4 = dataReader.GetNullableDouble("heating4"),
                         });
                     }
                     dataReader.Close();
@@ -3119,7 +3121,7 @@ left join CallCenter.Users u on u.id = a.userId";
         {
             var sqlQuery =
                 @"select m.id, meters_date,house_id, m.address_id, street_id, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating,
- a.flat,h.building, h.corps, s.name street_name, sc.name company_name,m.personal_account,m.heating2,m.heating3
+ a.flat,h.building, h.corps, s.name street_name, sc.name company_name,m.personal_account,m.heating2,m.heating3,m.heating4
  from CallCenter.MeterDeviceValues m
   join CallCenter.Addresses a on a.id = m.address_id
   join CallCenter.Houses h on h.id = house_id
@@ -3165,6 +3167,7 @@ left join CallCenter.Users u on u.id = a.userId";
                             Heating = dataReader.GetDouble("heating"),
                             Heating2 = dataReader.GetNullableDouble("heating2"),
                             Heating3 = dataReader.GetNullableDouble("heating3"),
+                            Heating4 = dataReader.GetNullableDouble("heating4"),
                         });
                     }
                     dataReader.Close();
@@ -3181,7 +3184,7 @@ left join CallCenter.Users u on u.id = a.userId";
                 cmd.ExecuteNonQuery();
             }
         }
-        public void SaveMeterValues(string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1, double hotWater2, double coldWater2, double heating, int? meterId, string personalAccount, double heating2, double heating3)
+        public void SaveMeterValues(string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1, double hotWater2, double coldWater2, double heating, int? meterId, string personalAccount, double heating2, double heating3, double heating4)
         {
             using (var transaction = _dbConnection.BeginTransaction())
             {
@@ -3219,7 +3222,7 @@ left join CallCenter.Users u on u.id = a.userId";
                         "update CallCenter.MeterDeviceValues" +
                         " set electro_t1 = @Electro1, electro_t2 = @Electro2, cool_water1 = @Cool1," +
                         " hot_water1 = @Hot1, cool_water2 = @Cool2, hot_water2 = @Hot2, heating = @Heating," +
-                        " personal_account = @PersonalAccount, heating2 = @Heating2, heating3 = @Heating3" + 
+                        " personal_account = @PersonalAccount, heating2 = @Heating2, heating3 = @Heating3, heating4 = @Heating4" + 
                         " where id = @MeterId",
                         _dbConnection))
                     {
@@ -3234,6 +3237,7 @@ left join CallCenter.Users u on u.id = a.userId";
                         cmd.Parameters.AddWithValue("@Heating", heating);
                         cmd.Parameters.AddWithValue("@Heating2", heating2);
                         cmd.Parameters.AddWithValue("@Heating3", heating3);
+                        cmd.Parameters.AddWithValue("@Heating4", heating4);
                         cmd.Parameters.AddWithValue("@MeterId", meterId.Value);
                         cmd.ExecuteNonQuery();
                     }
@@ -3241,8 +3245,8 @@ left join CallCenter.Users u on u.id = a.userId";
                 else
                 {
                     using (var cmd = new MySqlCommand(
-                        "insert into CallCenter.MeterDeviceValues(address_id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id,personal_account , heating2, heating3 )" +
-                        " values(@AddressId,sysdate(),@Electro1,@Electrio2,@Cool1,@Hot1,@Cool2,@Hot2,@UserId,@Heating,@ClentPhoneId,@PersonalAccount,@Heating2,@Heating3)",
+                        "insert into CallCenter.MeterDeviceValues(address_id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id,personal_account , heating2, heating3, heating4 )" +
+                        " values(@AddressId,sysdate(),@Electro1,@Electrio2,@Cool1,@Hot1,@Cool2,@Hot2,@UserId,@Heating,@ClentPhoneId,@PersonalAccount,@Heating2,@Heating3,@Heating4)",
                         _dbConnection))
                     {
 
@@ -3258,6 +3262,7 @@ left join CallCenter.Users u on u.id = a.userId";
                         cmd.Parameters.AddWithValue("@Heating", heating);
                         cmd.Parameters.AddWithValue("@Heating2", heating2);
                         cmd.Parameters.AddWithValue("@Heating3", heating3);
+                        cmd.Parameters.AddWithValue("@Heating4", heating4);
                         cmd.Parameters.AddWithValue("@ClentPhoneId", clientPhoneId);
                         cmd.ExecuteNonQuery();
                     }
@@ -4031,12 +4036,14 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
         public List<AlertDto> GetAlerts(DateTime fromDate, DateTime toDate,int? houseId, bool onlyActive = true)
         {
             var sqlQuery = @"SELECT a.id alert_id,s.id street_id, s.name street_name,h.id house_id, h.building,h.corps,a.start_date,a.end_date,a.description,
- at.id alert_type_id, at.name alert_type_name, a.alert_service_type_id,ast.name alert_service_type_name
+ at.id alert_type_id, at.name alert_type_name, a.alert_service_type_id,ast.name alert_service_type_name,
+ u.id user_id,u.SurName,u.FirstName,u.PatrName,a.create_date
  FROM CallCenter.Alerts a
  join CallCenter.Houses h on h.id = a.house_id
  join CallCenter.Streets s on s.id = h.street_id
  join CallCenter.AlertType at on at.id = a.alert_type_id
  join CallCenter.AlertServiceType ast on ast.id = a.alert_service_type_id
+ join CallCenter.Users u on u.id = a.create_user_id
  where 1 = 1";
             if (onlyActive)
                 sqlQuery += " and (end_date is null or a.end_date > sysdate())";
@@ -4084,8 +4091,16 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
                             {
                                 Id = dataReader.GetInt32("alert_service_type_id"),
                                 Name = dataReader.GetString("alert_service_type_name")
-                            }
-                        });
+                            },
+                            User = new RequestUserDto()
+                            {
+                                Id = dataReader.GetInt32("user_id"),
+                                SurName = dataReader.GetNullableString("SurName"),
+                                FirstName = dataReader.GetNullableString("FirstName"),
+                                PatrName = dataReader.GetNullableString("PatrName"),
+                            },
+                            CreateDate = dataReader.GetDateTime("create_date")
+                    });
                     }
                     dataReader.Close();
                     return alertDtos;

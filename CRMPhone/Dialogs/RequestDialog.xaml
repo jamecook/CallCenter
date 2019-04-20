@@ -32,12 +32,13 @@
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="город:"/>
                         <ComboBox Margin="3" Width="100" TabIndex ="1" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCity}" ItemsSource="{Binding CityList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="улица:"/>
-                        <controls:FilteredComboBox Margin="3" Width="150" TabIndex ="2" FilterPath="NameWithPrefix" 
+                        <!--<controls:FilteredComboBox Margin="3" Width="150" TabIndex ="2" FilterPath="NameWithPrefix" 
                            FilterText="{Binding RelativeSource={RelativeSource Self}, Path=Text, Mode=OneWay}" 
                            DisplayMemberPath="NameWithPrefix" SelectedItem="{Binding SelectedStreet}" StaysOpenOnEdit="True"
-                           IsTextSearchEnabled="False" ItemsSource="{Binding StreetList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+                           IsTextSearchEnabled="False" ItemsSource="{Binding StreetList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>-->
 
-                        <!--<ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="NameWithPrefix" SelectedItem="{Binding SelectedStreet}" ItemsSource="{Binding StreetList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>-->
+                        <ComboBox Visibility ="{Binding Path=CanEdit, Converter={StaticResource BooleanToVisibility}}" Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="NameWithPrefix" SelectedItem="{Binding SelectedStreet}" ItemsSource="{Binding StreetList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+                        <TextBlock Visibility="{Binding Path=ReadOnly, Converter={StaticResource BooleanToVisibility}}" Margin="3" VerticalAlignment="Center" Text="{Binding StreetName}"/>
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="дом:"/>
                         <ComboBox Margin="3" Width="65" TabIndex ="3" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
                         <Button Margin="3" Width="32" TabIndex ="3" Visibility="{Binding AlertExists, Converter={StaticResource BooleanToVisibility}}" 
@@ -65,12 +66,12 @@
                 <TextBlock Margin="3" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding CityRegion}"/>
                 <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата ввода в эксплуатацию:"/>
                 <TextBlock Margin="3" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding CommissioningDate, StringFormat='{}{0:dd.MM.yyyy}'}"/>
-                <TextBlock Margin="3" VerticalAlignment="Center" Text="Количество лифток в подъезде:"/>
+                <TextBlock Margin="3" VerticalAlignment="Center" Text="Количество лифтов в подъезде:"/>
                 <TextBlock Margin="3" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding ElevatorCount}"/>
             </DockPanel>
             <StackPanel>
             <!--<StackPanel Visibility ="{Binding CanEdit, Converter={StaticResource BooleanToVisibility}}">-->
-            <TextBlock Margin ="3" Text="История заявок по адресу за последние 90 дней:"/>
+            <TextBlock Margin ="3" Text="История заявок по адресу за год:"/>
                 <DataGrid Name="OldRequestsGrid"
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding Path=AddressRequestList}"

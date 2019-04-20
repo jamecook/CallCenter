@@ -297,7 +297,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="ГВС ст.1" Width="80"
+                            <DataGridTextColumn Header="ГВС ст.1(кух)" Width="80"
                                             Binding="{Binding Path=HotWater1}">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="{x:Type TextBlock}">
@@ -307,7 +307,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="ХВС ст.1" Width="80"
+                            <DataGridTextColumn Header="ХВС ст.1(кух)" Width="80"
                                             Binding="{Binding Path=ColdWater1}">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="{x:Type TextBlock}">
@@ -317,7 +317,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="ГВС ст.2" Width="80"
+                            <DataGridTextColumn Header="ГВС ст.2(ван)" Width="80"
                                             Binding="{Binding Path=HotWater2}">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="{x:Type TextBlock}">
@@ -327,7 +327,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="ХВС ст.2" Width="80"
+                            <DataGridTextColumn Header="ХВС ст.2(ван)" Width="80"
                                             Binding="{Binding Path=ColdWater2}">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="{x:Type TextBlock}">
@@ -359,6 +359,16 @@
                             </DataGridTextColumn>
                             <DataGridTextColumn Header="Отоп.3" Width="80"
                                             Binding="{Binding Path=Heating3}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Отоп.4" Width="80"
+                                            Binding="{Binding Path=Heating4}">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="{x:Type TextBlock}">
                                         <Setter Property="TextWrapping" Value="Wrap"/>

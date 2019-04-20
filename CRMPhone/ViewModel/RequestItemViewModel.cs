@@ -52,7 +52,7 @@ namespace CRMPhone.ViewModel
         public RequestItemViewModel()
         {
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
-            CanAttach = true;
+            //CanAttach = true;
             ServiceList = new ObservableCollection<ServiceDto>();
             MasterList = new ObservableCollection<WorkerDto>(_requestService.GetMasters(null));
             ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
@@ -74,7 +74,7 @@ namespace CRMPhone.ViewModel
 
         private Appointment _selectedAppointment;
         private string _phoneNumber;
-        private bool _canAttach;
+        //private bool _canAttach;
         private string _selectedServiceText;
         public Appointment OpenAppointment { get; set; }
 
@@ -90,7 +90,7 @@ namespace CRMPhone.ViewModel
                 OnPropertyChanged(nameof(CanSave));
                 OnPropertyChanged(nameof(CanEdit));
                 OnPropertyChanged(nameof(RequestId));
-                OnPropertyChanged(nameof(CanAttachRecord));
+                //OnPropertyChanged(nameof(CanAttachRecord));
             }
         }
 
@@ -391,21 +391,21 @@ namespace CRMPhone.ViewModel
             }
         }
 
-        public bool CanAttachRecord
-        {
-            get { return CanEdit && CanAttach; }
-        }
+        //public bool CanAttachRecord
+        //{
+        //    get { return CanEdit && CanAttach; }
+        //}
 
-        public bool CanAttach
-        {
-            get { return _canAttach; }
-            set
-            {
-                _canAttach = value;
-                OnPropertyChanged(nameof(CanAttach));
-                OnPropertyChanged(nameof(CanAttachRecord));
-            }
-        }
+        //public bool CanAttach
+        //{
+        //    get { return _canAttach; }
+        //    set
+        //    {
+        //        _canAttach = value;
+        //        OnPropertyChanged(nameof(CanAttach));
+        //        OnPropertyChanged(nameof(CanAttachRecord));
+        //    }
+        //}
 
         public bool CanDial { get; set; }
 

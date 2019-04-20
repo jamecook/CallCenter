@@ -16,6 +16,8 @@ namespace RequestServiceImpl.Dto
         public AlertTypeDto Type { get; set; }
         public AlertServiceTypeDto ServiceType { get; set; }
         public string Description { get; set; }
+        public RequestUserDto User { get; set; }
+        public DateTime CreateDate { get; set; }
         public string FullAddress
         {
             get

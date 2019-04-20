@@ -184,7 +184,7 @@
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Комментарии</Button>
                     <Button Margin="3" Width="130" Height="22" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.CallsHistoryCommand}"
              CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Звонки и СМС</Button>
-                    <Button Margin="3" Width="130" Height="22" IsEnabled ="{Binding CanAttachRecord}" Command="{Binding ElementName=RequestGrid, Path=DataContext.AddCallCommand}"
+                    <Button Margin="3" Width="130" Height="22" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.AddCallCommand}"
                             CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Прикрепить звонок</Button>
                     <!--<Button Margin="5" Width="120" Height="24" IsEnabled ="{Binding CanEdit}" Command="{Binding ElementName=RequestGrid, Path=DataContext.OpeтRecordsDialogCommand}"
                             CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">Запись разговоров</Button>-->

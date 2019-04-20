@@ -848,7 +848,8 @@ namespace CRMPhone.ViewModel
                                         new XElement("ХВСстояк2", record.ColdWater2),
                                         new XElement("Отопление", record.Heating),
                                         new XElement("Отопление2", record.Heating2),
-                                        new XElement("Отопление3", record.Heating3)
+                                        new XElement("Отопление3", record.Heating3),
+                                        new XElement("Отопление4", record.Heating4)
                                     }));
                         }
                         var saver = new FileStream(fileName, FileMode.Create);
@@ -898,7 +899,8 @@ namespace CRMPhone.ViewModel
                             ConstructCell(record.Heating.ToString(), CellValues.String),
                             ConstructCell(record.PersonalAccount, CellValues.String),
                             ConstructCell(record.Heating2.ToString(), CellValues.String),
-                            ConstructCell(record.Heating3.ToString(), CellValues.String));
+                            ConstructCell(record.Heating3.ToString(), CellValues.String),
+                            ConstructCell(record.Heating4.ToString(), CellValues.String));
 
                         sheetData.AppendChild(row);
                     }

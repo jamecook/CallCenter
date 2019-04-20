@@ -25,6 +25,7 @@ namespace RequestServiceImpl
         public double Heating { get; set; }
         public double? Heating2 { get; set; }
         public double? Heating3 { get; set; }
+        public double? Heating4 { get; set; }
         public string FullAddress
         {
            get

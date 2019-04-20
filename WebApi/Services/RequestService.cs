@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -443,7 +446,61 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
             }
             return null;
         }
+        public static byte[] DownloadPreview(int requestId, string fileName,string rootDir)
+        {
+            if (!string.IsNullOrEmpty(rootDir) && Directory.Exists($"{rootDir}\\{requestId}"))
+            {
+                if(File.Exists($"{rootDir}\\{requestId}\\preview\\{fileName}"))
+                    return File.ReadAllBytes($"{rootDir}\\{requestId}\\preview\\{fileName}");
+                try
+                {
+                    var image = Image.FromFile($"{rootDir}\\{requestId}\\{fileName}");
+                    var sized = ResizeImage(image, 450);
+                    var buffer = new MemoryStream();
+                    sized.Save(buffer, ImageFormat.Jpeg);
+                    buffer.Position = 0;
+                    if (!Directory.Exists($"{rootDir}\\{requestId}\\preview"))
+                    {
+                        Directory.CreateDirectory($"{rootDir}\\{requestId}\\preview");
+                    }
+                    File.WriteAllBytes($"{rootDir}\\{requestId}\\preview\\{fileName}", buffer.ToArray());
+                    return buffer.ToArray();
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+            }
+            return null;
+        }
+        public static Bitmap ResizeImage(Image image, int width)
+        {
+            if (image == null || image.Width == 0)
+                return null;
+            var scale = (double) image.Width / width;
+            var newHeight = (int) (image.Height / scale);
+            var destRect = new Rectangle(0, 0, width, newHeight);
+            var destImage = new Bitmap(width, newHeight);
 
+            destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            using (var graphics = Graphics.FromImage(destImage))
+            {
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                using (var wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+
+            return destImage;
+        }
         public static StreetDto[] GetStreetsByWorkerId(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1097,6 +1154,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
 
             }
         }
+        
         public static List<CityRegionDto> GetRegions(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2233,6 +2291,64 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                     cmd.ExecuteNonQuery();
                 }
             }
+        }
+        public static NoteDto[] ClientGetNotes(int clientId, int requestId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery = "call CallCenter.ClientGetNotes(@Client,@RequestId);";
+                using (
+                    var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Client", clientId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var noteList = new List<NoteDto>();
+                        while (dataReader.Read())
+                        {
+                            noteList.Add(new NoteDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Date = dataReader.GetDateTime("operation_date"),
+                                Note = dataReader.GetNullableString("note"),
+                                User = new UserDto
+                                {
+                                    Id = dataReader.GetInt32("create_user_id"),
+                                    SurName = dataReader.GetNullableString("surname"),
+                                    FirstName = dataReader.GetNullableString("firstname"),
+                                    PatrName = dataReader.GetNullableString("patrname"),
+                                },
+                            });
+                        }
+                        dataReader.Close();
+                        return noteList.ToArray();
+                    }
+                }
+            }
+        }
+        public static void ClientAddNewNote(int clientId, int requestId, string note)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"call CallCenter.ClientAddNote(@ClientId,@RequestId,@Note);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@ClientId", clientId);
+                        cmd.Parameters.AddWithValue("@Note", note);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+
+
         }
     }
 

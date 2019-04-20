@@ -85,6 +85,12 @@ namespace CRMPhone
             set { _heating3 = value; OnPropertyChanged(nameof(Heating3));}
         }
 
+        public double Heating4
+        {
+            get { return _heating4; }
+            set { _heating4 = value; OnPropertyChanged(nameof(Heating4));}
+        }
+
         public double Heating
         {
             get { return _heating; }
@@ -220,7 +226,8 @@ namespace CRMPhone
                 MessageBox.Show("Необходимо выбрать правильный адрес!", "Ошибка");
                 return;
             }
-            _requestService.SaveMeterValues(PhoneNumber,SelectedFlat.Id,Electro1,Electro2,HotWater1,ColdWater1,HotWater2,ColdWater2,Heating, _meterId,PersonalAccount,Heating2,Heating3);
+            _requestService.SaveMeterValues(PhoneNumber, SelectedFlat.Id, Electro1, Electro2, HotWater1, ColdWater1,
+                HotWater2, ColdWater2, Heating, _meterId, PersonalAccount, Heating2, Heating3, Heating4);
             LoadRequestsBySelectedAddress(SelectedFlat.Id);
             MessageBox.Show("Данные успешно сохранены!", "Приборы учёта");
 
@@ -239,6 +246,7 @@ namespace CRMPhone
         private string _personalAccount;
         private double _heating2;
         private double _heating3;
+        private double _heating4;
 
         public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new CommandHandler(Close, true)); } }
 
@@ -299,6 +307,7 @@ namespace CRMPhone
                 Heating = meter.Heating;
                 Heating2 = meter.Heating2??0;
                 Heating3 = meter.Heating3??0;
+                Heating4 = meter.Heating4??0;
             }
         }
 

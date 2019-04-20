@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:CRMPhone.Dialogs"
         xmlns:crmPhone="clr-namespace:CRMPhone"
         mc:Ignorable="d"
-        Title="Показания приборов учёта" MinHeight="300" MinWidth ="780" Height="300" Width="1000"
+        Title="Показания приборов учёта" MinHeight="300" MinWidth ="1070" Height="300" Width="1070"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         FontSize="12"
@@ -85,7 +85,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="ГВС ст. 1" Width="80"
+                    <DataGridTextColumn Header="ГВС ст.1(кух)" Width="80"
                                             Binding="{Binding Path=HotWater1}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -95,7 +95,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="ХВС ст. 1" Width="80"
+                <DataGridTextColumn Header="ХВС ст.1(кух)" Width="80"
                                             Binding="{Binding Path=ColdWater1}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -105,7 +105,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="ГВС ст. 2" Width="80"
+                    <DataGridTextColumn Header="ГВС ст.2(ван)" Width="80"
                                             Binding="{Binding Path=HotWater2}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -115,7 +115,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="ХВС ст. 2" Width="80"
+                <DataGridTextColumn Header="ХВС ст.2(ван)" Width="80"
                                             Binding="{Binding Path=ColdWater2}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -147,6 +147,16 @@
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Отоп.3" Width="80"
                                             Binding="{Binding Path=Heating3}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Отоп.4" Width="80"
+                                            Binding="{Binding Path=Heating4}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextWrapping" Value="Wrap"/>
@@ -198,6 +208,10 @@
                 <StackPanel>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление3"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating3}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление4"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating4}"/>
                 </StackPanel>
             </DockPanel>
         </DockPanel>

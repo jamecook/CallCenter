@@ -30,7 +30,7 @@ namespace CRMPhone.ViewModel
             AlertTimes = new ObservableCollection<AlertTimeDto>(alertTimes);
             SelectedTime = AlertTimes.FirstOrDefault();
             var times = new List<AlertTimeDto>();
-            for (int i = 9; i < 21; i++)
+            for (int i = 0; i < 24; i++)
             {
                 times.Add(new AlertTimeDto {Id=i,Name = string.Format("{0}:00",i), AddMinutes = i*60});
             }

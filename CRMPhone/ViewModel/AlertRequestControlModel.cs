@@ -85,6 +85,7 @@ namespace CRMPhone.ViewModel
             viewModel.RequestId = request.Id;
             viewModel.SelectedCity = viewModel.CityList.SingleOrDefault(i=>i.Id == request.Address.CityId);
             viewModel.SelectedStreet = viewModel.StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
+            viewModel.StreetName = request.Address.StreetName;
             viewModel.SelectedHouse = viewModel.HouseList.SingleOrDefault(i=>i.Id == request.Address.HouseId);
             if (viewModel.FlatList.All(i => i.Id != request.Address.Id))
             {
