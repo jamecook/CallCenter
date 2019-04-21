@@ -373,18 +373,17 @@ namespace WebApi.Services
             }
         }
 
-        public static WebCallsDto[] GetWebCallsByRequestId(int requestId)
+        public static WebCallsDto[] GetWebCallsByRequestId(int workerId, int requestId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var sqlQuery = @"SELECT rc.id,c.CallerIdNum,c.CreateTime,c.MonitorFile FROM CallCenter.Requests r
-join CallCenter.RequestCalls rc on rc.request_id = r.id
-join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId order by c.CreateTime";
+                var sqlQuery = "CALL CallCenter.DispexGetRequestCalls(@CurWorker,@RequestId)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     var states = new List<WebCallsDto>();
-                    cmd.Parameters.AddWithValue("@reqId", requestId);
+                    cmd.Parameters.AddWithValue("@CurWorker", workerId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
@@ -393,6 +392,7 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                             {
                                 Id = dataReader.GetInt32("id"),
                                 PhoneNumber = dataReader.GetNullableString("CallerIdNum"),
+                                Direction = dataReader.GetNullableString("direction"),
                                 CreateTime = dataReader.GetDateTime("CreateTime"),
                             });
                         }

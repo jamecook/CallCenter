@@ -266,7 +266,9 @@ namespace WebApi.Controllers
         [HttpGet("request_records/{id}")]
         public IEnumerable<WebCallsDto> GetRequestRecords(int id)
         {
-            return RequestService.GetWebCallsByRequestId(id);
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetWebCallsByRequestId(workerId, id);
         }
         [HttpGet("house_flats/{id}")]
         public IEnumerable<FlatDto> GetHouseFlats(int id)

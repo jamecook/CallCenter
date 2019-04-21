@@ -6,6 +6,7 @@ namespace WebApi.Models
     {
         public int Id { get; set; }
         public string PhoneNumber { get; set; }
+        public string Direction { get; set; }
         public DateTime CreateTime { get; set; }
     }
 }

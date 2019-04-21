@@ -475,6 +475,18 @@ namespace CRMPhone.ViewModel
         public ICommand ConferenceCommand { get { return _conferenceCommand ?? (_conferenceCommand = new CommandHandler(Conference, _canExecute)); } }
         private ICommand _bridgeCommand;
         public ICommand BridgeCommand { get { return _bridgeCommand ?? (_bridgeCommand = new CommandHandler(Bridge, _canExecute)); } }
+        private ICommand _numbersCommand;
+        public ICommand NumbersCommand { get { return _numbersCommand ?? (_numbersCommand = new CommandHandler(Numbers, _canExecute)); } }
+
+        private void Numbers()
+        {
+           var model = new DigitsDialogViewModel();
+            var view = new DigitsDialog();
+            view.DataContext = model;
+            model.SetView(view);
+            view.Owner = mainWindow;
+            view.ShowDialog();
+        }
 
         private ICommand _hangUpCommand;
         public ICommand HangUpCommand { get {return _hangUpCommand ?? (_hangUpCommand = new CommandHandler(HangUp, _canExecute));}}
@@ -1230,6 +1242,7 @@ namespace CRMPhone.ViewModel
                 _sipAgent.AddTransport(1, 5060);
                 var mediaPort = _sipAgent.FindPort(60000, 64000, 2, 1);
                 _sipAgent.Startup(mediaPort, 1, "", "");
+                AppSettings.SipAgent = _sipAgent;
 
             }
             try

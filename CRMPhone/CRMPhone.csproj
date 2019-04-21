@@ -166,6 +166,9 @@
     <Compile Include="Controls\ServiceCompanyFondControl.xaml.cs">
       <DependentUpon>ServiceCompanyFondControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\DigitsDialog.xaml.cs">
+      <DependentUpon>DigitsDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\EditExecuterBindDialog.xaml.cs">
       <DependentUpon>EditExecuterBindDialog.xaml</DependentUpon>
     </Compile>
@@ -286,6 +289,7 @@
     <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
     <Compile Include="ViewModel\CalendarDialogViewModel.cs" />
     <Compile Include="ViewModel\CallsNotificationContext.cs" />
+    <Compile Include="ViewModel\DigitsDialogViewModel.cs" />
     <Compile Include="ViewModel\EditExecuterBindDialogViewModel.cs" />
     <Compile Include="ViewModel\ExecuterBindDialogViewModel.cs" />
     <Compile Include="ViewModel\NotificationYesNo.cs" />
@@ -413,6 +417,10 @@
     <Page Include="Controls\ServiceCompanyFondControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\DigitsDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\EditExecuterBindDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -617,6 +625,7 @@
     <Resource Include="Images\Calendar_new.png" />
     <Resource Include="Images\Calendar_small.png" />
     <Resource Include="Images\delete.png" />
+    <Resource Include="Images\numbers.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
