@@ -206,7 +206,7 @@ namespace CRMPhone.ViewModel
             }
             else
             {
-                if (_selectedHouseId.HasValue)
+                if (_selectedHouseId.HasValue && SelectedParentService != null)
                 {
                     foreach (var master in _requestService.GetWorkersByHouseAndService(_selectedHouseId.Value, SelectedParentService.Id))
                     {

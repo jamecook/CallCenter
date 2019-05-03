@@ -1058,8 +1058,8 @@ namespace RequestServiceImpl
     order by operation_date desc limit 1) last_note,
     R.executer_id,execw.sur_name exec_sur_name, execw.first_name exec_first_name, execw.patr_name exec_patr_name,R.term_of_execution,
     sc.name service_company_name,
-    reg.Name region_name
-
+    reg.Name region_name,
+    group_concat(distinct concat(vw.sur_name,' ',substr(ifnull(vw.first_name,''),1,1),'.',substr(ifnull(vw.patr_name,''),1,1)) order by vr.id desc separator '; ') viewed_by
     FROM CallCenter.Requests R
     join CallCenter.RequestState RS on RS.id = R.state_id
     join CallCenter.Addresses a on a.id = R.address_id
@@ -1082,7 +1082,9 @@ namespace RequestServiceImpl
     join CallCenter.Users u on u.id = create_user_id
     left join CallCenter.PeriodTimes p on p.id = R.period_time_id
     left join CallCenter.RequestCalls rcalls on rcalls.request_id = R.id
-    left join CallCenter.Workers cw on cw.id = R.create_worker_id";
+    left join CallCenter.Workers cw on cw.id = R.create_worker_id
+    left join CallCenter.ViewRequests vr on vr.request_id = R.id
+    left join CallCenter.Workers vw on vw.id = vr.worker_id";
             if (string.IsNullOrEmpty(requestId))
             {
                 if (filterByCreateDate)
@@ -1186,6 +1188,7 @@ namespace RequestServiceImpl
                             ContactPhones = dataReader.GetNullableString("client_phones"),
                             ParentService = dataReader.GetNullableString("parent_name"),
                             Service = dataReader.GetNullableString("service_name"),
+                            ViewedBy = dataReader.GetNullableString("viewed_by"),
                             Master = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
                             {
                                 Id = dataReader.GetInt32("worker_id"),

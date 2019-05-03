@@ -1512,8 +1512,10 @@ namespace CRMPhone.ViewModel
             var phone = SelectedCall.CallerId.Substring(SelectedCall.CallerId.Length - 10);
             SipPhone = phone;
             IncomingCallFrom = phone;
+            _requestService.IncreaseBackRingCount(SelectedCall.CallerId);
             string callId = string.Format("sip:{2}{0}@{1}", phone, _serverIP,SelectedCall.Prefix);
             _sipAgent.CallMaker.Invite(callId);
+            _requestService.DeleteCallFromNotAnsweredListByTryCount(SelectedCall.CallerId);
         }
 
         public void Mute()

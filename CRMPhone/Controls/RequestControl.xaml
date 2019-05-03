@@ -491,6 +491,16 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
+                <DataGridTextColumn Header="Просматривали" Width="150"
+                             Binding="{Binding Path=ViewedBy}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
 
             </DataGrid.Columns>
         </DataGrid>

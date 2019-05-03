@@ -897,10 +897,25 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
 
         public void DeleteCallFromNotAnsweredList(string callerId)
         {
-            var t = AppSettings.SipLines;
-
-
             var query = "delete from asterisk.NotAnsweredQueue where CallerIDNum  = @CallerId;";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@CallerId", callerId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void DeleteCallFromNotAnsweredListByTryCount(string callerId)
+        {
+            var query = "delete from asterisk.NotAnsweredQueue where CallerIDNum  = @CallerId and call_count >= 2;";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@CallerId", callerId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void IncreaseBackRingCount(string callerId)
+        {
+            var query = "update asterisk.NotAnsweredQueue set call_count = call_count + 1 where CallerIDNum  = @CallerId;";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@CallerId", callerId);

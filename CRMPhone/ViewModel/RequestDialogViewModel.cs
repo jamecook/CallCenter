@@ -596,7 +596,7 @@ namespace CRMPhone.ViewModel
             if(view.ShowDialog() ?? false)
             {
                 var currentTime = model.ByTime?_requestService.GetCurrentDate().AddMinutes(model.SelectedTime.AddMinutes)
-                        :(model.SelectedDate?? _requestService.GetCurrentDate()).AddMinutes(model.SelectedDateTime.AddMinutes);
+                        :(model.SelectedDate ?? _requestService.GetCurrentDate()).Date.AddMinutes(model.SelectedDateTime.AddMinutes);
                 requestModel.AlertTime = currentTime;
             }
 

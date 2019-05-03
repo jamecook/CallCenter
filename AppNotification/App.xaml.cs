@@ -78,7 +78,8 @@ namespace AppNotification
 
             var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
-            request.AddHeader("Authorization", "Basic MmJlODRiN2ItODYxMC00MThiLWJmZjItNDIwZmRkMzgwOTMx");
+            request.AddHeader("Authorization", "Basic M2FkNzJkMmYtZWJjNS00NDc4LTk2ZGYtNWRiZWJlNDVkMTNj");
+            //request.AddHeader("Authorization", "Basic MmJlODRiN2ItODYxMC00MThiLWJmZjItNDIwZmRkMzgwOTMx");
             var discar = new MessageDto
             {
                 app_id = "956627ad-9954-433a-be60-5814302bdbba",

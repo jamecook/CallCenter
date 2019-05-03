@@ -45,6 +45,7 @@ namespace RequestServiceImpl.Dto
         public DateTime? AlertTime { get; set; }
         public string LastNote { get; set; }
         public string ServiceCompany { get; set; }
+        public string ViewedBy { get; set; }
         public bool Immediate { get; set; }
         public string ImmediateText => Immediate ? "Да" : "Нет";
         public string FullAddress

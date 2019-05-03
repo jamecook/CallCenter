@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RudiGrobler.Controls", "CRM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppNotification", "AppNotification\AppNotification.csproj", "{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComboBoxControl", "ComboBoxControl\ComboBoxControl.csproj", "{ADB22031-71A5-4228-A872-3602324E39F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADB22031-71A5-4228-A872-3602324E39F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADB22031-71A5-4228-A872-3602324E39F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADB22031-71A5-4228-A872-3602324E39F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADB22031-71A5-4228-A872-3602324E39F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

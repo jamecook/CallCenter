@@ -12,6 +12,8 @@ namespace WebApi.Models
         public int SpecialityId { get; set; }
         public bool CanCreateRequestInWeb { get; set; }
         public bool AllowStatistics { get; set; }
+        public bool AllowCalendar { get; set; }
+        public bool OnlyImmediate { get; set; }
         public bool CanSetRating { get; set; }
         public bool CanCloseRequest { get; set; }
         public bool CanChangeExecutors { get; set; }

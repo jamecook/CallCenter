@@ -41,7 +41,7 @@
                         <TextBlock Visibility="{Binding Path=ReadOnly, Converter={StaticResource BooleanToVisibility}}" Margin="3" VerticalAlignment="Center" Text="{Binding StreetName}"/>
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="дом:"/>
                         <ComboBox Margin="3" Width="65" TabIndex ="3" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
-                        <Button Margin="3" Width="32" TabIndex ="3" Visibility="{Binding AlertExists, Converter={StaticResource BooleanToVisibility}}" 
+                        <Button Margin="3" Width="32" TabIndex ="4" Visibility="{Binding AlertExists, Converter={StaticResource BooleanToVisibility}}" 
                     Command="{Binding OpenAlertsCommand}" ToolTip="Есть активные работы по выбранному дому!">
                             <Image Source="pack://application:,,,/Images/danger_small.png" Width="24"/>
                         </Button>
@@ -52,7 +52,7 @@
                         <TextBlock Margin="3" VerticalAlignment="Center" Text="этаж:"/>
                         <TextBox Margin="3" Width="45" TabIndex ="7" Text="{Binding Path=Floor}" />
                     </WrapPanel>
-                    <Button Margin="3" Width="32" TabIndex ="3" Visibility="{Binding CanEditAddress, Converter={StaticResource BooleanToVisibility}}" 
+                    <Button Margin="3" Width="32" TabIndex ="8" Visibility="{Binding CanEditAddress, Converter={StaticResource BooleanToVisibility}}" 
                     Command="{Binding EditAddressCommand}" ToolTip="Изменить адрес заявки!">
                         <Image Source="pack://application:,,,/Images/edit_small.png" Width="24"/>
                     </Button>
@@ -72,7 +72,7 @@
             <StackPanel>
             <!--<StackPanel Visibility ="{Binding CanEdit, Converter={StaticResource BooleanToVisibility}}">-->
             <TextBlock Margin ="3" Text="История заявок по адресу за год:"/>
-                <DataGrid Name="OldRequestsGrid"
+                <DataGrid Name="OldRequestsGrid" TabIndex="1000"
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding Path=AddressRequestList}"
                           SelectionMode="Single"
@@ -176,7 +176,7 @@
                      HorizontalAlignment="Left" MaxHeight="100"
                      ItemsSource="{Binding ContactList}" 
                      SelectedItem="{Binding SelectedContact}"
-                     Margin="3,3,0,3">
+                     Margin="3,3,0,3" TabIndex="10">
 
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
