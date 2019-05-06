@@ -17,6 +17,8 @@ namespace WebApi.Models
         public bool CanSetRating { get; set; }
         public bool CanCloseRequest { get; set; }
         public bool CanChangeExecutors { get; set; }
+        public bool CanChangeStatus { get; set; }
+        public bool CanChangeExecuteDate { get; set; }
         public bool ServiceCompanyFilter { get; set; }
         public bool EnableAdminPage { get; set; }
         public string PushId { get; set; }

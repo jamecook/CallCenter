@@ -438,6 +438,13 @@ namespace CRMPhone.ViewModel
             get { return _showMasterInfoCommand ?? (_showMasterInfoCommand = new RelayCommand(ShowMasterInfo)); }
             
         }
+        private ICommand _showExecuterInfoCommand;
+        public ICommand ShowExecuterInfoCommand
+        {
+            get { return _showExecuterInfoCommand ?? (_showExecuterInfoCommand = new RelayCommand(ShowExecuterInfo)); }
+            
+        }
+
 
         private ICommand _dialCommand;
         public ICommand DialCommand
@@ -483,6 +490,19 @@ namespace CRMPhone.ViewModel
             var view = new WorkerInfoDialog();
             view.Owner = _view;
             var viewModel = new WorkerInfoViewModel(_requestService,model?.SelectedMaster?.Id??0,_requestId);
+            view.DataContext = viewModel;
+            viewModel.SetView(view);
+            view.ShowDialog();
+            //throw new NotImplementedException();
+        }
+        private void ShowExecuterInfo(object obj)
+        {
+            var model = obj as RequestItemViewModel;
+            if(model?.SelectedExecuter == null)
+                return;
+            var view = new WorkerInfoDialog();
+            view.Owner = _view;
+            var viewModel = new WorkerInfoViewModel(_requestService,model?.SelectedExecuter?.Id??0,_requestId);
             view.DataContext = viewModel;
             viewModel.SetView(view);
             view.ShowDialog();

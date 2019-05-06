@@ -78,11 +78,13 @@ namespace WebApi.Services
                 new Claim("OnlyImmediate", user.OnlyImmediate.ToString()),
                 new Claim("CanSetRating", user.CanSetRating.ToString()),
                 new Claim("CanCloseRequest", user.CanCloseRequest.ToString()),
-                 new Claim("WorkerId", user.WorkerId.ToString()),
-                 new Claim("CanChangeExecutors", user.CanChangeExecutors.ToString()),
-                 new Claim("ServiceCompanyFilter", user.ServiceCompanyFilter.ToString()),
-                 new Claim("EnableAdminPage", user.EnableAdminPage.ToString()),
-                 new Claim("PushId", user.PushId),
+                new Claim("CanChangeStatus", user.CanChangeStatus.ToString()),
+                new Claim("CanChangeExecuteDate", user.CanChangeExecuteDate.ToString()),
+                new Claim("WorkerId", user.WorkerId.ToString()),
+                new Claim("CanChangeExecutors", user.CanChangeExecutors.ToString()),
+                new Claim("ServiceCompanyFilter", user.ServiceCompanyFilter.ToString()),
+                new Claim("EnableAdminPage", user.EnableAdminPage.ToString()),
+                new Claim("PushId", user.PushId),
             };
             var expires = start.Add(TimeSpan.FromMinutes(_configuration.GetValue<int>("Auth:AccessExpireMinutes")));
             var jwt = new JwtSecurityToken(
