@@ -79,7 +79,7 @@ namespace AppNotificationForClient
             request.AddHeader("Authorization", "Basic Zjk0ZDNmZjMtMDc4MC00Yjc5LWIyZGYtYzg4ZTk2MzAyYjhm");
             var discar = new MessageDto
             {
-                app_id = "956627ad-9954-433a-be60-5814302bdbba",
+                app_id = "069fb414-d721-4d29-9eeb-c7278a9e3950",
                 contents = new Content()
                 {
                     en = message,
