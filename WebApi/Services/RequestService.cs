@@ -1805,7 +1805,8 @@ namespace WebApi.Services
                             {
                                 Id = dataReader.GetInt32("Id"),
                                 Phone = dataReader.GetString("Phone"),
-                                Name = dataReader.GetNullableString("name")
+                                Name = dataReader.GetNullableString("name"),
+                                PushId = dataReader.GetString("guid"),
                             };
                         }
                         dataReader.Close();
@@ -1853,7 +1854,8 @@ namespace WebApi.Services
                             {
                                 Id = dataReader.GetInt32("Id"),
                                 Phone = dataReader.GetString("Phone"),
-                                Name = dataReader.GetNullableString("name")
+                                Name = dataReader.GetNullableString("name"),
+                                PushId = dataReader.GetString("guid"),
                             };
                         }
                         dataReader.Close();

@@ -80,6 +80,7 @@ namespace WebApi.Services
                 new Claim("ClientId", user.Id.ToString()),
                 new Claim("Phone", user.Phone),
                 new Claim("Name", user.Name??""),
+                new Claim("PushId", user.PushId),
             };
             var expires = start.Add(TimeSpan.FromMinutes(_configuration.GetValue<int>("Auth:AccessExpireMinutes")));
             var jwt = new JwtSecurityToken(
