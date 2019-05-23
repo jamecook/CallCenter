@@ -207,6 +207,39 @@ namespace WebApi.Services
                 }
             }
         }
+        public static WorkerDto[] GetWorkersByHouseAndService(int workerId, int houseId,int serviceId, int isMaster)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL CallCenter.DispexGetWorkersByHouseAndType(@WorkerId,@HouseId,@TypeId,@IsMaster)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@HouseId", houseId);
+                    cmd.Parameters.AddWithValue("@TypeId", serviceId);
+                    cmd.Parameters.AddWithValue("@IsMaster", isMaster);
+                    var workers = new List<WorkerDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            workers.Add(new WorkerDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                SurName = dataReader.GetString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                                SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return workers.ToArray();
+                }
+            }
+        }
         public static WorkerDto[] GetExecutersByWorkerId(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))

@@ -3866,6 +3866,25 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
         {
             if (requestId <= 0 || string.IsNullOrEmpty(phone) || phone.Length < 10 || string.IsNullOrEmpty(sender))
                 return;
+            var smsCount = 0;
+            using (
+                var cmd =
+                    new MySqlCommand(
+                        "SELECT count(1) as count FROM CallCenter.SMSRequest S where request_id = @RequestId and phone = @Phone and create_date > sysdate() - interval 5 minute;",
+                        _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+                cmd.Parameters.AddWithValue("@Phone", phone);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    dataReader.Read();
+                    smsCount = dataReader.GetInt32("count");
+                }
+            }
+            if(smsCount > 0)
+                return;
+
             using (var cmd =
                 new MySqlCommand("insert into CallCenter.SMSRequest(request_id,sender,phone,message,create_date, is_client) values(@Request, @Sender, @Phone,@Message,sysdate(),@IsClient)", _dbConnection))
             {

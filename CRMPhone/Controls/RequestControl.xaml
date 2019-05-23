@@ -243,7 +243,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Повтор." Width="60"
+                <DataGridTextColumn Header="Повтор." Width="60" Visibility="Collapsed"
                                     Binding="{Binding Path=IsRetryText}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -299,7 +299,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="УК" Width="100"
+                <DataGridTextColumn Header="УК" Width="100" Visibility="Collapsed"
                              Binding="{Binding Path=ServiceCompany}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -319,7 +319,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="ФИО" Width="110"
+                <DataGridTextColumn Header="ФИО" Width="110" Visibility="Collapsed"
                              Binding="{Binding Path=MainFio}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -389,7 +389,7 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
 
-                <DataGridTextColumn Header="Срок исполнения" Width="110"
+                <DataGridTextColumn Header="Срок исполнения" Width="110" Visibility="Collapsed"
                              Binding="{Binding Path=TermOfExecution, StringFormat='{}{0:dd.MM.yyyy}'}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -399,7 +399,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Период" Width="100"
+                <DataGridTextColumn Header="Период" Width="100" Visibility="Collapsed"
                              Binding="{Binding Path=ExecutePeriod}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -417,7 +417,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Выполнение с" Width="80"
+                <DataGridTextColumn Header="Выполнение с" Width="80" Visibility="Collapsed"
                                     Binding="{Binding Path=FromTime, StringFormat='{}{0: HH:mm:ss}'}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -426,7 +426,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Выполнение по" Width="80"
+                <DataGridTextColumn Header="Выполнение по" Width="80" Visibility="Collapsed"
                                     Binding="{Binding Path=ToTime, StringFormat='{}{0: HH:mm:ss}'}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -436,7 +436,7 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
 
-                <DataGridTextColumn Header="Потрачено времени" Width="80"
+                <DataGridTextColumn Header="Потрачено времени" Width="80" Visibility="Collapsed"
                                     Binding="{Binding Path=SpendTime}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -445,7 +445,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Гарантийная" Width="100"
+                <DataGridTextColumn Header="Гарантийная" Width="100" Visibility="Collapsed"
                              Binding="{Binding Path=GarantyTest}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -454,7 +454,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Аварийная" Width="80"
+                <DataGridTextColumn Header="Аварийная" Width="80" Visibility="Collapsed"
                              Binding="{Binding Path=ImmediateText}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -472,7 +472,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Комментарий к оценке" Width="180"
+                <DataGridTextColumn Header="Комментарий к оценке" Width="180" Visibility="Collapsed"
                              Binding="{Binding Path=RatingDescription}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -481,7 +481,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Комментарий исполнителя" Width="280"
+                <DataGridTextColumn Header="Комментарий исполнителя" Width="280" Visibility="Collapsed"
                              Binding="{Binding Path=LastNote}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">

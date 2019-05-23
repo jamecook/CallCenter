@@ -191,18 +191,24 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("workers")]
-        public IEnumerable<WorkerDto> GetWorkers()
+        public IEnumerable<WorkerDto> GetWorkers([FromQuery]int? houseId, [FromQuery]int? serviceId)
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
+            if(houseId.HasValue&&serviceId.HasValue)
+                return RequestService.GetWorkersByHouseAndService(workerId,houseId.Value,serviceId.Value,1);
+
             return RequestService.GetWorkersByWorkerId(workerId);
         }
 
         [HttpGet("executers")]
-        public IEnumerable<WorkerDto> GetExecuters()
+        public IEnumerable<WorkerDto> GetExecuters([FromQuery]int? houseId, [FromQuery]int? serviceId)
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
+            if (houseId.HasValue && serviceId.HasValue)
+                return RequestService.GetWorkersByHouseAndService(workerId, houseId.Value, serviceId.Value, 0);
+
             return RequestService.GetExecutersByWorkerId(workerId);
         }
         [HttpGet("statuses")]
