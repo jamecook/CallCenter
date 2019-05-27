@@ -5,11 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:admins="clr-namespace:CRMPhone.ViewModel.Admins"
         mc:Ignorable="d"
-        Title="Исполнитель" Height="490" Width="520" MinWidth ="520" MinHeight="490"
+        Title="Исполнитель" Height="490" Width="1000" MinWidth ="1000" MinHeight="490"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         d:DataContext="{d:DesignInstance admins:WorkerAdminDialogViewModel}">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -101,7 +105,13 @@
 
             </StackPanel>
         </StackPanel>
-        <DockPanel Grid.Row="2" HorizontalAlignment="Right">
+        <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
+            <TextBlock Margin="5" VerticalAlignment="Center" Text="Фото:"/>
+            <Button>
+            <Image Width="540" />
+            </Button>
+        </StackPanel>
+            <DockPanel Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
             <Button Margin="5" Width="120" Height="24" Command="{Binding Path=SaveCommand}">Сохранить</Button>
             <Button Margin="5" Width="180" Height="24" Command="{Binding Path=AddressesCommand}">Адреса для доступа в Вебе</Button>
         </DockPanel>
