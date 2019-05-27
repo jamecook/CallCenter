@@ -786,6 +786,7 @@ namespace WebApi.Services
                                 AddressType = dataReader.GetString("address_type"),
                                 CompanyId = dataReader.GetNullableInt("service_company_id"),
                                 CompanyName = dataReader.GetNullableString("company_name"),
+                                HouseId = dataReader.GetInt32("house_id"),
                                 Flat = dataReader.GetString("flat"),
                                 Building = dataReader.GetString("building"),
                                 Corpus = dataReader.GetNullableString("corps"),
