@@ -132,6 +132,7 @@
     <Compile Include="Dto\WebHouseDto.cs" />
     <Compile Include="Dto\WebStatusDto.cs" />
     <Compile Include="Dto\WebUserDto.cs" />
+    <Compile Include="Dto\WorkerCompanyDto.cs" />
     <Compile Include="Dto\WorkerDto.cs" />
     <Compile Include="Dto\FieldForFilterDto.cs" />
     <Compile Include="Dto\WorkerHistoryDto.cs" />

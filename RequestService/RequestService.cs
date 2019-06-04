@@ -1942,6 +1942,56 @@ where w.worker_id = @WorkerId";
             }
         }
 
+
+        public IList<WorkerCompanyDto> GetBindedToWorkerCompany(int workerId)
+        {
+            var query = @"SELECT c.id,sc.Name as company_name,s.Name as speciality_name FROM CallCenter.WorkersCompany c
+join CallCenter.ServiceCompanies sc on sc.id = c.service_company_id
+join CallCenter.Speciality s on s.id = c.speciality_id
+where worker_id = @WorkerId";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                var result = new List<WorkerCompanyDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        var house = new WorkerCompanyDto()
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            ServiceCompany = dataReader.GetNullableString("company_name"),
+                            Speciality = dataReader.GetNullableString("speciality_name"),
+                        };
+                        result.Add(house);
+                    }
+                    dataReader.Close();
+                }
+                return result;
+            }
+        }
+        public void AddBindedToWorkerCompany(int workerId, int companyId,int? specialityId)
+        {
+            using (var cmd = new MySqlCommand(@"insert into CallCenter.WorkersCompany(worker_id, service_company_id,speciality_id) 
+    values(@WorkerId,@CompanyId,@SpecialityId);", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                cmd.Parameters.AddWithValue("@CompanyId", companyId);
+                cmd.Parameters.AddWithValue("@SpecialityId", specialityId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void DeleteBindedToWorkerCompany(int workerId, int id)
+        {
+            using (var cmd = new MySqlCommand(@"delete from CallCenter.WorkersCompany where worker_id = @WorkerId and id = @Id;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+
         public void DeleteHouseAndTypesByWorkerId(int recordId)
         {
             using (var cmd = new MySqlCommand(@"delete from CallCenter.WorkerHouseAndType where id = @recordId;", _dbConnection))

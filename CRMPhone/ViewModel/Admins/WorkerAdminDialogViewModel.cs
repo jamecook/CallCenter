@@ -16,6 +16,7 @@ namespace CRMPhone.ViewModel.Admins
         private RequestServiceImpl.RequestService _requestService;
         private int? _workerId;
         private ICommand _saveCommand;
+        private ICommand _bindCompanyCommand;
         private ICommand _addressesCommand;
         private string _surName;
         private string _firstName;
@@ -208,16 +209,32 @@ namespace CRMPhone.ViewModel.Admins
             _view = view;
         }
         public ICommand SaveCommand { get { return _saveCommand ?? (_saveCommand = new RelayCommand(Save)); } }
+        public ICommand BindCompanyCommand { get { return _bindCompanyCommand ?? (_bindCompanyCommand = new RelayCommand(BindCompany)); } }
         public ICommand AddressesCommand { get { return _addressesCommand ?? (_addressesCommand = new RelayCommand(AddressesBinding)); } }
 
-        private void AddressesBinding(object obj)
+        private void BindCompany(object obj)
         {
             if (!_workerId.HasValue)
             {
                 MessageBox.Show(_view, "Адреса можно привязывать только предварительно сохранив исполнителя!(Сохраните, закройте и войдите повторно в это окно)");
                 return;
             }
-            var model = new BindAddressToWorkerDialogViewModel(_requestService,_workerId.Value);
+            var model = new BindCompanyToWorkerDialogViewModel(_requestService,_workerId.Value);
+            var view = new BindCompanyToWorkerDialog();
+            view.DataContext = model;
+            view.Owner = _view;
+            model.SetView(view);
+            view.ShowDialog();
+        }
+
+        private void AddressesBinding(object sender)
+        {
+            if (!_workerId.HasValue)
+            {
+                MessageBox.Show(_view, "Адреса можно привязывать только предварительно сохранив исполнителя!(Сохраните, закройте и войдите повторно в это окно)");
+                return;
+            }
+            var model = new BindAddressToWorkerDialogViewModel(_requestService, _workerId.Value);
             var view = new BindAddressToWorkerDialog();
             view.DataContext = model;
             view.Owner = _view;
