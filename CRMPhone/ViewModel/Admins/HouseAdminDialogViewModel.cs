@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using CRMPhone.Annotations;
+using CRMPhone.Dialogs.Admins;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 
@@ -18,6 +19,7 @@ namespace CRMPhone.ViewModel.Admins
         private int _streetId;
         private int? _houseId;
         private ICommand _saveCommand;
+        private ICommand _requestTypesCommand;
         private string _streetName;
         private string _buildingNumber;
         private string _corpus;
@@ -140,6 +142,22 @@ namespace CRMPhone.ViewModel.Admins
             _view = view;
         }
         public ICommand SaveCommand { get { return _saveCommand ?? (_saveCommand = new RelayCommand(Save)); } }
+        public ICommand RequestTypesCommand { get { return _requestTypesCommand ?? (_requestTypesCommand = new RelayCommand(BindRequestType)); } }
+
+        private void BindRequestType(object sender)
+        {
+            if (!_houseId.HasValue)
+            {
+                MessageBox.Show(_view, "Адреса можно привязывать только предварительно сохранив исполнителя!(Сохраните, закройте и войдите повторно в это окно)");
+                return;
+            }
+            var model = new BindRequestTypeToAddressDialogViewModel(_requestService, _houseId.Value);
+            var view = new BindRequestTypeToAddressDialog();
+            view.DataContext = model;
+            view.Owner = _view;
+            model.SetView(view);
+            view.ShowDialog();
+        }
 
         private void Save(object sender)
         {
