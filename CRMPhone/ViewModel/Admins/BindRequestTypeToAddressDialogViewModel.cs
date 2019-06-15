@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -15,24 +16,21 @@ namespace CRMPhone.ViewModel.Admins
         private int _houseId;
         private ICommand _addCommand;
         private ICommand _deleteCommand;
-        private ObservableCollection<ServiceCompanyDto> _companyList;
-        private ServiceCompanyDto _selectedCompany;
-        private ObservableCollection<SpecialityDto> _specialityList;
-        private SpecialityDto _selectedSpeciality;
-        private ObservableCollection<WorkerCompanyDto> _bindedCompanyList;
-        private WorkerCompanyDto _selectedBindedCompany;
+        private ObservableCollection<ServiceDto> _requestTypeList;
+        private ServiceDto _selectedRequestType;
+        private ObservableCollection<ServiceDto> _bindedTypesList;
+        private ServiceDto _selectedBindedTypes;
 
 
         public BindRequestTypeToAddressDialogViewModel(RequestServiceImpl.RequestService requestService, int houseId)
         {
             _requestService = requestService;
             _houseId = houseId;
-            SpecialityList = new ObservableCollection<SpecialityDto>(_requestService.GetSpecialities());
-            CompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
+            RequestTypeList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
             RefreshList();
-            if (CompanyList.Count > 0)
+            if (RequestTypeList.Count > 0)
             {
-                SelectedCompany = CompanyList.FirstOrDefault();
+                SelectedRequestType = RequestTypeList.FirstOrDefault();
             }
 
         }
@@ -42,63 +40,46 @@ namespace CRMPhone.ViewModel.Admins
             _view = view;
         }
 
-        public ObservableCollection<ServiceCompanyDto> CompanyList
+        public ObservableCollection<ServiceDto> RequestTypeList
         {
-            get { return _companyList; }
-            set { _companyList = value; OnPropertyChanged(nameof(CompanyList)); }
+            get { return _requestTypeList; }
+            set { _requestTypeList = value; OnPropertyChanged(nameof(RequestTypeList)); }
         }
 
         public void RefreshList()
         {
-            BindedCompanyList = new ObservableCollection<WorkerCompanyDto>(_requestService.GetBindedToWorkerCompany(_houseId));
+            BindedTypesList = new ObservableCollection<ServiceDto>(_requestService.GetBindedTypeToHouse(_houseId));
         }
-        public ServiceCompanyDto SelectedCompany
+        public ServiceDto SelectedRequestType
         {
-            get { return _selectedCompany; }
+            get { return _selectedRequestType; }
             set
             {
-                _selectedCompany = value;
-                OnPropertyChanged(nameof(SelectedCompany));
+                _selectedRequestType = value;
+                OnPropertyChanged(nameof(SelectedRequestType));
             }
         }
 
-        public ObservableCollection<SpecialityDto> SpecialityList
+        public ObservableCollection<ServiceDto> BindedTypesList
         {
-            get { return _specialityList; }
-            set { _specialityList = value; OnPropertyChanged(nameof(SpecialityList)); }
+            get { return _bindedTypesList; }
+            set { _bindedTypesList = value; OnPropertyChanged(nameof(BindedTypesList)); }
         }
 
-        public SpecialityDto SelectedSpeciality
+        public ServiceDto SelectedBindedTypes
         {
-            get { return _selectedSpeciality; }
-            set
-            {
-                _selectedSpeciality = value;
-                OnPropertyChanged(nameof(SelectedSpeciality));
-            }
-        }
-
-
-        public ObservableCollection<WorkerCompanyDto> BindedCompanyList
-        {
-            get { return _bindedCompanyList; }
-            set { _bindedCompanyList = value; OnPropertyChanged(nameof(BindedCompanyList)); }
-        }
-
-        public WorkerCompanyDto SelectedBindedCompany
-        {
-            get { return _selectedBindedCompany; }
-            set { _selectedBindedCompany = value; OnPropertyChanged(nameof(SelectedBindedCompany)); }
+            get { return _selectedBindedTypes; }
+            set { _selectedBindedTypes = value; OnPropertyChanged(nameof(SelectedBindedTypes)); }
         }
 
         private void Delete(object sender)
         {
-            var item = sender as WorkerCompanyDto;
+            var item = sender as ServiceDto;
             if (item is null)
                 return;
             if (MessageBox.Show(_view, $"Вы уверены что хотите удалить запись?", "Привязка", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                _requestService.DeleteBindedToWorkerCompany(_houseId, item.Id);
+                _requestService.DeleteBindedTypeToHouse(_houseId, item.Id);
                 RefreshList();
             }
         }
@@ -110,10 +91,11 @@ namespace CRMPhone.ViewModel.Admins
         {
             try
             {
-                _requestService.AddBindedToWorkerCompany(_houseId, SelectedCompany.Id, SelectedSpeciality?.Id);
+                _requestService.AddBindedTypeToHouse(_houseId, SelectedRequestType.Id);
             }
-            catch
+            catch(Exception ex)
             {
+                MessageBox.Show(_view, ex.Message);
             }
             RefreshList();
         }

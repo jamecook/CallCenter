@@ -1970,6 +1970,54 @@ where worker_id = @WorkerId";
                 return result;
             }
         }
+        public IList<ServiceDto> GetBindedTypeToHouse(int houseId)
+        {
+            var query = @"SELECT r.id,name,can_send_sms,immediate
+ FROM CallCenter.RequestTypesToHouses t
+ join CallCenter.RequestTypes r where r.id = t.type_id and t.enabled = 1 and r.enabled = 1 and t.house_id = @HouseId order by name";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                    cmd.Parameters.AddWithValue("@HouseId", houseId);
+
+                var services = new List<ServiceDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        services.Add(new ServiceDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                            CanSendSms = dataReader.GetBoolean("can_send_sms"),
+                            Immediate = dataReader.GetBoolean("immediate")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return services;
+            }
+        }
+        public void AddBindedTypeToHouse(int houseId, int typeId)
+        {
+            using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestTypesToHouses(type_id, house_id, enabled) 
+    values(@TypeId,@HouseId,1);", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@TypeId", typeId);
+                cmd.Parameters.AddWithValue("@HouseId", houseId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void DeleteBindedTypeToHouse(int houseId, int typeId)
+        {
+            using (var cmd = new MySqlCommand(@"delete from CallCenter.RequestTypesToHouses where house_id = @HouseId and type_id = @TypeId;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@TypeId", typeId);
+                cmd.Parameters.AddWithValue("@HouseId", houseId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+
         public void AddBindedToWorkerCompany(int workerId, int companyId,int? specialityId)
         {
             using (var cmd = new MySqlCommand(@"insert into CallCenter.WorkersCompany(worker_id, service_company_id,speciality_id) 

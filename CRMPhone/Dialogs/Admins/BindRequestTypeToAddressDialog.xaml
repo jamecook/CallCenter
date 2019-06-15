@@ -8,7 +8,7 @@
         xmlns:admins="clr-namespace:CRMPhone.ViewModel.Admins"
         xmlns:dto="clr-namespace:RequestServiceImpl.Dto;assembly=RequestServiceImpl"
         mc:Ignorable="d"
-        Title="Привязка компаний" Height="620" Width="480" MinWidth ="480" MinHeight="620"
+        Title="Привязка услуг" Height="620" Width="480" MinWidth ="480" MinHeight="620"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         d:DataContext="{d:DesignInstance admins:BindRequestTypeToAddressDialogViewModel}">
@@ -19,37 +19,26 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
-            <DockPanel>
-                <TextBlock Margin="3" VerticalAlignment="Center" Text="Услуга:"/>
-                <ComboBox Margin="3" Width="180" TabIndex ="1" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCompany}" ItemsSource="{Binding CompanyList}" IsEditable="True" />
-                <TextBlock Margin="3" VerticalAlignment="Center" Text="Специальность:"/>
-                <ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="Name" SelectedItem="{Binding SelectedSpeciality}" ItemsSource="{Binding SpecialityList}" IsEditable="True" />
+            <DockPanel HorizontalAlignment="Center">
+                <TextBlock Margin="3" Text="Услуга:"/>
+                <ComboBox Margin="3" Width="180" TabIndex ="1" DisplayMemberPath="Name" SelectedItem="{Binding SelectedRequestType}" ItemsSource="{Binding RequestTypeList}" IsEditable="True" />
             </DockPanel>
             <DockPanel>
                 <Button Width="100" Margin ="5" Content="Добавить" HorizontalAlignment="Right" Command="{Binding AddCommand}"/>
             </DockPanel>
         </StackPanel>
-        <DataGrid Name="BindedCompanyGrid" Grid.Row ="1" 
+        <DataGrid Name="BindedTypesGrid" Grid.Row ="1" 
                   AutoGenerateColumns="False"
-                  ItemsSource="{Binding Path=BindedCompanyList}"
+                  ItemsSource="{Binding Path=BindedTypesList}"
                   SelectionMode="Single"
                   SelectionUnit="FullRow"
-                  SelectedItem="{Binding Path=SelectedBindedCompany}"
+                  SelectedItem="{Binding Path=SelectedBindedTypes}"
                   IsReadOnly="True"
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="УК" Width="*"
-                                    Binding="{Binding Path=ServiceCompany}">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="TextWrapping" Value="Wrap"/>
-                            <Setter Property="Margin" Value="3"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Специальность" Width="*"
-                                    Binding="{Binding Path=Speciality}">
+                <DataGridTextColumn Header="Услуга" Width="*"
+                                    Binding="{Binding Path=Name}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextWrapping" Value="Wrap"/>
@@ -71,7 +60,7 @@
                     </DataGridTemplateColumn.HeaderStyle>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate DataType="dto:WorkerCompanyDto">
-                            <Button Width="20" VerticalAlignment="Center" Command="{Binding ElementName=BindedCompanyGrid, Path=DataContext.DeleteCommand}" CommandParameter="{Binding ElementName=BindedCompanyGrid, Path=SelectedItem}">
+                            <Button Width="20" VerticalAlignment="Center" Command="{Binding ElementName=BindedTypesGrid, Path=DataContext.DeleteCommand}" CommandParameter="{Binding ElementName=BindedTypesGrid, Path=SelectedItem}">
                                 <Image Source="pack://application:,,,/Images/button_delete.png"/>
                             </Button>
                         </DataTemplate>
