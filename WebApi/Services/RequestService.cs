@@ -604,14 +604,16 @@ namespace WebApi.Services
                 }
             }
         }
-        public static IList<ServiceDto> GetParentServices()
+        public static IList<ServiceDto> GetParentServices(int currentWorkerId, int? houseId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = @"SELECT id,name,can_send_sms, null parent_id, null parent_name FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";
+                var query = @"CALL CallCenter.DispexGetRequestParrentTypes(@WorkerId,@HouseId)";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
+                    cmd.Parameters.AddWithValue("@WorkerId", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@HouseId", houseId);
                     var services = new List<ServiceDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -2034,16 +2036,16 @@ namespace WebApi.Services
                 }
             }
         }
-        public static ServiceDto[] GetParentServicesForClient(int clientId, int? parentServiceId)
+        public static ServiceDto[] GetParentServicesForClient(int clientId, int? houseId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = @"call CallCenter.ClientGetServices(@ClientId,@ParentServiceId)";
+                var query = @"call CallCenter.ClientGetRequestParrentTypes(@ClientId,@HouseId)";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
-                    cmd.Parameters.AddWithValue("@ParentServiceId", parentServiceId);
+                    cmd.Parameters.AddWithValue("@HouseId", houseId);
 
                     var services = new List<ServiceDto>();
                     using (var dataReader = cmd.ExecuteReader())
@@ -2076,7 +2078,7 @@ namespace WebApi.Services
                 var query =
                     $@"SELECT t1.id,t1.name,t1.can_send_sms,t2.id parent_id, t2.name parent_name FROM CallCenter.RequestTypes t1
                         left join CallCenter.RequestTypes t2 on t2.id = t1.parrent_id
-                        where t1.parrent_id in ({ids}) and t1.enabled = 1 order by t2.name,t1.name";
+                        where t1.parrent_id in ({ids}) and t1.for_client = 1 and t2.for_client = 1 and t1.enabled = 1 order by t2.name,t1.name";
 
                 using (var cmd = new MySqlCommand(query, conn))
                 {

@@ -241,9 +241,11 @@ namespace WebApi.Controllers
             return RequestService.GetHousesByStreetAndWorkerId(id, workerId);
         }
         [HttpGet("parent_services")]
-        public IEnumerable<ServiceDto> GetParrentServices()
+        public IEnumerable<ServiceDto> GetParrentServices([FromQuery]int? houseId)
         {
-            return RequestService.GetParentServices();
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetParentServices(workerId, houseId);
         }
         [HttpGet("services")]
         public IEnumerable<ServiceDto> GetServices([ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] parentIds)

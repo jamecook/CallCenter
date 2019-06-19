@@ -58,14 +58,14 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("parent_services")]
-        public ActionResult<ServiceDto[]> GetParrentServices()
+        public ActionResult<ServiceDto[]> GetParrentServices([FromQuery]int? houseId)
         {
             var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0)
                 return BadRequest("1000:Error in JWT");
 
-            return RequestService.GetParentServicesForClient(clientId, null);
+            return RequestService.GetParentServicesForClient(clientId, houseId);
         }
         [HttpGet("services")]
         public ActionResult<ServiceDto[]> GetServices([ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] parentIds)
