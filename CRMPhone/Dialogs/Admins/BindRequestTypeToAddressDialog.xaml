@@ -23,8 +23,9 @@
                 <TextBlock Margin="3" Text="Услуга:"/>
                 <ComboBox Margin="3" Width="180" TabIndex ="1" DisplayMemberPath="Name" SelectedItem="{Binding SelectedRequestType}" ItemsSource="{Binding RequestTypeList}" IsEditable="True" />
             </DockPanel>
-            <DockPanel>
-                <Button Width="100" Margin ="5" Content="Добавить" HorizontalAlignment="Right" Command="{Binding AddCommand}"/>
+            <DockPanel HorizontalAlignment="Right">
+                <Button Width="100" Margin ="5" Content="Добавить"  Command="{Binding AddCommand}"/>
+                <Button Width="130" Margin ="5" Content="Удалить выделенные" Command="{Binding DeleteSelectedCommand}"/>
             </DockPanel>
         </StackPanel>
         <DataGrid Name="BindedTypesGrid" Grid.Row ="1" 
@@ -37,6 +38,24 @@
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
             <DataGrid.Columns>
+                <DataGridTemplateColumn Width="30" >
+                    <DataGridTemplateColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate DataType="dto:ServiceWithCheckDto">
+                            <CheckBox IsChecked="{Binding Path=Checked,UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Услуга" Width="*"
                                     Binding="{Binding Path=Name}">
                     <DataGridTextColumn.ElementStyle>
@@ -59,7 +78,7 @@
                         </Style>
                     </DataGridTemplateColumn.HeaderStyle>
                     <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate DataType="dto:WorkerCompanyDto">
+                        <DataTemplate DataType="dto:ServiceWithCheckDto">
                             <Button Width="20" VerticalAlignment="Center" Command="{Binding ElementName=BindedTypesGrid, Path=DataContext.DeleteCommand}" CommandParameter="{Binding ElementName=BindedTypesGrid, Path=SelectedItem}">
                                 <Image Source="pack://application:,,,/Images/button_delete.png"/>
                             </Button>

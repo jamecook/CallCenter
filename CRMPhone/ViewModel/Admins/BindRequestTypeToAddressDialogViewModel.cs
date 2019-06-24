@@ -16,17 +16,25 @@ namespace CRMPhone.ViewModel.Admins
         private int _houseId;
         private ICommand _addCommand;
         private ICommand _deleteCommand;
-        private ObservableCollection<ServiceDto> _requestTypeList;
-        private ServiceDto _selectedRequestType;
-        private ObservableCollection<ServiceDto> _bindedTypesList;
-        private ServiceDto _selectedBindedTypes;
+        private ICommand _deleteSelectedCommand;
+        private ObservableCollection<ServiceWithCheckDto> _requestTypeList;
+        private ServiceWithCheckDto _selectedRequestType;
+        private ObservableCollection<ServiceWithCheckDto> _bindedTypesList;
+        private ServiceWithCheckDto _selectedBindedTypes;
 
 
         public BindRequestTypeToAddressDialogViewModel(RequestServiceImpl.RequestService requestService, int houseId)
         {
             _requestService = requestService;
             _houseId = houseId;
-            RequestTypeList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
+            RequestTypeList = new ObservableCollection<ServiceWithCheckDto>(_requestService.GetServices(null).Select(s => new ServiceWithCheckDto()
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Immediate = s.Immediate,
+                CanSendSms = s.CanSendSms,
+                Checked = false
+            }).ToList());
             RefreshList();
             if (RequestTypeList.Count > 0)
             {
@@ -40,7 +48,7 @@ namespace CRMPhone.ViewModel.Admins
             _view = view;
         }
 
-        public ObservableCollection<ServiceDto> RequestTypeList
+        public ObservableCollection<ServiceWithCheckDto> RequestTypeList
         {
             get { return _requestTypeList; }
             set { _requestTypeList = value; OnPropertyChanged(nameof(RequestTypeList)); }
@@ -48,9 +56,16 @@ namespace CRMPhone.ViewModel.Admins
 
         public void RefreshList()
         {
-            BindedTypesList = new ObservableCollection<ServiceDto>(_requestService.GetBindedTypeToHouse(_houseId));
+            BindedTypesList = new ObservableCollection<ServiceWithCheckDto>(_requestService.GetBindedTypeToHouse(_houseId).Select(s => new ServiceWithCheckDto()
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Immediate = s.Immediate,
+                CanSendSms = s.CanSendSms,
+                Checked = false
+            }).ToList());
         }
-        public ServiceDto SelectedRequestType
+        public ServiceWithCheckDto SelectedRequestType
         {
             get { return _selectedRequestType; }
             set
@@ -60,13 +75,13 @@ namespace CRMPhone.ViewModel.Admins
             }
         }
 
-        public ObservableCollection<ServiceDto> BindedTypesList
+        public ObservableCollection<ServiceWithCheckDto> BindedTypesList
         {
             get { return _bindedTypesList; }
             set { _bindedTypesList = value; OnPropertyChanged(nameof(BindedTypesList)); }
         }
 
-        public ServiceDto SelectedBindedTypes
+        public ServiceWithCheckDto SelectedBindedTypes
         {
             get { return _selectedBindedTypes; }
             set { _selectedBindedTypes = value; OnPropertyChanged(nameof(SelectedBindedTypes)); }
@@ -74,7 +89,7 @@ namespace CRMPhone.ViewModel.Admins
 
         private void Delete(object sender)
         {
-            var item = sender as ServiceDto;
+            var item = sender as ServiceWithCheckDto;
             if (item is null)
                 return;
             if (MessageBox.Show(_view, $"Вы уверены что хотите удалить запись?", "Привязка", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
@@ -83,8 +98,17 @@ namespace CRMPhone.ViewModel.Admins
                 RefreshList();
             }
         }
+        private void DeleteSelected(object sender)
+        {
+            foreach (var item in BindedTypesList.Where(i=>i.Checked))
+            {
+                _requestService.DeleteBindedTypeToHouse(_houseId, item.Id);
+            }
+            RefreshList();
+        }
         public ICommand DeleteCommand { get { return _deleteCommand ?? (_deleteCommand = new RelayCommand(Delete)); } }
 
+        public ICommand DeleteSelectedCommand { get { return _deleteSelectedCommand ?? (_deleteSelectedCommand = new RelayCommand(DeleteSelected)); } }
 
         public ICommand AddCommand { get { return _addCommand ?? (_addCommand = new RelayCommand(AddCompany)); } }
         private void AddCompany(object obj)

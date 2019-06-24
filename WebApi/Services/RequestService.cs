@@ -2167,6 +2167,7 @@ namespace WebApi.Services
                             addresses.Add(new AddressDto()
                                 {
                                     Id = dataReader.GetInt32("id"),
+                                    HouseId = dataReader.GetInt32("house_id"),
                                     StreetPrefix = dataReader.GetNullableString("prefix_name"),
                                     StreetName = dataReader.GetNullableString("street_name"),
                                     Building = dataReader.GetNullableString("building"),

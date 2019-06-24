@@ -121,6 +121,7 @@ namespace WebApi.Controllers
         public IEnumerable<ScheduleTaskDto> GetTasks([FromQuery]int? workerId,
             [FromQuery] DateTime fromDate,[FromQuery] DateTime toDate)
         {
+            _logger.LogInformation($"---------- get_tasks({workerId},{fromDate},{toDate})");
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int currentWorkerId);
             return RequestService.GetScheduleTask(currentWorkerId,workerId,fromDate,toDate);
@@ -129,6 +130,7 @@ namespace WebApi.Controllers
         public IEnumerable<ScheduleTaskDto> GetAllTasks([FromQuery]int workerId,
             [FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
         {
+            _logger.LogInformation($"---------- get_all_tasks({workerId},{fromDate},{toDate})");
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int currentWorkerId);
             return RequestService.GetAllScheduleTask(currentWorkerId, workerId, fromDate, toDate);
@@ -137,6 +139,7 @@ namespace WebApi.Controllers
         [HttpPost("add_task")]
         public ActionResult<string> AddTask([FromBody]AddTaskDto taskDto)
         {
+            _logger.LogInformation($"---------- add_task({taskDto.WorkerId},{taskDto.RequestId},{taskDto.FromDate},{taskDto.ToDate})");
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int currentWorkerId);
             return RequestService.AddScheduleTask(currentWorkerId, taskDto.WorkerId, taskDto.RequestId, taskDto.FromDate, taskDto.ToDate, null);
@@ -184,7 +187,7 @@ namespace WebApi.Controllers
         [HttpPost]
         public string Post([FromBody]CreateRequestDto value)
         {
-            _logger.LogDebug("Create Request: "+JsonConvert.SerializeObject(value));
+            _logger.LogInformation("---------- Create Request: "+JsonConvert.SerializeObject(value));
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
             return RequestService.CreateRequest(workerId, value.Phone, value.Name, value.AddressId, value.TypeId, value.MasterId, value.ExecuterId, value.Description,value.IsChargeable ?? false, value.ExecuteDate, value.WarrantyId ?? 0, value.IsImmediate ?? false);
@@ -195,7 +198,9 @@ namespace WebApi.Controllers
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            if(houseId.HasValue&&serviceId.HasValue)
+            _logger.LogInformation($"---------- workers(workerId={workerId},houseId={houseId},serviceId={serviceId})");
+
+            if (houseId.HasValue&&serviceId.HasValue)
                 return RequestService.GetWorkersByHouseAndService(workerId,houseId.Value,serviceId.Value,1);
 
             return RequestService.GetWorkersByWorkerId(workerId);
@@ -206,6 +211,7 @@ namespace WebApi.Controllers
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
+            _logger.LogInformation($"---------- executers(workerId={workerId},houseId={houseId},serviceId={serviceId})");
             if (houseId.HasValue && serviceId.HasValue)
                 return RequestService.GetWorkersByHouseAndService(workerId, houseId.Value, serviceId.Value, 0);
 
@@ -216,6 +222,7 @@ namespace WebApi.Controllers
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
+            _logger.LogInformation($"---------- statuses(workerId={workerId})");
             return RequestService.GetStatusesAll(workerId);
         }
         [HttpGet("statuses_for_set")]
@@ -245,6 +252,7 @@ namespace WebApi.Controllers
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
+            _logger.LogInformation($"---------- workers(workerId={workerId},houseId={houseId})");
             return RequestService.GetParentServices(workerId, houseId);
         }
         [HttpGet("services")]

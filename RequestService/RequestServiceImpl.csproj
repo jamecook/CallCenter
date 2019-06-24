@@ -114,6 +114,7 @@
     <Compile Include="Dto\ScheduleTaskDto.cs" />
     <Compile Include="Dto\ServiceCompanyDto.cs" />
     <Compile Include="Dto\ServiceDto.cs" />
+    <Compile Include="Dto\ServiceWithCheckDto.cs" />
     <Compile Include="Dto\SipDto.cs" />
     <Compile Include="Dto\SmsListDto.cs" />
     <Compile Include="Dto\SmsSettingDto.cs" />

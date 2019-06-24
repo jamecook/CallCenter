@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Xml.Linq;
 using CRMPhone.Annotations;
@@ -77,13 +78,36 @@ namespace CRMPhone.ViewModel
             StreetList.Clear();
             if (city == null)
                 return;
-            RequestService.GetStreets(city.Id,company?.Id).ToList().ForEach(s => StreetList.Add(s)); 
+            RequestService.GetStreets(city.Id,company?.Id).ToList().ForEach(s => StreetList.Add(s));
+            var filter = _view?.Filter;
+            _view = new ListCollectionView(StreetList);
+            _view.Filter = filter;
+            OnPropertyChanged(nameof(View));
         }
 
+        private ListCollectionView _view;
+        public ICollectionView View
+        {
+            get { return _view; }
+        }
         public ObservableCollection<StreetDto> StreetList
         {
             get { return _streetList; }
             set { _streetList = value; OnPropertyChanged(nameof(StreetList));}
+        }
+
+        public string StreetSearch
+        {
+            get { return _streetSearch; }
+            set
+            {
+                _streetSearch = value; OnPropertyChanged(nameof(StreetSearch));
+                if (String.IsNullOrEmpty(value))
+                    View.Filter = null;
+                else
+                    View.Filter = new Predicate<object>(o => ((StreetDto)o).Name.ToUpper().Contains(value.ToUpper()));
+
+            }
         }
 
         public StreetDto SelectedStreet
@@ -250,6 +274,7 @@ namespace CRMPhone.ViewModel
         private ICommand _deleteHouseCommand;
         private ObservableCollection<ServiceCompanyDto> _companyList;
         private ServiceCompanyDto _selectedCompany;
+        private string _streetSearch;
         public ICommand DeleteHouseCommand { get { return _deleteHouseCommand ?? (_deleteHouseCommand = new CommandHandler(DeleteHouse, true)); } }
 
         private void AddHouse()

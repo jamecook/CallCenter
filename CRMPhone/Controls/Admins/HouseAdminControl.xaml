@@ -38,12 +38,13 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <WrapPanel Grid.Row="0"  Grid.Column="0">
-            <Button Width="80" Margin ="5" Content="Добавить" Command="{Binding AddStreetCommand}"/>
-            <Button Width="80" Margin ="5" Content="Удалить" Command="{Binding DeleteStreetCommand}"/>
-        </WrapPanel>
+                <Button Width="80" Margin ="5" Content="Добавить" Command="{Binding AddStreetCommand}"/>
+                <Button Width="80" Margin ="5" Content="Удалить" Command="{Binding DeleteStreetCommand}"/>
+                <TextBox Text="{Binding StreetSearch, UpdateSourceTrigger=PropertyChanged}" Margin ="5" Width="100"/>
+            </WrapPanel>
         <DataGrid Name="StreetGrid" Grid.Row ="1" Grid.Column="0"
                   AutoGenerateColumns="False"
-                  ItemsSource="{Binding Path=StreetList}"
+                  ItemsSource="{Binding Path=View}"
                   SelectedItem="{Binding Path=SelectedStreet}"
                   SelectionMode="Single"
                   SelectionUnit="FullRow"
