@@ -48,6 +48,10 @@ namespace WebApi.Services
                                 CanCreateRequestInWeb = dataReader.GetBoolean("can_create_in_web"),
                                 CanCloseRequest = dataReader.GetBoolean("can_close_request"),
                                 CanChangeStatus = dataReader.GetBoolean("can_change_status"),
+                                CanChangeImmediate = dataReader.GetNullableInt("change_immediate") == 1,
+                                CanChangeChargeable = dataReader.GetNullableInt("change_chargeable") == 1,
+                                CanChangeAddress = dataReader.GetNullableInt("change_address") == 1,
+                                CanChangeServiceType = dataReader.GetNullableInt("change_service_type") == 1,
                                 CanChangeExecuteDate = dataReader.GetBoolean("can_change_execute_date"),
                                 CanSetRating = dataReader.GetBoolean("can_set_rating"),
                                 AllowStatistics = dataReader.GetBoolean("allow_statistics"),
@@ -95,6 +99,10 @@ namespace WebApi.Services
                                 CanCreateRequestInWeb = dataReader.GetBoolean("can_create_in_web"),
                                 CanCloseRequest = dataReader.GetBoolean("can_close_request"),
                                 CanChangeStatus = dataReader.GetBoolean("can_change_status"),
+                                CanChangeImmediate = dataReader.GetBoolean("change_immediate"),
+                                CanChangeChargeable = dataReader.GetBoolean("change_chargeable"),
+                                CanChangeAddress = dataReader.GetBoolean("change_address"),
+                                CanChangeServiceType = dataReader.GetBoolean("change_service_type"),
                                 CanChangeExecuteDate = dataReader.GetBoolean("can_change_execute_date"),
                                 CanSetRating = dataReader.GetBoolean("can_set_rating"),
                                 AllowStatistics = dataReader.GetBoolean("allow_statistics"),
@@ -696,7 +704,7 @@ namespace WebApi.Services
                 }
             }
         }
-        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, string clientPhone = null)
+        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, bool onlyExpired = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -704,7 +712,7 @@ namespace WebApi.Services
             {
                 conn.Open();
                 var sqlQuery =
-                    "CALL CallCenter.DispexGetRequests(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@WarrantyIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable,@ImmediateIds,@RegionIds)";
+                    "CALL CallCenter.DispexGetRequestsBase(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@WarrantyIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable,@ImmediateIds,@RegionIds,@onlyExpired,false)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -716,6 +724,7 @@ namespace WebApi.Services
                     cmd.Parameters.AddWithValue("@ExecuteToDate", executeToDate);
                     cmd.Parameters.AddWithValue("@OnlyRetry", onlyRetry);
                     cmd.Parameters.AddWithValue("@OnlyChargeable", chargeable);
+                    cmd.Parameters.AddWithValue("@onlyExpired", onlyExpired);
                     cmd.Parameters.AddWithValue("@StreetIds",
                         streetIds != null && streetIds.Length > 0
                             ? streetIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
@@ -865,6 +874,94 @@ namespace WebApi.Services
                         dataReader.Close();
                     }
                     return requests.ToArray();
+                }
+            }
+        }
+        public static int WebRequestListCount(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, bool onlyExpired = false, string clientPhone = null)
+        {
+            var findFromDate = fromDate.Date;
+            var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
+            var requestCount = 0;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery =
+                    "CALL CallCenter.DispexGetRequestsBase(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@WarrantyIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable,@ImmediateIds,@RegionIds,@onlyExpired,true)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    cmd.Parameters.AddWithValue("@ByCreateDate", filterByCreateDate);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate);
+                    cmd.Parameters.AddWithValue("@ExecuteFromDate", executeFromDate);
+                    cmd.Parameters.AddWithValue("@ExecuteToDate", executeToDate);
+                    cmd.Parameters.AddWithValue("@OnlyRetry", onlyRetry);
+                    cmd.Parameters.AddWithValue("@OnlyChargeable", chargeable);
+                    cmd.Parameters.AddWithValue("@onlyExpired", onlyExpired);
+                    cmd.Parameters.AddWithValue("@StreetIds",
+                        streetIds != null && streetIds.Length > 0
+                            ? streetIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@HouseIds",
+                        houseIds != null && houseIds.Length > 0
+                            ? houseIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@AddressIds",
+                        addressIds != null && addressIds.Length > 0
+                            ? addressIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@ParentServiceIds",
+                        parentServiceIds != null && parentServiceIds.Length > 0
+                            ? parentServiceIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@ServiceIds",
+                        serviceIds != null && serviceIds.Length > 0
+                            ? serviceIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@StatusIds",
+                        statusIds != null && statusIds.Length > 0
+                            ? statusIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@WorkerIds",
+                        workerIds != null && workerIds.Length > 0
+                            ? workerIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@ExecuterIds",
+                        executerIds != null && executerIds.Length > 0
+                            ? executerIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@BadWork", badWork);
+                    cmd.Parameters.AddWithValue("@Garanty", garanty);
+                    cmd.Parameters.AddWithValue("@ClientPhone", clientPhone);
+                    cmd.Parameters.AddWithValue("@RatingIds",
+                        ratingIds != null && ratingIds.Length > 0
+                            ? ratingIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@CompaniesIds",
+                        companies != null && companies.Length > 0
+                            ? companies.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@WarrantyIds",
+                        warrantyIds != null && warrantyIds.Length > 0
+                            ? warrantyIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@ImmediateIds",
+                        immediateIds != null && immediateIds.Length > 0
+                            ? immediateIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@RegionIds",
+                        regionIds != null && regionIds.Length > 0
+                            ? regionIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        dataReader.Read();
+                        requestCount = dataReader.GetInt32("items");
+                    }
+
+                    return requestCount;
                 }
             }
         }
@@ -1259,17 +1356,81 @@ namespace WebApi.Services
             }
 
         }
-        public static void SetNewService(int requestId, int serviceId, int workerId)
+        //public static void SetNewService(int requestId, int serviceId, int workerId)
+        //{
+        //    using (var conn = new MySqlConnection(_connectionString))
+        //    {
+        //        conn.Open();
+        //        var query = "call CallCenter.DispexSetService(@WorkerId,@Id,@NewService);";
+        //        using (var cmd = new MySqlCommand(query, conn))
+        //        {
+        //            cmd.Parameters.AddWithValue("@WorkerId", workerId);
+        //            cmd.Parameters.AddWithValue("@Id", requestId);
+        //            cmd.Parameters.AddWithValue("@NewService", serviceId);
+        //            cmd.ExecuteNonQuery();
+        //        }
+        //    }
+
+        //}
+        public static void SetNewImmediate(int requestId, int immediate, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = "call CallCenter.DispexSetService(@WorkerId,@Id,@NewService);";
+                var query = "call CallCenter.DispexSetImmediate(@WorkerId,@Id,@NewValue);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
                     cmd.Parameters.AddWithValue("@Id", requestId);
-                    cmd.Parameters.AddWithValue("@NewService", serviceId);
+                    cmd.Parameters.AddWithValue("@NewValue", immediate);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+        public static void SetNewChargeable(int requestId, int chargeable, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.DispexSetChargeable(@WorkerId,@Id,@NewValue);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", requestId);
+                    cmd.Parameters.AddWithValue("@NewValue", chargeable);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+        public static void SetNewAddress(int requestId, int address, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.DispexSetAddress(@WorkerId,@Id,@NewValue);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", requestId);
+                    cmd.Parameters.AddWithValue("@NewValue", address);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+        public static void SetNewServiceType(int requestId, int serviceType, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.DispexSetServiceType(@WorkerId,@Id,@NewValue);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", requestId);
+                    cmd.Parameters.AddWithValue("@NewValue", serviceType);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -2117,6 +2278,127 @@ namespace WebApi.Services
                 }
             }
         }
+        public static int GetExpiredRequestCount(int currentWorkerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.DispexGetExpiredRequestCount(@WorkerId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", currentWorkerId);
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+        public static RequestForListDto[] GetExpiredRequests(int currentWorkerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery =
+                    "CALL CallCenter.DispexGetExpiredRequests(@CurWorker)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
+
+                    var requests = new List<RequestForListDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var recordId = dataReader.GetNullableInt("recordId");
+                            requests.Add(new RequestForListDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                StreetPrefix = dataReader.GetString("prefix_name"),
+                                RegionId = dataReader.GetNullableInt("region_id"),
+                                RegionName = dataReader.GetNullableString("region_name"),
+                                StreetName = dataReader.GetString("street_name"),
+                                AddressType = dataReader.GetString("address_type"),
+                                CompanyId = dataReader.GetNullableInt("service_company_id"),
+                                CompanyName = dataReader.GetNullableString("company_name"),
+                                HouseId = dataReader.GetInt32("house_id"),
+                                Flat = dataReader.GetString("flat"),
+                                Building = dataReader.GetString("building"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                Entrance = dataReader.GetNullableString("entrance"),
+                                FirstRecordId = recordId,
+                                HasRecord = recordId.HasValue,
+                                HasAttachment = dataReader.GetBoolean("has_attach"),
+                                IsBadWork = dataReader.GetBoolean("bad_work"),
+                                IsImmediate = dataReader.GetBoolean("is_immediate"),
+                                Floor = dataReader.GetNullableString("floor"),
+                                CreateTime = dataReader.GetDateTime("create_time"),
+                                Description = dataReader.GetNullableString("description"),
+                                ContactPhones = dataReader.GetNullableString("client_phones"),
+                                ParentService = dataReader.GetNullableString("parent_name"),
+                                Service = dataReader.GetNullableString("service_name"),
+                                ParentServiceId = dataReader.GetNullableInt("parent_id"),
+                                ServiceId = dataReader.GetNullableInt("service_id"),
+                                Master = dataReader.GetNullableInt("worker_id") != null
+                                    ? new UserDto
+                                    {
+                                        Id = dataReader.GetInt32("worker_id"),
+                                        SurName = dataReader.GetNullableString("sur_name"),
+                                        FirstName = dataReader.GetNullableString("first_name"),
+                                        PatrName = dataReader.GetNullableString("patr_name"),
+                                    }
+                                    : null,
+                                Executer = dataReader.GetNullableInt("executer_id") != null
+                                    ? new UserDto
+                                    {
+                                        Id = dataReader.GetInt32("executer_id"),
+                                        SurName = dataReader.GetNullableString("exec_sur_name"),
+                                        FirstName = dataReader.GetNullableString("exec_first_name"),
+                                        PatrName = dataReader.GetNullableString("exec_patr_name"),
+                                    }
+                                    : null,
+                                CreateUser = new UserDto
+                                {
+                                    Id = dataReader.GetInt32("create_user_id"),
+                                    SurName = dataReader.GetNullableString("surname"),
+                                    FirstName = dataReader.GetNullableString("firstname"),
+                                    PatrName = dataReader.GetNullableString("patrname"),
+                                },
+                                ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                                FirstViewDate = dataReader.GetNullableDateTime("first_view_date"),
+                                ExecutePeriod = dataReader.GetNullableString("Period_Name"),
+                                Rating = dataReader.GetNullableString("Rating"),
+                                BadWork = dataReader.GetBoolean("bad_work"),
+                                IsRetry = dataReader.GetBoolean("retry"),
+                                Garanty = dataReader.GetBoolean("garanty"),
+                                StatusId = dataReader.GetInt32("req_status_id"),
+                                Status = dataReader.GetNullableString("Req_Status"),
+                                TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
+                                RatingDescription = dataReader.GetNullableString("RatingDesc"),
+                                LastNote = dataReader.GetNullableString("last_note"),
+                                IsChargeable = dataReader.GetBoolean("is_chargeable"),
+                                ClientName = dataReader.GetNullableString("client_name"),
+                                CloseDate = dataReader.GetNullableDateTime("close_date"),
+                                DoneDate = dataReader.GetNullableDateTime("done_date"),
+                                GarantyId = dataReader.GetInt32("garanty"),
+                                TaskId = dataReader.GetNullableInt("task_id"),
+                                TaskStart = dataReader.GetNullableDateTime("task_from"),
+                                TaskEnd = dataReader.GetNullableDateTime("task_to"),
+                                TaskWorker = dataReader.GetNullableInt("task_worker_id") != null
+                                    ? new UserDto
+                                    {
+                                        Id = dataReader.GetInt32("task_worker_id"),
+                                        SurName = dataReader.GetNullableString("task_sur_name"),
+                                        FirstName = dataReader.GetNullableString("task_first_name"),
+                                        PatrName = dataReader.GetNullableString("task_patr_name"),
+                                    }
+                                    : null,
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return requests.ToArray();
+                }
+            }
+        }
+
         public static void DeleteAddress(int clientId, int addressId)
         {
             using (var conn = new MySqlConnection(_connectionString))

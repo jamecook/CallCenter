@@ -82,6 +82,7 @@ namespace WebApi.Controllers
             [FromQuery] bool? garanty,
             [FromQuery] bool? onlyRetry,
             [FromQuery] bool? chargeable,
+            [FromQuery] bool? onlyExpired,
             [FromQuery] string clientPhone,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates,
@@ -105,7 +106,6 @@ namespace WebApi.Controllers
                     rId = -1;
                 }
             }
-
             return RequestService.WebRequestListArrayParam(workerId, rId,
                 filterByCreateDate ?? true,
                 fromDate ?? DateTime.Today,
@@ -114,7 +114,7 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                 streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,warranties, immediates, regions,
                 badWork ?? false,
-                garanty ?? false, onlyRetry ?? false,chargeable ?? false, clientPhone);
+                garanty ?? false, onlyRetry ?? false,chargeable ?? false, onlyExpired ?? false, clientPhone);
         }
 
         [HttpGet("get_tasks")]
@@ -204,6 +204,28 @@ namespace WebApi.Controllers
                 return RequestService.GetWorkersByHouseAndService(workerId,houseId.Value,serviceId.Value,1);
 
             return RequestService.GetWorkersByWorkerId(workerId);
+        }
+
+        [HttpGet("expired_requests_count")]
+        public int GetExpiredRequestsCount()
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            _logger.LogInformation($"---------- expired_request_count({workerId})");
+
+            return RequestService.WebRequestListCount(workerId, null, true, new DateTime(2001, 01, 01), DateTime.Now,
+                new DateTime(2001, 01, 01), DateTime.Now, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, onlyExpired: true);
+        }
+        [HttpGet("expired_requests")]
+        public IEnumerable<RequestForListDto> GetExpiredRequests()
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+
+            return RequestService.WebRequestListArrayParam(workerId, null, true, new DateTime(2001, 01, 01), DateTime.Now,
+                new DateTime(2001, 01, 01), DateTime.Now, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, onlyExpired: true);
         }
 
         [HttpGet("executers")]
@@ -376,7 +398,40 @@ namespace WebApi.Controllers
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             if(int.TryParse(workerIdStr, out int workerId))
             {
-                RequestService.SetNewService(id, serviceId, workerId);
+                RequestService.SetNewServiceType(id, serviceId, workerId);
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpPut("set_immediate/{id}")]
+        public IActionResult SetImmediate(int id, [FromBody]int immediate)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if(int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.SetNewImmediate(id, immediate, workerId);
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpPut("set_chargeable/{id}")]
+        public IActionResult SetChargeable(int id, [FromBody]int chargeable)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if(int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.SetNewChargeable(id, chargeable, workerId);
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpPut("set_address/{id}")]
+        public IActionResult SetAddress(int id, [FromBody]int address)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if(int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.SetNewAddress(id, address, workerId);
                 return Ok();
             }
             return BadRequest();

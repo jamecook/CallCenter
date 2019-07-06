@@ -18,6 +18,10 @@ namespace WebApi.Models
         public bool CanCloseRequest { get; set; }
         public bool CanChangeExecutors { get; set; }
         public bool CanChangeStatus { get; set; }
+        public bool CanChangeImmediate { get; set; }
+        public bool CanChangeChargeable { get; set; }
+        public bool CanChangeAddress { get; set; }
+        public bool CanChangeServiceType { get; set; }
         public bool CanChangeExecuteDate { get; set; }
         public bool ServiceCompanyFilter { get; set; }
         public bool EnableAdminPage { get; set; }
