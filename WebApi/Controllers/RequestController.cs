@@ -426,12 +426,12 @@ namespace WebApi.Controllers
             return BadRequest();
         }
         [HttpPut("set_address/{id}")]
-        public IActionResult SetAddress(int id, [FromBody]int address)
+        public IActionResult SetAddress(int id, [FromBody]SetAddressDto address)
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             if(int.TryParse(workerIdStr, out int workerId))
             {
-                RequestService.SetNewAddress(id, address, workerId);
+                RequestService.SetNewAddress(id, address.AddressId,address.ServiceId,address.MasterId,address.ExecutorId, workerId);
                 return Ok();
             }
             return BadRequest();

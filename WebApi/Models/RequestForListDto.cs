@@ -14,7 +14,9 @@ namespace WebApi.Models
         public string IsRetryText => IsRetry ? "да" : "нет";
         public int? FirstRecordId { get; set; }
         public int? CompanyId { get; set; }
+        public int StreetId { get; set; }
         public int HouseId { get; set; }
+        public int AddressId { get; set; }
         public string CompanyName { get; set; }
         public string ClientName { get; set; }
         public DateTime CreateTime { get; set; }

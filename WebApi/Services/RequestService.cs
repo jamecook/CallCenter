@@ -798,6 +798,8 @@ namespace WebApi.Services
                                 CompanyId = dataReader.GetNullableInt("service_company_id"),
                                 CompanyName = dataReader.GetNullableString("company_name"),
                                 HouseId = dataReader.GetInt32("house_id"),
+                                StreetId = dataReader.GetInt32("street_id"),
+                                AddressId = dataReader.GetInt32("address_id"),
                                 Flat = dataReader.GetString("flat"),
                                 Building = dataReader.GetString("building"),
                                 Corpus = dataReader.GetNullableString("corps"),
@@ -1404,17 +1406,20 @@ namespace WebApi.Services
             }
 
         }
-        public static void SetNewAddress(int requestId, int address, int workerId)
+        public static void SetNewAddress(int requestId, int address,int serviceType, int? masterId, int? executerId, int currentWorkerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = "call CallCenter.DispexSetAddress(@WorkerId,@Id,@NewValue);";
+                var query = "call CallCenter.DispexSetAddress(@WorkerId,@Id,@NewValue,@ServiceId,@MasterId,@ExecuterId);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
-                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@WorkerId", currentWorkerId);
                     cmd.Parameters.AddWithValue("@Id", requestId);
                     cmd.Parameters.AddWithValue("@NewValue", address);
+                    cmd.Parameters.AddWithValue("@ServiceId", serviceType);
+                    cmd.Parameters.AddWithValue("@MasterId", masterId);
+                    cmd.Parameters.AddWithValue("@ExecuterId", executerId);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -2319,6 +2324,8 @@ namespace WebApi.Services
                                 CompanyId = dataReader.GetNullableInt("service_company_id"),
                                 CompanyName = dataReader.GetNullableString("company_name"),
                                 HouseId = dataReader.GetInt32("house_id"),
+                                StreetId = dataReader.GetInt32("street_id"),
+                                AddressId = dataReader.GetInt32("address_id"),
                                 Flat = dataReader.GetString("flat"),
                                 Building = dataReader.GetString("building"),
                                 Corpus = dataReader.GetNullableString("corps"),
