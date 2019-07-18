@@ -51,6 +51,7 @@ namespace WebApi.Controllers
             [FromQuery] bool? onlyRetry,
             [FromQuery] bool? chargeable,
             [FromQuery] bool? onlyExpired,
+            [FromQuery] bool? onlyByClient,
             [FromQuery] string clientPhone,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates,
@@ -86,7 +87,7 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                 streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings, companies, warranties, immediates,regions,
                 badWork ?? false,
-                garanty ?? false, onlyRetry ?? false, chargeable ?? false,onlyExpired ?? false, clientPhone);
+                garanty ?? false, onlyRetry ?? false, chargeable ?? false,onlyExpired ?? false, onlyByClient ?? false, clientPhone);
 
             XElement root = new XElement("Records");
             foreach (var request in requests)
@@ -160,6 +161,7 @@ namespace WebApi.Controllers
             [FromQuery] bool? onlyRetry,
             [FromQuery] bool? chargeable,
             [FromQuery] bool? onlyExpired,
+            [FromQuery] bool? onlyByClient,
             [FromQuery] string clientPhone,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates,
@@ -195,7 +197,7 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                 streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings, companies, warranties, immediates,regions,
                 badWork ?? false,
-                garanty ?? false, onlyRetry ?? false, chargeable ?? false,onlyExpired ?? false, clientPhone);
+                garanty ?? false, onlyRetry ?? false, chargeable ?? false,onlyExpired ?? false, onlyByClient ?? false, clientPhone);
             byte[] buffer = RequestService.GenerateExcel(requests);
             return buffer;
         }

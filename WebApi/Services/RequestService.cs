@@ -50,6 +50,7 @@ namespace WebApi.Services
                                 CanChangeStatus = dataReader.GetBoolean("can_change_status"),
                                 CanChangeImmediate = dataReader.GetNullableInt("change_immediate") == 1,
                                 CanChangeChargeable = dataReader.GetNullableInt("change_chargeable") == 1,
+                                CanChangeDescription= dataReader.GetNullableInt("change_description") == 1,
                                 CanChangeAddress = dataReader.GetNullableInt("change_address") == 1,
                                 CanChangeServiceType = dataReader.GetNullableInt("change_service_type") == 1,
                                 CanChangeExecuteDate = dataReader.GetBoolean("can_change_execute_date"),
@@ -99,10 +100,11 @@ namespace WebApi.Services
                                 CanCreateRequestInWeb = dataReader.GetBoolean("can_create_in_web"),
                                 CanCloseRequest = dataReader.GetBoolean("can_close_request"),
                                 CanChangeStatus = dataReader.GetBoolean("can_change_status"),
-                                CanChangeImmediate = dataReader.GetBoolean("change_immediate"),
-                                CanChangeChargeable = dataReader.GetBoolean("change_chargeable"),
-                                CanChangeAddress = dataReader.GetBoolean("change_address"),
-                                CanChangeServiceType = dataReader.GetBoolean("change_service_type"),
+                                CanChangeImmediate = dataReader.GetNullableInt("change_immediate") == 1,
+                                CanChangeDescription = dataReader.GetNullableInt("change_description") == 1,
+                                CanChangeChargeable = dataReader.GetNullableInt("change_chargeable") == 1,
+                                CanChangeAddress = dataReader.GetNullableInt("change_address") == 1,
+                                CanChangeServiceType = dataReader.GetNullableInt("change_service_type") == 1,
                                 CanChangeExecuteDate = dataReader.GetBoolean("can_change_execute_date"),
                                 CanSetRating = dataReader.GetBoolean("can_set_rating"),
                                 AllowStatistics = dataReader.GetBoolean("allow_statistics"),
@@ -704,7 +706,7 @@ namespace WebApi.Services
                 }
             }
         }
-        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, bool onlyExpired = false, string clientPhone = null)
+        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, bool onlyExpired = false,bool onlyByClient = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -712,7 +714,7 @@ namespace WebApi.Services
             {
                 conn.Open();
                 var sqlQuery =
-                    "CALL CallCenter.DispexGetRequestsBase(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@WarrantyIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable,@ImmediateIds,@RegionIds,@onlyExpired,false)";
+                    "CALL CallCenter.DispexGetRequestsBase(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@WarrantyIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable,@ImmediateIds,@RegionIds,@onlyExpired,@onlyByClient,false)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -725,6 +727,7 @@ namespace WebApi.Services
                     cmd.Parameters.AddWithValue("@OnlyRetry", onlyRetry);
                     cmd.Parameters.AddWithValue("@OnlyChargeable", chargeable);
                     cmd.Parameters.AddWithValue("@onlyExpired", onlyExpired);
+                    cmd.Parameters.AddWithValue("@onlyByClient", onlyByClient);
                     cmd.Parameters.AddWithValue("@StreetIds",
                         streetIds != null && streetIds.Length > 0
                             ? streetIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
@@ -809,6 +812,7 @@ namespace WebApi.Services
                                 HasAttachment = dataReader.GetBoolean("has_attach"),
                                 IsBadWork = dataReader.GetBoolean("bad_work"),
                                 IsImmediate = dataReader.GetBoolean("is_immediate"),
+                                ByClient = dataReader.GetBoolean("by_client"),
                                 Floor = dataReader.GetNullableString("floor"),
                                 CreateTime = dataReader.GetDateTime("create_time"),
                                 Description = dataReader.GetNullableString("description"),
@@ -879,7 +883,7 @@ namespace WebApi.Services
                 }
             }
         }
-        public static int WebRequestListCount(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, bool onlyExpired = false, string clientPhone = null)
+        public static int WebRequestListCount(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, bool onlyExpired = false, bool onlyByClient = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -888,7 +892,7 @@ namespace WebApi.Services
             {
                 conn.Open();
                 var sqlQuery =
-                    "CALL CallCenter.DispexGetRequestsBase(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@WarrantyIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable,@ImmediateIds,@RegionIds,@onlyExpired,true)";
+                    "CALL CallCenter.DispexGetRequestsBase(@CurWorker,@RequestId,@ByCreateDate,@FromDate,@ToDate,@ExecuteFromDate,@ExecuteToDate,@StreetIds,@HouseIds,@AddressIds,@ParentServiceIds,@ServiceIds,@StatusIds,@WorkerIds,@ExecuterIds,@WarrantyIds,@BadWork,@Garanty,@ClientPhone,@RatingIds,@CompaniesIds,@OnlyRetry,@OnlyChargeable,@ImmediateIds,@RegionIds,@onlyExpired,@onlyByClient,true)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
@@ -901,6 +905,7 @@ namespace WebApi.Services
                     cmd.Parameters.AddWithValue("@OnlyRetry", onlyRetry);
                     cmd.Parameters.AddWithValue("@OnlyChargeable", chargeable);
                     cmd.Parameters.AddWithValue("@onlyExpired", onlyExpired);
+                    cmd.Parameters.AddWithValue("@onlyByClient", onlyByClient);
                     cmd.Parameters.AddWithValue("@StreetIds",
                         streetIds != null && streetIds.Length > 0
                             ? streetIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
@@ -1007,6 +1012,7 @@ namespace WebApi.Services
                                 HasAttachment = dataReader.GetBoolean("has_attach"),
                                 IsBadWork = dataReader.GetBoolean("bad_work"),
                                 IsImmediate = dataReader.GetBoolean("is_immediate"),
+                                ByClient = dataReader.GetBoolean("by_client"),
                                 Floor = dataReader.GetNullableString("floor"),
                                 CreateTime = dataReader.GetDateTime("create_time"),
                                 Description = dataReader.GetNullableString("description"),
@@ -1436,6 +1442,22 @@ namespace WebApi.Services
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
                     cmd.Parameters.AddWithValue("@Id", requestId);
                     cmd.Parameters.AddWithValue("@NewValue", serviceType);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+        public static void SetNewDescription(int requestId, string description, int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "call CallCenter.DispexSetDescription(@WorkerId,@Id,@NewValue);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", requestId);
+                    cmd.Parameters.AddWithValue("@NewValue", description);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -2335,6 +2357,7 @@ namespace WebApi.Services
                                 HasAttachment = dataReader.GetBoolean("has_attach"),
                                 IsBadWork = dataReader.GetBoolean("bad_work"),
                                 IsImmediate = dataReader.GetBoolean("is_immediate"),
+                                ByClient = dataReader.GetBoolean("by_client"),
                                 Floor = dataReader.GetNullableString("floor"),
                                 CreateTime = dataReader.GetDateTime("create_time"),
                                 Description = dataReader.GetNullableString("description"),

@@ -81,6 +81,7 @@ namespace WebApi.Services
                 new Claim("CanChangeStatus", user.CanChangeStatus.ToString()),
                 new Claim("CanChangeImmediate", user.CanChangeImmediate.ToString()),
                 new Claim("CanChangeChargeable", user.CanChangeChargeable.ToString()),
+                new Claim("CanChangeDescription", user.CanChangeDescription.ToString()),
                 new Claim("CanChangeAddress", user.CanChangeAddress.ToString()),
                 new Claim("CanChangeServiceType", user.CanChangeServiceType.ToString()),
                 new Claim("CanChangeExecuteDate", user.CanChangeExecuteDate.ToString()),

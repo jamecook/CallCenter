@@ -83,6 +83,7 @@ namespace WebApi.Controllers
             [FromQuery] bool? onlyRetry,
             [FromQuery] bool? chargeable,
             [FromQuery] bool? onlyExpired,
+            [FromQuery] bool? onlyByClient,
             [FromQuery] string clientPhone,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates,
@@ -114,7 +115,7 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                 streets, houses, addresses, parentServices, services, statuses, workers, executors, ratings,companies,warranties, immediates, regions,
                 badWork ?? false,
-                garanty ?? false, onlyRetry ?? false,chargeable ?? false, onlyExpired ?? false, clientPhone);
+                garanty ?? false, onlyRetry ?? false,chargeable ?? false, onlyExpired ?? false, onlyByClient ?? false, clientPhone);
         }
 
         [HttpGet("get_tasks")]
@@ -215,7 +216,7 @@ namespace WebApi.Controllers
 
             return RequestService.WebRequestListCount(workerId, null, true, new DateTime(2001, 01, 01), DateTime.Now,
                 new DateTime(2001, 01, 01), DateTime.Now, null, null, null, null, null, null, null, null, null, null,
-                null, null, null, onlyExpired: true);
+                null, null, null, onlyExpired: true, onlyByClient: false);
         }
         [HttpGet("expired_requests")]
         public IEnumerable<RequestForListDto> GetExpiredRequests()
@@ -399,6 +400,17 @@ namespace WebApi.Controllers
             if(int.TryParse(workerIdStr, out int workerId))
             {
                 RequestService.SetNewServiceType(id, serviceId, workerId);
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpPut("set_description/{id}")]
+        public IActionResult SetDescription(int id, [FromBody]string description)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            if(int.TryParse(workerIdStr, out int workerId))
+            {
+                RequestService.SetNewDescription(id, description, workerId);
                 return Ok();
             }
             return BadRequest();

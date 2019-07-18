@@ -11,6 +11,7 @@ namespace WebApi.Models
         public bool IsImmediate { get; set; }
         public bool IsChargeable { get; set; }
         public bool IsRetry { get; set; }
+        public bool ByClient { get; set; }
         public string IsRetryText => IsRetry ? "да" : "нет";
         public int? FirstRecordId { get; set; }
         public int? CompanyId { get; set; }
