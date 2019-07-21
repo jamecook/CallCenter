@@ -144,6 +144,7 @@
                     <CheckBox Margin="5" VerticalAlignment="Center" Content="Повторная" Foreground="Red" IsChecked="{Binding OnlyRetry}"/>
                     <CheckBox Margin="5" VerticalAlignment="Center" Content="Гарантия" Foreground="Red" IsChecked="{Binding OnlyGaranty}"/>
                     <CheckBox Margin="5" VerticalAlignment="Center" Content="Аварийные" Foreground="Red" IsChecked="{Binding OnlyImmediate}"/>
+                    <CheckBox Margin="5" VerticalAlignment="Center" Content="Житель" Foreground="Red" IsChecked="{Binding OnlyByClient}"/>
                 </WrapPanel>
             </Expander>
 

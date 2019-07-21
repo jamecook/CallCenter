@@ -478,6 +478,7 @@ namespace CRMPhone.ViewModel
         private string _parentServiceText;
         private bool _onlyGaranty;
         private bool _onlyImmediate;
+        private bool _onlyByClient;
 
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
@@ -604,6 +605,11 @@ namespace CRMPhone.ViewModel
         {
             get { return _onlyGaranty; }
             set { _onlyGaranty = value; OnPropertyChanged(nameof(OnlyGaranty)); }
+        }
+        public bool OnlyByClient
+        {
+            get { return _onlyByClient; }
+            set { _onlyByClient = value; OnPropertyChanged(nameof(OnlyByClient)); }
         }
         public bool OnlyImmediate
         {
@@ -833,7 +839,7 @@ namespace CRMPhone.ViewModel
                 FilterServiceCompanyList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterUserList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterRatingList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
-                SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone, OnlyGaranty, OnlyImmediate);
+                SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone, OnlyGaranty, OnlyImmediate, OnlyByClient);
             foreach (var request in requests)
             {
                 RequestList.Add(request);

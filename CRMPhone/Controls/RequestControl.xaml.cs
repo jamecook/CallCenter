@@ -79,6 +79,11 @@ namespace CRMPhone.Controls
                     e.Row.FontWeight = FontWeights.Bold;
                     e.Row.Foreground = Brushes.Firebrick;
                     }
+                else if(((RequestForListDto)e.Row.DataContext).CreateUser?.Id == 100)
+                {
+                    e.Row.FontWeight = FontWeights.Bold;
+                    e.Row.Foreground = Brushes.Blue;
+                }
                 else
                 {
                     e.Row.FontWeight = FontWeights.Normal;

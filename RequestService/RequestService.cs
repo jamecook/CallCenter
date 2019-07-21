@@ -1035,7 +1035,7 @@ namespace RequestServiceImpl
             }
         }
 
-        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone, bool onlyGaranty, bool onlyImmediate)
+        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone, bool onlyGaranty, bool onlyImmediate, bool onlyByClient)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -1138,6 +1138,8 @@ namespace RequestServiceImpl
                     sqlQuery += " and R.garanty = 1";
                 if (onlyImmediate)
                     sqlQuery += " and R.is_immediate = 1";
+                if (onlyByClient)
+                    sqlQuery += " and R.create_client_id is not null";
                 if (!string.IsNullOrEmpty(clientPhone))
                     sqlQuery += $" and cp.Number like '%{clientPhone}'";
             }
