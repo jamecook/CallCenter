@@ -4026,10 +4026,12 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
             }
 
         }
-        public List<RingUpHistoryDto> GetRingUpHistory()
+        public List<RingUpHistoryDto> GetRingUpHistory(DateTime fromDate)
         {
-            using (var cmd = new MySqlCommand("CALL asterisk.GetRingUpHistory()", _dbConnection))
+            using (var cmd = new MySqlCommand("CALL asterisk.GetRingUpHistory2(@fromDate)", _dbConnection))
             {
+                cmd.Parameters.AddWithValue("@fromDate", fromDate);
+
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     var ringUpHistoryDtos = new List<RingUpHistoryDto>();
@@ -4379,6 +4381,15 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
         public void AbortRingUp(int rintUpId)
         {
             using (var cmd = new MySqlCommand(@"update asterisk.RingUpList set state = 3 where id = @ListId;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ListId", rintUpId);
+                cmd.ExecuteNonQuery();
+            }
+
+        }
+        public void ContinueRingUp(int rintUpId)
+        {
+            using (var cmd = new MySqlCommand(@"update asterisk.RingUpList set state = 1 where id = @ListId;", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@ListId", rintUpId);
                 cmd.ExecuteNonQuery();

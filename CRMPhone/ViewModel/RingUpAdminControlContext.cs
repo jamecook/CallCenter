@@ -17,6 +17,10 @@ namespace CRMPhone.ViewModel
 {
     public class RingUpAdminControlContext : INotifyPropertyChanged
     {
+        public RingUpAdminControlContext()
+        {
+            FromDate = DateTime.Today.AddDays(-30);
+        }
         private RequestService _requestService;
         private RequestService RequestService => _requestService ?? (_requestService = new RequestService(AppSettings.DbConnection));
 
@@ -31,6 +35,20 @@ namespace CRMPhone.ViewModel
         private ICommand _abortCommand;
         private ObservableCollection<RingUpInfoDto> _ringUpInfoList;
         public ICommand AbortCommand { get { return _abortCommand ?? (_abortCommand = new CommandHandler(AbortRingUp, true)); } }
+        private ICommand _continueCommand;
+        public ICommand ContinueCommand { get { return _continueCommand ?? (_continueCommand = new CommandHandler(ContinueRingUp, true)); } }
+
+        private ICommand _exportCommand;
+        public ICommand ExportCommand { get { return _exportCommand ?? (_exportCommand = new CommandHandler(Export, true)); } }
+
+        private ICommand _exportListsCommand;
+        public ICommand ExportListsCommand { get { return _exportListsCommand ?? (_exportListsCommand = new CommandHandler(ExportLists, true)); } }
+
+        public DateTime FromDate
+        {
+            get { return _fromDate; }
+            set { _fromDate = value; OnPropertyChanged(nameof(FromDate)); }
+        }
 
         private void AbortRingUp()
         {
@@ -46,8 +64,21 @@ namespace CRMPhone.ViewModel
                 Refresh();
             }
         }
-        private ICommand _exportCommand;
-        public ICommand ExportCommand { get { return _exportCommand ?? (_exportCommand = new CommandHandler(Export, true)); } }
+        private void ContinueRingUp()
+        {
+            if (CurrentRingUp == null)
+            {
+                MessageBox.Show($"Необходимо выделить один элемент из списка обзвонов!","Автообзвон");
+                return;
+            }
+            if (MessageBox.Show($"Вы уверены что хотите продолжить обзвон № {CurrentRingUp.Id}", "Автообзвон",
+                    MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                RequestService.ContinueRingUp(CurrentRingUp.Id);
+                Refresh();
+            }
+        }
+        private DateTime _fromDate;
 
         private void Export()
         {
@@ -94,6 +125,56 @@ namespace CRMPhone.ViewModel
             }
 
         }
+        private void ExportLists()
+        {
+            if (RingUpList.Count == 0)
+            {
+                MessageBox.Show("Нельзя экспортировать пустой список!", "Ошибка");
+                return;
+            }
+            try
+            {
+                var saveDialog = new SaveFileDialog();
+                saveDialog.AddExtension = true;
+                saveDialog.DefaultExt = ".xml";
+                saveDialog.Filter = "XML Файл|*.xml";
+                if (saveDialog.ShowDialog() == true)
+                {
+                    var fileName = saveDialog.FileName;
+                    if (fileName.EndsWith(".xml"))
+                    {
+                        XElement root = new XElement("Records");
+                        foreach (var record in RingUpList)
+                        {
+                            root.AddFirst(
+                                new XElement("Record",
+                                    new[]
+                                    {
+                                        new XElement("Id", record.Id),
+                                        new XElement("Статус", record.State),
+                                        new XElement("Дата", record.CallTime.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("Название", record.Name),
+                                        new XElement("Телефон", record.FromPhone),
+                                        new XElement("ВсегоНомеров", record.PhoneCount),
+                                        new XElement("Ответило", record.DoneCalls),
+                                        new XElement("НеОтветило", record.NotDoneCalls),
+                                        new XElement("ДатаНачала", record.StartTime?.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("ДатаОкончания", record.EndTime?.ToString("dd.MM.yyyy HH:mm")),
+                                    }));
+                        }
+                        var saver = new FileStream(fileName, FileMode.Create);
+                        root.Save(saver);
+                        saver.Close();
+                    }
+                    MessageBox.Show("Данные сохранены в файл\r\n" + fileName);
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("Произошла ошибка:\r\n" + exc.Message);
+            }
+
+        }
         private void NewRingUp()
         {
             var model = new RingUpNewDialogViewModel(RequestService);
@@ -117,6 +198,8 @@ namespace CRMPhone.ViewModel
 
         private void SetRingUpInfo(RingUpHistoryDto value)
         {
+            if(value == null)
+                return;
             RingUpInfoList = new ObservableCollection<RingUpInfoDto>(_requestService.GetRingUpInfo(value.Id));
         }
 
@@ -157,7 +240,7 @@ namespace CRMPhone.ViewModel
         public void Refresh()
         {
             RingUpInfoList = new ObservableCollection<RingUpInfoDto>();
-            RingUpList = new ObservableCollection<RingUpHistoryDto>(RequestService.GetRingUpHistory());
+            RingUpList = new ObservableCollection<RingUpHistoryDto>(RequestService.GetRingUpHistory(FromDate));
         }
     }
 }
