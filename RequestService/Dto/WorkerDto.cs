@@ -16,6 +16,8 @@ namespace RequestServiceImpl.Dto
         public string Password { get; set; }
         public bool CanAssign { get; set; }
         public bool IsMaster { get; set; }
+        public bool Enabled { get; set; }
+        public string IsBlockedText => Enabled ? "" : "блокир.";
         public bool IsExecuter { get; set; }
         public bool IsDispetcher { get; set; }
         public bool SendSms { get; set; }

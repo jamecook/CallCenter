@@ -82,6 +82,7 @@
             <StackPanel>
                 <Border BorderThickness="1" BorderBrush="Black">
                     <DockPanel>
+                        <CheckBox Margin="5" IsChecked="{Binding Path=IsBlocked}">Заблокирован</CheckBox>
                         <CheckBox Margin="5" IsChecked="{Binding Path=IsMaster}">Мастер</CheckBox>
                         <CheckBox Margin="5" IsChecked="{Binding Path=IsExecuter}">Исполнитель</CheckBox>
                         <CheckBox Margin="5" IsChecked="{Binding Path=IsDispetcher}">Диспетчер</CheckBox>

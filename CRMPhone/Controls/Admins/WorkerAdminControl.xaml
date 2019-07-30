@@ -59,6 +59,15 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
+                <DataGridTextColumn Header="Блокир." Width="*"
+                                    Binding="{Binding Path=IsBlockedText}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="Телефон" Width="*"
                                     Binding="{Binding Path=Phone}">
                     <DataGridTextColumn.ElementStyle>

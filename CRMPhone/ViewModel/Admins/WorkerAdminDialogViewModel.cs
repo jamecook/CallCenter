@@ -36,6 +36,7 @@ namespace CRMPhone.ViewModel.Admins
         private string _login;
         private string _password;
         private bool _appNotification;
+        private bool _isBlocked;
 
         public ObservableCollection<SpecialityDto> SpecialityList
         {
@@ -124,6 +125,12 @@ namespace CRMPhone.ViewModel.Admins
             set { _canAssign = value; OnPropertyChanged(nameof(CanAssign)); }
         }
 
+        public bool IsBlocked
+        {
+            get { return _isBlocked; }
+            set { _isBlocked = value; OnPropertyChanged(nameof(IsBlocked));}
+        }
+
         public bool IsMaster
         {
             get { return _isMaster; }
@@ -183,6 +190,7 @@ namespace CRMPhone.ViewModel.Admins
                 Password = worker.Password;
                 CanAssign = worker.CanAssign;
                 IsMaster = worker.IsMaster;
+                IsBlocked = !worker.Enabled;
                 IsExecuter = worker.IsExecuter;
                 IsDispetcher = worker.IsDispetcher;
                 SendSms = worker.SendSms;
@@ -248,7 +256,7 @@ namespace CRMPhone.ViewModel.Admins
             {
                 _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id,CanAssign,
                     IsMaster, IsExecuter, IsDispetcher, SendSms, Login, Password, (SelectedParentWorker!=null && SelectedParentWorker.Id>0)? SelectedParentWorker.Id :(int?) null,
-                     CanSetRating, CanCloseRequest, CanChangeExecutor, CanCreateRequest, CanShowStatistic, FilterByHouses, ShowAllRequest, ShowOnlyGaranty,AppNotification);
+                     CanSetRating, CanCloseRequest, CanChangeExecutor, CanCreateRequest, CanShowStatistic, FilterByHouses, ShowAllRequest, ShowOnlyGaranty,AppNotification,!IsBlocked);
                 _view.DialogResult = true;
             }
             else

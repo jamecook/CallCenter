@@ -1615,10 +1615,9 @@ order by t.weigth, w.sur_name, w.first_name, w.patr_name";
         }
         public IList<WorkerDto> GetAllWorkers(int? serviceCompanyId)
         {
-            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher,w.login,w.send_notification FROM CallCenter.Workers w
+            var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher,w.login,w.send_notification,w.enabled FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
-    left join CallCenter.Speciality sp on sp.id = w.speciality_id
-    where w.enabled = 1";
+    left join CallCenter.Speciality sp on sp.id = w.speciality_id";
             query += serviceCompanyId.HasValue ? " and service_company_id = " + serviceCompanyId : "";
             query += " order by sur_name,first_name,patr_name";
             using (var cmd = new MySqlCommand(query, _dbConnection))
@@ -1646,6 +1645,7 @@ order by t.weigth, w.sur_name, w.first_name, w.patr_name";
                             IsMaster = dataReader.GetBoolean("is_master"),
                             IsExecuter = dataReader.GetBoolean("is_executer"),
                             IsDispetcher = dataReader.GetBoolean("is_dispetcher"),
+                            Enabled = dataReader.GetBoolean("enabled"),
                             ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
                         });
                     }
@@ -2097,7 +2097,7 @@ where worker_id = @WorkerId";
             var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,
     w.can_assign,w.parent_worker_id,w.is_master,w.is_executer,w.is_dispetcher, sp.name speciality_name,send_sms,w.login,w.password,
     w.filter_by_houses,w.can_create_in_web,w.show_all_request,w.show_only_garanty,w.allow_statistics,w.can_set_rating,w.can_close_request,
-    w.can_change_executors,w.send_notification
+    w.can_change_executors,w.send_notification,w.enabled
     FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
@@ -2137,6 +2137,7 @@ where worker_id = @WorkerId";
                             FilterByHouses = dataReader.GetBoolean("filter_by_houses"),
                             ShowAllRequest = dataReader.GetBoolean("show_all_request"),
                             ShowOnlyGaranty = dataReader.GetBoolean("show_only_garanty"),
+                            Enabled = dataReader.GetBoolean("enabled"),
                         };
                     }
                     dataReader.Close();
@@ -3475,7 +3476,7 @@ left join CallCenter.Users u on u.id = a.userId";
         }
         public void  SaveWorker(int? workerId, int serviceCompanyId,string surName,string firstName,string patrName,string phone,int specialityId,bool canAssign, bool isMaster,
             bool isExecuter, bool isDispetcher, bool sendSms,string login, string password, int? parentWorkerId, bool canSetRating, bool canCloseRequest,
-            bool canChangeExecutor, bool canCreateRequest, bool canShowStatistic, bool filterByHouses, bool showAllRequest, bool showOnlyGaranty,bool appNotification)
+            bool canChangeExecutor, bool canCreateRequest, bool canShowStatistic, bool filterByHouses, bool showAllRequest, bool showOnlyGaranty,bool appNotification,bool enabled)
         {
             if (workerId.HasValue)
             {
@@ -3483,7 +3484,7 @@ left join CallCenter.Users u on u.id = a.userId";
 is_master = @isMaster, is_executer = @IsExecuter, is_dispetcher = @IsDispetcher, send_sms = @SendSms,  parent_worker_id = @parentWorkerId,
 login = @Login, password = @Password,can_set_rating = @CanSetRating,can_close_request = @CanCloseRequest,can_change_executors = @CanChangeExecutor,
 can_create_in_web = @CanCreateRequest, allow_statistics = @CanShowStatistic, filter_by_houses = @FilterByHouses,show_all_request = @ShowAllRequest, send_notification = @AppNotification,
-show_only_garanty = @ShowOnlyGaranty where id = @ID;", _dbConnection))
+show_only_garanty = @ShowOnlyGaranty, enabled = @enabled where id = @ID;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@ID", workerId.Value);
                     cmd.Parameters.AddWithValue("@surName", surName);
@@ -3509,6 +3510,7 @@ show_only_garanty = @ShowOnlyGaranty where id = @ID;", _dbConnection))
                     cmd.Parameters.AddWithValue("@CanCloseRequest", canCloseRequest);
                     cmd.Parameters.AddWithValue("@CanChangeExecutor", canChangeExecutor);
                     cmd.Parameters.AddWithValue("@ShowOnlyGaranty", showOnlyGaranty);
+                    cmd.Parameters.AddWithValue("@enabled", enabled);
                     cmd.ExecuteNonQuery();
                 }
 
