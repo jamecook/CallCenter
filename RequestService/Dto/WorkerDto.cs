@@ -31,5 +31,6 @@ namespace RequestServiceImpl.Dto
         public bool CanChangeExecutor { get; set; }
         public bool ShowOnlyGaranty { get; set; }
         public bool FilterByHouses { get; set; }
+        public bool ShowOnlyMy { get; set; }
     }
 }

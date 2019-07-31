@@ -2486,6 +2486,7 @@ namespace WebApi.Services
                                     Corpus = dataReader.GetNullableString("corps"),
                                     Flat = dataReader.GetNullableString("flat"),
                                     AddressType = dataReader.GetNullableString("address_type"),
+                                    IntercomId = dataReader.GetNullableString("intercomId"),
                                 });
                             }
                             dataReader.Close();

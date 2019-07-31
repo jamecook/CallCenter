@@ -10,6 +10,7 @@ namespace WebApi.Models
         public string Corpus { get; set; }
         public string Flat { get; set; }
         public string AddressType { get; set; }
+        public string IntercomId { get; set; }
         public string FullAddress
         {
             get

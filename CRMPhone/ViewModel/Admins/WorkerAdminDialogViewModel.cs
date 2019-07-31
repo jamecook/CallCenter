@@ -156,6 +156,7 @@ namespace CRMPhone.ViewModel.Admins
         public bool CanChangeExecutor { get; set; }
         public bool ShowOnlyGaranty { get; set; }
         public bool FilterByHouses { get; set; }
+        public bool ShowOnlyMy { get; set; }
 
         public bool SendSms
         {
@@ -204,6 +205,7 @@ namespace CRMPhone.ViewModel.Admins
                 CanShowStatistic = worker.CanShowStatistic;
                 ShowOnlyGaranty = worker.ShowOnlyGaranty;
                 FilterByHouses = worker.FilterByHouses;
+                ShowOnlyMy = worker.ShowOnlyMy;
 
                 SelectedServiceCompany = ServiceCompanyList.SingleOrDefault(s => s.Id == worker.ServiceCompanyId);
                 SelectedSpeciality = SpecialityList.SingleOrDefault(s => s.Id == worker.SpecialityId);
@@ -256,7 +258,7 @@ namespace CRMPhone.ViewModel.Admins
             {
                 _requestService.SaveWorker(_workerId, SelectedServiceCompany.Id, SurName, FirstName, PatrName, Phone, SelectedSpeciality.Id,CanAssign,
                     IsMaster, IsExecuter, IsDispetcher, SendSms, Login, Password, (SelectedParentWorker!=null && SelectedParentWorker.Id>0)? SelectedParentWorker.Id :(int?) null,
-                     CanSetRating, CanCloseRequest, CanChangeExecutor, CanCreateRequest, CanShowStatistic, FilterByHouses, ShowAllRequest, ShowOnlyGaranty,AppNotification,!IsBlocked);
+                     CanSetRating, CanCloseRequest, CanChangeExecutor, CanCreateRequest, CanShowStatistic, FilterByHouses, ShowAllRequest, ShowOnlyGaranty,AppNotification,!IsBlocked, ShowOnlyMy);
                 _view.DialogResult = true;
             }
             else

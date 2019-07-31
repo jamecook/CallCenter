@@ -98,6 +98,7 @@
                         <CheckBox Margin="5" IsChecked="{Binding Path=CanChangeExecutor}">Смена исполнителя</CheckBox>
                         <CheckBox Margin="5" IsChecked="{Binding Path=ShowOnlyGaranty}">Только гарантия</CheckBox>
                         <CheckBox Margin="5" IsChecked="{Binding Path=FilterByHouses}">Список домов</CheckBox>
+                        <CheckBox Margin="5" IsChecked="{Binding ShowOnlyMy}" Content="Только мои заявки"/>
                     </WrapPanel>
                 </Border>
                 <Border BorderThickness="1" BorderBrush="Black">
