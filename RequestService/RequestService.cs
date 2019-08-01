@@ -2370,8 +2370,11 @@ where worker_id = @WorkerId";
             }
         }
 
-        public IList<ServiceDto> GetServices(long? parentId)
+        public IList<ServiceDto> GetServices(long? parentId,int? houseId = null)
         {
+            if (!parentId.HasValue && houseId.HasValue)
+                return GetBindedTypeToHouse(houseId.Value);
+
             var query = parentId.HasValue
                 ? @"SELECT id,name,can_send_sms,immediate FROM CallCenter.RequestTypes R where parrent_id = @ParentId and enabled = 1 order by name"
                 : @"SELECT id,name,can_send_sms,immediate FROM CallCenter.RequestTypes R where parrent_id is null and enabled = 1 order by name";

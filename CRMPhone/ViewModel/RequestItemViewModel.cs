@@ -76,6 +76,7 @@ namespace CRMPhone.ViewModel
         private string _phoneNumber;
         //private bool _canAttach;
         private string _selectedServiceText;
+        private string _selectedParentText;
         public Appointment OpenAppointment { get; set; }
 
         public Appointment SelectedAppointment
@@ -126,10 +127,23 @@ namespace CRMPhone.ViewModel
             set
             {
                 _selectedHouseId = value;
-                UpdateMastets();
+                UpdateMasters();
                 RefreshExecuters();
+                UpdateParrentServices(_selectedHouseId);
                 OnPropertyChanged(nameof(SelectedHouseId));
             }
+        }
+
+        private void UpdateParrentServices(int? houseId)
+        {
+            ParentServiceList.Clear();
+            foreach (var source in _requestService.GetServices(null, houseId).OrderBy(s => s.Name))
+            {
+                ParentServiceList.Add(source);
+            }
+            //SelectedParentText = "";
+            SelectedParentService = null;
+            OnPropertyChanged(nameof(ParentServiceList));
         }
 
         public ObservableCollection<ServiceDto> ParentServiceList
@@ -187,12 +201,12 @@ namespace CRMPhone.ViewModel
             {
 
                 _showAllMasters = value;
-                UpdateMastets();
+                UpdateMasters();
                 OnPropertyChanged(nameof(ShowAllMasters));
             }
         }
 
-        private void UpdateMastets()
+        private void UpdateMasters()
         {
             var selectedMaster = SelectedMaster?.Id;
                 MasterList.Clear();
@@ -249,7 +263,7 @@ namespace CRMPhone.ViewModel
                     return;
                 _selectedParentService = value;
                 ChangeParentService(value?.Id);
-                UpdateMastets();
+                UpdateMasters();
                 OnPropertyChanged(nameof(SelectedParentService));
             }
         }
@@ -436,6 +450,11 @@ namespace CRMPhone.ViewModel
         {
             get { return _selectedServiceText; }
             set { _selectedServiceText = value; OnPropertyChanged(nameof(SelectedServiceText));}
+        }
+        public string SelectedParentText
+        {
+            get { return _selectedParentText; }
+            set { _selectedParentText = value; OnPropertyChanged(nameof(SelectedParentText));}
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
