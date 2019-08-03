@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using CRMPhone.Dialogs;
 using CRMPhone.Dialogs.Admins;
@@ -38,6 +39,26 @@ namespace CRMPhone.ViewModel
         private ICommand _houseAndServiceCommand;
         public ICommand HouseAndServiceCommand { get { return _houseAndServiceCommand ?? (_houseAndServiceCommand = new CommandHandler(EditHouseAndService, true)); } }
 
+        public string WorkerSearch
+        {
+            get { return _workerSearch; }
+            set
+            {
+                _workerSearch = value; OnPropertyChanged(nameof(WorkerSearch));
+                if (String.IsNullOrEmpty(value))
+                    View.Filter = null;
+                else
+                    View.Filter = new Predicate<object>(o => ((WorkerDto)o).FullName.ToUpper().Contains(value.ToUpper()) || ((WorkerDto)o).ServiceCompanyName.ToUpper().Contains(value.ToUpper()));
+            }
+        }
+
+        private ListCollectionView _view;
+        public ICollectionView View
+        {
+            get { return _view; }
+        }
+
+
         private void EditHouseAndService()
         {
             if (SelectedWorker != null)
@@ -69,6 +90,7 @@ namespace CRMPhone.ViewModel
 
         private ICommand _editCommand;
         private WorkerDto _selectedWorker;
+        private string _workerSearch;
         public ICommand EditCommand { get { return _editCommand ?? (_editCommand = new RelayCommand(EditCompany)); } }
 
         public WorkerAdminControlContext()
@@ -101,8 +123,10 @@ namespace CRMPhone.ViewModel
             WorkersList.Clear();
 
             _requestService.GetAllWorkers(null).ToList().ForEach(w => WorkersList.Add(w));
-
-            OnPropertyChanged(nameof(WorkersList));
+            var filter = _view?.Filter;
+            _view = new ListCollectionView(WorkersList);
+            _view.Filter = filter;
+            OnPropertyChanged(nameof(View));
         }
 
         private void AddWorker()

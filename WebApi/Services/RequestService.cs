@@ -7,6 +7,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using Stimulsoft.Report;
 using WebApi.Models;
@@ -50,7 +51,7 @@ namespace WebApi.Services
                                 CanChangeStatus = dataReader.GetBoolean("can_change_status"),
                                 CanChangeImmediate = dataReader.GetNullableInt("change_immediate") == 1,
                                 CanChangeChargeable = dataReader.GetNullableInt("change_chargeable") == 1,
-                                CanChangeDescription= dataReader.GetNullableInt("change_description") == 1,
+                                CanChangeDescription = dataReader.GetNullableInt("change_description") == 1,
                                 CanChangeAddress = dataReader.GetNullableInt("change_address") == 1,
                                 CanChangeServiceType = dataReader.GetNullableInt("change_service_type") == 1,
                                 CanChangeExecuteDate = dataReader.GetBoolean("can_change_execute_date"),
@@ -71,7 +72,7 @@ namespace WebApi.Services
             }
         }
 
-        internal static WebUserDto FindUserByToken(Guid refreshToken,DateTime expireDate)
+        internal static WebUserDto FindUserByToken(Guid refreshToken, DateTime expireDate)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -124,7 +125,7 @@ namespace WebApi.Services
         }
 
 
-        internal static void AddRefreshToken(int workerId, Guid refreshToken,DateTime expireDate)
+        internal static void AddRefreshToken(int workerId, Guid refreshToken, DateTime expireDate)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -132,7 +133,7 @@ namespace WebApi.Services
                 using (var transaction = conn.BeginTransaction())
                 {
                     using (var cmd =
-                            new MySqlCommand(@"CALL CallCenter.DispexAddToken(@WorkerId,@Token,@ExpireDate);", conn))
+                        new MySqlCommand(@"CALL CallCenter.DispexAddToken(@WorkerId,@Token,@ExpireDate);", conn))
                     {
                         cmd.Parameters.AddWithValue("@WorkerId", workerId);
                         cmd.Parameters.AddWithValue("@Token", refreshToken);
@@ -153,7 +154,20 @@ namespace WebApi.Services
             StiOptions.Engine.HideExceptions = true;
             StiOptions.Engine.HideMessages = true;
 
-            var acts = requests.Select(r => new { Id = r.Id, CreateTime = r.CreateTime, ContactPhones = r.ContactPhones, Address = r.FullAddress, Workers = r.Master?.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": " + r.Service, Description = r.Description }).ToArray();
+            var acts =
+                requests.Select(
+                    r =>
+                        new
+                        {
+                            Id = r.Id,
+                            CreateTime = r.CreateTime,
+                            ContactPhones = r.ContactPhones,
+                            Address = r.FullAddress,
+                            Workers = r.Master?.FullName,
+                            ClientPhones = r.ContactPhones,
+                            Service = r.ParentService + ": " + r.Service,
+                            Description = r.Description
+                        }).ToArray();
 
             stiReport.RegBusinessObject("", "Acts", acts);
             stiReport.Render();
@@ -175,7 +189,20 @@ namespace WebApi.Services
             StiOptions.Engine.HideExceptions = true;
             StiOptions.Engine.HideMessages = true;
 
-            var requestObj = requests.Select(r => new { Id = r.Id,ExecuteDate = r.ExecuteTime, ContactPhones = r.ContactPhones, Address = r.FullAddress, Workers = r.Master?.FullName, ClientPhones = r.ContactPhones, Service = r.ParentService + ": " + r.Service, Description = r.Description }).ToArray();
+            var requestObj =
+                requests.Select(
+                    r =>
+                        new
+                        {
+                            Id = r.Id,
+                            ExecuteDate = r.ExecuteTime,
+                            ContactPhones = r.ContactPhones,
+                            Address = r.FullAddress,
+                            Workers = r.Master?.FullName,
+                            ClientPhones = r.ContactPhones,
+                            Service = r.ParentService + ": " + r.Service,
+                            Description = r.Description
+                        }).ToArray();
 
             stiReport.RegBusinessObject("", "Requests", requestObj);
             stiReport.Render();
@@ -217,7 +244,8 @@ namespace WebApi.Services
                 }
             }
         }
-        public static WorkerDto[] GetWorkersByHouseAndService(int workerId, int houseId,int serviceId, int isMaster)
+
+        public static WorkerDto[] GetWorkersByHouseAndService(int workerId, int houseId, int serviceId, int isMaster)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -250,6 +278,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static WorkerDto[] GetExecutersByWorkerId(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -280,6 +309,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static int[] GetAddressesId(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -295,7 +325,7 @@ namespace WebApi.Services
                     {
                         while (dataReader.Read())
                         {
-                                list.Add(dataReader.GetInt32("id"));
+                            list.Add(dataReader.GetInt32("id"));
                         }
                         dataReader.Close();
                     }
@@ -359,7 +389,7 @@ namespace WebApi.Services
                     {
                         while (dataReader.Read())
                         {
-                                list.Add(dataReader.GetInt32("id"));
+                            list.Add(dataReader.GetInt32("id"));
                         }
                         dataReader.Close();
                     }
@@ -367,6 +397,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static StatusDto[] GetStatusesAll(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -395,6 +426,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static StatusDto[] GetStatusesAllowedInWeb(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -453,6 +485,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static byte[] GetRecordById(int recordId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -489,7 +522,8 @@ namespace WebApi.Services
             }
             return new byte[0];
         }
-        public static byte[] DownloadFile(int requestId, string fileName,string rootDir)
+
+        public static byte[] DownloadFile(int requestId, string fileName, string rootDir)
         {
             if (!string.IsNullOrEmpty(rootDir) && Directory.Exists($"{rootDir}\\{requestId}"))
             {
@@ -497,11 +531,12 @@ namespace WebApi.Services
             }
             return null;
         }
-        public static byte[] DownloadPreview(int requestId, string fileName,string rootDir)
+
+        public static byte[] DownloadPreview(int requestId, string fileName, string rootDir)
         {
             if (!string.IsNullOrEmpty(rootDir) && Directory.Exists($"{rootDir}\\{requestId}"))
             {
-                if(File.Exists($"{rootDir}\\{requestId}\\preview\\{fileName}"))
+                if (File.Exists($"{rootDir}\\{requestId}\\preview\\{fileName}"))
                     return File.ReadAllBytes($"{rootDir}\\{requestId}\\preview\\{fileName}");
                 try
                 {
@@ -524,6 +559,7 @@ namespace WebApi.Services
             }
             return null;
         }
+
         public static Bitmap ResizeImage(Image image, int width)
         {
             if (image == null || image.Width == 0)
@@ -552,6 +588,7 @@ namespace WebApi.Services
 
             return destImage;
         }
+
         public static StreetDto[] GetStreetsByWorkerId(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -585,6 +622,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static WebHouseDto[] GetHousesByStreetAndWorkerId(int streetId, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -614,6 +652,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static IList<ServiceDto> GetParentServices(int currentWorkerId, int? houseId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -644,6 +683,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static List<ServiceCompanyDto> GetServicesCompanies()
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -683,7 +723,7 @@ namespace WebApi.Services
                     $@"SELECT t1.id,t1.name,t1.can_send_sms,t2.id parent_id, t2.name parent_name FROM CallCenter.RequestTypes t1
                         left join CallCenter.RequestTypes t2 on t2.id = t1.parrent_id
                         where t1.parrent_id in ({ids}) and t1.enabled = 1 order by t2.name,t1.name";
-                    
+
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     var services = new List<ServiceDto>();
@@ -706,7 +746,14 @@ namespace WebApi.Services
                 }
             }
         }
-        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, bool onlyExpired = false,bool onlyByClient = false, string clientPhone = null)
+
+        public static RequestForListDto[] WebRequestListArrayParam(int currentWorkerId, int? requestId,
+            bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate,
+            DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds,
+            int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds, int[] companies,
+            int[] warrantyIds, int[] immediateIds, int[] regionIds, bool badWork = false, bool garanty = false,
+            bool onlyRetry = false, bool chargeable = false, bool onlyExpired = false, bool onlyByClient = false,
+            string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -883,7 +930,13 @@ namespace WebApi.Services
                 }
             }
         }
-        public static int WebRequestListCount(int currentWorkerId, int? requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds, int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds, int[] executerIds, int[] ratingIds,int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds, bool badWork = false, bool garanty = false,bool onlyRetry = false, bool chargeable = false, bool onlyExpired = false, bool onlyByClient = false, string clientPhone = null)
+
+        public static int WebRequestListCount(int currentWorkerId, int? requestId, bool filterByCreateDate,
+            DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds,
+            int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds,
+            int[] executerIds, int[] ratingIds, int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds,
+            bool badWork = false, bool garanty = false, bool onlyRetry = false, bool chargeable = false,
+            bool onlyExpired = false, bool onlyByClient = false, string clientPhone = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -972,6 +1025,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static RequestForListDto[] WebRequestsByIds(int currentWorkerId, int[] requestIds)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1104,6 +1158,7 @@ namespace WebApi.Services
 
 
         }
+
         public static void SetRating(int workerId, int requestId, int ratingId, string description)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1113,7 +1168,8 @@ namespace WebApi.Services
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"CALL CallCenter.DispexSetRating2(@WorkerId,@RequestId,@RatingId,@Desc);", conn))
+                            new MySqlCommand(
+                                @"CALL CallCenter.DispexSetRating2(@WorkerId,@RequestId,@RatingId,@Desc);", conn))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
                         cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1125,7 +1181,8 @@ namespace WebApi.Services
                 }
             }
         }
-        public static void SetExecuteDate(int workerId, int requestId, DateTime executeDate,string note )
+
+        public static void SetExecuteDate(int workerId, int requestId, DateTime executeDate, string note)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -1134,7 +1191,9 @@ namespace WebApi.Services
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"CALL CallCenter.DispexSetExecuteDate2(@WorkerId,@RequestId,@ExecuteDate,@Note);", conn))
+                            new MySqlCommand(
+                                @"CALL CallCenter.DispexSetExecuteDate2(@WorkerId,@RequestId,@ExecuteDate,@Note);", conn)
+                    )
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
                         cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1178,7 +1237,9 @@ namespace WebApi.Services
             }
         }
 
-        public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId, int? masterId, int? executerId, string description, bool isChargeable = false, DateTime? executeDate = null,int warrantyId = 0, bool isImmediate = false)
+        public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId,
+            int? masterId, int? executerId, string description, bool isChargeable = false, DateTime? executeDate = null,
+            int warrantyId = 0, bool isImmediate = false)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -1214,7 +1275,7 @@ namespace WebApi.Services
             {
                 conn.Open();
                 using (var cmd =
-                        new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id,worker_id)
+                    new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id,worker_id)
  values(@RequestId,@Name,@FileName,sysdate(),0,@WorkerId);", conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1303,7 +1364,7 @@ namespace WebApi.Services
 
             }
         }
-        
+
         public static List<CityRegionDto> GetRegions(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1364,6 +1425,7 @@ namespace WebApi.Services
             }
 
         }
+
         //public static void SetNewService(int requestId, int serviceId, int workerId)
         //{
         //    using (var conn = new MySqlConnection(_connectionString))
@@ -1396,6 +1458,7 @@ namespace WebApi.Services
             }
 
         }
+
         public static void SetNewChargeable(int requestId, int chargeable, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1412,12 +1475,15 @@ namespace WebApi.Services
             }
 
         }
-        public static void SetNewAddress(int requestId, int address,int serviceType, int? masterId, int? executerId, int currentWorkerId)
+
+        public static void SetNewAddress(int requestId, int address, int serviceType, int? masterId, int? executerId,
+            int currentWorkerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = "call CallCenter.DispexSetAddress(@WorkerId,@Id,@NewValue,@ServiceId,@MasterId,@ExecuterId);";
+                var query =
+                    "call CallCenter.DispexSetAddress(@WorkerId,@Id,@NewValue,@ServiceId,@MasterId,@ExecuterId);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", currentWorkerId);
@@ -1431,6 +1497,7 @@ namespace WebApi.Services
             }
 
         }
+
         public static void SetNewServiceType(int requestId, int serviceType, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1447,6 +1514,7 @@ namespace WebApi.Services
             }
 
         }
+
         public static void SetNewDescription(int requestId, string description, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1463,6 +1531,7 @@ namespace WebApi.Services
             }
 
         }
+
         public static void SetNewMaster(int requestId, int masterId, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1479,6 +1548,7 @@ namespace WebApi.Services
             }
 
         }
+
         public static void SetNewExecuter(int requestId, int executerId, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1495,6 +1565,7 @@ namespace WebApi.Services
             }
 
         }
+
         public static void SetViewRequest(int requestId, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1509,6 +1580,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static WarrantyDocDto[] WarrantyGetDocs(int currentWorkerId, int requestId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1537,22 +1609,22 @@ namespace WebApi.Services
                                 Direction = dataReader.GetString("direction"),
 
                                 CreateWorker = new WorkerDto()
-                                    {
-                                        Id = dataReader.GetInt32("worker_id"),
-                                        SurName = dataReader.GetNullableString("sur_name"),
-                                        FirstName = dataReader.GetNullableString("first_name"),
-                                        PatrName = dataReader.GetNullableString("patr_name"),
-                                        Phone = dataReader.GetNullableString("phone"),
-                                    },
+                                {
+                                    Id = dataReader.GetInt32("worker_id"),
+                                    SurName = dataReader.GetNullableString("sur_name"),
+                                    FirstName = dataReader.GetNullableString("first_name"),
+                                    PatrName = dataReader.GetNullableString("patr_name"),
+                                    Phone = dataReader.GetNullableString("phone"),
+                                },
                                 Organization = dataReader.GetNullableInt("org_id") != null
-                                 ? new WarrantyOrganizationDto()
+                                    ? new WarrantyOrganizationDto()
                                     {
                                         Id = dataReader.GetInt32("org_id"),
                                         Name = dataReader.GetNullableString("org_name"),
                                         Inn = dataReader.GetNullableString("org_inn"),
                                         DirectorFio = dataReader.GetNullableString("director_fio"),
                                     }
-                                 : null,
+                                    : null,
                                 Type = new WarrantyTypeDto()
                                 {
                                     Id = dataReader.GetInt32("type_id"),
@@ -1568,6 +1640,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static WarrantyInfoDto WarrantyGetInfo(int currentWorkerId, int requestId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1582,7 +1655,7 @@ namespace WebApi.Services
 
                     using (var dataReader = cmd.ExecuteReader())
                     {
-                        if(dataReader.Read())
+                        if (dataReader.Read())
                         {
                             return new WarrantyInfoDto
                             {
@@ -1613,12 +1686,14 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static void WarrantySetInfo(int workerId, WarrantyInfoDto info)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = "call CallCenter.WarrantyAddInfo(@WorkerId,@RequestId,@OrgId,@ContactName,@ContactPhone,@StartDate,@BeginDate,@EndDate);";
+                var query =
+                    "call CallCenter.WarrantyAddInfo(@WorkerId,@RequestId,@OrgId,@ContactName,@ContactPhone,@StartDate,@BeginDate,@EndDate);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1635,12 +1710,14 @@ namespace WebApi.Services
 
         }
 
-        public static void WarrantyAddDoc(int id,int? orgId, int typeId, string name, DateTime docDate, string fileName, string direction, int workerId, string extension)
+        public static void WarrantyAddDoc(int id, int? orgId, int typeId, string name, DateTime docDate, string fileName,
+            string direction, int workerId, string extension)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = "call CallCenter.WarrantyAddDoc(@WorkerId,@Id,@OrgId,@TypeId,@Name,@FileName,@DocDate,@Direction,@Extension);";
+                var query =
+                    "call CallCenter.WarrantyAddDoc(@WorkerId,@Id,@OrgId,@TypeId,@Name,@FileName,@DocDate,@Direction,@Extension);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1656,6 +1733,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static void WarrantyDeleteDoc(int id, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1670,6 +1748,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static void WarrantySetState(int id, int stateId, int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1715,6 +1794,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static IEnumerable<WarrantyOrganizationDto> WarrantyGetOrganizations(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1745,6 +1825,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static void WarrantyAddOrg(int workerId, WarrantyOrganizationDto organization)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1761,6 +1842,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static void WarrantyEditOrg(int workerId, WarrantyOrganizationDto organization)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1777,6 +1859,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static WarrantyFileInfoDto WarrantyGetDocFileName(int workerId, int id)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1809,12 +1892,17 @@ namespace WebApi.Services
         }
 
 
-        public static ScheduleTaskDto[] GetScheduleTask(int currentWorkerId, int? workerId, DateTime fromDate,DateTime toDate)
+        public static ScheduleTaskDto[] GetScheduleTask(int currentWorkerId, int? workerId, DateTime fromDate,
+            DateTime toDate)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand(@"CALL CallCenter.DispexGetScheduleTask(@CurrentWorkerId,@WorkerId,@FromDate,@ToDate)", conn))
+                using (
+                    var cmd =
+                        new MySqlCommand(
+                            @"CALL CallCenter.DispexGetScheduleTask(@CurrentWorkerId,@WorkerId,@FromDate,@ToDate)", conn)
+                )
                 {
                     cmd.Parameters.AddWithValue("@CurrentWorkerId", currentWorkerId);
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1848,12 +1936,18 @@ namespace WebApi.Services
                 }
             }
         }
-        public static ScheduleTaskDto[] GetAllScheduleTask(int currentWorkerId, int? workerId, DateTime fromDate,DateTime toDate)
+
+        public static ScheduleTaskDto[] GetAllScheduleTask(int currentWorkerId, int? workerId, DateTime fromDate,
+            DateTime toDate)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand(@"CALL CallCenter.DispexGetAllScheduleTask(@CurrentWorkerId,@WorkerId,@FromDate,@ToDate)", conn))
+                using (
+                    var cmd =
+                        new MySqlCommand(
+                            @"CALL CallCenter.DispexGetAllScheduleTask(@CurrentWorkerId,@WorkerId,@FromDate,@ToDate)",
+                            conn))
                 {
                     cmd.Parameters.AddWithValue("@CurrentWorkerId", currentWorkerId);
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1930,7 +2024,11 @@ namespace WebApi.Services
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd =new MySqlCommand(@"CALL CallCenter.DispexScheduleTaskAdd(@CurrentWorkerId,@WorkerId,@RequestId,@FromDate,@ToDate)",conn))
+                using (
+                    var cmd =
+                        new MySqlCommand(
+                            @"CALL CallCenter.DispexScheduleTaskAdd(@CurrentWorkerId,@WorkerId,@RequestId,@FromDate,@ToDate)",
+                            conn))
                 {
                     cmd.Parameters.AddWithValue("@CurrentWorkerId", currentWorkerId);
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1946,13 +2044,19 @@ namespace WebApi.Services
                 }
             }
         }
-        public static void UpdateScheduleTask(int currentWorkerId, int taskId, int workerId, int? requestId, DateTime fromDate,
+
+        public static void UpdateScheduleTask(int currentWorkerId, int taskId, int workerId, int? requestId,
+            DateTime fromDate,
             DateTime toDate, string eventDescription)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd =new MySqlCommand(@"CALL CallCenter.DispexScheduleTaskUpdate(@CurrentWorkerId,@TaskId,@WorkerId,@RequestId,@FromDate,@ToDate)", conn))
+                using (
+                    var cmd =
+                        new MySqlCommand(
+                            @"CALL CallCenter.DispexScheduleTaskUpdate(@CurrentWorkerId,@TaskId,@WorkerId,@RequestId,@FromDate,@ToDate)",
+                            conn))
                 {
                     cmd.Parameters.AddWithValue("@CurrentWorkerId", currentWorkerId);
                     cmd.Parameters.AddWithValue("@TaskId", taskId);
@@ -2039,6 +2143,7 @@ namespace WebApi.Services
                 return null;
             }
         }
+
         public static void AddClientRefreshToken(int clientId, Guid refreshToken, DateTime expireDate)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2047,7 +2152,7 @@ namespace WebApi.Services
                 using (var transaction = conn.BeginTransaction())
                 {
                     using (var cmd =
-                            new MySqlCommand(@"CALL CallCenter.ClientAddToken(@ClientId,@Token,@ExpireDate);", conn))
+                        new MySqlCommand(@"CALL CallCenter.ClientAddToken(@ClientId,@Token,@ExpireDate);", conn))
                     {
                         cmd.Parameters.AddWithValue("@ClientId", clientId);
                         cmd.Parameters.AddWithValue("@Token", refreshToken);
@@ -2058,6 +2163,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static ClientUserDto ClientFindByToken(Guid refreshToken, DateTime expireDate)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2100,7 +2206,7 @@ namespace WebApi.Services
                 using (var transaction = conn.BeginTransaction())
                 {
                     using (var cmd =
-                            new MySqlCommand(@"CALL CallCenter.ClientValidatePhone(@Phone,@Code);", conn))
+                        new MySqlCommand(@"CALL CallCenter.ClientValidatePhone(@Phone,@Code);", conn))
                     {
                         cmd.Parameters.AddWithValue("@Phone", phone);
                         cmd.Parameters.AddWithValue("@Code", code);
@@ -2110,6 +2216,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static string ClientValidTest(string phone)
         {
             Random random = new Random();
@@ -2121,7 +2228,7 @@ namespace WebApi.Services
                 using (var transaction = conn.BeginTransaction())
                 {
                     using (var cmd =
-                            new MySqlCommand(@"CALL CallCenter.ClientValidTest(@Phone,@Code);", conn))
+                        new MySqlCommand(@"CALL CallCenter.ClientValidTest(@Phone,@Code);", conn))
                     {
                         cmd.Parameters.AddWithValue("@Phone", phone);
                         cmd.Parameters.AddWithValue("@Code", code);
@@ -2132,6 +2239,7 @@ namespace WebApi.Services
                 return code;
             }
         }
+
         public static StreetDto[] GetStreetsByClient(int clientId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2165,6 +2273,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static WebHouseDto[] GetHousesByStreetAndClientId(int clientId, int streetId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2190,7 +2299,7 @@ namespace WebApi.Services
                         }
                         dataReader.Close();
                     }
-                    return houses.Select(h => new WebHouseDto { Id = h.Id, Name = h.FullName }).ToArray();
+                    return houses.Select(h => new WebHouseDto {Id = h.Id, Name = h.FullName}).ToArray();
                 }
             }
         }
@@ -2224,6 +2333,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static ServiceDto[] GetParentServicesForClient(int clientId, int? houseId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2255,7 +2365,8 @@ namespace WebApi.Services
                 }
             }
         }
-        public static ServiceDto[] GetServicesForClient(int clientId,int[] parentIds)
+
+        public static ServiceDto[] GetServicesForClient(int clientId, int[] parentIds)
         {
             if (parentIds == null || parentIds.Length == 0)
                 return new ServiceDto[0];
@@ -2305,6 +2416,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static int GetExpiredRequestCount(int currentWorkerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2318,6 +2430,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static RequestForListDto[] GetExpiredRequests(int currentWorkerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2442,6 +2555,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static string ClientCreateRequest(int clientId, int addressId, int typeId, string description)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2463,6 +2577,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static AddressDto[] GetAddresses(int clientId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2472,31 +2587,32 @@ namespace WebApi.Services
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
                     var addresses = new List<AddressDto>();
-                        using (var dataReader = cmd.ExecuteReader())
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
                         {
-                            while (dataReader.Read())
-                            {
                             addresses.Add(new AddressDto()
-                                {
-                                    Id = dataReader.GetInt32("id"),
-                                    HouseId = dataReader.GetInt32("house_id"),
-                                    StreetPrefix = dataReader.GetNullableString("prefix_name"),
-                                    StreetName = dataReader.GetNullableString("street_name"),
-                                    Building = dataReader.GetNullableString("building"),
-                                    Corpus = dataReader.GetNullableString("corps"),
-                                    Flat = dataReader.GetNullableString("flat"),
-                                    AddressType = dataReader.GetNullableString("address_type"),
-                                    IntercomId = dataReader.GetNullableString("intercomId"),
-                                });
-                            }
-                            dataReader.Close();
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                HouseId = dataReader.GetInt32("house_id"),
+                                StreetPrefix = dataReader.GetNullableString("prefix_name"),
+                                StreetName = dataReader.GetNullableString("street_name"),
+                                Building = dataReader.GetNullableString("building"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                Flat = dataReader.GetNullableString("flat"),
+                                AddressType = dataReader.GetNullableString("address_type"),
+                                IntercomId = dataReader.GetNullableString("intercomId"),
+                            });
                         }
-                        return addresses.ToArray();
+                        dataReader.Close();
                     }
+                    return addresses.ToArray();
                 }
+            }
         }
 
-        public static ClientRequestForListDto[] ClientRequestListArrayParam(int clientId, int? requestId, DateTime fromDate, DateTime toDate, int[] addressIds)
+        public static ClientRequestForListDto[] ClientRequestListArrayParam(int clientId, int? requestId,
+            DateTime fromDate, DateTime toDate, int[] addressIds)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -2513,7 +2629,7 @@ namespace WebApi.Services
                         addressIds != null && addressIds.Length > 0
                             ? addressIds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
                             : null);
-                   
+
 
                     var requests = new List<ClientRequestForListDto>();
                     using (var dataReader = cmd.ExecuteReader())
@@ -2596,6 +2712,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static AttachmentDto[] ClientGetAttachments(int clientId, int requestId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2635,13 +2752,15 @@ namespace WebApi.Services
                 }
             }
         }
-        public static void ClientAttachFileToRequest(int clientId, int requestId, string fileName, string generatedFileName)
+
+        public static void ClientAttachFileToRequest(int clientId, int requestId, string fileName,
+            string generatedFileName)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 using (var cmd =
-                        new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id,client_id)
+                    new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id,client_id)
  values(@RequestId,@Name,@FileName,sysdate(),100,@ClientId);", conn))
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
@@ -2652,6 +2771,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static NoteDto[] ClientGetNotes(int clientId, int requestId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2688,6 +2808,7 @@ namespace WebApi.Services
                 }
             }
         }
+
         public static void ClientAddNewNote(int clientId, int requestId, string note)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2710,7 +2831,50 @@ namespace WebApi.Services
 
 
         }
+
+        public static void BindDoorPhone(string phone, string doorUid)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"call CallCenter.ClientBindDoorPhone(@clientPhone,@uid);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@clientPhone", phone);
+                        cmd.Parameters.AddWithValue("@uid", doorUid);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+        }
+
+        public static bool GetDoorPhone(string phone, string doorUid)
+        {
+            var result = false;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(@"call CallCenter.ClientGetBindDoorPhone(@clientPhone,@uid);", conn))
+                {
+                    cmd.Parameters.AddWithValue("@clientPhone", phone);
+                    cmd.Parameters.AddWithValue("@uid", doorUid);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            result = dataReader.GetBoolean("result");
+                        }
+                        dataReader.Close();
+                        return result;
+                    }
+                }
+            }
+        }
     }
-
-
 }

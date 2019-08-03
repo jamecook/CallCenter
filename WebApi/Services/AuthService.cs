@@ -90,7 +90,7 @@ namespace WebApi.Services
                 new Claim("ServiceCompanyFilter", user.ServiceCompanyFilter.ToString()),
                 new Claim("EnableAdminPage", user.EnableAdminPage.ToString()),
                 new Claim("PushId", user.PushId),
-                new Claim("icom", "573b5bde.eyJhbGciOiJIUzI1NiJ9.eyJlbnRpdHlfdXVpZCI6IjI1MiIsImVudGl0eV90eXBlIjoidXNlciIsImVudGl0eV9yZWZfdXVpZCI6ImQ0ODVlZDExLWUxMGEtNDU5Yy04YjcyLTI5NWZlNmY4MWUzZCIsImVudGl0eV9uYW1lIjpudWxsLCJzYWx0IjoiNTczYjViZGUifQ.guurFCBoX4p-lVyXrEGWlJ7QbPCYJP1kbIKmzuGjOWk"),
+                //new Claim("icom", "573b5bde.eyJhbGciOiJIUzI1NiJ9.eyJlbnRpdHlfdXVpZCI6IjI1MiIsImVudGl0eV90eXBlIjoidXNlciIsImVudGl0eV9yZWZfdXVpZCI6ImQ0ODVlZDExLWUxMGEtNDU5Yy04YjcyLTI5NWZlNmY4MWUzZCIsImVudGl0eV9uYW1lIjpudWxsLCJzYWx0IjoiNTczYjViZGUifQ.guurFCBoX4p-lVyXrEGWlJ7QbPCYJP1kbIKmzuGjOWk"),
             };
             var expires = start.Add(TimeSpan.FromMinutes(_configuration.GetValue<int>("Auth:AccessExpireMinutes")));
             var jwt = new JwtSecurityToken(
