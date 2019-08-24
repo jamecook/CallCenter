@@ -59,7 +59,21 @@ namespace WebApi.Controllers
             }
             return BadRequest("Authorization error!");
         }
-
+        [HttpPost("bindDoorPhoneToHouse"), AllowAnonymous]
+        public ActionResult BindDoorToHouse([FromBody] BindDoorPhone doorDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != "a921d6c2-8162-4912-a8b5-ab36b4bbf020")
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.BindDoorPhoneToHouse(doorDto.HouseId, doorDto.DoorUid,doorDto.DoorNumber);
+            return Ok();
+        }
 
     }
 }

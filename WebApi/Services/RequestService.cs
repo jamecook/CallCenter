@@ -72,6 +72,28 @@ namespace WebApi.Services
             }
         }
 
+        public static void BindDoorPhoneToHouse(int houseId, string doorUid,string doorNumber)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"call CallCenter.AdminBindDoorPhoneToAddress(@houseId,@uid,@number);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@houseId", houseId);
+                        cmd.Parameters.AddWithValue("@uid", doorUid);
+                        cmd.Parameters.AddWithValue("@number", doorNumber);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+
+        }
+
         internal static WebUserDto FindUserByToken(Guid refreshToken, DateTime expireDate)
         {
             using (var conn = new MySqlConnection(_connectionString))
