@@ -10,7 +10,9 @@ namespace WebApi.Models.Parameters
         public string DoorUid { get; set; }
         [Required]
         public string DoorNumber { get; set; }
-
-
+        [Required]
+        public string FromFlat { get; set; }
+        [Required]
+        public string ToFlat { get; set; }
     }
 }
