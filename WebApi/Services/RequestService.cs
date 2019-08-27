@@ -72,6 +72,67 @@ namespace WebApi.Services
             }
         }
 
+        internal static PushIdAndAddressDto[] GetBindDoorPushIds(string flat, string doorUid)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.DoorPhoneGetAddressesAndPushId(@flat,@doorUid)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@doorUid", doorUid);
+                    cmd.Parameters.AddWithValue("@flat", flat);
+                    var addresses = new List<PushIdAndAddressDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            addresses.Add(new PushIdAndAddressDto
+                            {
+                                PushId = dataReader.GetNullableString("push_id"),
+                                Address = new AddressDto()
+                                {
+                                    Id = dataReader.GetInt32("id"),
+                                    HouseId = dataReader.GetInt32("house_id"),
+                                    StreetPrefix = dataReader.GetNullableString("prefix_name"),
+                                    StreetName = dataReader.GetNullableString("street_name"),
+                                    Building = dataReader.GetNullableString("building"),
+                                    Corpus = dataReader.GetNullableString("corps"),
+                                    Flat = dataReader.GetNullableString("flat"),
+                                    AddressType = dataReader.GetNullableString("address_type"),
+                                    IntercomId = dataReader.GetNullableString("intercomId"),
+                                } });
+                        }
+                        dataReader.Close();
+                    }
+                    return addresses.ToArray();
+                }
+            }
+        }
+
+        public static void BindDoorPhoneToHouse(int houseId, string doorUid,string doorNumber, string fromFlat, string toFlat)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"call CallCenter.AdminBindDoorPhoneToAddress(@houseId,@uid,@number,@from,@to);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@houseId", houseId);
+                        cmd.Parameters.AddWithValue("@uid", doorUid);
+                        cmd.Parameters.AddWithValue("@number", doorNumber);
+                        cmd.Parameters.AddWithValue("@from", fromFlat);
+                        cmd.Parameters.AddWithValue("@to", toFlat);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+
+        }
+
         internal static WebUserDto FindUserByToken(Guid refreshToken, DateTime expireDate)
         {
             using (var conn = new MySqlConnection(_connectionString))

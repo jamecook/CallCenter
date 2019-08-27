@@ -43,17 +43,30 @@ namespace WebApi.Controllers
             return BadRequest("Authorization error!");
         }
         [HttpGet("bindedPushId"), AllowAnonymous]
-        public ActionResult<string[]> GetBindDoorPushIds([FromQuery] string flat, [FromQuery] string doorUid)
+        public ActionResult<PushIdAndAddressDto[]> GetBindDoorPushIds([FromQuery] string flat, [FromQuery] string doorUid)
         {
             var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
             if (auth.Value == "a921d6c2-8162-4912-a8b5-ab36b4bbf020")
             {
-                var list = RequestService.GetBindDoorPushIds(flat, doorUid);
-                return list;
+                return RequestService.GetBindDoorPushIds(flat, doorUid);
             }
             return BadRequest("Authorization error!");
         }
-
+        [HttpPost("bindDoorPhoneToHouse"), AllowAnonymous]
+        public ActionResult BindDoorToHouse([FromBody] BindDoorPhone doorDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != "a921d6c2-8162-4912-a8b5-ab36b4bbf020")
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.BindDoorPhoneToHouse(doorDto.HouseId, doorDto.DoorUid,doorDto.DoorNumber, doorDto.FromFlat, doorDto.ToFlat);
+            return Ok();
+        }
 
     }
 }
