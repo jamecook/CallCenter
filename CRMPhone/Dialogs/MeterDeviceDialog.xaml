@@ -170,46 +170,57 @@
         <DockPanel Grid.Row="4" HorizontalAlignment="Center">
             <DockPanel>
                 <StackPanel>
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="№ счетчика"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Лиц. счет"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding PersonalAccount}"/>
                 </StackPanel>
                 <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Electro1Code}" IsEnabled="False"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Электро1"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Electro1}"/>
                 </StackPanel>
                 <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Electro2Code}" IsEnabled="False"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Электро2"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Electro2}"/>
                 </StackPanel>
                 <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater1Code}" IsEnabled="False"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ГВС стояк 1" MinWidth="60"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater1}"/>
                 </StackPanel>
                 <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater1Code}" IsEnabled="False"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ХВС стояк 1" MinWidth="60"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater1}"/>
                 </StackPanel>
                 <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater2Code}" IsEnabled="False"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ГВС стояк 2"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater2}"/>
                 </StackPanel>
                 <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater2Code}" IsEnabled="False"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ХВС стояк 2"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater2}"/>
                 </StackPanel>
                 <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HeatingCode}" IsEnabled="False"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating}"/>
                 </StackPanel>
                 <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating2Code}" IsEnabled="False"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление2"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating2}"/>
                 </StackPanel>
                 <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating3Code}" IsEnabled="False"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление3"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating3}"/>
                 </StackPanel>
                 <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating4Code}" IsEnabled="False"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление4"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating4}"/>
                 </StackPanel>

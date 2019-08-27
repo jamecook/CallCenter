@@ -139,6 +139,7 @@
     <Compile Include="Dto\WorkerHistoryDto.cs" />
     <Compile Include="Dto\WorketHouseAndTypeListDto.cs" />
     <Compile Include="ExportedMeterDto.cs" />
+    <Compile Include="MeterCodeDto.cs" />
     <Compile Include="MeterListDto.cs" />
     <Compile Include="MetersDto.cs" />
     <Compile Include="MysqlDecorator.cs" />

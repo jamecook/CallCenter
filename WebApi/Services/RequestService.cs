@@ -2876,5 +2876,30 @@ namespace WebApi.Services
                 }
             }
         }
+        public static string[] GetBindDoorPushIds(string flat, string doorUid)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(@"call CallCenter.ClientGetBindDoorPushIds(@flat,@uid);", conn))
+                {
+                    cmd.Parameters.AddWithValue("@flat", flat);
+                    cmd.Parameters.AddWithValue("@uid", doorUid);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var result = new List<string>();
+                        if (dataReader.Read())
+                        {
+                            result.Add(dataReader.GetString("guid"));
+                        }
+                        dataReader.Close();
+                        return result.ToArray();
+                    }
+                }
+            }
+        }
+
     }
 }
