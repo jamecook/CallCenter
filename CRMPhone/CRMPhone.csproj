@@ -630,8 +630,6 @@
     <Resource Include="Images\Calendar_small.png" />
     <Resource Include="Images\delete.png" />
     <Resource Include="Images\numbers.png" />
-    <Content Include="Resources\ringin3.wav" />
-    <Resource Include="Resources\ringin4.wav" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
