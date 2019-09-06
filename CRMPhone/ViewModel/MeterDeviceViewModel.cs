@@ -43,10 +43,22 @@ namespace CRMPhone
             set { _electro1 = value; OnPropertyChanged(nameof(Electro1)); }
         }
 
+        public string Electro1Code
+        {
+            get { return _electro1Code; }
+            set { _electro1Code = value; OnPropertyChanged(nameof(Electro1Code)); }
+        }
+
         public double Electro2
         {
             get { return _electro2; }
             set { _electro2 = value; OnPropertyChanged(nameof(Electro2));}
+        }
+
+        public string Electro2Code
+        {
+            get { return _electro2Code; }
+            set { _electro2Code = value; OnPropertyChanged(nameof(Electro2Code)); }
         }
 
         public double HotWater1
@@ -55,10 +67,22 @@ namespace CRMPhone
             set { _hotWater1 = value; OnPropertyChanged(nameof(HotWater1));}
         }
 
+        public string HotWater1Code
+        {
+            get { return _hotWater1Code; }
+            set { _hotWater1Code = value; OnPropertyChanged(nameof(HotWater1Code)); }
+        }
+
         public double HotWater2
         {
             get { return _hotWater2; }
             set { _hotWater2 = value; OnPropertyChanged(nameof(HotWater2));}
+        }
+
+        public string HotWater2Code
+        {
+            get { return _hotWater2Code; }
+            set { _hotWater2Code = value; OnPropertyChanged(nameof(HotWater2Code)); }
         }
 
         public double ColdWater1
@@ -67,10 +91,22 @@ namespace CRMPhone
             set { _coldWater1 = value; OnPropertyChanged(nameof(ColdWater1));}
         }
 
+        public string ColdWater1Code
+        {
+            get { return _coldWater1Code; }
+            set { _coldWater1Code = value; OnPropertyChanged(nameof(ColdWater1Code)); }
+        }
+
         public double ColdWater2
         {
             get { return _coldWater2; }
             set { _coldWater2 = value; OnPropertyChanged(nameof(ColdWater2));}
+        }
+
+        public string ColdWater2Code
+        {
+            get { return _coldWater2Code; }
+            set { _coldWater2Code = value; OnPropertyChanged(nameof(ColdWater2Code)); }
         }
 
         public double Heating2
@@ -79,10 +115,22 @@ namespace CRMPhone
             set { _heating2 = value; OnPropertyChanged(nameof(Heating2));}
         }
 
+        public string Heating2Code
+        {
+            get { return _heating2Code; }
+            set { _heating2Code = value; OnPropertyChanged(nameof(Heating2Code)); }
+        }
+
         public double Heating3
         {
             get { return _heating3; }
             set { _heating3 = value; OnPropertyChanged(nameof(Heating3));}
+        }
+
+        public string Heating3Code
+        {
+            get { return _heating3Code; }
+            set { _heating3Code = value; OnPropertyChanged(nameof(Heating3Code)); }
         }
 
         public double Heating4
@@ -91,11 +139,25 @@ namespace CRMPhone
             set { _heating4 = value; OnPropertyChanged(nameof(Heating4));}
         }
 
+        public string Heating4Code
+        {
+            get { return _heating4Code; }
+            set { _heating4Code = value; OnPropertyChanged(nameof(Heating4Code));}
+        }
+
+
         public double Heating
         {
             get { return _heating; }
             set { _heating = value; OnPropertyChanged(nameof(Heating));}
         }
+
+        public string HeatingCode
+        {
+            get { return _heatingCode; }
+            set { _heatingCode = value; OnPropertyChanged(nameof(HeatingCode)); }
+        }
+
 
         public ObservableCollection<CityDto> CityList
         {
@@ -199,13 +261,45 @@ namespace CRMPhone
                 if (_selectedFlat != null)
                 {
                     LoadRequestsBySelectedAddress(_selectedFlat.Id);
+                    GetMeterCodes(value.Id);
                 }
                 else
                 {
                     MetersHistoryList.Clear();
+                    ClearMeterCodes();
                 }
                 OnPropertyChanged(nameof(SelectedFlat));
             }
+        }
+
+        public void ClearMeterCodes()
+        {
+            Electro1Code = "";
+            Electro2Code = "";
+            PersonalAccount = "";
+            ColdWater1Code = "";
+            HotWater1Code = "";
+            ColdWater2Code = "";
+            HotWater2Code = "";
+            HeatingCode = "";
+            Heating2Code = "";
+            Heating3Code = "";
+            Heating4Code = "";
+        }
+        public void GetMeterCodes(int addressId)
+        {
+            var codes = _requestService.GetMeterCodes(_selectedFlat.Id);
+            Electro1Code = codes.Electro1Code;
+            Electro2Code = codes.Electro2Code;
+            PersonalAccount = codes.PersonalAccount;
+            ColdWater1Code = codes.ColdWater1Code;
+            HotWater1Code = codes.HotWater1Code;
+            ColdWater2Code = codes.ColdWater2Code;
+            HotWater2Code = codes.HotWater2Code;
+            HeatingCode = codes.HeatingCode;
+            Heating2Code = codes.Heating2Code;
+            Heating3Code = codes.Heating3Code;
+            Heating4Code = codes.Heating4Code;
         }
 
         private void LoadRequestsBySelectedAddress(int addressId)
@@ -226,6 +320,8 @@ namespace CRMPhone
                 MessageBox.Show("Необходимо выбрать правильный адрес!", "Ошибка");
                 return;
             }
+            _requestService.SaveMeterCodes(SelectedFlat.Id, PersonalAccount, Electro1Code, Electro2Code, HotWater1Code, ColdWater1Code,
+                HotWater2Code, ColdWater2Code, HeatingCode, Heating2Code, Heating3Code, Heating4Code);
             _requestService.SaveMeterValues(PhoneNumber, SelectedFlat.Id, Electro1, Electro2, HotWater1, ColdWater1,
                 HotWater2, ColdWater2, Heating, _meterId, PersonalAccount, Heating2, Heating3, Heating4);
             LoadRequestsBySelectedAddress(SelectedFlat.Id);
@@ -247,6 +343,16 @@ namespace CRMPhone
         private double _heating2;
         private double _heating3;
         private double _heating4;
+        private string _electro1Code;
+        private string _electro2Code;
+        private string _hotWater1Code;
+        private string _hotWater2Code;
+        private string _coldWater1Code;
+        private string _coldWater2Code;
+        private string _heating2Code;
+        private string _heating3Code;
+        private string _heating4Code;
+        private string _heatingCode;
 
         public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new CommandHandler(Close, true)); } }
 

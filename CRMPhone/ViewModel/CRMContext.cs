@@ -1397,6 +1397,7 @@ namespace CRMPhone.ViewModel
 
         private void OnConnected(int callId, string remoteUri, string contact)
         {
+            _ringPlayer.Stop();
             var phoneNumber = GetPhoneNumberFromUri(remoteUri);
             if (callId < _maxLineNumber)
             {
@@ -1406,7 +1407,6 @@ namespace CRMPhone.ViewModel
                 SipLines[callId].LastAnswerTime = DateTime.Now;
 
             }
-            _ringPlayer.Stop();
             _sipCallActive = true;
             SipState = $"Связь установлена: {phoneNumber}";
 

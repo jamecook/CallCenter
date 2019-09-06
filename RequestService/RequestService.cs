@@ -3284,6 +3284,38 @@ left join CallCenter.Users u on u.id = a.userId";
             }
         }
 
+        public MeterCodeDto GetMeterCodes(int addressId)
+        {
+            var result = new MeterCodeDto();
+            using (var cmd = new MySqlCommand(
+                "SELECT * FROM CallCenter.MeterDeviceCodes C where address_id = @AddressId", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@AddressId", addressId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        result.Id = dataReader.GetInt32("id");
+                        result.AddressId = dataReader.GetInt32("address_id");
+                        result.PersonalAccount = dataReader.GetNullableString("personal_account");
+                        result.Electro1Code = dataReader.GetNullableString("electro_t1_code");
+                        result.Electro2Code = dataReader.GetNullableString("electro_t2_code");
+                        result.ColdWater1Code = dataReader.GetNullableString("cool_water1_code");
+                        result.HotWater1Code = dataReader.GetNullableString("hot_water1_code");
+                        result.ColdWater2Code = dataReader.GetNullableString("cool_water2_code");
+                        result.HotWater2Code = dataReader.GetNullableString("hot_water2_code");
+                        result.HeatingCode = dataReader.GetNullableString("heating_code");
+                        result.Heating2Code = dataReader.GetNullableString("heating2_code");
+                        result.Heating3Code = dataReader.GetNullableString("heating3_code");
+                        result.Heating4Code = dataReader.GetNullableString("heating4_code");
+                    }
+                    dataReader.Close();
+                }
+            }
+            return result;
+        }
+
         public void DeleteMeter(int meterId)
         {
             using (var cmd = new MySqlCommand(@"delete from CallCenter.MeterDeviceValues where id = @ID and send_date is null;", _dbConnection))
@@ -3378,6 +3410,31 @@ left join CallCenter.Users u on u.id = a.userId";
                 transaction.Commit();
             }
         }
+        public void SaveMeterCodes(int selectedFlatId, string personalAccount, string electro1Code, string electro2Code, string hotWater1Code, 
+            string coldWater1Code, string hotWater2Code, string coldWater2Code, string heatingCode, string heating2Code, string heating3Code, string heating4Code)
+        {
+            using (var cmd = new MySqlCommand(@"insert into CallCenter.MeterDeviceCodes(address_id,personal_account, electro_t1_code, electro_t2_code, cool_water1_code, hot_water1_code,
+cool_water2_code, hot_water2_code, heating_code, heating2_code, heating3_code, heating4_code)
+values(@addressId,@persCode,@el1code,@el2code,@cw1code,@hw1code,@cw2code,@hw2code,@h1code,@h2code,@h3code,@h4code) on duplicate KEY 
+UPDATE personal_account = @persCode, electro_t1_code = @el1code, electro_t2_code = @el2code,cool_water1_code = @cw1code, hot_water1_code = @hw1code,cool_water2_code = @cw2code,
+hot_water2_code = @hw2code, heating_code = @h1code, heating2_code = @h2code, heating3_code = @h3code, heating4_code = @h4code;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@addressId", selectedFlatId);
+                cmd.Parameters.AddWithValue("@persCode", personalAccount);
+                cmd.Parameters.AddWithValue("@el1code", electro1Code);
+                cmd.Parameters.AddWithValue("@el2code", electro2Code);
+                cmd.Parameters.AddWithValue("@hw1code", hotWater1Code);
+                cmd.Parameters.AddWithValue("@cw1code", coldWater1Code);
+                cmd.Parameters.AddWithValue("@cw2code", coldWater2Code);
+                cmd.Parameters.AddWithValue("@hw2code", hotWater2Code);
+                cmd.Parameters.AddWithValue("@h1code", heatingCode);
+                cmd.Parameters.AddWithValue("@h2code", heating2Code);
+                cmd.Parameters.AddWithValue("@h3code", heating3Code);
+                cmd.Parameters.AddWithValue("@h4code", heating4Code);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
 
         public ServiceCompanyDto ServiceCompanyByIncommingPhoneNumber(string phoneNumber)
         {
@@ -4525,6 +4582,7 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
                 return regions.OrderBy(i => i.Name).ToList();
             }
         }
+
     }
 
 }
