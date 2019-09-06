@@ -43,7 +43,7 @@ namespace WebApi.Controllers
             return BadRequest("Authorization error!");
         }
         [HttpGet("bindedPushId"), AllowAnonymous]
-        public ActionResult<PushIdAndAddressDto[]> GetBindDoorPushIds([FromQuery] string flat, [FromQuery] string doorUid)
+        public ActionResult<PushIdsAndAddressDto[]> GetBindDoorPushIds([FromQuery] string flat, [FromQuery] string doorUid)
         {
             var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
             if (auth.Value == "a921d6c2-8162-4912-a8b5-ab36b4bbf020")

@@ -72,7 +72,7 @@ namespace WebApi.Services
             }
         }
 
-        internal static PushIdAndAddressDto[] GetBindDoorPushIds(string flat, string doorUid)
+        internal static PushIdsAndAddressDto[] GetBindDoorPushIds(string flat, string doorUid)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -104,7 +104,12 @@ namespace WebApi.Services
                         }
                         dataReader.Close();
                     }
-                    return addresses.ToArray();
+                    var result = addresses.GroupBy(r => r.Address.Id).Select(k => new PushIdsAndAddressDto()
+                    {
+                        Address = k.FirstOrDefault(i => i.Address.Id == k.Key).Address,
+                        PushIds = k.Select(i => i.PushId).ToArray()
+                    }).ToArray();
+                    return result;
                 }
             }
         }
