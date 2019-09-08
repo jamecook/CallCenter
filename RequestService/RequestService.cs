@@ -3324,8 +3324,9 @@ left join CallCenter.Users u on u.id = a.userId";
                 cmd.ExecuteNonQuery();
             }
         }
-        public void SaveMeterValues(string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1, double hotWater2, double coldWater2, double heating, int? meterId, string personalAccount, double heating2, double heating3, double heating4)
+        public int? SaveMeterValues(string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1, double hotWater2, double coldWater2, double heating, int? meterId, string personalAccount, double heating2, double heating3, double heating4)
         {
+            var result = meterId;
             using (var transaction = _dbConnection.BeginTransaction())
             {
                 var clientPhoneId = (int?)null;
@@ -3406,9 +3407,21 @@ left join CallCenter.Users u on u.id = a.userId";
                         cmd.Parameters.AddWithValue("@ClentPhoneId", clientPhoneId);
                         cmd.ExecuteNonQuery();
                     }
+                    using (var cmd = new MySqlCommand("SELECT LAST_INSERT_ID() as id", _dbConnection))
+                    {
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            if (dataReader.Read())
+                            {
+                                result = dataReader.GetInt32("id");
+                            }
+                            dataReader.Close();
+                        }
+                    }
                 }
                 transaction.Commit();
             }
+            return result;
         }
         public void SaveMeterCodes(int selectedFlatId, string personalAccount, string electro1Code, string electro2Code, string hotWater1Code, 
             string coldWater1Code, string hotWater2Code, string coldWater2Code, string heatingCode, string heating2Code, string heating3Code, string heating4Code)
@@ -4582,7 +4595,20 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
                 return regions.OrderBy(i => i.Name).ToList();
             }
         }
+        public void AddCallToMeter(int? meterId, string callUniqueId)
+        {
 
+            if (meterId.HasValue && !string.IsNullOrEmpty(callUniqueId))
+            {
+                using (var cmd =
+                        new MySqlCommand("insert into CallCenter.MeterCalls(meter_id,uniqueID,insert_date) values(@MeterId, @UniqueId,sysdate())", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@MeterId", meterId.Value);
+                    cmd.Parameters.AddWithValue("@UniqueId", callUniqueId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
 
 }

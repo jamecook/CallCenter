@@ -2942,7 +2942,7 @@ namespace WebApi.Services
                 }
             }
         }
-        public static string[] GetBindDoorPushIds(string flat, string doorUid)
+        public static string[] GetBindDoorPushIdsOld(string flat, string doorUid)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {

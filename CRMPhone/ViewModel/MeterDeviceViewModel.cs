@@ -322,9 +322,11 @@ namespace CRMPhone
             }
             _requestService.SaveMeterCodes(SelectedFlat.Id, PersonalAccount, Electro1Code, Electro2Code, HotWater1Code, ColdWater1Code,
                 HotWater2Code, ColdWater2Code, HeatingCode, Heating2Code, Heating3Code, Heating4Code);
-            _requestService.SaveMeterValues(PhoneNumber, SelectedFlat.Id, Electro1, Electro2, HotWater1, ColdWater1,
+            var meterId = _requestService.SaveMeterValues(PhoneNumber, SelectedFlat.Id, Electro1, Electro2, HotWater1, ColdWater1,
                 HotWater2, ColdWater2, Heating, _meterId, PersonalAccount, Heating2, Heating3, Heating4);
             LoadRequestsBySelectedAddress(SelectedFlat.Id);
+            var callUniqueId = _requestService.GetOnlyActiveCallUniqueIdByCallId(AppSettings.LastCallId);
+            _requestService.AddCallToMeter(meterId, callUniqueId);
             MessageBox.Show("Данные успешно сохранены!", "Приборы учёта");
 
         }
