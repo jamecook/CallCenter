@@ -13,6 +13,8 @@ namespace RequestServiceImpl
         public double HotWater1 { get; set; }
         public double ColdWater2 { get; set; }
         public double HotWater2 { get; set; }
+        public double ColdWater3 { get; set; }
+        public double HotWater3 { get; set; }
         public double Heating { get; set; }
         public double? Heating2 { get; set; }
         public double? Heating3 { get; set; }

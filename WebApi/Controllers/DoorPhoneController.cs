@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using WebApi.Models;
 using WebApi.Models.Parameters;
 using WebApi.Services;
@@ -11,10 +12,12 @@ namespace WebApi.Controllers
     public class DoorPhoneController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly ILogger<DoorPhoneController> _logger;
 
-        public DoorPhoneController(IAuthService authService)
+        public DoorPhoneController(IAuthService authService, ILogger<DoorPhoneController> logger)
         {
             _authService = authService;
+            _logger = logger;
         }
 
         [HttpPost, AllowAnonymous]
@@ -42,6 +45,14 @@ namespace WebApi.Controllers
             }
             return BadRequest("Authorization error!");
         }
+
+        [HttpGet("get_sip_phones"), AllowAnonymous]
+        public ActionResult<string> GetSipByFlat([FromQuery] string account)
+        {
+            _logger.LogInformation($"---------- get_sip_phones({account})");
+            return Ok("SIP/2011&SIP/2012");
+        }
+
         [HttpGet("bindedPushId"), AllowAnonymous]
         public ActionResult<PushIdsAndAddressDto[]> GetBindDoorPushIds([FromQuery] string flat, [FromQuery] string doorUid)
         {

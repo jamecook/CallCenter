@@ -3153,7 +3153,7 @@ left join CallCenter.Users u on u.id = a.userId";
 
         public List<MetersDto> GetMetersByPeriod(int addressId)
         {
-            var sqlQuery = @"select id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating,heating2,heating3,heating4, client_phone_id  from CallCenter.MeterDeviceValues
+            var sqlQuery = @"select id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, cool_water2, hot_water2, user_id, heating,heating2,heating3,heating4, client_phone_id  from CallCenter.MeterDeviceValues
  where address_id = @AddressId and meters_date > sysdate() - INTERVAL 3 month
  order by meters_date desc";
 
@@ -3177,6 +3177,8 @@ left join CallCenter.Users u on u.id = a.userId";
                             HotWater1 = dataReader.GetDouble("hot_water1"),
                             ColdWater2 = dataReader.GetDouble("cool_water2"),
                             HotWater2 = dataReader.GetDouble("hot_water2"),
+                            ColdWater3 = dataReader.GetDouble("cool_water3"),
+                            HotWater3 = dataReader.GetDouble("hot_water3"),
                             Heating = dataReader.GetDouble("heating"),
                             Heating2 = dataReader.GetNullableDouble("heating2"),
                             Heating3 = dataReader.GetNullableDouble("heating3"),
@@ -3190,7 +3192,7 @@ left join CallCenter.Users u on u.id = a.userId";
         }
         public List<MetersDto> GetMetersByAddressId(int addressId)
         {
-            var sqlQuery = @"select id, meters_date, personal_account, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating,heating2,heating3,heating4, client_phone_id  from CallCenter.MeterDeviceValues
+            var sqlQuery = @"select id, meters_date, personal_account, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, cool_water3, hot_water3, user_id, heating,heating2,heating3,heating4, client_phone_id  from CallCenter.MeterDeviceValues
  where address_id = @AddressId and meters_date > sysdate() - INTERVAL 3 month
  order by meters_date desc";
 
@@ -3214,6 +3216,8 @@ left join CallCenter.Users u on u.id = a.userId";
                             HotWater1 = dataReader.GetDouble("hot_water1"),
                             ColdWater2 = dataReader.GetDouble("cool_water2"),
                             HotWater2 = dataReader.GetDouble("hot_water2"),
+                            ColdWater3 = dataReader.GetDouble("cool_water3"),
+                            HotWater3 = dataReader.GetDouble("hot_water3"),
                             Heating = dataReader.GetDouble("heating"),
                             Heating2 = dataReader.GetNullableDouble("heating2"),
                             Heating3 = dataReader.GetNullableDouble("heating3"),
@@ -3228,7 +3232,7 @@ left join CallCenter.Users u on u.id = a.userId";
         public List<MeterListDto> GetMetersByDate(int? serviceCompanyId, DateTime fromDate, DateTime toDate)
         {
             var sqlQuery =
-                @"select m.id, meters_date,house_id, m.address_id, street_id, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating,
+                @"select m.id, meters_date,house_id, m.address_id, street_id, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2,cool_water3, hot_water3, user_id, heating,
  a.flat,h.building, h.corps, s.name street_name, sc.name company_name,m.personal_account,m.heating2,m.heating3,m.heating4
  from CallCenter.MeterDeviceValues m
   join CallCenter.Addresses a on a.id = m.address_id
@@ -3272,6 +3276,8 @@ left join CallCenter.Users u on u.id = a.userId";
                             HotWater1 = dataReader.GetDouble("hot_water1"),
                             ColdWater2 = dataReader.GetDouble("cool_water2"),
                             HotWater2 = dataReader.GetDouble("hot_water2"),
+                            ColdWater3 = dataReader.GetDouble("cool_water3"),
+                            HotWater3 = dataReader.GetDouble("hot_water3"),
                             Heating = dataReader.GetDouble("heating"),
                             Heating2 = dataReader.GetNullableDouble("heating2"),
                             Heating3 = dataReader.GetNullableDouble("heating3"),
@@ -3305,6 +3311,8 @@ left join CallCenter.Users u on u.id = a.userId";
                         result.HotWater1Code = dataReader.GetNullableString("hot_water1_code");
                         result.ColdWater2Code = dataReader.GetNullableString("cool_water2_code");
                         result.HotWater2Code = dataReader.GetNullableString("hot_water2_code");
+                        result.ColdWater3Code = dataReader.GetNullableString("cool_water3_code");
+                        result.HotWater3Code = dataReader.GetNullableString("hot_water3_code");
                         result.HeatingCode = dataReader.GetNullableString("heating_code");
                         result.Heating2Code = dataReader.GetNullableString("heating2_code");
                         result.Heating3Code = dataReader.GetNullableString("heating3_code");
@@ -3324,7 +3332,7 @@ left join CallCenter.Users u on u.id = a.userId";
                 cmd.ExecuteNonQuery();
             }
         }
-        public int? SaveMeterValues(string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1, double hotWater2, double coldWater2, double heating, int? meterId, string personalAccount, double heating2, double heating3, double heating4)
+        public int? SaveMeterValues(string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1, double hotWater2, double coldWater2, double hotWater3, double coldWater3, double heating, int? meterId, string personalAccount, double heating2, double heating3, double heating4)
         {
             var result = meterId;
             using (var transaction = _dbConnection.BeginTransaction())
@@ -3362,7 +3370,7 @@ left join CallCenter.Users u on u.id = a.userId";
                     using (var cmd = new MySqlCommand(
                         "update CallCenter.MeterDeviceValues" +
                         " set electro_t1 = @Electro1, electro_t2 = @Electro2, cool_water1 = @Cool1," +
-                        " hot_water1 = @Hot1, cool_water2 = @Cool2, hot_water2 = @Hot2, heating = @Heating," +
+                        " hot_water1 = @Hot1, cool_water2 = @Cool2, hot_water2 = @Hot2 , cool_water3 = @Cool3, hot_water3 = @Hot3, heating = @Heating," +
                         " personal_account = @PersonalAccount, heating2 = @Heating2, heating3 = @Heating3, heating4 = @Heating4" + 
                         " where id = @MeterId",
                         _dbConnection))
@@ -3373,8 +3381,10 @@ left join CallCenter.Users u on u.id = a.userId";
                         cmd.Parameters.AddWithValue("@Electro2", electro2);
                         cmd.Parameters.AddWithValue("@Cool1", coldWater1);
                         cmd.Parameters.AddWithValue("@Cool2", coldWater2);
+                        cmd.Parameters.AddWithValue("@Cool3", coldWater3);
                         cmd.Parameters.AddWithValue("@Hot1", hotWater1);
                         cmd.Parameters.AddWithValue("@Hot2", hotWater2);
+                        cmd.Parameters.AddWithValue("@Hot3", hotWater3);
                         cmd.Parameters.AddWithValue("@Heating", heating);
                         cmd.Parameters.AddWithValue("@Heating2", heating2);
                         cmd.Parameters.AddWithValue("@Heating3", heating3);
@@ -3386,8 +3396,8 @@ left join CallCenter.Users u on u.id = a.userId";
                 else
                 {
                     using (var cmd = new MySqlCommand(
-                        "insert into CallCenter.MeterDeviceValues(address_id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, user_id, heating, client_phone_id,personal_account , heating2, heating3, heating4 )" +
-                        " values(@AddressId,sysdate(),@Electro1,@Electrio2,@Cool1,@Hot1,@Cool2,@Hot2,@UserId,@Heating,@ClentPhoneId,@PersonalAccount,@Heating2,@Heating3,@Heating4)",
+                        "insert into CallCenter.MeterDeviceValues(address_id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, cool_water3, hot_water3, user_id, heating, client_phone_id,personal_account , heating2, heating3, heating4 )" +
+                        " values(@AddressId,sysdate(),@Electro1,@Electrio2,@Cool1,@Hot1,@Cool2,@Hot2,@Cool3,@Hot3,@UserId,@Heating,@ClentPhoneId,@PersonalAccount,@Heating2,@Heating3,@Heating4)",
                         _dbConnection))
                     {
 
@@ -3397,8 +3407,10 @@ left join CallCenter.Users u on u.id = a.userId";
                         cmd.Parameters.AddWithValue("@Electrio2", electro2);
                         cmd.Parameters.AddWithValue("@Cool1", coldWater1);
                         cmd.Parameters.AddWithValue("@Cool2", coldWater2);
+                        cmd.Parameters.AddWithValue("@Cool3", coldWater3);
                         cmd.Parameters.AddWithValue("@Hot1", hotWater1);
                         cmd.Parameters.AddWithValue("@Hot2", hotWater2);
+                        cmd.Parameters.AddWithValue("@Hot3", hotWater3);
                         cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
                         cmd.Parameters.AddWithValue("@Heating", heating);
                         cmd.Parameters.AddWithValue("@Heating2", heating2);
@@ -3424,13 +3436,13 @@ left join CallCenter.Users u on u.id = a.userId";
             return result;
         }
         public void SaveMeterCodes(int selectedFlatId, string personalAccount, string electro1Code, string electro2Code, string hotWater1Code, 
-            string coldWater1Code, string hotWater2Code, string coldWater2Code, string heatingCode, string heating2Code, string heating3Code, string heating4Code)
+            string coldWater1Code, string hotWater2Code, string coldWater2Code, string hotWater3Code, string coldWater3Code, string heatingCode, string heating2Code, string heating3Code, string heating4Code)
         {
             using (var cmd = new MySqlCommand(@"insert into CallCenter.MeterDeviceCodes(address_id,personal_account, electro_t1_code, electro_t2_code, cool_water1_code, hot_water1_code,
-cool_water2_code, hot_water2_code, heating_code, heating2_code, heating3_code, heating4_code)
-values(@addressId,@persCode,@el1code,@el2code,@cw1code,@hw1code,@cw2code,@hw2code,@h1code,@h2code,@h3code,@h4code) on duplicate KEY 
+cool_water2_code, hot_water2_code,cool_water3_code, hot_water3_code, heating_code, heating2_code, heating3_code, heating4_code)
+values(@addressId,@persCode,@el1code,@el2code,@cw1code,@hw1code,@cw2code,@hw2code,@cw3code,@hw3code,@h1code,@h2code,@h3code,@h4code) on duplicate KEY 
 UPDATE personal_account = @persCode, electro_t1_code = @el1code, electro_t2_code = @el2code,cool_water1_code = @cw1code, hot_water1_code = @hw1code,cool_water2_code = @cw2code,
-hot_water2_code = @hw2code, heating_code = @h1code, heating2_code = @h2code, heating3_code = @h3code, heating4_code = @h4code;", _dbConnection))
+hot_water2_code = @hw2code,cool_water3_code = @cw3code,hot_water3_code = @hw3code, heating_code = @h1code, heating2_code = @h2code, heating3_code = @h3code, heating4_code = @h4code;", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@addressId", selectedFlatId);
                 cmd.Parameters.AddWithValue("@persCode", personalAccount);
@@ -3440,6 +3452,8 @@ hot_water2_code = @hw2code, heating_code = @h1code, heating2_code = @h2code, hea
                 cmd.Parameters.AddWithValue("@cw1code", coldWater1Code);
                 cmd.Parameters.AddWithValue("@cw2code", coldWater2Code);
                 cmd.Parameters.AddWithValue("@hw2code", hotWater2Code);
+                cmd.Parameters.AddWithValue("@cw3code", coldWater3Code);
+                cmd.Parameters.AddWithValue("@hw3code", hotWater3Code);
                 cmd.Parameters.AddWithValue("@h1code", heatingCode);
                 cmd.Parameters.AddWithValue("@h2code", heating2Code);
                 cmd.Parameters.AddWithValue("@h3code", heating3Code);

@@ -340,6 +340,26 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
+                            <DataGridTextColumn Header="ГВС ст.3" Width="80"
+                                            Binding="{Binding Path=HotWater3}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="ХВС ст.3" Width="80"
+                                            Binding="{Binding Path=ColdWater3}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                             <DataGridTextColumn Header="Отоп.1" Width="80"
                                             Binding="{Binding Path=Heating}">
                                 <DataGridTextColumn.ElementStyle>

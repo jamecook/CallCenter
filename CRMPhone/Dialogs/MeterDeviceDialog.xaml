@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:CRMPhone.Dialogs"
         xmlns:crmPhone="clr-namespace:CRMPhone"
         mc:Ignorable="d"
-        Title="Показания приборов учёта" MinHeight="300" MinWidth ="1070" Height="300" Width="1070"
+        Title="Показания приборов учёта" MinHeight="300" MinWidth ="1240" Height="300" Width="1240"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         FontSize="12"
@@ -125,7 +125,28 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Отоп.1" Width="80"
+                <DataGridTextColumn Header="ГВС ст.3" Width="80"
+                                            Binding="{Binding Path=HotWater3}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="ХВС ст.3" Width="80"
+                                            Binding="{Binding Path=ColdWater3}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Header="Отоп.1" Width="80"
                                             Binding="{Binding Path=Heating}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
@@ -204,6 +225,17 @@
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ХВС стояк 2"/>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater2}"/>
                 </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater3Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ГВС стояк 3"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater3}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater3Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ХВС стояк 3"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater3}"/>
+                </StackPanel>
+
                 <StackPanel>
                     <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HeatingCode}" IsEnabled="False"/>
                     <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление"/>

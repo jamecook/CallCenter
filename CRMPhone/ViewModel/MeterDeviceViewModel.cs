@@ -103,6 +103,34 @@ namespace CRMPhone
             set { _coldWater2 = value; OnPropertyChanged(nameof(ColdWater2));}
         }
 
+        public string ColdWater3Code
+        {
+            get { return _coldWater3Code; }
+            set { _coldWater3Code = value;
+                OnPropertyChanged(nameof(ColdWater3Code));
+            }
+        }
+
+        public string HotWater3Code
+        {
+            get { return _hotWater3Code; }
+            set { _hotWater3Code = value;
+                OnPropertyChanged(nameof(HotWater3Code));
+            }
+        }
+
+        public double ColdWater3
+        {
+            get { return _coldWater3; }
+            set { _coldWater3 = value; OnPropertyChanged(nameof(ColdWater3)); }
+        }
+
+        public double HotWater3
+        {
+            get { return _hotWater3;  }
+            set { _hotWater3 = value; OnPropertyChanged(nameof(HotWater3)); }
+        }
+
         public string ColdWater2Code
         {
             get { return _coldWater2Code; }
@@ -281,6 +309,8 @@ namespace CRMPhone
             HotWater1Code = "";
             ColdWater2Code = "";
             HotWater2Code = "";
+            ColdWater3Code = "";
+            HotWater3Code = "";
             HeatingCode = "";
             Heating2Code = "";
             Heating3Code = "";
@@ -296,6 +326,8 @@ namespace CRMPhone
             HotWater1Code = codes.HotWater1Code;
             ColdWater2Code = codes.ColdWater2Code;
             HotWater2Code = codes.HotWater2Code;
+            ColdWater3Code = codes.ColdWater3Code;
+            HotWater3Code = codes.HotWater3Code;
             HeatingCode = codes.HeatingCode;
             Heating2Code = codes.Heating2Code;
             Heating3Code = codes.Heating3Code;
@@ -321,9 +353,9 @@ namespace CRMPhone
                 return;
             }
             _requestService.SaveMeterCodes(SelectedFlat.Id, PersonalAccount, Electro1Code, Electro2Code, HotWater1Code, ColdWater1Code,
-                HotWater2Code, ColdWater2Code, HeatingCode, Heating2Code, Heating3Code, Heating4Code);
+                HotWater2Code, ColdWater2Code, HotWater3Code, ColdWater3Code, HeatingCode, Heating2Code, Heating3Code, Heating4Code);
             var meterId = _requestService.SaveMeterValues(PhoneNumber, SelectedFlat.Id, Electro1, Electro2, HotWater1, ColdWater1,
-                HotWater2, ColdWater2, Heating, _meterId, PersonalAccount, Heating2, Heating3, Heating4);
+                HotWater2, ColdWater2, HotWater3, ColdWater3, Heating, _meterId, PersonalAccount, Heating2, Heating3, Heating4);
             LoadRequestsBySelectedAddress(SelectedFlat.Id);
             var callUniqueId = _requestService.GetOnlyActiveCallUniqueIdByCallId(AppSettings.LastCallId);
             _requestService.AddCallToMeter(meterId, callUniqueId);
@@ -355,6 +387,10 @@ namespace CRMPhone
         private string _heating3Code;
         private string _heating4Code;
         private string _heatingCode;
+        private double _coldWater3;
+        private double _hotWater3;
+        private string _coldWater3Code;
+        private string _hotWater3Code;
 
         public ICommand CloseCommand { get { return _closeCommand ?? (_closeCommand = new CommandHandler(Close, true)); } }
 
@@ -410,6 +446,8 @@ namespace CRMPhone
                 HotWater1 = meter.HotWater1;
                 ColdWater2 = meter.ColdWater2;
                 HotWater2 = meter.HotWater2;
+                ColdWater3 = meter.ColdWater3;
+                HotWater3 = meter.HotWater3;
                 Electro1 = meter.Electro1;
                 Electro2 = meter.Electro2;
                 Heating = meter.Heating;
