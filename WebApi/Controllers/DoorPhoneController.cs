@@ -50,7 +50,8 @@ namespace WebApi.Controllers
         public ActionResult<string> GetSipByFlat([FromQuery] string account)
         {
             _logger.LogInformation($"---------- get_sip_phones({account})");
-            return Ok("SIP/2011&SIP/2012");
+            var result = RequestService.VoIpPush(account);
+            return Ok(result);
         }
 
         [HttpGet("bindedPushId"), AllowAnonymous]

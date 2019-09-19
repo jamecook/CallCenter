@@ -7,8 +7,11 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web.UI.WebControls;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using NLog.Filters;
+using RestSharp;
 using Stimulsoft.Report;
 using WebApi.Models;
 
@@ -70,6 +73,104 @@ namespace WebApi.Services
                 }
                 return null;
             }
+        }
+
+        internal static string VoIpPush(string account)
+        {
+            if (account?.Length != 11)
+            {
+                return null;
+            }
+            var houseStr = account.Substring(0, 7);
+            var flatStr = account.Substring(7, 4);
+            long.TryParse(houseStr, out long houseId);
+            long.TryParse(flatStr, out long flat);
+            var addresses = new List<PushIdAndAddressDto>();
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand($"Call CallCenter.DoopPhoneGetClients(@houseId,@flat);", conn))
+                {
+                    cmd.Parameters.AddWithValue("@houseId", houseId);
+                    cmd.Parameters.AddWithValue("@flat", flat);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            addresses.Add(new PushIdAndAddressDto
+                            {
+                                PushId = dataReader.GetNullableString("push_id"),
+                                SipPhone = dataReader.GetNullableString("sip_phone"),
+                                Address = new AddressDto()
+                                {
+                                    Id = dataReader.GetInt32("id"),
+                                    HouseId = dataReader.GetInt32("house_id"),
+                                    StreetPrefix = dataReader.GetNullableString("prefix_name"),
+                                    StreetName = dataReader.GetNullableString("street_name"),
+                                    Building = dataReader.GetNullableString("building"),
+                                    Corpus = dataReader.GetNullableString("corps"),
+                                    Flat = dataReader.GetNullableString("flat"),
+                                    AddressType = dataReader.GetNullableString("address_type"),
+                                    IntercomId = dataReader.GetNullableString("intercomId"),
+                                }
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                }
+                addresses = addresses.Where(a => !string.IsNullOrEmpty(a.SipPhone)).ToList();
+                foreach (var dto in addresses)
+                {
+                    try
+                    {
+                        CallVoIpPush(dto);
+                    }
+                    catch
+                    {
+                        
+                    }
+                }
+
+                return addresses.Count>0?addresses.Select(a=>a.SipPhone).Aggregate((i,j)=>i+"&"+j):null;
+
+            }
+        }
+        /*
+         Запрос, который должен выполнить Астериск перед тем как послать вызов:
+
+POST https://dispex.org:5000/sip/call_request 
+
+headers = { 
+   "Content-Type": "application/json", 
+   "Authorization": "c621f6c2-8462-4712-a8b5-ab36b4dbrf020" 
+}
+
+body = {
+   "addr" : "Демонстрационная ...."
+   "addrId" : 123456
+   "pushId"    : "push id" 
+}
+             */
+        public static void CallVoIpPush(PushIdAndAddressDto clientDto)
+        {
+            var saveSampleUrl = "https://dispex.org:5000/sip/call_request";
+
+            var client = new RestClient(saveSampleUrl);
+            var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", "c621f6c2-8462-4712-a8b5-ab36b4dbrf020");
+            var discar = new VoIpPushDto
+            {
+                PushId = clientDto.PushId,
+                AddrId = clientDto.Address.Id,
+                Addr = clientDto.Address.FullAddress
+
+            };
+            var dataRequest = request.AddJsonBody(discar);
+
+            var responce = client.Execute(dataRequest);
+            var result = responce.Content;
         }
 
         internal static PushIdsAndAddressDto[] GetBindDoorPushIds(string flat, string doorUid)
@@ -606,7 +707,7 @@ namespace WebApi.Services
                     return File.ReadAllBytes($"{rootDir}\\{requestId}\\preview\\{fileName}");
                 try
                 {
-                    var image = Image.FromFile($"{rootDir}\\{requestId}\\{fileName}");
+                    var image = System.Drawing.Image.FromFile($"{rootDir}\\{requestId}\\{fileName}");
                     var sized = ResizeImage(image, 450);
                     var buffer = new MemoryStream();
                     sized.Save(buffer, ImageFormat.Jpeg);
@@ -626,7 +727,7 @@ namespace WebApi.Services
             return null;
         }
 
-        public static Bitmap ResizeImage(Image image, int width)
+        public static Bitmap ResizeImage(System.Drawing.Image image, int width)
         {
             if (image == null || image.Width == 0)
                 return null;
