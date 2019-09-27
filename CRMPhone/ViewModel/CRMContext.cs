@@ -1207,7 +1207,7 @@ namespace CRMPhone.ViewModel
 
                 if (EnablePhone)
                 {
-                    _refreshTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+                    _refreshTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
                     _refreshTimer.Tick += RefreshTimerOnTick;
                     _refreshTimer.Start();
                 }
@@ -1664,11 +1664,14 @@ namespace CRMPhone.ViewModel
         {
             var readedChannels = new List<ActiveChannelsDto>();
             using (var cmd = new MySqlCommand(@"SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf,
-(SELECT r.id from CallCenter.ClientPhones cp2
-join CallCenter.RequestContacts rc2 on cp2.id = rc2.ClientPhone_id
-join CallCenter.Requests r on r.id = rc2.request_id
-where r.state_id in (1, 2, 6) and substr(cp2.Number, length(cp2.Number) - 9) = substr(CallerIDNum, length(CallerIDNum) - 9) order by id desc limit 1) as request_id
+null as request_id
 FROM asterisk.ActiveChannels where Application = 'queue' and BridgeId is null order by UniqueID", _dbRefreshConnection))
+//            using (var cmd = new MySqlCommand(@"SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf,
+//(SELECT r.id from CallCenter.ClientPhones cp2
+//join CallCenter.RequestContacts rc2 on cp2.id = rc2.ClientPhone_id
+//join CallCenter.Requests r on r.id = rc2.request_id
+//where r.state_id in (1, 2, 6) and substr(cp2.Number, length(cp2.Number) - 9) = substr(CallerIDNum, length(CallerIDNum) - 9) order by id desc limit 1) as request_id
+//FROM asterisk.ActiveChannels where Application = 'queue' and BridgeId is null order by UniqueID", _dbRefreshConnection))
             using (var dataReader = cmd.ExecuteReader())
             {
                 while (dataReader.Read())
