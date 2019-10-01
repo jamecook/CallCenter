@@ -8,5 +8,7 @@ namespace WebApi.Models.Parameters
         public string Phone { get; set; }
         [Required]
         public string Code { get; set; }
+        [Required]
+        public string DeviceId { get; set; }
     }
 }

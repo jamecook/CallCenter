@@ -8,5 +8,9 @@ namespace WebApi.Models.Parameters
         public string Phone { get; set; }
         [Required]
         public string DoorUid { get; set; }
+        [Required]
+        public string DeviceId { get; set; }
+        [Required]
+        public int AddressId { get; set; }
     }
 }

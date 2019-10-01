@@ -7,5 +7,6 @@ namespace WebApi.Models
         public string Addr { get; set; }
         public int AddrId { get; set; }
         public string PushId { get; set; }
+        public string DeviceId { get; set; }
     }
 }

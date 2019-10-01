@@ -20,11 +20,16 @@ namespace WebApi.Services
     public static class RequestService
     {
         private static string _connectionString;
+        private static string _connectionStringAts;
+        private static string _sipServer;
 
         static RequestService()
         {
             _connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", "192.168.1.130",
                 "asterisk", "mysqlasterisk", "CallCenter");
+            _connectionStringAts = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", "151.248.121.220",
+                "zerg", "Dispex1411Zerg", "asterisk");
+            _sipServer = "@151.248.121.220:6050";
         }
 
         public static WebUserDto WebLogin(string userName, string password)
@@ -101,7 +106,9 @@ namespace WebApi.Services
                             addresses.Add(new PushIdAndAddressDto
                             {
                                 PushId = dataReader.GetNullableString("push_id"),
-                                SipPhone = dataReader.GetNullableString("sip_phone"),
+                                DeviceId = dataReader.GetNullableString("device_uid"),
+                                SipPhone = dataReader.GetNullableString("sip_account"),
+                                Secret = dataReader.GetNullableString("sip_secret"),
                                 Address = new AddressDto()
                                 {
                                     Id = dataReader.GetInt32("id"),
@@ -163,6 +170,7 @@ body = {
             var discar = new VoIpPushDto
             {
                 PushId = clientDto.PushId,
+                DeviceId = clientDto.DeviceId,
                 AddrId = clientDto.Address.Id,
                 Addr = clientDto.Address.FullAddress
 
@@ -2999,24 +3007,78 @@ body = {
 
         }
 
-        public static void BindDoorPhone(string phone, string doorUid)
+        public static void BindDoorPhone(string phone, string doorUid, string deviceId, int addressId)
         {
             using (var conn = new MySqlConnection(_connectionString))
+            {
+                int devId = 0;
+                string sipAccount = string.Empty;
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(
+                                @"call CallCenter.ClientBindDoorPhoneWithDevice(@clientPhone,@uid,@deviceId,@addressId);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@clientPhone", phone);
+                        cmd.Parameters.AddWithValue("@uid", doorUid);
+                        cmd.Parameters.AddWithValue("@deviceId", deviceId);
+                        cmd.Parameters.AddWithValue("@addressId", addressId);
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            if (dataReader.Read())
+                            {
+                                devId = dataReader.GetInt32("id");
+                                sipAccount = dataReader.GetNullableString("sip_account");
+                            }
+                            dataReader.Close();
+                        }
+                        if (string.IsNullOrEmpty(sipAccount))
+                        {
+                            //Создаем аккаунт на удаленной базе астериск
+                            var sip = CreateSipAccount(devId);
+                            using (
+                                var cmd2 =
+                                    new MySqlCommand(
+                                        @"call CallCenter.ClientBindDoorAddSip(@deviceId,@sipAccount,@secret);", conn))
+                            {
+                                cmd2.Parameters.AddWithValue("@deviceId", devId);
+                                cmd2.Parameters.AddWithValue("@sipAccount", "SIP/"+ sip);
+                                cmd2.Parameters.AddWithValue("@secret", sip);
+                                cmd2.ExecuteNonQuery();
+                            }
+                        }
+                        transaction.Commit();
+                    }
+                }
+            }
+        }
+
+        private static string CreateSipAccount(int devId)
+        {
+            string sipAccount = devId.ToString().PadLeft(10, '0');
+            string secret = sipAccount;
+            using (var conn = new MySqlConnection(_connectionStringAts))
             {
                 conn.Open();
                 using (var transaction = conn.BeginTransaction())
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"call CallCenter.ClientBindDoorPhone(@clientPhone,@uid);", conn))
+                            new MySqlCommand(@"INSERT INTO asterisk.sippeers
+(name, defaultuser, host, type, context, secret,directmedia, nat, callgroup, language, disallow, allow, callerid, regexten, qualify, rtpkeepalive, `call-limit`)
+VALUES
+(@SipAccount, @SipAccount, 'dynamic', 'friend', 'outcalling', @Secret,'no', 'force_rport,comedia', '1', 'ru', 'all', 'alaw', @SipAccount, @SipAccount,'yes','10','1');", conn))
                     {
-                        cmd.Parameters.AddWithValue("@clientPhone", phone);
-                        cmd.Parameters.AddWithValue("@uid", doorUid);
+                        cmd.Parameters.AddWithValue("@SipAccount", sipAccount);
+                        cmd.Parameters.AddWithValue("@Secret", secret);
                         cmd.ExecuteNonQuery();
                     }
                     transaction.Commit();
                 }
             }
+            return sipAccount;
         }
 
         public static bool GetDoorPhone(string phone, string doorUid)

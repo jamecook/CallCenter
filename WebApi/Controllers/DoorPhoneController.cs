@@ -32,7 +32,7 @@ namespace WebApi.Controllers
             {
                 return BadRequest("Authorization error!");
             }
-            RequestService.BindDoorPhone(doorDto.Phone, doorDto.DoorUid);
+            RequestService.BindDoorPhone(doorDto.Phone, doorDto.DoorUid, doorDto.DeviceId, doorDto.AddressId);
             return Ok();
         }
         [HttpGet, AllowAnonymous]
