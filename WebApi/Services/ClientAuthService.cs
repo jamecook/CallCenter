@@ -31,14 +31,14 @@ namespace WebApi.Services
 
         public TokenDto GetToken(ClientAuthDto authDto)
         {
-            var user = RequestService.ClientLogin(authDto.Phone, authDto.Code);
+            var user = RequestService.ClientLogin(authDto.Phone, authDto.Code, authDto.DeviceId);
             if (user == null)
             {
                 return null;
             }
             var now = DateTime.UtcNow;
             var refreshToken = CreateRefreshToken(user, now);
-            RequestService.AddClientRefreshToken(user.Id,refreshToken, now.Add(TimeSpan.FromDays(_configuration.GetValue<int>("Auth:RefreshExpireDays"))));
+            RequestService.AddClientRefreshToken(user.Id,refreshToken, now.Add(TimeSpan.FromDays(_configuration.GetValue<int>("Auth:RefreshExpireDays"))),user.DeviceId);
             return new TokenDto
             {
                 Access = CreateAccessToken(user, now),
@@ -81,6 +81,7 @@ namespace WebApi.Services
                 new Claim("Phone", user.Phone),
                 new Claim("Name", user.Name??""),
                 new Claim("PushId", user.PushId),
+                new Claim("DeviceId", user.DeviceId),
                 //new Claim("icom", "573b5bde.eyJhbGciOiJIUzI1NiJ9.eyJlbnRpdHlfdXVpZCI6IjI1MiIsImVudGl0eV90eXBlIjoidXNlciIsImVudGl0eV9yZWZfdXVpZCI6ImQ0ODVlZDExLWUxMGEtNDU5Yy04YjcyLTI5NWZlNmY4MWUzZCIsImVudGl0eV9uYW1lIjpudWxsLCJzYWx0IjoiNTczYjViZGUifQ.guurFCBoX4p-lVyXrEGWlJ7QbPCYJP1kbIKmzuGjOWk"),
 
             };

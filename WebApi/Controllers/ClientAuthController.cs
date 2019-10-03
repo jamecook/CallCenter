@@ -46,7 +46,7 @@ namespace WebApi.Controllers
             {
                 return BadRequest();
             }
-            var authDto = new ClientAuthDto {Phone = authParameter.Phone, Code = authParameter.Code};
+            var authDto = new ClientAuthDto {Phone = authParameter.Phone, Code = authParameter.Code, DeviceId = authParameter.DeviceId};
             var token = _authService.GetToken(authDto);
             if (token == null)
             {

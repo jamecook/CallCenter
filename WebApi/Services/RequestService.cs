@@ -2292,7 +2292,7 @@ body = {
             }
         }
 
-        public static ClientUserDto ClientLogin(string phone, string code)
+        public static ClientUserDto ClientLogin(string phone, string code, string deviceId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -2310,6 +2310,7 @@ body = {
                                 Phone = dataReader.GetString("Phone"),
                                 Name = dataReader.GetNullableString("name"),
                                 PushId = dataReader.GetString("guid"),
+                                DeviceId = deviceId
                             };
                         }
                         dataReader.Close();
@@ -2319,7 +2320,7 @@ body = {
             }
         }
 
-        public static void AddClientRefreshToken(int clientId, Guid refreshToken, DateTime expireDate)
+        public static void AddClientRefreshToken(int clientId, Guid refreshToken, DateTime expireDate, string deviceId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -2327,11 +2328,12 @@ body = {
                 using (var transaction = conn.BeginTransaction())
                 {
                     using (var cmd =
-                        new MySqlCommand(@"CALL CallCenter.ClientAddToken(@ClientId,@Token,@ExpireDate);", conn))
+                        new MySqlCommand(@"CALL CallCenter.ClientAddTokenV2(@ClientId,@Token,@ExpireDate,@deviceId);", conn))
                     {
                         cmd.Parameters.AddWithValue("@ClientId", clientId);
                         cmd.Parameters.AddWithValue("@Token", refreshToken);
                         cmd.Parameters.AddWithValue("@ExpireDate", expireDate);
+                        cmd.Parameters.AddWithValue("@deviceId", deviceId);
                         cmd.ExecuteNonQuery();
                     }
                     transaction.Commit();
@@ -2345,7 +2347,7 @@ body = {
             {
 
                 conn.Open();
-                using (var cmd = new MySqlCommand($"Call CallCenter.ClientGetByToken(@Token,@ExpireDate)", conn)
+                using (var cmd = new MySqlCommand($"Call CallCenter.ClientGetByTokenV2(@Token,@ExpireDate)", conn)
                 )
                 {
                     cmd.Parameters.AddWithValue("@ExpireDate", expireDate);
@@ -2361,6 +2363,7 @@ body = {
                                 Phone = dataReader.GetString("Phone"),
                                 Name = dataReader.GetNullableString("name"),
                                 PushId = dataReader.GetString("guid"),
+                                DeviceId = dataReader.GetNullableString("device_uid"),
                             };
                         }
                         dataReader.Close();
@@ -3081,7 +3084,7 @@ VALUES
             return sipAccount;
         }
 
-        public static bool GetDoorPhone(string phone, string doorUid)
+        public static bool GetDoorPhone(string phone, string doorUid, int addressId, string deviceId)
         {
             var result = false;
             using (var conn = new MySqlConnection(_connectionString))
@@ -3089,10 +3092,12 @@ VALUES
                 conn.Open();
                 using (
                     var cmd =
-                        new MySqlCommand(@"call CallCenter.ClientGetBindDoorPhone(@clientPhone,@uid);", conn))
+                        new MySqlCommand(@"call CallCenter.ClientGetBindDoorPhoneV2(@clientPhone,@uid,@addressId,@deviceId);", conn))
                 {
                     cmd.Parameters.AddWithValue("@clientPhone", phone);
                     cmd.Parameters.AddWithValue("@uid", doorUid);
+                    cmd.Parameters.AddWithValue("@addressId", addressId);
+                    cmd.Parameters.AddWithValue("@deviceId", deviceId);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         if (dataReader.Read())

@@ -36,12 +36,12 @@ namespace WebApi.Controllers
             return Ok();
         }
         [HttpGet, AllowAnonymous]
-        public ActionResult<bool> GetBindDoorPhone([FromQuery] string phone, [FromQuery] string doorUid)
+        public ActionResult<bool> GetBindDoorPhone([FromQuery] string phone, [FromQuery] string doorUid,[FromQuery] int addressId, [FromQuery] string deviceId)
         {
                 var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
             if (auth.Value == "a921d6c2-8162-4912-a8b5-ab36b4bbf020")
             {
-                return RequestService.GetDoorPhone(phone, doorUid);
+                return RequestService.GetDoorPhone(phone, doorUid, addressId, deviceId);
             }
             return BadRequest("Authorization error!");
         }

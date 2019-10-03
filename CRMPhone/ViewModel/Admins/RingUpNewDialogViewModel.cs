@@ -108,9 +108,9 @@ namespace CRMPhone.ViewModel.Admins
                             else
                                 str = cell.CellValue?.Text;
                             if (cell.CellReference.Value.StartsWith("A"))
-                                item.Phone = str;
+                                item.Phone = str?.Trim();
                             else if (cell.CellReference.Value.StartsWith("B"))
-                                item.Dolg = str;
+                                item.Dolg = str?.Trim();
                         }
                         _importedRecords.Add(item);
                     }

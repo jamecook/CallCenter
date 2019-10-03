@@ -6,5 +6,6 @@ namespace WebApi.Models
         public string Phone { get; set; }
         public string Name { get; set; }
         public string PushId { get; set; }
+        public string DeviceId { get; set; }
     }
 }
