@@ -2725,7 +2725,7 @@ body = {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientDeleteAddress(@ClientId,@AddressId)", conn))
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientDeleteAddressV2(@ClientId,@AddressId)", conn))
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
                     cmd.Parameters.AddWithValue("@AddressId", addressId);
@@ -2756,14 +2756,15 @@ body = {
             }
         }
 
-        public static AddressDto[] GetAddresses(int clientId)
+        public static AddressDto[] GetAddresses(int clientId, string deviceId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetAddresses(@ClientId)", conn))
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetAddressesV2(@ClientId,@DeviceId)", conn))
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@DeviceId", deviceId);
                     var addresses = new List<AddressDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -2780,6 +2781,7 @@ body = {
                                 Flat = dataReader.GetNullableString("flat"),
                                 AddressType = dataReader.GetNullableString("address_type"),
                                 IntercomId = dataReader.GetNullableString("intercomId"),
+                                SipId = dataReader.GetNullableString("sip_id"),
                             });
                         }
                         dataReader.Close();

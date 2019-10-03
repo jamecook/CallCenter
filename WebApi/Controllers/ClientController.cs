@@ -132,11 +132,12 @@ namespace WebApi.Controllers
         [HttpGet("address")]
         public ActionResult<AddressDto[]> GetAddresses()
         {
+            var deviceId = User.Claims.FirstOrDefault(c => c.Type == "DeviceId")?.Value;
             var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
             int.TryParse(clientIdStr, out int clientId);
-            if (clientId == 0)
+            if (clientId == 0 || string.IsNullOrEmpty(deviceId))
                 return BadRequest("1000:Error in JWT");
-            return RequestService.GetAddresses(clientId);
+            return RequestService.GetAddresses(clientId,deviceId);
         }
         [HttpDelete("address/{id}")]
         public ActionResult DeleteAddress(int id)

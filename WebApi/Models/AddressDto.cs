@@ -11,6 +11,7 @@ namespace WebApi.Models
         public string Flat { get; set; }
         public string AddressType { get; set; }
         public string IntercomId { get; set; }
+        public string SipId { get; set; }
         public string FullAddress
         {
             get
