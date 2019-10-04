@@ -3041,8 +3041,9 @@ body = {
                         }
                         if (string.IsNullOrEmpty(sipAccount))
                         {
+                            var password = (addressId + devId).ToString().PadLeft(9,'0');
                             //Создаем аккаунт на удаленной базе астериск
-                            var sip = CreateSipAccount(devId);
+                            var sip = CreateSipAccount(devId,password);
                             using (
                                 var cmd2 =
                                     new MySqlCommand(
@@ -3050,7 +3051,7 @@ body = {
                             {
                                 cmd2.Parameters.AddWithValue("@deviceId", devId);
                                 cmd2.Parameters.AddWithValue("@sipAccount", "SIP/"+ sip);
-                                cmd2.Parameters.AddWithValue("@secret", sip);
+                                cmd2.Parameters.AddWithValue("@secret", password);
                                 cmd2.ExecuteNonQuery();
                             }
                         }
@@ -3060,10 +3061,10 @@ body = {
             }
         }
 
-        private static string CreateSipAccount(int devId)
+        private static string CreateSipAccount(int devId,string password)
         {
             string sipAccount = devId.ToString().PadLeft(10, '0');
-            string secret = sipAccount;
+            string secret = password;
             using (var conn = new MySqlConnection(_connectionStringAts))
             {
                 conn.Open();
