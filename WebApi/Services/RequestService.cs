@@ -109,6 +109,7 @@ namespace WebApi.Services
                                 DeviceId = dataReader.GetNullableString("device_uid"),
                                 SipPhone = dataReader.GetNullableString("sip_account"),
                                 Secret = dataReader.GetNullableString("sip_secret"),
+                                SipId = dataReader.GetNullableString("sip_id"),
                                 Address = new AddressDto()
                                 {
                                     Id = dataReader.GetInt32("id"),
@@ -172,7 +173,8 @@ body = {
                 PushId = clientDto.PushId,
                 DeviceId = clientDto.DeviceId,
                 AddrId = clientDto.Address.Id,
-                Addr = clientDto.Address.FullAddress
+                Addr = clientDto.Address.FullAddress,
+                SipId = clientDto.SipId
 
             };
             var dataRequest = request.AddJsonBody(discar);
