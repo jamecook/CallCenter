@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Web.UI.WebControls;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using NLog.Filters;
 using RestSharp;
@@ -2724,6 +2725,29 @@ body = {
 
         public static void DeleteAddress(int clientId, int addressId)
         {
+            var devIds = new List<int>();
+            using (var devConn = new MySqlConnection(_connectionString))
+            {
+                devConn.Open();
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetDevicesForDeleteV2(@ClientId,@AddressId)", devConn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@AddressId", addressId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            devIds.Add(dataReader.GetInt32("id"));
+                        }
+                        dataReader.Close();
+                    }
+                }
+            }
+                foreach(var dev in devIds)
+                {
+                DeleteSipAccount(dev);
+                }
+
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
@@ -3089,6 +3113,25 @@ VALUES
             return sipAccount;
         }
 
+        private static void DeleteSipAccount(int devId)
+        {
+            string sipAccount = devId.ToString().PadLeft(10, '0');
+            using (var conn = new MySqlConnection(_connectionStringAts))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"delete from asterisk.sippeers where name = @SipAccount;", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@SipAccount", sipAccount);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+        }
         public static bool GetDoorPhone(string phone, string doorUid, int addressId, string deviceId)
         {
             var result = false;
