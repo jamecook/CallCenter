@@ -3158,6 +3158,29 @@ VALUES
                 }
             }
         }
+        public static bool ExistsSipPhone(int addressId)
+        {
+            var result = 0;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(@"call CallCenter.DoopPhoneExistsSip(@addressId);", conn))
+                {
+                    cmd.Parameters.AddWithValue("@addressId", addressId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            result = dataReader.GetInt32("sip_count");
+                        }
+                        dataReader.Close();
+                        return result>0;
+                    }
+                }
+            }
+        }
         public static string[] GetBindDoorPushIdsOld(string flat, string doorUid)
         {
             using (var conn = new MySqlConnection(_connectionString))

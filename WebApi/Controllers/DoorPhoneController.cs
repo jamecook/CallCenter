@@ -46,6 +46,17 @@ namespace WebApi.Controllers
             return BadRequest("Authorization error!");
         }
 
+        [HttpGet("exists_sip"), AllowAnonymous]
+        public ActionResult<bool> ExistsSipDoorPhone([FromQuery] int addressId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value == "a921d6c2-8162-4912-a8b5-ab36b4bbf020")
+            {
+                return RequestService.ExistsSipPhone(addressId);
+            }
+            return BadRequest("Authorization error!");
+        }
+
         [HttpGet("get_sip_phones"), AllowAnonymous]
         public ActionResult<string> GetSipByFlat([FromQuery] string account)
         {
