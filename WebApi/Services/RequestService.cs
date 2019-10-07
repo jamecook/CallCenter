@@ -141,7 +141,7 @@ namespace WebApi.Services
                     }
                 }
 
-                return addresses.Count>0?addresses.Select(a=>a.SipPhone).Aggregate((i,j)=>i+"&"+j):null;
+                return addresses.Count>0?addresses.Select(a=>a.SipPhone).Aggregate((i,j)=>i+"&"+j):"SIP/127001";
 
             }
         }

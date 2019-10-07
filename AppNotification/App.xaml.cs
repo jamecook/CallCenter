@@ -54,7 +54,7 @@ namespace AppNotification
                     }
 
                 }
-                using (var cmd = new MySqlCommand(@"delete from CallCenter.App_Notifications where sended_date is null and insert_date < sysdate() - INTERVAL 30 MINUTE;",
+                using (var cmd = new MySqlCommand(@"delete from CallCenter.App_Notifications where sended_date is null and client_send_date is null and web_send_date is null and insert_date < sysdate() - INTERVAL 30 MINUTE;",
                                         dbConnection))
                 {
                     cmd.ExecuteNonQuery();
@@ -112,7 +112,7 @@ namespace AppNotification
         {
             var sql = @"SELECT w.guid,n.* FROM CallCenter.App_Notifications n
 join CallCenter.Workers w on w.id = n.worker_id
-where w.send_notification = 1 and n.sended_date is null;";
+where w.send_notification = 1 and n.sended_date is null and n.insert_date > AddDate(sysdate(), interval -1 hour);";
             using (var cmd = new MySqlCommand(sql, dbConnection))
             {
                 using (var dataReader = cmd.ExecuteReader())

@@ -6,7 +6,7 @@ using MySql.Data.MySqlClient;
 using NLog;
 using RestSharp;
 
-namespace AppNotificationForClient
+namespace AppNotificationForWeb
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -37,7 +37,7 @@ namespace AppNotificationForClient
                         if (result.StartsWith("{\"id\":"))
                         {
                             using (var cmd = new MySqlCommand(
-                                        @"update CallCenter.App_Notifications set client_send_date = sysdate(),is_sended=1 where id = @Id;",
+                                        @"update CallCenter.App_Notifications set web_send_date = sysdate(),is_sended=1 where id = @Id;",
                                         dbConnection))
                             {
                                 cmd.Parameters.AddWithValue("@Id", notification.Id);
@@ -76,11 +76,15 @@ namespace AppNotificationForClient
 
             var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
-            request.AddHeader("Authorization", "Basic MWQ5NTU1ODktOTg5Ni00YTQ2LWI1NzUtNzc3MmIxYjFkMTM4");
-            //request.AddHeader("Authorization", "Basic Zjk0ZDNmZjMtMDc4MC00Yjc5LWIyZGYtYzg4ZTk2MzAyYjhm");
+            request.AddHeader("Authorization", "Basic OWYzYTlkYmEtZDg5MS00OTJlLTkyNzgtYTUzZTgzNjA3OWFi");
+            //request.AddHeader("Authorization", "Basic Y2M3YjMyY2YtODUyZS00M2YyLWFjN2UtMWU4NjI0Y2Y5YjJi");
+            //request.AddHeader("Authorization", "Basic M2FkNzJkMmYtZWJjNS00NDc4LTk2ZGYtNWRiZWJlNDVkMTNj");
+            
+            //request.AddHeader("Authorization", "Basic MmJlODRiN2ItODYxMC00MThiLWJmZjItNDIwZmRkMzgwOTMx");
             var discar = new MessageDto
             {
-                app_id = "069fb414-d721-4d29-9eeb-c7278a9e3950",
+
+                app_id = "0e854521-3f11-4cb9-9b27-8585c9d94a5c",
                 contents = new Content()
                 {
                     en = message,
@@ -106,8 +110,8 @@ namespace AppNotificationForClient
         public static List<NotificationDto> GetNotificationList(MySqlConnection dbConnection)
         {
             var sql = @"SELECT w.guid,n.* FROM CallCenter.App_Notifications n
-join CallCenter.Clients w on w.id = n.client_id
-where n.client_send_date is null and n.insert_date > AddDate(sysdate(), interval -1 hour);";
+join CallCenter.Workers w on w.id = n.worker_id
+where w.send_notification = 1 and n.web_send_date is null and n.insert_date > AddDate(sysdate(), interval -1 hour);";
             using (var cmd = new MySqlCommand(sql, dbConnection))
             {
                 using (var dataReader = cmd.ExecuteReader())

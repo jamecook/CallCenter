@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComboBoxControl", "ComboBox
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppNotificationForClient", "AppNotificationForClient\AppNotificationForClient.csproj", "{6AD2D5F5-F4B2-45EA-823A-5303263315D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppNotificationForWeb", "AppNotificationForWeb\AppNotificationForWeb.csproj", "{E8DB98D4-D1C4-46CD-AFD6-271F5B30BC24}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +107,10 @@ Global
 		{6AD2D5F5-F4B2-45EA-823A-5303263315D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6AD2D5F5-F4B2-45EA-823A-5303263315D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6AD2D5F5-F4B2-45EA-823A-5303263315D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8DB98D4-D1C4-46CD-AFD6-271F5B30BC24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8DB98D4-D1C4-46CD-AFD6-271F5B30BC24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8DB98D4-D1C4-46CD-AFD6-271F5B30BC24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8DB98D4-D1C4-46CD-AFD6-271F5B30BC24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
