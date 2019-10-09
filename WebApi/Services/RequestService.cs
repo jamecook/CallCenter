@@ -7,6 +7,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web.UI.WebControls;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -129,22 +130,30 @@ namespace WebApi.Services
                     }
                 }
                 addresses = addresses.Where(a => !string.IsNullOrEmpty(a.SipPhone)).ToList();
+
+                List<Task<string>> tasks = new List<Task<string>>();
                 foreach (var dto in addresses)
                 {
-                    try
-                    {
-                        CallVoIpPush(dto);
-                    }
-                    catch
-                    {
-                        
-                    }
+                    tasks.Add(Task.Factory.StartNew((b) => Action(b),dto));
+                }
+                while (tasks.Exists(t => t.Status == TaskStatus.Running))
+                {
+                    var results = Task.WaitAny(tasks.Where(t=>!t.IsCompleted).ToArray(),40000);
+                    if (tasks.Exists(t => t.Status == TaskStatus.RanToCompletion && t.Result == ""))
+                        break;
                 }
 
                 return addresses.Count>0?addresses.Select(a=>a.SipPhone).Aggregate((i,j)=>i+"&"+j):"SIP/127001";
 
             }
         }
+
+        private static string Action(object o)
+        {
+            var dto = o as PushIdAndAddressDto;
+            return CallVoIpPush(dto);
+        }
+
         /*
          Запрос, который должен выполнить Астериск перед тем как послать вызов:
 
@@ -161,7 +170,7 @@ body = {
    "pushId"    : "push id" 
 }
              */
-        public static void CallVoIpPush(PushIdAndAddressDto clientDto)
+        public static string CallVoIpPush(PushIdAndAddressDto clientDto)
         {
             var saveSampleUrl = "https://dispex.org:5000/sip/call_request";
 
@@ -182,6 +191,7 @@ body = {
 
             var responce = client.Execute(dataRequest);
             var result = responce.Content;
+            return result;
         }
 
         internal static PushIdsAndAddressDto[] GetBindDoorPushIds(string flat, string doorUid)
