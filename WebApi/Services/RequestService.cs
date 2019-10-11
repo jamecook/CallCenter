@@ -12,6 +12,8 @@ using System.Web.UI.WebControls;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
+using NLog;
 using NLog.Filters;
 using RestSharp;
 using Stimulsoft.Report;
@@ -24,6 +26,7 @@ namespace WebApi.Services
         private static string _connectionString;
         private static string _connectionStringAts;
         private static string _sipServer;
+        private static readonly Logger _logger;
 
         static RequestService()
         {
@@ -32,6 +35,8 @@ namespace WebApi.Services
             _connectionStringAts = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", "151.248.121.220",
                 "zerg", "Dispex1411Zerg", "asterisk");
             _sipServer = "@151.248.121.220:6050";
+            _logger = LogManager.GetCurrentClassLogger();
+            
         }
 
         public static WebUserDto WebLogin(string userName, string password)
@@ -136,13 +141,16 @@ namespace WebApi.Services
                 {
                     tasks.Add(Task.Factory.StartNew((b) => Action(b),dto));
                 }
+                _logger.Debug("----------------Start");
                 while (tasks.Exists(t => t.Status == TaskStatus.Running))
                 {
                     var results = Task.WaitAny(tasks.Where(t=>!t.IsCompleted).ToArray(),40000);
                     if (tasks.Exists(t => t.Status == TaskStatus.RanToCompletion && t.Result == ""))
                         break;
                 }
-
+                _logger.Debug("----------------Stop");
+                var serialize = JsonConvert.SerializeObject(tasks);
+                _logger.Debug($"----------------\r\n{serialize}");
                 return addresses.Count>0?addresses.Select(a=>a.SipPhone).Aggregate((i,j)=>i+"&"+j):"SIP/127001";
 
             }
@@ -188,9 +196,10 @@ body = {
 
             };
             var dataRequest = request.AddJsonBody(discar);
-
+            _logger.Debug($"----------------Start CallVoIpPush({clientDto.PushId},{clientDto.DeviceId})");
             var responce = client.Execute(dataRequest);
             var result = responce.Content;
+            _logger.Debug($"----------------Stop CallVoIpPush({clientDto.PushId},{clientDto.DeviceId})");
             return result;
         }
 
@@ -2818,6 +2827,7 @@ body = {
                                 AddressType = dataReader.GetNullableString("address_type"),
                                 IntercomId = dataReader.GetNullableString("intercomId"),
                                 SipId = dataReader.GetNullableString("sip_id"),
+                                CanBeCalled = dataReader.GetBoolean("can_be_called"),
                             });
                         }
                         dataReader.Close();
@@ -2826,7 +2836,20 @@ body = {
                 }
             }
         }
-
+        public static void CanBeCalled(int clientId, string deviceId, bool value)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientSetCanBeCalledV2(@ClientId,@DeviceId,@Value)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@DeviceId", deviceId);
+                    cmd.Parameters.AddWithValue("@Value", value);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
         public static ClientRequestForListDto[] ClientRequestListArrayParam(int clientId, int? requestId,
             DateTime fromDate, DateTime toDate, int[] addressIds)
         {
