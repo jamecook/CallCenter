@@ -145,7 +145,7 @@ namespace WebApi.Services
                 while (tasks.Exists(t => t.Status == TaskStatus.Running))
                 {
                     var results = Task.WaitAny(tasks.Where(t=>!t.IsCompleted).ToArray(),40000);
-                    if (tasks.Exists(t => t.Status == TaskStatus.RanToCompletion && t.Result == ""))
+                    if (tasks.Exists(t => t.Status == TaskStatus.RanToCompletion && (t.Result == "" || t.Result == "OK")))
                         break;
                 }
                 _logger.Debug("----------------Stop");
