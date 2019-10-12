@@ -14,6 +14,15 @@ namespace WebApi.Services
             }
             return null;
         }
+        public static bool? GetNullableBoolean(this MySqlDataReader reader, string fieldName)
+        {
+            var index = reader.GetOrdinal(fieldName);
+            if (!reader.IsDBNull(index))
+            {
+                return reader.GetBoolean(index);
+            }
+            return null;
+        }
         public static double? GetNullableDouble(this MySqlDataReader reader, string fieldName)
         {
             var index = reader.GetOrdinal(fieldName);

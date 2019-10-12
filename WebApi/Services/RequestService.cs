@@ -2827,7 +2827,7 @@ body = {
                                 AddressType = dataReader.GetNullableString("address_type"),
                                 IntercomId = dataReader.GetNullableString("intercomId"),
                                 SipId = dataReader.GetNullableString("sip_id"),
-                                CanBeCalled = dataReader.GetBoolean("can_be_called"),
+                                CanBeCalled = dataReader.GetNullableBoolean("can_be_called"),
                             });
                         }
                         dataReader.Close();
@@ -2836,15 +2836,16 @@ body = {
                 }
             }
         }
-        public static void CanBeCalled(int clientId, string deviceId, bool value)
+        public static void CanBeCalled(int clientId, string deviceId,int addressId, bool value)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientSetCanBeCalledV2(@ClientId,@DeviceId,@Value)", conn))
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientSetCanBeCalledV2(@ClientId,@DeviceId,@AddressId,@Value)", conn))
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
                     cmd.Parameters.AddWithValue("@DeviceId", deviceId);
+                    cmd.Parameters.AddWithValue("@AddressId", addressId);
                     cmd.Parameters.AddWithValue("@Value", value);
                     cmd.ExecuteNonQuery();
                 }

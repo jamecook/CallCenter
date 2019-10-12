@@ -12,7 +12,7 @@ namespace WebApi.Models
         public string AddressType { get; set; }
         public string IntercomId { get; set; }
         public string SipId { get; set; }
-        public bool CanBeCalled { get; set; }
+        public bool? CanBeCalled { get; set; }
         public string FullAddress
         {
             get

@@ -139,15 +139,15 @@ namespace WebApi.Controllers
                 return BadRequest("1000:Error in JWT");
             return RequestService.GetAddresses(clientId,deviceId);
         }
-        [HttpPut("can_be_called")]
-        public ActionResult CanBeCalled([FromBody]bool value)
+        [HttpPut("can_be_called/{addressId}")]
+        public ActionResult CanBeCalled(int addressId, [FromBody]bool value)
         {
             var deviceId = User.Claims.FirstOrDefault(c => c.Type == "DeviceId")?.Value;
             var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0 || string.IsNullOrEmpty(deviceId))
                 return BadRequest("1000:Error in JWT");
-            RequestService.CanBeCalled(clientId, deviceId, value);
+            RequestService.CanBeCalled(clientId, deviceId, addressId, value);
             return Ok();
         }
 
