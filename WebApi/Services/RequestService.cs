@@ -144,13 +144,18 @@ namespace WebApi.Services
                 _logger.Debug("----------------Start");
                 while (tasks.Exists(t => t.Status == TaskStatus.Running))
                 {
-                    var results = Task.WaitAny(tasks.Where(t=>!t.IsCompleted).ToArray(),40000);
+                    _logger.Debug($"----------------WaitAny Start task running count={tasks.Count(t => t.Status == TaskStatus.Running)}");
+                    var results = Task.WaitAny(tasks.Where(t => t.Status == TaskStatus.Running).ToArray(),40000);
+                    _logger.Debug($"----------------WaitAny Stop task running count={tasks.Count(t => t.Status == TaskStatus.Running)}");
+                    var loopSer = JsonConvert.SerializeObject(tasks.Where(t => t.Status == TaskStatus.RanToCompletion));
+                    _logger.Debug($"----------------\r\n\r\n{loopSer}\r\n\r\n");
+
                     if (tasks.Exists(t => t.Status == TaskStatus.RanToCompletion && (t.Result == "" || t.Result == "OK")))
                         break;
                 }
-                _logger.Debug("----------------Stop");
-                var serialize = JsonConvert.SerializeObject(tasks);
-                _logger.Debug($"----------------\r\n{serialize}");
+                _logger.Debug("----------------Stop!!!!!!!");
+                //var serialize = JsonConvert.SerializeObject(tasks);
+                //_logger.Debug($"----------------\r\n\r\n\r\n\r\n{serialize}\r\n\r\n\r\n\r\n");
                 return addresses.Count>0?addresses.Select(a=>a.SipPhone).Aggregate((i,j)=>i+"&"+j):"SIP/127001";
 
             }
