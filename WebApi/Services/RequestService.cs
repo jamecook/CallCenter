@@ -1107,6 +1107,7 @@ body = {
                                 TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
                                 RatingDescription = dataReader.GetNullableString("RatingDesc"),
                                 LastNote = dataReader.GetNullableString("last_note"),
+                                ExistNote = dataReader.GetBoolean("exist_note"),
                                 IsChargeable = dataReader.GetBoolean("is_chargeable"),
                                 ClientName = dataReader.GetNullableString("client_name"),
                                 CloseDate = dataReader.GetNullableDateTime("close_date"),
