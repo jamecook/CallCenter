@@ -1437,6 +1437,7 @@ namespace CRMPhone.ViewModel
             }
             var phone = item.CallerIdNum.Replace("+", "");
             IncomingCallFrom = phone;
+            CallFromServiceCompany = _requestService?.ServiceCompanyByIncommingPhoneNumber(phone);
             string callId = string.Format("sip:#{0}@{1}", phone, _serverIP);
             _sipAgent.CallMaker.Invite(callId);
 
