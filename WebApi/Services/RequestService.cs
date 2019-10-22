@@ -185,7 +185,8 @@ body = {
              */
         public static string CallVoIpPush(PushIdAndAddressDto clientDto)
         {
-            var saveSampleUrl = "https://dispex.org:5000/sip/call_request";
+            var saveSampleUrl = "https://dispex.org:5000/v2/sip/call_request";
+            //var saveSampleUrl = "https://dispex.org:5000/sip/call_request";
 
             var client = new RestClient(saveSampleUrl);
             var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
