@@ -13,6 +13,7 @@ namespace WebApi.Models
         public bool CanCreateRequestInWeb { get; set; }
         public bool AllowStatistics { get; set; }
         public bool AllowCalendar { get; set; }
+        public bool AllowDocs { get; set; }
         public bool OnlyImmediate { get; set; }
         public bool CanSetRating { get; set; }
         public bool CanCloseRequest { get; set; }

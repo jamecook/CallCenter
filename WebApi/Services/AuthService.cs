@@ -75,6 +75,7 @@ namespace WebApi.Services
                 new Claim("CanCreateRequestInWeb", user.CanCreateRequestInWeb.ToString()),
                 new Claim("AllowStatistics", user.AllowStatistics.ToString()),
                 new Claim("AllowCalendar", user.AllowCalendar.ToString()),
+                new Claim("AllowDocs", user.AllowDocs.ToString()),
                 new Claim("OnlyImmediate", user.OnlyImmediate.ToString()),
                 new Claim("CanSetRating", user.CanSetRating.ToString()),
                 new Claim("CanCloseRequest", user.CanCloseRequest.ToString()),
