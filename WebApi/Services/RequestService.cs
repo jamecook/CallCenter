@@ -3249,5 +3249,142 @@ VALUES
             }
         }
 
+
+        public static IEnumerable<DocTypeDto> DocsGetTypes(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL docs_pack.get_types(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var list = new List<DocTypeDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var type = new DocTypeDto()
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                            };
+                            list.Add(type);
+                        }
+                        dataReader.Close();
+                    }
+                    return list;
+                }
+            }
+        }
+        public static IEnumerable<DocStatusDto> DocsGetStatuses(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL docs_pack.get_statuses(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var list = new List<DocStatusDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var type = new DocStatusDto()
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                            };
+                            list.Add(type);
+                        }
+                        dataReader.Close();
+                    }
+                    return list;
+                }
+            }
+        }
+
+        public static IEnumerable<DocKindDto> DocsGetKinds(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL docs_pack.get_kinds(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var list = new List<DocKindDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var type = new DocKindDto()
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                            };
+                            list.Add(type);
+                        }
+                        dataReader.Close();
+                    }
+                    return list;
+                }
+            }
+        }
+
+        public static IEnumerable<DocDto> DocsGetList(int workerId, DateTime fromDate, DateTime toDate, string inNumber, string outNumber, int[] agents, int[] statuses, int[] types, int[] kinds)
+        {
+            var findFromDate = fromDate.Date;
+            var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery = "call docs_pack.get_docs(@CurWorker,@FromDate,@ToDate, @InNumber, @OutNumber, @Agents, @Statuses, @Types, @Kinds);";
+
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", workerId);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate);
+                    cmd.Parameters.AddWithValue("@InNumber", inNumber);
+                    cmd.Parameters.AddWithValue("@OutNumber", outNumber);
+
+                    cmd.Parameters.AddWithValue("@Agents",
+                        agents != null && agents.Length > 0
+                            ? agents.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@Statuses",
+                        statuses != null && statuses.Length > 0
+                            ? statuses.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@Types",
+                        types != null && types.Length > 0
+                            ? types.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    cmd.Parameters.AddWithValue("@Kinds",
+                        kinds != null && kinds.Length > 0
+                            ? kinds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+                    var requests = new List<DocDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            requests.Add(new DocDto()
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return requests.ToArray();
+                }
+            }
+        }
     }
 }
