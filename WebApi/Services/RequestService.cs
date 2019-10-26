@@ -3408,6 +3408,7 @@ VALUES
                             {
                                 Id = dataReader.GetInt32("id"),
                                 CreateDate = dataReader.GetDateTime("create_date"),
+                                InsertDate = dataReader.GetDateTime("insert_date"),
                                 CreateUser = new UserDto
                                     {
                                         Id = dataReader.GetInt32("create_worker_id"),
@@ -3460,18 +3461,23 @@ VALUES
             }
         }
 
-        public static string CreateDoc(int workerId, int? docId, string inNumber, string outNumber, DateTime? inDate, DateTime? outDate,
+        public static string CreateDoc(int workerId, int? docId, DateTime? createDate, string inNumber, string outNumber, DateTime? inDate, DateTime? outDate,
     int? agentId, int statusId, int kindId, int typeId, string description)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
+                if (!createDate.HasValue)
+                {
+                    createDate = DateTime.Now;
+                }
                 conn.Open();
                 var query =
-                    "call docs_pack.add_or_update_doc(@WorkerId,@DocId,@InNumber,@OutNumber,@InDate,@OutDate,@AgentId,@TypeId,@KindId,@StatusId,@Descript);";
+                    "call docs_pack.add_or_update_doc(@WorkerId,@DocId,@DocDate,@InNumber,@OutNumber,@InDate,@OutDate,@AgentId,@TypeId,@KindId,@StatusId,@Descript);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
                     cmd.Parameters.AddWithValue("@DocId", docId);
+                    cmd.Parameters.AddWithValue("@DocDate", createDate);
                     cmd.Parameters.AddWithValue("@InNumber", inNumber);
                     cmd.Parameters.AddWithValue("@OutNumber", outNumber);
                     cmd.Parameters.AddWithValue("@InDate", inDate);

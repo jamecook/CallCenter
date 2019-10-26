@@ -29,6 +29,7 @@ namespace WebApi.Models
     {
         public int Id { get; set; }
         public DateTime CreateDate { get; set; }
+        public DateTime InsertDate { get; set; }
         public string InNumber { get; set; }
         public string OutNumber { get; set; }
         public DateTime? InDate { get; set; }
@@ -46,6 +47,7 @@ namespace WebApi.Models
     public class CreateOrUpdateDocDto
     {
         public int? Id { get; set; }
+        public DateTime CreateDate { get; set; }
         public string InNumber { get; set; }
         public string OutNumber { get; set; }
         public DateTime? InDate { get; set; }
