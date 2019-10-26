@@ -3278,6 +3278,36 @@ VALUES
                 }
             }
         }
+        public static IEnumerable<DocAgentDto> DocsGetAgents(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL docs_pack.get_agent(@WorkerId,null)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var list = new List<DocAgentDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var type = new DocAgentDto()
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                Inn = dataReader.GetString("inn"),
+                                Director = dataReader.GetNullableString("director_fio"),
+                            };
+                            list.Add(type);
+                        }
+                        dataReader.Close();
+                    }
+                    return list;
+                }
+            }
+        }
         public static IEnumerable<DocStatusDto> DocsGetStatuses(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3377,7 +3407,50 @@ VALUES
                             requests.Add(new DocDto()
                             {
                                 Id = dataReader.GetInt32("id"),
-                                
+                                CreateDate = dataReader.GetDateTime("create_date"),
+                                CreateUser = new UserDto
+                                    {
+                                        Id = dataReader.GetInt32("create_worker_id"),
+                                        SurName = dataReader.GetNullableString("sur_name"),
+                                        FirstName = dataReader.GetNullableString("first_name"),
+                                        PatrName = dataReader.GetNullableString("patr_name"),
+                                    },
+                                InNumber = dataReader.GetNullableString("in_number"),
+                                OutNumber = dataReader.GetNullableString("out_number"),
+                                Description = dataReader.GetNullableString("descript"),
+                                InDate = dataReader.GetNullableDateTime("in_date"),
+                                OutDate = dataReader.GetNullableDateTime("out_date"),
+                                DoneDate = dataReader.GetNullableDateTime("done_date"),
+                                AttachCount = dataReader.GetInt32("attach_count"),
+                                Agent = dataReader.GetNullableInt("agent_id") != null
+                                    ? new DocAgentDto
+                                    {
+                                        Id = dataReader.GetInt32("agent_id"),
+                                        Name = dataReader.GetNullableString("agent_name"),
+                                        Inn = dataReader.GetNullableString("agent_inn"),
+                                    }
+                                    : null,
+                                Status = dataReader.GetNullableInt("status_id") != null
+                                    ? new DocStatusDto
+                                    {
+                                        Id = dataReader.GetInt32("status_id"),
+                                        Name = dataReader.GetNullableString("status_name"),
+                                    }
+                                    : null,
+                                Kind = dataReader.GetNullableInt("kind_id") != null
+                                    ? new DocKindDto
+                                    {
+                                        Id = dataReader.GetInt32("kind_id"),
+                                        Name = dataReader.GetNullableString("kind_name"),
+                                    }
+                                    : null,
+                                Type = dataReader.GetNullableInt("type_id") != null
+                                    ? new DocTypeDto
+                                    {
+                                        Id = dataReader.GetInt32("type_id"),
+                                        Name = dataReader.GetNullableString("type_name"),
+                                    }
+                                    : null,
                             });
                         }
                         dataReader.Close();
@@ -3386,5 +3459,36 @@ VALUES
                 }
             }
         }
+
+        public static string CreateDoc(int workerId, int? docId, string inNumber, string outNumber, DateTime? inDate, DateTime? outDate,
+    int? agentId, int statusId, int kindId, int typeId, string description)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query =
+                    "call docs_pack.add_or_update_doc(@WorkerId,@DocId,@InNumber,@OutNumber,@InDate,@OutDate,@AgentId,@TypeId,@KindId,@StatusId,@Descript);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@DocId", docId);
+                    cmd.Parameters.AddWithValue("@InNumber", inNumber);
+                    cmd.Parameters.AddWithValue("@OutNumber", outNumber);
+                    cmd.Parameters.AddWithValue("@InDate", inDate);
+                    cmd.Parameters.AddWithValue("@OutDate", outDate);
+                    cmd.Parameters.AddWithValue("@AgentId", agentId);
+                    cmd.Parameters.AddWithValue("@TypeId", typeId);
+                    cmd.Parameters.AddWithValue("@KindId", kindId);
+                    cmd.Parameters.AddWithValue("@StatusId", statusId);
+                    cmd.Parameters.AddWithValue("@Descript", description);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        dataReader.Read();
+                        return dataReader.GetNullableString("retDocId");
+                    }
+                }
+            }
+        }
+
     }
 }
