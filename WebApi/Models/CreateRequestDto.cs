@@ -15,5 +15,6 @@ namespace WebApi.Models
         public string Description { get; set; }
         public DateTime? ExecuteDate { get; set; }
         public int? WarrantyId { get; set; }
+        public string Origin { get; set; }
     }
 }

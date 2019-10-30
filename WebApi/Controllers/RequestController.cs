@@ -191,7 +191,7 @@ namespace WebApi.Controllers
             _logger.LogInformation("---------- Create Request: "+JsonConvert.SerializeObject(value));
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.CreateRequest(workerId, value.Phone, value.Name, value.AddressId, value.TypeId, value.MasterId, value.ExecuterId, value.Description,value.IsChargeable ?? false, value.ExecuteDate, value.WarrantyId ?? 0, value.IsImmediate ?? false);
+            return RequestService.CreateRequest(workerId, value.Phone, value.Name, value.AddressId, value.TypeId, value.MasterId, value.ExecuterId, value.Description,value.IsChargeable ?? false, value.ExecuteDate, value.WarrantyId ?? 0, value.IsImmediate ?? false, value.Origin);
         }
 
         [HttpGet("workers")]

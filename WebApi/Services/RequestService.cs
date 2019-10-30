@@ -1445,13 +1445,13 @@ body = {
 
         public static string CreateRequest(int workerId, string phone, string fio, int addressId, int typeId,
             int? masterId, int? executerId, string description, bool isChargeable = false, DateTime? executeDate = null,
-            int warrantyId = 0, bool isImmediate = false)
+            int warrantyId = 0, bool isImmediate = false, string platform = null)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 var query =
-                    "call CallCenter.DispexCreateRequest2(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc,@IsChargeable,@ExecuteDate,@IsWarranty,@IsImmediate);";
+                    "call CallCenter.DispexCreateRequest20191030(@WorkerId,@Phone,@Fio,@AddressId,@TypeId,@MasterId,@ExecuterId,@Desc,@IsChargeable,@ExecuteDate,@IsWarranty,@IsImmediate,@Origin);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1466,6 +1466,7 @@ body = {
                     cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
                     cmd.Parameters.AddWithValue("@IsWarranty", warrantyId);
                     cmd.Parameters.AddWithValue("@IsImmediate", isImmediate);
+                    cmd.Parameters.AddWithValue("@Origin", platform);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         dataReader.Read();

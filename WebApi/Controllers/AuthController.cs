@@ -44,7 +44,7 @@ namespace WebApi.Controllers
             var token = _authService.RefreshToken(refreshToken);
             if (token == null)
             {
-                return BadRequest();
+                return Unauthorized();
             }
             return new TokenModel { Access = token.Access, Refresh = token.Refresh.ToString() };
         }
