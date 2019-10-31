@@ -2789,19 +2789,20 @@ body = {
             }
         }
 
-        public static string ClientCreateRequest(int clientId, int addressId, int typeId, string description)
+        public static string ClientCreateRequest(int clientId, int addressId, int typeId, string description, string origin)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 var query =
-                    "call CallCenter.ClientCreateRequest(@ClientId,@AddressId,@TypeId,@Desc);";
+                    "call CallCenter.ClientCreateRequest20191030(@ClientId,@AddressId,@TypeId,@Desc, @Origin);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
                     cmd.Parameters.AddWithValue("@AddressId", addressId);
                     cmd.Parameters.AddWithValue("@TypeId", typeId);
                     cmd.Parameters.AddWithValue("@Desc", description);
+                    cmd.Parameters.AddWithValue("@Origin", origin);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         dataReader.Read();

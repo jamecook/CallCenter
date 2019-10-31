@@ -86,7 +86,7 @@ namespace WebApi.Controllers
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0)
                 return BadRequest("1000:Error in JWT");
-            return RequestService.ClientCreateRequest(clientId, value.AddressId, value.TypeId, value.Description);
+            return RequestService.ClientCreateRequest(clientId, value.AddressId, value.TypeId, value.Description, value.Origin);
         }
         [HttpGet("request")]
         public ActionResult<ClientRequestForListDto[]> GetRequests([FromQuery]string requestId,
