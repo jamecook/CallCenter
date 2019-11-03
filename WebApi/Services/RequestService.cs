@@ -3280,7 +3280,7 @@ VALUES
                 }
             }
         }
-        public static IEnumerable<DocAgentDto> DocsGetAgents(int workerId)
+        public static IEnumerable<DocOrgDto> DocsGetAgents(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -3290,12 +3290,12 @@ VALUES
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
-                    var list = new List<DocAgentDto>();
+                    var list = new List<DocOrgDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
                         {
-                            var type = new DocAgentDto()
+                            var type = new DocOrgDto()
                             {
                                 Id = dataReader.GetInt32("id"),
                                 Name = dataReader.GetString("name"),
@@ -3339,43 +3339,14 @@ VALUES
             }
         }
 
-        public static IEnumerable<DocKindDto> DocsGetKinds(int workerId)
-        {
-            using (var conn = new MySqlConnection(_connectionString))
-            {
-                conn.Open();
-
-                var sqlQuery = @"CALL docs_pack.get_kinds(@WorkerId)";
-                using (var cmd = new MySqlCommand(sqlQuery, conn))
-                {
-                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
-                    var list = new List<DocKindDto>();
-                    using (var dataReader = cmd.ExecuteReader())
-                    {
-                        while (dataReader.Read())
-                        {
-                            var type = new DocKindDto()
-                            {
-                                Id = dataReader.GetInt32("id"),
-                                Name = dataReader.GetString("name"),
-                            };
-                            list.Add(type);
-                        }
-                        dataReader.Close();
-                    }
-                    return list;
-                }
-            }
-        }
-
-        public static IEnumerable<DocDto> DocsGetList(int workerId, DateTime fromDate, DateTime toDate, string inNumber, string outNumber, int[] agents, int[] statuses, int[] types, int[] kinds)
+        public static IEnumerable<DocDto> DocsGetList(int workerId, DateTime fromDate, DateTime toDate, string inNumber, string outNumber, int[] orgs, int[] statuses, int[] types)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var sqlQuery = "call docs_pack.get_docs(@CurWorker,@FromDate,@ToDate, @InNumber, @OutNumber, @Agents, @Statuses, @Types, @Kinds);";
+                var sqlQuery = "call docs_pack.get_docs(@CurWorker,@FromDate,@ToDate, @InNumber, @OutNumber, @Orgs, @Statuses, @Types);";
 
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
@@ -3385,9 +3356,9 @@ VALUES
                     cmd.Parameters.AddWithValue("@InNumber", inNumber);
                     cmd.Parameters.AddWithValue("@OutNumber", outNumber);
 
-                    cmd.Parameters.AddWithValue("@Agents",
-                        agents != null && agents.Length > 0
-                            ? agents.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                    cmd.Parameters.AddWithValue("@Orgs",
+                        orgs != null && orgs.Length > 0
+                            ? orgs.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
                             : null);
                     cmd.Parameters.AddWithValue("@Statuses",
                         statuses != null && statuses.Length > 0
@@ -3397,10 +3368,7 @@ VALUES
                         types != null && types.Length > 0
                             ? types.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
                             : null);
-                    cmd.Parameters.AddWithValue("@Kinds",
-                        kinds != null && kinds.Length > 0
-                            ? kinds.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
-                            : null);
+
                     var requests = new List<DocDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -3410,7 +3378,6 @@ VALUES
                             {
                                 Id = dataReader.GetInt32("id"),
                                 CreateDate = dataReader.GetDateTime("create_date"),
-                                InsertDate = dataReader.GetDateTime("insert_date"),
                                 CreateUser = new UserDto
                                     {
                                         Id = dataReader.GetInt32("create_worker_id"),
@@ -3418,19 +3385,22 @@ VALUES
                                         FirstName = dataReader.GetNullableString("first_name"),
                                         PatrName = dataReader.GetNullableString("patr_name"),
                                     },
+                                DocNumber = dataReader.GetNullableString("doc_number"),
+                                DocDate = dataReader.GetDateTime("doc_date"),
                                 InNumber = dataReader.GetNullableString("in_number"),
-                                OutNumber = dataReader.GetNullableString("out_number"),
-                                Description = dataReader.GetNullableString("descript"),
                                 InDate = dataReader.GetNullableDateTime("in_date"),
+                                OutNumber = dataReader.GetNullableString("out_number"),
                                 OutDate = dataReader.GetNullableDateTime("out_date"),
+                                Topic = dataReader.GetNullableString("topic"),
+                                Description = dataReader.GetNullableString("descript"),
                                 DoneDate = dataReader.GetNullableDateTime("done_date"),
                                 AttachCount = dataReader.GetInt32("attach_count"),
-                                Agent = dataReader.GetNullableInt("agent_id") != null
-                                    ? new DocAgentDto
+                                Org = dataReader.GetNullableInt("org_id") != null
+                                    ? new DocOrgDto
                                     {
-                                        Id = dataReader.GetInt32("agent_id"),
-                                        Name = dataReader.GetNullableString("agent_name"),
-                                        Inn = dataReader.GetNullableString("agent_inn"),
+                                        Id = dataReader.GetInt32("org_id"),
+                                        Name = dataReader.GetNullableString("org_name"),
+                                        Inn = dataReader.GetNullableString("org_inn"),
                                     }
                                     : null,
                                 Status = dataReader.GetNullableInt("status_id") != null
@@ -3440,13 +3410,6 @@ VALUES
                                         Name = dataReader.GetNullableString("status_name"),
                                     }
                                     : null,
-                                Kind = dataReader.GetNullableInt("kind_id") != null
-                                    ? new DocKindDto
-                                    {
-                                        Id = dataReader.GetInt32("kind_id"),
-                                        Name = dataReader.GetNullableString("kind_name"),
-                                    }
-                                    : null,
                                 Type = dataReader.GetNullableInt("type_id") != null
                                     ? new DocTypeDto
                                     {
@@ -3454,6 +3417,14 @@ VALUES
                                         Name = dataReader.GetNullableString("type_name"),
                                     }
                                     : null,
+                                OrganizationalType = dataReader.GetNullableInt("organiz_type_id") != null
+                                    ? new OrganizationalTypeDto()
+                                    {
+                                        Id = dataReader.GetInt32("organiz_type_id"),
+                                        Name = dataReader.GetNullableString("organiz_type_name"),
+                                    }
+                                    : null,
+
                             });
                         }
                         dataReader.Close();
@@ -3463,31 +3434,27 @@ VALUES
             }
         }
 
-        public static string CreateDoc(int workerId, int? docId, DateTime? createDate, string inNumber, string outNumber, DateTime? inDate, DateTime? outDate,
-    int? agentId, int statusId, int kindId, int typeId, string description)
+        public static string CreateDoc(int workerId, int typeId, string topic, string docNumber, DateTime docDate, string inNumber,
+            DateTime? inDate, string outNumber, DateTime? outDate,  int? orgId, int? organizationalTypeId, string description)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
-                if (!createDate.HasValue)
-                {
-                    createDate = DateTime.Now;
-                }
                 conn.Open();
                 var query =
-                    "call docs_pack.add_or_update_doc(@WorkerId,@DocId,@DocDate,@InNumber,@OutNumber,@InDate,@OutDate,@AgentId,@TypeId,@KindId,@StatusId,@Descript);";
+                    "call docs_pack.create_doc(@WorkerId,@TypeId,@Topic, @DocNumber, @DocDate, @InNumber,@InDate,@OutNumber,@OutDate,@OrgId,@OrganizTypeId,@Descript);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
-                    cmd.Parameters.AddWithValue("@DocId", docId);
-                    cmd.Parameters.AddWithValue("@DocDate", createDate);
-                    cmd.Parameters.AddWithValue("@InNumber", inNumber);
-                    cmd.Parameters.AddWithValue("@OutNumber", outNumber);
-                    cmd.Parameters.AddWithValue("@InDate", inDate);
-                    cmd.Parameters.AddWithValue("@OutDate", outDate);
-                    cmd.Parameters.AddWithValue("@AgentId", agentId);
                     cmd.Parameters.AddWithValue("@TypeId", typeId);
-                    cmd.Parameters.AddWithValue("@KindId", kindId);
-                    cmd.Parameters.AddWithValue("@StatusId", statusId);
+                    cmd.Parameters.AddWithValue("@Topic", topic);
+                    cmd.Parameters.AddWithValue("@DocNumber", docNumber);
+                    cmd.Parameters.AddWithValue("@DocDate", docDate);
+                    cmd.Parameters.AddWithValue("@InNumber", inNumber);
+                    cmd.Parameters.AddWithValue("@InDate", inDate);
+                    cmd.Parameters.AddWithValue("@OutNumber", outNumber);
+                    cmd.Parameters.AddWithValue("@OutDate", outDate);
+                    cmd.Parameters.AddWithValue("@OrgId", orgId);
+                    cmd.Parameters.AddWithValue("@OrganizTypeId", organizationalTypeId);
                     cmd.Parameters.AddWithValue("@Descript", description);
                     using (var dataReader = cmd.ExecuteReader())
                     {

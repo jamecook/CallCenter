@@ -28,7 +28,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("agents")]
-        public IEnumerable<DocAgentDto> GetAgents()
+        public IEnumerable<DocOrgDto> GetAgents()
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
@@ -49,25 +49,17 @@ namespace WebApi.Controllers
             int.TryParse(workerIdStr, out int workerId);
             return RequestService.DocsGetStatuses(workerId);
         }
-        [HttpGet("kinds")]
-        public IEnumerable<DocKindDto> GetDocKinds()
-        {
-            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
-            int.TryParse(workerIdStr, out int workerId);
-            return RequestService.DocsGetKinds(workerId);
-        }
         [HttpGet]
         public IEnumerable<DocDto> GetDocs([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate,
             [FromQuery] string inNumber, [FromQuery] string outNumber,
-            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] agents,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] orgs,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] statuses,
-            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] types,
-            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] kinds)
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] types)
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
             return RequestService.DocsGetList(workerId, fromDate ?? DateTime.Today, toDate ?? DateTime.Today.AddDays(1),
-                inNumber, outNumber, agents, statuses, types, kinds);
+                inNumber, outNumber, orgs, statuses, types);
         }
         [HttpPost]
         public string Post([FromBody]CreateOrUpdateDocDto value)
@@ -75,7 +67,9 @@ namespace WebApi.Controllers
             _logger.LogInformation("---------- Create Doc: " + JsonConvert.SerializeObject(value));
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.CreateDoc(workerId, null, value.CreateDate, value.InNumber, value.OutNumber, value.InDate, value.OutDate, value.AgentId, value.StatusId, value.KindId, value.TypeId, value.Description);
+
+            return RequestService.CreateDoc(workerId,  value.TypeId, value.Topic, value.DocNumber, value.DocDate, value.InNumber, value.InDate, value.OutNumber,
+                value.OutDate, value.OrgId, value.OrganizationalTypeId, value.Description);
         }
         [HttpPut("{id}")]
         public string Post(int id, [FromBody]CreateOrUpdateDocDto value)
@@ -83,7 +77,8 @@ namespace WebApi.Controllers
             _logger.LogInformation($"---------- Update Doc with id ({id}): " + JsonConvert.SerializeObject(value));
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.CreateDoc(workerId, id, value.CreateDate, value.InNumber, value.OutNumber, value.InDate, value.OutDate, value.AgentId, value.StatusId, value.KindId, value.TypeId, value.Description);
+            return "";
+                //RequestService.CreateDoc(workerId, id, value.CreateDate, value.InNumber, value.OutNumber, value.InDate, value.OutDate, value.AgentId, value.StatusId, value.KindId, value.TypeId, value.Description);
         }
 
         [HttpPost("add_file/{id}")]
