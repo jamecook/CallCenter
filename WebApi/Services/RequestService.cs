@@ -3464,6 +3464,70 @@ VALUES
                 }
             }
         }
+        public static void AttachFileToDoc(int workerId, int docId, string fileName, string generatedFileName, string extension)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                /*
+                 IN currentWorkerId int,
+IN vId int,
+IN vName varchar(255) CHARACTER SET utf8,
+IN vFileName varchar(255) CHARACTER SET utf8,
+IN vExtension varchar(6) CHARACTER SET utf8
+                 */
 
+                conn.Open();
+                using (var cmd =
+                    new MySqlCommand(@"call docs_pack.attach_file(@WorkerId,@Id,@Name,@generatedName,@Extension);", conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", docId);
+                    cmd.Parameters.AddWithValue("@Name", fileName);
+                    cmd.Parameters.AddWithValue("@generatedName", generatedFileName);
+                    cmd.Parameters.AddWithValue("@Extension", extension);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static List<AttachmentToDocDto> GetAttachmentsToDocs(int workerId, int docId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(@"call docs_pack.get_attachments(@WorkerId,@DocId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Id", docId);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var attachments = new List<AttachmentToDocDto>();
+                        while (dataReader.Read())
+                        {
+                            attachments.Add(new AttachmentToDocDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                FileName = dataReader.GetString("file_name"),
+                                Extension = dataReader.GetString("extension"),
+                                CreateDate = dataReader.GetDateTime("create_date"),
+                                DocId = dataReader.GetInt32("doc_id"),
+                                User = new UserDto()
+                                {
+                                    Id = dataReader.GetInt32("worker_id"),
+                                    SurName = dataReader.GetNullableString("sur_name"),
+                                    FirstName = dataReader.GetNullableString("first_name"),
+                                    PatrName = dataReader.GetNullableString("patr_name"),
+                                }
+                            });
+                        }
+                        dataReader.Close();
+                        return attachments;
+                    }
+                }
+            }
+        }
     }
 }

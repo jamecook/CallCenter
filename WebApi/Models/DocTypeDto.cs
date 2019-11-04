@@ -62,6 +62,16 @@ namespace WebApi.Models
         public int? OrganizationalTypeId { get; set; }
         public string Description { get; set; }
     }
+    public class AttachmentToDocDto
+    {
+        public int Id { get; set; }
+        public int DocId { get; set; }
+        public string Name { get; set; }
+        public string FileName { get; set; }
+        public string Extension { get; set; }
+        public DateTime CreateDate { get; set; }
+        public UserDto User { get; set; }
+    }
 
 
 }

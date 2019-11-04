@@ -81,8 +81,8 @@ namespace WebApi.Controllers
                 //RequestService.CreateDoc(workerId, id, value.CreateDate, value.InNumber, value.OutNumber, value.InDate, value.OutDate, value.AgentId, value.StatusId, value.KindId, value.TypeId, value.Description);
         }
 
-        [HttpPost("add_file/{id}")]
-        public async Task<IActionResult> AddFileToRequest(int id, [FromForm] IFormFile file)
+        [HttpPost("attach_file/{id}")]
+        public async Task<IActionResult> AttachFileToDoc(int id, [FromForm] IFormFile file)
         {
             if (file == null || file.Length == 0)
                 return BadRequest();
@@ -100,8 +100,29 @@ namespace WebApi.Controllers
             }
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            RequestService.AttachFileToRequest(workerId, id, file.FileName, fileName);
+            RequestService.AttachFileToDoc(workerId, id, file.FileName, fileName, fileExtension?.TrimStart('.'));
             return Ok();
+        }
+
+        [HttpGet("attachments/{id}")]
+        public IEnumerable<AttachmentToDocDto> GetAttachments(int id)
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.GetAttachmentsToDocs(workerId, id);
+        }
+        [HttpGet("attachment")]
+        public byte[] GetAttachment([FromQuery]string docNum, [FromQuery]string fileName)
+        {
+            int? docId = null;
+            if (!string.IsNullOrEmpty(docNum) && int.TryParse(docNum, out int parseId))
+            {
+                docId = parseId;
+            }
+            if (!docId.HasValue) return null;
+
+            var rootFolder = GetRootFolder();
+            return RequestService.DownloadFile(docId.Value, fileName, rootFolder);
         }
 
         private string GetRootFolder()
