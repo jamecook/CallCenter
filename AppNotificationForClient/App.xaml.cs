@@ -14,6 +14,7 @@ namespace AppNotificationForClient
     public partial class App : Application
     {
         private static Logger _logger;
+        private static string _oneSignalKey;
 
         private void App_OnStartup(object app_sender, StartupEventArgs e)
         {
@@ -23,6 +24,7 @@ namespace AppNotificationForClient
             {
 
                 var server = ConfigurationManager.AppSettings["CallCenterIP"];
+                _oneSignalKey = ConfigurationManager.AppSettings["OneSignalKey"];
                 var connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", server,
                     "asterisk", "mysqlasterisk", "asterisk");
                 var dbConnection = new MySqlConnection(connectionString);
@@ -76,7 +78,7 @@ namespace AppNotificationForClient
 
             var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
-            request.AddHeader("Authorization", "Basic MWQ5NTU1ODktOTg5Ni00YTQ2LWI1NzUtNzc3MmIxYjFkMTM4");
+            request.AddHeader("Authorization", $"Basic {_oneSignalKey}");
             //request.AddHeader("Authorization", "Basic Zjk0ZDNmZjMtMDc4MC00Yjc5LWIyZGYtYzg4ZTk2MzAyYjhm");
             var discar = new MessageDto
             {
