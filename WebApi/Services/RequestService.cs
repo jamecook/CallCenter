@@ -3280,13 +3280,13 @@ VALUES
                 }
             }
         }
-        public static IEnumerable<DocOrgDto> DocsGetAgents(int workerId)
+        public static IEnumerable<DocOrgDto> DocsGetOrganisations(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
 
-                var sqlQuery = @"CALL docs_pack.get_agent(@WorkerId,null)";
+                var sqlQuery = @"CALL docs_pack.get_organisation(@WorkerId,null)";
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -3499,7 +3499,7 @@ IN vExtension varchar(6) CHARACTER SET utf8
                         new MySqlCommand(@"call docs_pack.get_attachments(@WorkerId,@DocId)", conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
-                    cmd.Parameters.AddWithValue("@Id", docId);
+                    cmd.Parameters.AddWithValue("@DocId", docId);
 
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -3510,9 +3510,9 @@ IN vExtension varchar(6) CHARACTER SET utf8
                             {
                                 Id = dataReader.GetInt32("id"),
                                 Name = dataReader.GetString("name"),
-                                FileName = dataReader.GetString("file_name"),
+                                FileName = dataReader.GetString("filename"),
                                 Extension = dataReader.GetString("extension"),
-                                CreateDate = dataReader.GetDateTime("create_date"),
+                                CreateDate = dataReader.GetDateTime("insert_date"),
                                 DocId = dataReader.GetInt32("doc_id"),
                                 User = new UserDto()
                                 {

@@ -27,12 +27,12 @@ namespace WebApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet("agents")]
+        [HttpGet("orgs")]
         public IEnumerable<DocOrgDto> GetAgents()
         {
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return RequestService.DocsGetAgents(workerId);
+            return RequestService.DocsGetOrganisations(workerId);
         }
 
         [HttpGet("types")]
@@ -86,6 +86,7 @@ namespace WebApi.Controllers
         {
             if (file == null || file.Length == 0)
                 return BadRequest();
+
             _logger.LogDebug($"FileLen: {file.Length}, FileName: {file.FileName}");
             var uploadFolder = Path.Combine(GetRootFolder(), id.ToString());
             if (!Directory.Exists(uploadFolder))
@@ -112,17 +113,17 @@ namespace WebApi.Controllers
             return RequestService.GetAttachmentsToDocs(workerId, id);
         }
         [HttpGet("attachment")]
-        public byte[] GetAttachment([FromQuery]string docNum, [FromQuery]string fileName)
+        public byte[] GetAttachment([FromQuery]string docId, [FromQuery]string fileName)
         {
-            int? docId = null;
-            if (!string.IsNullOrEmpty(docNum) && int.TryParse(docNum, out int parseId))
+            int? id = null;
+            if (!string.IsNullOrEmpty(docId) && int.TryParse(docId, out int parseId))
             {
-                docId = parseId;
+                id = parseId;
             }
-            if (!docId.HasValue) return null;
+            if (!id.HasValue) return null;
 
             var rootFolder = GetRootFolder();
-            return RequestService.DownloadFile(docId.Value, fileName, rootFolder);
+            return RequestService.DownloadFile(id.Value, fileName, rootFolder);
         }
 
         private string GetRootFolder()
