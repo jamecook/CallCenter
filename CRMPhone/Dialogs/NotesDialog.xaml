@@ -15,9 +15,11 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <WrapPanel Grid.Row="0" Visibility="Collapsed">
-            <Button Width="100" Margin ="5" Content="Добавить" Command="{Binding AddCommand}"/>
-            <Button Width="100" Margin ="5" Content="Удалить" Command="{Binding DeleteCommand}"/>
+        <WrapPanel Grid.Row="0">
+            <TextBlock Margin ="5">Комментарий:</TextBlock>
+            <TextBox Width="300" Margin ="5" Text="{Binding Comment}"></TextBox>
+            <Button Width="80" Margin ="5" Content="Добавить" Command="{Binding AddCommand}"/>
+            <Button Visibility="Collapsed" Width="100" Margin ="5" Content="Удалить" Command="{Binding DeleteCommand}"/>
         </WrapPanel>
         <DataGrid Name="SpecialityGrid" Grid.Row ="1" 
                   AutoGenerateColumns="False"

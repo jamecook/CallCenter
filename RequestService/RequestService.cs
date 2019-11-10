@@ -779,7 +779,7 @@ namespace RequestServiceImpl
         }
         public List<NoteDto> GetNotes(int requestId)
         {
-            return GetNotesCore(requestId, _dbConnection);
+            return GetNotesCore(requestId, _dbConnection).OrderByDescending(n => n.Date).ToList();
         }
 
         public List<NoteDto> GetNotesCore(int requestId, MySqlConnection dbConnection)

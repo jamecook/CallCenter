@@ -27,22 +27,31 @@ namespace CRMPhone.ViewModel
         public ObservableCollection<NoteDto> NoteList
         {
             get { return _noteList; }
-            set { _noteList = value; OnPropertyChanged(nameof(NoteList));}
+            set { _noteList = value; OnPropertyChanged(nameof(NoteList)); }
         }
         public void Refresh()
         {
             NoteList = new ObservableCollection<NoteDto>(_requestService.GetNotes(_requestId));
         }
 
-
+        public string Comment { get => _comment;
+            set
+            { _comment = value;
+                OnPropertyChanged(nameof(Comment));
+            }
+        }
         private ICommand _addCommand;
         public ICommand AddCommand { get { return _addCommand ?? (_addCommand = new CommandHandler(Add, true)); } }
 
         private ICommand _deleteCommand;
+        private string _comment;
+
         public ICommand DeleteCommand { get { return _deleteCommand ?? (_deleteCommand = new CommandHandler(Delete, true)); } }
         private void Add()
         {
-
+            _requestService.AddNewNote(_requestId, Comment, null);
+            Comment = "";
+            Refresh();
         }
         private void Delete()
         {
@@ -56,7 +65,7 @@ namespace CRMPhone.ViewModel
         public AttachmentDto SelectedNoteItem
         {
             get { return _selectedNoteItem; }
-            set { _selectedNoteItem = value; OnPropertyChanged(nameof(SelectedNoteItem));}
+            set { _selectedNoteItem = value; OnPropertyChanged(nameof(SelectedNoteItem)); }
         }
 
 
