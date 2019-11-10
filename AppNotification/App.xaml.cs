@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Net;
 using System.Windows;
 using MySql.Data.MySqlClient;
 using NLog;
@@ -22,6 +23,8 @@ namespace AppNotification
         {
             _logger = LogManager.GetCurrentClassLogger();
             _logger.Debug("Run");
+            //Set SSL/TLS ver 1.2
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             try
             {
 

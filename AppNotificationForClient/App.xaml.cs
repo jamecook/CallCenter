@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Net;
 using System.Windows;
 using MySql.Data.MySqlClient;
 using NLog;
@@ -20,6 +21,9 @@ namespace AppNotificationForClient
         {
             _logger = LogManager.GetCurrentClassLogger();
             _logger.Debug("Run");
+            //Set SSL/TLS ver 1.2
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             try
             {
 
@@ -109,7 +113,7 @@ namespace AppNotificationForClient
         {
             var sql = @"SELECT w.guid,n.* FROM CallCenter.App_Notifications n
 join CallCenter.Clients w on w.id = n.client_id
-where n.client_send_date is null and n.insert_date > AddDate(sysdate(), interval -1 hour);";
+where n.client_send_date is null and n.insert_date > AddDate(sysdate(), interval - 1 hour) and w.phone <> '5555020304';";
             using (var cmd = new MySqlCommand(sql, dbConnection))
             {
                 using (var dataReader = cmd.ExecuteReader())

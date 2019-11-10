@@ -7,7 +7,7 @@ using MySql.Data.MySqlClient;
 using NLog;
 using RestSharp;
 
-namespace AppNotificationForWeb
+namespace AppNotificationForClient
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -21,10 +21,10 @@ namespace AppNotificationForWeb
         {
             _logger = LogManager.GetCurrentClassLogger();
             _logger.Debug("Run");
-            //Set SSL/TLS ver 1.2
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             try
             {
+                //Set SSL/TLS ver 1.2
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
                 var server = ConfigurationManager.AppSettings["CallCenterIP"];
                 _oneSignalKey = ConfigurationManager.AppSettings["OneSignalKey"];
@@ -38,11 +38,11 @@ namespace AppNotificationForWeb
                 {
                     try
                     {
-                        var result = SendNotification(notification.Message, notification.WorkerGuid,notification.RequestId);
-                        if (result.StartsWith("{\"id\":"))
+                        var result = SendNotification(notification.WorkerGuid, notification.Message, notification.MessageType, notification.RequestId);
+                        if (result.StartsWith("{\"id\":") || result.Equals("OK"))
                         {
                             using (var cmd = new MySqlCommand(
-                                        @"update CallCenter.App_Notifications set web_send_date = sysdate(),is_sended=1 where id = @Id;",
+                                        @"update CallCenter.App_Notifications set client_send_date = sysdate(),is_sended=1 where id = @Id;",
                                         dbConnection))
                             {
                                 cmd.Parameters.AddWithValue("@Id", notification.Id);
@@ -72,9 +72,9 @@ namespace AppNotificationForWeb
             Application.Current.Shutdown();
         }
 
-        public static string SendNotification(string message,string dest, int? requestId)
+        public static string SendNotification(string userGuid,string message,int messageType, int? requestId)
         {
-            var saveSampleUrl = "https://onesignal.com/api/v1/notifications";
+            var saveSampleUrl = "https://dispex.org:5000/v3/notification";
             //var saveSampleUrl = "http://web.dispex.ru:5000";
 
             var client = new RestClient(saveSampleUrl);
@@ -82,41 +82,34 @@ namespace AppNotificationForWeb
             var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
             request.AddHeader("Authorization", $"Basic {_oneSignalKey}");
-            //request.AddHeader("Authorization", "Basic Y2M3YjMyY2YtODUyZS00M2YyLWFjN2UtMWU4NjI0Y2Y5YjJi");
-            //request.AddHeader("Authorization", "Basic M2FkNzJkMmYtZWJjNS00NDc4LTk2ZGYtNWRiZWJlNDVkMTNj");
-
-            //request.AddHeader("Authorization", "Basic MmJlODRiN2ItODYxMC00MThiLWJmZjItNDIwZmRkMzgwOTMx");
-            var discar = new MessageDto
+            //request.AddHeader("Authorization", "Basic Zjk0ZDNmZjMtMDc4MC00Yjc5LWIyZGYtYzg4ZTk2MzAyYjhm");
+            var discar = new NewMessageDto
             {
-
-                app_id = "0e854521-3f11-4cb9-9b27-8585c9d94a5c",
-                contents = new Content()
+                pushId = userGuid,
+                Id = requestId??0,
+                type = messageType,
+                mode = "REQUEST",
+                data = new NewData()
                 {
-                    en = message,
-                },
-                data = new Data()
-                {
-                    requestId = requestId.ToString()
-                },
-                filters = new Filter[] {new Filter()
-                {
-                    field = "tag",
-                    key = "push_id",
-                    relation = "=",
-                    value = dest
-                } }
+                    text = message
+                }
             };
             var dataRequest = request.AddJsonBody(discar);
 
             var responce = client.Execute(dataRequest);
+            if (!responce.IsSuccessful)
+            {
+                _logger.Debug(responce.ErrorMessage);
+                throw responce.ErrorException;
+            }
             return responce.Content;
         }
 
         public static List<NotificationDto> GetNotificationList(MySqlConnection dbConnection)
         {
             var sql = @"SELECT w.guid,n.* FROM CallCenter.App_Notifications n
-join CallCenter.Workers w on w.id = n.worker_id
-where w.send_notification = 1 and n.web_send_date is null and n.insert_date > AddDate(sysdate(), interval -1 hour);";
+join CallCenter.Clients w on w.id = n.client_id
+where n.client_send_date is null and n.insert_date > AddDate(sysdate(), interval - 1 hour) and w.phone = '5555020304';";
             using (var cmd = new MySqlCommand(sql, dbConnection))
             {
                 using (var dataReader = cmd.ExecuteReader())
@@ -128,6 +121,7 @@ where w.send_notification = 1 and n.web_send_date is null and n.insert_date > Ad
                         {
                             Id = dataReader.GetInt32("id"),
                             RequestId = dataReader.GetNullableInt("request_id"),
+                            MessageType = dataReader.GetInt32("type_id"),
                             Message = dataReader.GetNullableString("description"),
                             WorkerGuid = dataReader.GetNullableString("guid")
                         });
