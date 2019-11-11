@@ -2627,6 +2627,20 @@ body = {
             }
         }
 
+        public static void SetAnnulledRequest(int clientId, int rId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientDropRequest(@clientId,@requestId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@clientId", clientId);
+                    cmd.Parameters.AddWithValue("@requestId", rId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         public static int GetExpiredRequestCount(int currentWorkerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3000,6 +3014,23 @@ body = {
                         dataReader.Close();
                         return attachments.ToArray();
                     }
+                }
+            }
+        }
+
+        public static void ClientDropAttachment(int clientId, int requestId, int attachId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(@"call CallCenter.ClientDropAttachment(@clientId,@requestId, @attachId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@clientId", clientId);
+                    cmd.Parameters.AddWithValue("@requestId", requestId);
+                    cmd.Parameters.AddWithValue("@attachId", attachId);
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
@@ -3529,5 +3560,7 @@ IN vExtension varchar(6) CHARACTER SET utf8
                 }
             }
         }
+
+
     }
 }

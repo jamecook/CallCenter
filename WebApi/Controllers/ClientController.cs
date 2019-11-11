@@ -116,7 +116,29 @@ namespace WebApi.Controllers
                 toDate ?? DateTime.Today.AddDays(1),
                  addresses);
         }
+        [HttpDelete("request/{id}")]
+        public ActionResult SetAnnulledRequest(string id)
+        {
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest("1000:Error in JWT");
 
+            int? rId = null;
+            if (!string.IsNullOrEmpty(id))
+            {
+                if (int.TryParse(id, out int parseId))
+                {
+                    rId = parseId;
+                }
+                else
+                {
+                    return BadRequest("1002:Error parse id");
+                }
+            }
+            RequestService.SetAnnulledRequest(clientId, rId.Value);
+            return Ok();
+        }
         [HttpPost("address")]
         public ActionResult AddAddress([FromBody]AddressIdDto value)
         {
@@ -183,6 +205,28 @@ namespace WebApi.Controllers
 
             var rootFolder = GetRootFolder();
             return RequestService.DownloadFile(rId.Value, fileName, rootFolder);
+        }
+        [HttpDelete("attachment")]
+        public ActionResult DeleteAttachment([FromQuery]string requestId, [FromQuery]string attachId)
+        {
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest("1000:Error in JWT");
+            int? rId = null;
+            if (!string.IsNullOrEmpty(requestId) && int.TryParse(requestId, out int parseId))
+            {
+                rId = parseId;
+            }
+            if (!rId.HasValue) return null;
+            int? aId = null;
+            if (!string.IsNullOrEmpty(attachId) && int.TryParse(attachId, out int attId))
+            {
+                aId = attId;
+            }
+            if (!aId.HasValue) return null;
+            RequestService.ClientDropAttachment(clientId,rId.Value, aId.Value);
+            return Ok();
         }
         [HttpGet("preview")]
         public byte[] GetPreview([FromQuery]string requestId, [FromQuery]string fileName)

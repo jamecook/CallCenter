@@ -228,7 +228,12 @@ namespace CRMPhone.ViewModel
 
         public string SipPhone {
             get { return _sipPhone; }
-            set { _sipPhone = value; OnPropertyChanged(nameof(SipPhone));}
+            set {
+                if(!string.IsNullOrEmpty(value) && value.Length == 11)
+                {
+                    value = value.Substring(1);
+                }
+                _sipPhone = value; OnPropertyChanged(nameof(SipPhone));}
         }
 
         public string SipSecret
