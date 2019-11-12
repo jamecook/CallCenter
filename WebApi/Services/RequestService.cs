@@ -3000,6 +3000,7 @@ body = {
                                 Id = dataReader.GetInt32("id"),
                                 Name = dataReader.GetString("name"),
                                 FileName = dataReader.GetString("file_name"),
+                                CanBeDeleted = dataReader.GetBoolean("can_be_deleted"),
                                 CreateDate = dataReader.GetDateTime("create_date"),
                                 RequestId = dataReader.GetInt32("request_id"),
                                 User = new UserDto()
