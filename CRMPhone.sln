@@ -39,6 +39,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppNotificationForWeb", "Ap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppNotificationForClientV2", "AppNotificationForClientV2\AppNotificationForClientV2.csproj", "{9B1E61FF-D4BC-41DC-B0B0-A375CDD6120C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestSync", "RequestSync\RequestSync.csproj", "{A4BFE995-0951-46A8-8291-45126F001E0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,10 @@ Global
 		{9B1E61FF-D4BC-41DC-B0B0-A375CDD6120C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B1E61FF-D4BC-41DC-B0B0-A375CDD6120C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B1E61FF-D4BC-41DC-B0B0-A375CDD6120C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4BFE995-0951-46A8-8291-45126F001E0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4BFE995-0951-46A8-8291-45126F001E0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4BFE995-0951-46A8-8291-45126F001E0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4BFE995-0951-46A8-8291-45126F001E0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
