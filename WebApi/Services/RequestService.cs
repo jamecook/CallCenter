@@ -561,6 +561,7 @@ body = {
     <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.ContactPhones}</Data></Cell>
     <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.ParentService}</Data></Cell>
     <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.Description}</Data></Cell>
+    <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.CreateTime.ToString("dd.MM.yyyy hh:mm")}</Data></Cell>
     <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.ExecuteTime?.ToShortDateString()}</Data></Cell>
     <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.ExecutePeriod}</Data></Cell>
     <Cell ss:StyleID=""s63""><Data ss:Type=""String"">{request.LastNote}</Data></Cell>
@@ -2919,6 +2920,7 @@ body = {
                                 FirstRecordId = recordId,
                                 HasRecord = recordId.HasValue,
                                 HasAttachment = dataReader.GetBoolean("has_attach"),
+                                CanBeDeleted = dataReader.GetBoolean("can_be_deleted"),
                                 Floor = dataReader.GetNullableString("floor"),
                                 CreateTime = dataReader.GetDateTime("create_time"),
                                 Description = dataReader.GetNullableString("description"),

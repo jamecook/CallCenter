@@ -50,7 +50,7 @@
   </Style>
  </Styles>
  <Worksheet ss:Name="Заявки">
-  <Table ss:ExpandedColumnCount="12" ss:ExpandedRowCount="RowForReplace" x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="13" ss:ExpandedRowCount="RowForReplace" x:FullColumns="1"
    x:FullRows="1" ss:StyleID="s62">
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="33.75"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="83.25"/>
@@ -60,6 +60,7 @@
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="72.75"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="114"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="181.5"/>
+   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="81"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="81"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="62.25"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="140.25"/>
@@ -73,7 +74,8 @@
     <Cell ss:StyleID="s63"><Data ss:Type="String">Телефоны</Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="String">Причина</Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="String">Описание</Data></Cell>
-    <Cell ss:StyleID="s63"><Data ss:Type="String">Выполнение</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Создание</Data></Cell>
+     <Cell ss:StyleID="s63"><Data ss:Type="String">Выполнение</Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="String">Время</Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="String">Последний комментарий</Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="String">Время (календарь)</Data></Cell>

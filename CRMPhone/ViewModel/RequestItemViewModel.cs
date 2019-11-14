@@ -291,7 +291,10 @@ namespace CRMPhone.ViewModel
             get { return _selectedService; }
             set {
                 _selectedService = value;
-                IsImmediate = value?.Immediate??false;
+                if (!_requestId.HasValue)
+                {
+                    IsImmediate = value?.Immediate ?? false;
+                }
                 OnPropertyChanged(nameof(IsImmediate));
                 OnPropertyChanged(nameof(SelectedService));
             }

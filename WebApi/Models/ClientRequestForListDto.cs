@@ -6,6 +6,7 @@ namespace WebApi.Models
     {
         public int Id { get; set; }
         public bool HasAttachment { get; set; }
+        public bool CanBeDeleted { get; set; }
         public bool HasRecord { get; set; }
         public bool IsChargeable { get; set; }
         public int? FirstRecordId { get; set; }
