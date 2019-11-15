@@ -2921,6 +2921,7 @@ body = {
                                 HasRecord = recordId.HasValue,
                                 HasAttachment = dataReader.GetBoolean("has_attach"),
                                 CanBeDeleted = dataReader.GetBoolean("can_be_deleted"),
+                                CanBeClosed = dataReader.GetBoolean("can_be_closed"),
                                 Floor = dataReader.GetNullableString("floor"),
                                 CreateTime = dataReader.GetDateTime("create_time"),
                                 Description = dataReader.GetNullableString("description"),
@@ -3113,8 +3114,50 @@ body = {
                     transaction.Commit();
                 }
             }
+        }
 
-
+        public static void ClientCloseRequest(int clientId, int requestId, int ratingId, string description)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(
+                                @"CALL CallCenter.ClientCloseRequest(@ClientId,@RequestId,@RatingId,@Desc);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@ClientId", clientId);
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@RatingId", ratingId);
+                        cmd.Parameters.AddWithValue("@Desc", description);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
+        }
+        public static void DismissRequest(int clientId, int requestId, string description)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (
+                        var cmd =
+                            new MySqlCommand(
+                                @"CALL CallCenter.ClientDismissRequest(@ClientId,@RequestId,@Desc);", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@ClientId", clientId);
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@Desc", description);
+                        cmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                }
+            }
         }
 
         public static void BindDoorPhone(string phone, string doorUid, string deviceId, int addressId)

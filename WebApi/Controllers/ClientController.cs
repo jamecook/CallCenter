@@ -302,5 +302,34 @@ namespace WebApi.Controllers
             }
             return Ok();
         }
+        [HttpPut("close_request/{id}")]
+        public IActionResult CloseRequest(int id, [FromBody]ClientCloseRequestDto rating)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest("1000:Error in JWT");
+            RequestService.ClientCloseRequest(clientId, id, rating.RatingId, rating.Description);
+            return Ok();
+        }
+        [HttpPut("dismiss_request/{id}")]
+        public IActionResult DismissRequest(int id, [FromBody]ClientDismissRequestDto value)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var clientIdStr = User.Claims.FirstOrDefault(c => c.Type == "ClientId")?.Value;
+            int.TryParse(clientIdStr, out int clientId);
+            if (clientId == 0)
+                return BadRequest("1000:Error in JWT");
+            RequestService.DismissRequest(clientId, id, value.Description);
+            return Ok();
+        }
     }
 }
