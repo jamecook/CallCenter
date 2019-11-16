@@ -215,7 +215,7 @@ namespace WebApi.Controllers
             _logger.LogInformation($"---------- expired_request_count({workerId})");
 
             return RequestService.WebRequestListCount(workerId, null, true, new DateTime(2001, 01, 01), DateTime.Now,
-                new DateTime(2001, 01, 01), DateTime.Now, null, null, null, null, null, null, null, null, null, null,
+                new DateTime(2001, 01, 01), DateTime.Now, null, null, null, null, null, new[] { 1, 2 }, null, null, null, null,
                 null, null, null, onlyExpired: true, onlyByClient: false);
         }
         [HttpGet("expired_requests")]
@@ -225,7 +225,7 @@ namespace WebApi.Controllers
             int.TryParse(workerIdStr, out int workerId);
 
             return RequestService.WebRequestListArrayParam(workerId, null, true, new DateTime(2001, 01, 01), DateTime.Now,
-                new DateTime(2001, 01, 01), DateTime.Now, null, null, null, null, null, null, null, null, null, null,
+                new DateTime(2001, 01, 01), DateTime.Now, null, null, null, null, null, new[] { 1, 2 }, null, null, null, null,
                 null, null, null, onlyExpired: true);
         }
 
