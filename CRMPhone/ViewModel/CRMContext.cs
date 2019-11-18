@@ -1473,6 +1473,7 @@ namespace CRMPhone.ViewModel
                 //    _sipAgent.CallMaker.Invite(callId);
                 //    return;
                 //}
+                _ringPlayer.Stop();
                 LastAnsweredPhoneNumber = IncomingCallFrom;
                 _sipAgent.CallMaker.Accept(SelectedLine.Id);
                 return;
