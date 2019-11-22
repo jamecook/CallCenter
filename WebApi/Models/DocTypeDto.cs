@@ -56,11 +56,19 @@ namespace WebApi.Models
         public DateTime DocDate { get; set; }
         public string InNumber { get; set; }
         public DateTime? InDate { get; set; }
-        public int? OrgId { get; set; }
+        public OrgDocDto[] Orgs { get; set; }
         public int? AppointedWorkerId { get; set; }
         public int? OrganizationalTypeId { get; set; }
         public string Description { get; set; }
     }
+    public class OrgDocDto
+    {
+        public int? Id { get; set; }
+        public int OrgId { get; set; }
+        public string InNumber { get; set; }
+        public DateTime? InDate { get; set; }
+    }
+
     public class AttachmentToDocDto
     {
         public int Id { get; set; }

@@ -3514,8 +3514,9 @@ VALUES
         }
 
         public static string CreateDoc(int workerId, int typeId, string topic, string docNumber, DateTime docDate, string inNumber,
-            DateTime? inDate, int? orgId, int? organizationalTypeId, string description,int? appoinedWorkerId)
+            DateTime? inDate, OrgDocDto[] orgs, int? organizationalTypeId, string description,int? appoinedWorkerId)
         {
+            var newDocId = string.Empty;
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
@@ -3530,15 +3531,31 @@ VALUES
                     cmd.Parameters.AddWithValue("@DocDate", docDate);
                     cmd.Parameters.AddWithValue("@InNumber", inNumber);
                     cmd.Parameters.AddWithValue("@InDate", inDate);
-                    cmd.Parameters.AddWithValue("@OrgId", orgId);
                     cmd.Parameters.AddWithValue("@OrganizTypeId", organizationalTypeId);
                     cmd.Parameters.AddWithValue("@Descript", description);
                     cmd.Parameters.AddWithValue("@appoinedWorkerId", appoinedWorkerId);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         dataReader.Read();
-                        return dataReader.GetNullableString("retDocId");
+                        newDocId = dataReader.GetNullableString("retDocId");
                     }
+
+                    foreach (var org in orgs)
+                    {
+                        var orgQuery =
+                            "call docs_pack.add_org(@workerId, @docId, @orgId, @inNumber, @inDate);";
+                        using (var orgCmd = new MySqlCommand(query, conn))
+                        {
+                            orgCmd.Parameters.AddWithValue("@workerId", workerId);
+                            orgCmd.Parameters.AddWithValue("@docId", newDocId);
+                            orgCmd.Parameters.AddWithValue("@orgId", org.OrgId);
+                            orgCmd.Parameters.AddWithValue("@inNumber", org.InNumber);
+                            orgCmd.Parameters.AddWithValue("@inDate", org.InDate);
+                            orgCmd.ExecuteNonQuery();
+                        }
+                    }
+
+                    return newDocId;
                 }
             }
         }
