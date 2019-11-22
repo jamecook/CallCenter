@@ -7,6 +7,7 @@
         public int? RequestId;
         public int MessageType;
         public string Message;
+        public string Info;
     }
     public class Content
     {

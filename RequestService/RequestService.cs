@@ -2197,14 +2197,14 @@ where worker_id = @WorkerId";
         {
             var sqlQuery = @"SELECT S.id,S.city_id,S.name,P.id as Prefix_id,P.Name as Prefix_Name,P.ShortName FROM CallCenter.Streets S
     join CallCenter.StreetPrefixes P on P.id = S.prefix_id
-    where S.enabled = 1
+    where S.enabled = 1 and S.city_id = @CityId
     group by S.id;";
             if (serviceCompanyId.HasValue)
             {
                 sqlQuery = @"SELECT S.id,S.city_id,S.name,P.id as Prefix_id,P.Name as Prefix_Name,P.ShortName FROM CallCenter.Streets S
     join CallCenter.StreetPrefixes P on P.id = S.prefix_id
     join CallCenter.Houses h on h.street_id = S.id and h.service_company_id = @ServiceCompanyId
-    where S.enabled = 1
+    where S.enabled = 1 and S.city_id = @CityId
     group by S.id;";
             }
                 
@@ -2212,6 +2212,7 @@ where worker_id = @WorkerId";
                 var cmd =
                     new MySqlCommand(sqlQuery, _dbConnection))
             {
+                cmd.Parameters.AddWithValue("@CityId", cityId);
                 if (serviceCompanyId.HasValue)
                 {
                     cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId.Value);

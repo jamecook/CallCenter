@@ -47,7 +47,7 @@ namespace WebApi.Models
         public int AttachCount { get; set; }
     }
 
-    public class CreateOrUpdateDocDto
+    public class CreateDocDto
     {
         public int? Id { get; set; }
         public int TypeId { get; set; }
@@ -56,9 +56,8 @@ namespace WebApi.Models
         public DateTime DocDate { get; set; }
         public string InNumber { get; set; }
         public DateTime? InDate { get; set; }
-        public string OutNumber { get; set; }
-        public DateTime? OutDate { get; set; }
         public int? OrgId { get; set; }
+        public int? AppointedWorkerId { get; set; }
         public int? OrganizationalTypeId { get; set; }
         public string Description { get; set; }
     }
@@ -67,6 +66,7 @@ namespace WebApi.Models
         public int Id { get; set; }
         public int DocId { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; }
         public string FileName { get; set; }
         public string Extension { get; set; }
         public DateTime CreateDate { get; set; }

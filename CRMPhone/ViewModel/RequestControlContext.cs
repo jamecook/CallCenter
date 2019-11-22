@@ -822,7 +822,7 @@ namespace CRMPhone.ViewModel
 
         }
 
-        private void RefreshRequest()
+        public void RefreshRequest()
         {
             if(_requestService == null)
                 _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);

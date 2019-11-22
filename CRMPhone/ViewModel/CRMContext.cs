@@ -1671,8 +1671,10 @@ namespace CRMPhone.ViewModel
         {
             var readedChannels = new List<ActiveChannelsDto>();
             using (var cmd = new MySqlCommand(@"SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf,
-null as request_id
-FROM asterisk.ActiveChannels where Application = 'queue' and BridgeId is null order by UniqueID", _dbRefreshConnection))
+null as request_id,s.short_name
+FROM asterisk.ActiveChannels a
+left join CallCenter.ServiceCompanies s on a.ServiceComp = s.trunk_name
+where Application = 'queue' and BridgeId is null order by UniqueID", _dbRefreshConnection))
 //            using (var cmd = new MySqlCommand(@"SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf,
 //(SELECT r.id from CallCenter.ClientPhones cp2
 //join CallCenter.RequestContacts rc2 on cp2.id = rc2.ClientPhone_id
@@ -1690,6 +1692,7 @@ FROM asterisk.ActiveChannels where Application = 'queue' and BridgeId is null or
                         CallerIdNum = dataReader.GetNullableString("CallerIDNum"),
                         ChannelState = dataReader.GetNullableString("ChannelState"),
                         AnswerTime = dataReader.GetNullableDateTime("AnswerTime"),
+                        ServiceCompany = dataReader.GetNullableString("short_name"),
                         WaitSecond = dataReader.GetInt32("waitSec"),
                         IvrDtmf = dataReader.GetNullableInt("ivr_dtmf"),
                         RequestId = dataReader.GetNullableInt("request_id"),

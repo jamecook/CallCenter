@@ -22,7 +22,9 @@
         <WrapPanel Grid.Row="0" HorizontalAlignment="Center">
             <Button Width="120" Margin="5,5,20,5" Content="Новая заявка" Command="{Binding AddRequestCommand}"/>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="№ заявки:"/>
-            <TextBox Margin="3" Width="60" Text="{Binding RequestNum}"  VerticalAlignment="Center"/>
+            <TextBox Margin="3" Width="60" Text="{Binding RequestNum}"  VerticalAlignment="Center" 
+                     
+                     PreviewKeyUp="UIElement_OnPreviewKeyDown"/>
             <WrapPanel HorizontalAlignment="Center">
             <TextBlock Margin="3" VerticalAlignment="Center" Text="Улица:"/>
                 <ComboBox Margin="3" Width="120" VerticalAlignment="Center" ItemsSource="{Binding FilterStreetList}" IsEditable="True"

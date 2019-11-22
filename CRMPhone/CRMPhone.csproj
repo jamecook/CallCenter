@@ -288,6 +288,7 @@
     <Compile Include="ViewModel\DigitsDialogViewModel.cs" />
     <Compile Include="ViewModel\EditExecuterBindDialogViewModel.cs" />
     <Compile Include="ViewModel\ExecuterBindDialogViewModel.cs" />
+    <Compile Include="ViewModel\InputBindingsManager.cs" />
     <Compile Include="ViewModel\NotificationYesNo.cs" />
     <Compile Include="ViewModel\SelectPeriodDialogViewModel.cs" />
     <Compile Include="ViewModel\ChangeExecuterDialogViewModel.cs" />

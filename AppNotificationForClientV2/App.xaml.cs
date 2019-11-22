@@ -38,7 +38,7 @@ namespace AppNotificationForClient
                 {
                     try
                     {
-                        var result = SendNotification(notification.WorkerGuid, notification.Message, notification.MessageType, notification.RequestId);
+                        var result = SendOwnNotification(notification.WorkerGuid, notification.Info, notification.MessageType, notification.RequestId);
                         if (result.StartsWith("{\"id\":") || result.Equals("OK"))
                         {
                             using (var cmd = new MySqlCommand(
@@ -54,6 +54,17 @@ namespace AppNotificationForClient
                     {
                         _logger.Error(exception);
                         _logger.Error($"Error NotificationId={notification.Id};");
+                    }
+
+                    try
+                    {
+                        var result = SendOneSignalNotification(notification.Message, notification.WorkerGuid, notification.RequestId);
+
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.Error(exception);
+                        _logger.Error($"Error SendOneSignalNotification NotificationId={notification.Id};");
                     }
 
                 }
@@ -72,7 +83,43 @@ namespace AppNotificationForClient
             Application.Current.Shutdown();
         }
 
-        public static string SendNotification(string userGuid,string message,int messageType, int? requestId)
+        public static string SendOneSignalNotification(string message, string dest, int? requestId)
+        {
+            var saveSampleUrl = "https://onesignal.com/api/v1/notifications";
+            //var saveSampleUrl = "http://web.dispex.ru:5000";
+
+            var client = new RestClient(saveSampleUrl);
+
+            var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"Basic {_oneSignalKey}");
+            //request.AddHeader("Authorization", "Basic Zjk0ZDNmZjMtMDc4MC00Yjc5LWIyZGYtYzg4ZTk2MzAyYjhm");
+            var discar = new MessageDto
+            {
+                app_id = "069fb414-d721-4d29-9eeb-c7278a9e3950",
+                contents = new Content()
+                {
+                    en = message,
+                },
+                data = new Data()
+                {
+                    requestId = requestId.ToString()
+                },
+                filters = new Filter[] {new Filter()
+                {
+                    field = "tag",
+                    key = "push_id",
+                    relation = "=",
+                    value = dest
+                } }
+            };
+            var dataRequest = request.AddJsonBody(discar);
+
+            var responce = client.Execute(dataRequest);
+            return responce.Content;
+        }
+
+        public static string SendOwnNotification(string userGuid,string message,int messageType, int? requestId)
         {
             var saveSampleUrl = "https://dispex.org:5000/v3/notification";
             //var saveSampleUrl = "http://web.dispex.ru:5000";
@@ -109,7 +156,7 @@ namespace AppNotificationForClient
         {
             var sql = @"SELECT w.guid,n.* FROM CallCenter.App_Notifications n
 join CallCenter.Clients w on w.id = n.client_id
-where n.client_send_date is null and n.insert_date > AddDate(sysdate(), interval - 1 hour) and w.phone = '5555020304';";
+where n.client_send_date is null and n.insert_date > AddDate(sysdate(), interval - 1 hour);";
             using (var cmd = new MySqlCommand(sql, dbConnection))
             {
                 using (var dataReader = cmd.ExecuteReader())
@@ -123,7 +170,8 @@ where n.client_send_date is null and n.insert_date > AddDate(sysdate(), interval
                             RequestId = dataReader.GetNullableInt("request_id"),
                             MessageType = dataReader.GetInt32("type_id"),
                             Message = dataReader.GetNullableString("description"),
-                            WorkerGuid = dataReader.GetNullableString("guid")
+                            WorkerGuid = dataReader.GetNullableString("guid"),
+                            Info = dataReader.GetNullableString("info")
                         });
                     }
                     dataReader.Close();

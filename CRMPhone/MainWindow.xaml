@@ -116,6 +116,7 @@
                     <DataTemplate>
                         <DockPanel Margin="0,2">
                             <TextBlock Margin ="2" Text="{Binding Path=CreateTime, StringFormat='{}{0:HH:mm}'}" />
+                            <TextBlock Margin ="2" Width="50" Text="{Binding Path=ServiceCompany}" />
                             <TextBlock Margin ="2" Foreground="Red" Background="LawnGreen" VerticalAlignment="Center" Width="16" TextAlignment="Center" FontWeight="DemiBold" Text="З" Visibility="{Binding VisibleRequest}"/>
 
                             <TextBlock Margin ="2" Foreground="{Binding Path=Color}" FontWeight="DemiBold" Text="{Binding Path=CallerIdNum}" />

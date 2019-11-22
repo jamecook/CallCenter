@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using CRMPhone.ViewModel;
 using RequestServiceImpl.Dto;
 
 namespace CRMPhone.Controls
@@ -115,6 +117,28 @@ namespace CRMPhone.Controls
         private void UIElement_OnTextInput(object sender, TextCompositionEventArgs e)
         {
             var t = e.Text;
+        }
+
+        private void UIElement_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                UIElement elt = sender as UIElement;
+
+                if (elt == null)
+                {
+                    return;
+                }
+                BindingExpression binding = BindingOperations.GetBindingExpression(elt, TextBox.TextProperty);
+
+                if (binding != null)
+                {
+                    binding.UpdateSource();
+                }
+
+                var model = DataContext as RequestControlContext;
+                model?.RefreshRequest();
+            }
         }
     }
 }

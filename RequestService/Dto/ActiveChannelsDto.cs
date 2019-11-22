@@ -17,6 +17,7 @@ namespace RequestServiceImpl.Dto
         public Visibility VisibleRequest => RequestId.HasValue ? Visibility.Visible : Visibility.Collapsed;
 
         public string CallerIdNum { get; set; }
+        public string ServiceCompany { get; set; }
 
         public string ChannelState { get; set; }
 
@@ -46,6 +47,8 @@ namespace RequestServiceImpl.Dto
                         return new SolidColorBrush(Colors.Red);
                     case 3:
                         return new SolidColorBrush(Colors.Green);
+                    case 5:
+                        return new SolidColorBrush(Colors.DarkOrange);
                 }
                 return new SolidColorBrush(Colors.Blue);
             }

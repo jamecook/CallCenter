@@ -683,6 +683,8 @@ body = {
                                 PhoneNumber = dataReader.GetNullableString("CallerIdNum"),
                                 Direction = dataReader.GetNullableString("direction"),
                                 CreateTime = dataReader.GetDateTime("CreateTime"),
+                                Duration = dataReader.GetInt32("duration"),
+                                Extension = dataReader.GetNullableString("extension")
                             });
                         }
                         dataReader.Close();
@@ -3512,13 +3514,13 @@ VALUES
         }
 
         public static string CreateDoc(int workerId, int typeId, string topic, string docNumber, DateTime docDate, string inNumber,
-            DateTime? inDate, string outNumber, DateTime? outDate,  int? orgId, int? organizationalTypeId, string description)
+            DateTime? inDate, int? orgId, int? organizationalTypeId, string description,int? appoinedWorkerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 var query =
-                    "call docs_pack.create_doc(@WorkerId,@TypeId,@Topic, @DocNumber, @DocDate, @InNumber,@InDate,@OutNumber,@OutDate,@OrgId,@OrganizTypeId,@Descript);";
+                    "call docs_pack.create_doc(@WorkerId,@TypeId,@Topic, @DocNumber, @DocDate, @InNumber,@InDate,@OrgId,@OrganizTypeId,@Descript,@appoinedWorkerId);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -3528,11 +3530,10 @@ VALUES
                     cmd.Parameters.AddWithValue("@DocDate", docDate);
                     cmd.Parameters.AddWithValue("@InNumber", inNumber);
                     cmd.Parameters.AddWithValue("@InDate", inDate);
-                    cmd.Parameters.AddWithValue("@OutNumber", outNumber);
-                    cmd.Parameters.AddWithValue("@OutDate", outDate);
                     cmd.Parameters.AddWithValue("@OrgId", orgId);
                     cmd.Parameters.AddWithValue("@OrganizTypeId", organizationalTypeId);
                     cmd.Parameters.AddWithValue("@Descript", description);
+                    cmd.Parameters.AddWithValue("@appoinedWorkerId", appoinedWorkerId);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         dataReader.Read();
