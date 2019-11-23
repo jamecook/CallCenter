@@ -3514,7 +3514,7 @@ VALUES
         }
 
         public static string CreateDoc(int workerId, int typeId, string topic, string docNumber, DateTime docDate, string inNumber,
-            DateTime? inDate, OrgDocDto[] orgs, int? organizationalTypeId, string description,int? appoinedWorkerId)
+            DateTime? inDate,int? orgId, OrgDocDto[] orgs, int? organizationalTypeId, string description,int? appoinedWorkerId)
         {
             var newDocId = string.Empty;
             using (var conn = new MySqlConnection(_connectionString))
@@ -3531,6 +3531,7 @@ VALUES
                     cmd.Parameters.AddWithValue("@DocDate", docDate);
                     cmd.Parameters.AddWithValue("@InNumber", inNumber);
                     cmd.Parameters.AddWithValue("@InDate", inDate);
+                    cmd.Parameters.AddWithValue("@OrgId", orgId);
                     cmd.Parameters.AddWithValue("@OrganizTypeId", organizationalTypeId);
                     cmd.Parameters.AddWithValue("@Descript", description);
                     cmd.Parameters.AddWithValue("@appoinedWorkerId", appoinedWorkerId);
@@ -3540,18 +3541,22 @@ VALUES
                         newDocId = dataReader.GetNullableString("retDocId");
                     }
 
-                    foreach (var org in orgs)
+                    if (orgs != null)
+
                     {
-                        var orgQuery =
-                            "call docs_pack.add_org(@workerId, @docId, @orgId, @inNumber, @inDate);";
-                        using (var orgCmd = new MySqlCommand(query, conn))
+                        foreach (var org in orgs)
                         {
-                            orgCmd.Parameters.AddWithValue("@workerId", workerId);
-                            orgCmd.Parameters.AddWithValue("@docId", newDocId);
-                            orgCmd.Parameters.AddWithValue("@orgId", org.OrgId);
-                            orgCmd.Parameters.AddWithValue("@inNumber", org.InNumber);
-                            orgCmd.Parameters.AddWithValue("@inDate", org.InDate);
-                            orgCmd.ExecuteNonQuery();
+                            var orgQuery =
+                                "call docs_pack.add_org(@workerId, @docId, @orgId, @inNumber, @inDate);";
+                            using (var orgCmd = new MySqlCommand(orgQuery, conn))
+                            {
+                                orgCmd.Parameters.AddWithValue("@workerId", workerId);
+                                orgCmd.Parameters.AddWithValue("@docId", newDocId);
+                                orgCmd.Parameters.AddWithValue("@orgId", org.OrgId);
+                                orgCmd.Parameters.AddWithValue("@inNumber", org.InNumber);
+                                orgCmd.Parameters.AddWithValue("@inDate", org.InDate);
+                                orgCmd.ExecuteNonQuery();
+                            }
                         }
                     }
 

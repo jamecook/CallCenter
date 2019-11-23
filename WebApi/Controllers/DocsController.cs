@@ -62,13 +62,17 @@ namespace WebApi.Controllers
                 inNumber, outNumber, orgs, statuses, types);
         }
         [HttpPost]
-        public string Post([FromBody]CreateDocDto value)
+        public IActionResult Post([FromBody]CreateDocDto value)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
             _logger.LogInformation("---------- Create Doc: " + JsonConvert.SerializeObject(value));
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
 
-            return RequestService.CreateDoc(workerId,  value.TypeId, value.Topic, value.DocNumber, value.DocDate, value.InNumber, value.InDate, value.Orgs, value.OrganizationalTypeId, value.Description, value.AppointedWorkerId);
+            return Ok(RequestService.CreateDoc(workerId,  value.TypeId, value.Topic, value.DocNumber, value.DocDate, value.InNumber, value.InDate, value.OrgId, value.Orgs, value.OrganizationalTypeId, value.Description, value.AppointedWorkerId));
         }
         [HttpPut("{id}")]
         public string Post(int id, [FromBody]CreateDocDto value)
