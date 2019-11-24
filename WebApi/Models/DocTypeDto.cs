@@ -7,17 +7,29 @@ namespace WebApi.Models
         public int Id { get; set; }
         public string Name { get; set; }
     }
+
     public class OrganizationalTypeDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
     }
+
     public class DocOrgDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string Inn { get; set; }
         public string Director { get; set; }
+    }
+
+    public class DocAttachOrgDto
+    {
+        public int OrgId { get; set; }
+        public string OrgName { get; set; }
+        public string OrgInn { get; set; }
+        public string DirectorFio { get; set; }
+        public string InNumber { get; set; }
+        public DateTime? InDate { get; set; }
     }
 
     public class DocStatusDto
@@ -34,14 +46,13 @@ namespace WebApi.Models
         public string DocNumber { get; set; }
         public DateTime DocDate { get; set; }
         public string InNumber { get; set; }
-        public string OutNumber { get; set; }
         public DateTime? InDate { get; set; }
-        public DateTime? OutDate { get; set; }
         public DateTime? DoneDate { get; set; }
         public UserDto CreateUser { get; set; }
         public DocOrgDto Org { get; set; }
         public DocStatusDto Status { get; set; }
         public DocTypeDto Type { get; set; }
+        public DocAttachOrgDto[] AttachOrg { get; set; }
         public OrganizationalTypeDto OrganizationalType { get; set; }
         public string Description { get; set; }
         public int AttachCount { get; set; }
@@ -62,6 +73,7 @@ namespace WebApi.Models
         public int? OrganizationalTypeId { get; set; }
         public string Description { get; set; }
     }
+
     public class OrgDocDto
     {
         public int? Id { get; set; }
@@ -81,6 +93,5 @@ namespace WebApi.Models
         public DateTime CreateDate { get; set; }
         public UserDto User { get; set; }
     }
-
 
 }

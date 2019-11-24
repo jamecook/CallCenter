@@ -3359,6 +3359,31 @@ VALUES
                 }
             }
         }
+
+        public static int DocsAddOrganisations(int workerId, DocOrgDto organisationDto)
+        {
+            int newId;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL docs_pack.add_org(@WorkerId,@Name,@Inn,@Fio)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@Name", organisationDto.Name);
+                    cmd.Parameters.AddWithValue("@Inn", organisationDto.Inn);
+                    cmd.Parameters.AddWithValue("@Fio", organisationDto.Director);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        dataReader.Read();
+                        newId = dataReader.GetInt32("newId");
+                    }
+                }
+                return newId;
+            }
+        }
+
         public static IEnumerable<DocOrgDto> DocsGetOrganisations(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3418,14 +3443,14 @@ VALUES
             }
         }
 
-        public static IEnumerable<DocDto> DocsGetList(int workerId, DateTime fromDate, DateTime toDate, string inNumber, string outNumber, int[] orgs, int[] statuses, int[] types)
+        public static IEnumerable<DocDto> DocsGetList(int workerId, DateTime fromDate, DateTime toDate, string inNumber, int[] orgs, int[] statuses, int[] types)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var sqlQuery = "call docs_pack.get_docs(@CurWorker,@FromDate,@ToDate, @InNumber, @OutNumber, @Orgs, @Statuses, @Types);";
+                var sqlQuery = "call docs_pack.get_docs(@CurWorker,@FromDate,@ToDate, @InNumber, @Orgs, @Statuses, @Types);";
 
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
@@ -3433,7 +3458,6 @@ VALUES
                     cmd.Parameters.AddWithValue("@FromDate", fromDate);
                     cmd.Parameters.AddWithValue("@ToDate", toDate);
                     cmd.Parameters.AddWithValue("@InNumber", inNumber);
-                    cmd.Parameters.AddWithValue("@OutNumber", outNumber);
 
                     cmd.Parameters.AddWithValue("@Orgs",
                         orgs != null && orgs.Length > 0
@@ -3453,6 +3477,12 @@ VALUES
                     {
                         while (dataReader.Read())
                         {
+                            DocAttachOrgDto[] attachOrgs = null;
+                            var attachOrgStr = dataReader.GetNullableString("orgs");
+                            if (!string.IsNullOrEmpty(attachOrgStr))
+                            {
+                                attachOrgs = JsonConvert.DeserializeObject<DocAttachOrgDto[]>(attachOrgStr);
+                            }
                             requests.Add(new DocDto()
                             {
                                 Id = dataReader.GetInt32("id"),
@@ -3466,10 +3496,8 @@ VALUES
                                     },
                                 DocNumber = dataReader.GetNullableString("doc_number"),
                                 DocDate = dataReader.GetDateTime("doc_date"),
-                                InNumber = dataReader.GetNullableString("in_number"),
-                                InDate = dataReader.GetNullableDateTime("in_date"),
-                                OutNumber = dataReader.GetNullableString("out_number"),
-                                OutDate = dataReader.GetNullableDateTime("out_date"),
+                                InNumber = dataReader.GetNullableString("addit_number"),
+                                InDate = dataReader.GetNullableDateTime("addit_date"),
                                 Topic = dataReader.GetNullableString("topic"),
                                 Description = dataReader.GetNullableString("descript"),
                                 DoneDate = dataReader.GetNullableDateTime("done_date"),
@@ -3503,6 +3531,7 @@ VALUES
                                         Name = dataReader.GetNullableString("organiz_type_name"),
                                     }
                                     : null,
+                                AttachOrg = attachOrgs
 
                             });
                         }
@@ -3542,12 +3571,11 @@ VALUES
                     }
 
                     if (orgs != null)
-
                     {
                         foreach (var org in orgs)
                         {
                             var orgQuery =
-                                "call docs_pack.add_org(@workerId, @docId, @orgId, @inNumber, @inDate);";
+                                "call docs_pack.attach_org_to_doc(@workerId, @docId, @orgId, @inNumber, @inDate);";
                             using (var orgCmd = new MySqlCommand(orgQuery, conn))
                             {
                                 orgCmd.Parameters.AddWithValue("@workerId", workerId);
