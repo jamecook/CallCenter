@@ -45,6 +45,7 @@ namespace WebApi.Models
         public string Topic { get; set; }
         public string DocNumber { get; set; }
         public DateTime DocDate { get; set; }
+        public int DocYear { get; set; }
         public string InNumber { get; set; }
         public DateTime? InDate { get; set; }
         public DateTime? DoneDate { get; set; }

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
@@ -32,11 +33,12 @@ namespace WebApi.Services
         {
             _connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", "192.168.1.130",
                 "asterisk", "mysqlasterisk", "CallCenter");
-            _connectionStringAts = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", "151.248.121.220",
+            _connectionStringAts = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8",
+                "151.248.121.220",
                 "zerg", "Dispex1411Zerg", "asterisk");
             _sipServer = "@151.248.121.220:6050";
             _logger = LogManager.GetCurrentClassLogger();
-            
+
         }
 
         public static WebUserDto WebLogin(string userName, string password)
@@ -81,9 +83,11 @@ namespace WebApi.Services
                                 PushId = dataReader.GetString("guid"),
                             };
                         }
+
                         dataReader.Close();
                     }
                 }
+
                 return null;
             }
         }
@@ -94,6 +98,7 @@ namespace WebApi.Services
             {
                 return null;
             }
+
             var houseStr = account.Substring(0, 7);
             var flatStr = account.Substring(7, 4);
             long.TryParse(houseStr, out long houseId);
@@ -132,32 +137,41 @@ namespace WebApi.Services
                                 }
                             });
                         }
+
                         dataReader.Close();
                     }
                 }
+
                 addresses = addresses.Where(a => !string.IsNullOrEmpty(a.SipPhone)).ToList();
 
                 List<Task<string>> tasks = new List<Task<string>>();
                 foreach (var dto in addresses)
                 {
-                    tasks.Add(Task.Factory.StartNew((b) => Action(b),dto));
+                    tasks.Add(Task.Factory.StartNew((b) => Action(b), dto));
                 }
+
                 _logger.Debug("----------------Start");
                 while (tasks.Exists(t => t.Status == TaskStatus.Running))
                 {
-                    _logger.Debug($"----------------WaitAny Start task running count={tasks.Count(t => t.Status == TaskStatus.Running)}");
-                    var results = Task.WaitAny(tasks.Where(t => t.Status == TaskStatus.Running).ToArray(),40000);
-                    _logger.Debug($"----------------WaitAny Stop task running count={tasks.Count(t => t.Status == TaskStatus.Running)}");
+                    _logger.Debug(
+                        $"----------------WaitAny Start task running count={tasks.Count(t => t.Status == TaskStatus.Running)}");
+                    var results = Task.WaitAny(tasks.Where(t => t.Status == TaskStatus.Running).ToArray(), 40000);
+                    _logger.Debug(
+                        $"----------------WaitAny Stop task running count={tasks.Count(t => t.Status == TaskStatus.Running)}");
                     var loopSer = JsonConvert.SerializeObject(tasks.Where(t => t.Status == TaskStatus.RanToCompletion));
                     _logger.Debug($"----------------\r\n\r\n{loopSer}\r\n\r\n");
 
-                    if (tasks.Exists(t => t.Status == TaskStatus.RanToCompletion && (t.Result == "" || t.Result == "OK")))
+                    if (tasks.Exists(
+                        t => t.Status == TaskStatus.RanToCompletion && (t.Result == "" || t.Result == "OK")))
                         break;
                 }
+
                 _logger.Debug("----------------Stop!!!!!!!");
                 //var serialize = JsonConvert.SerializeObject(tasks);
                 //_logger.Debug($"----------------\r\n\r\n\r\n\r\n{serialize}\r\n\r\n\r\n\r\n");
-                return addresses.Count>0?addresses.Select(a=>a.SipPhone).Aggregate((i,j)=>i+"&"+j):"SIP/127001";
+                return addresses.Count > 0
+                    ? addresses.Select(a => a.SipPhone).Aggregate((i, j) => i + "&" + j)
+                    : "SIP/127001";
 
             }
         }
@@ -190,7 +204,7 @@ body = {
             //var saveSampleUrl = "https://dispex.org:5000/sip/call_request";
 
             var client = new RestClient(saveSampleUrl);
-            var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
+            var request = new RestRequest(Method.POST) {RequestFormat = RestSharp.DataFormat.Json};
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
             request.AddHeader("Authorization", "c621f6c2-8462-4712-a8b5-ab36b4dbrf020");
             var discar = new VoIpPushDto
@@ -215,7 +229,8 @@ body = {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand(@"CALL CallCenter.DoorPhoneGetAddressesAndPushId(@flat,@doorUid)", conn))
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.DoorPhoneGetAddressesAndPushId(@flat,@doorUid)",
+                    conn))
                 {
                     cmd.Parameters.AddWithValue("@doorUid", doorUid);
                     cmd.Parameters.AddWithValue("@flat", flat);
@@ -238,10 +253,13 @@ body = {
                                     Flat = dataReader.GetNullableString("flat"),
                                     AddressType = dataReader.GetNullableString("address_type"),
                                     IntercomId = dataReader.GetNullableString("intercomId"),
-                                } });
+                                }
+                            });
                         }
+
                         dataReader.Close();
                     }
+
                     var result = addresses.GroupBy(r => r.Address.Id).Select(k => new PushIdsAndAddressDto()
                     {
                         Address = k.FirstOrDefault(i => i.Address.Id == k.Key).Address,
@@ -252,7 +270,8 @@ body = {
             }
         }
 
-        public static void BindDoorPhoneToHouse(int houseId, string doorUid,string doorNumber, string fromFlat, string toFlat)
+        public static void BindDoorPhoneToHouse(int houseId, string doorUid, string doorNumber, string fromFlat,
+            string toFlat)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -261,7 +280,8 @@ body = {
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"call CallCenter.AdminBindDoorPhoneToAddress(@houseId,@uid,@number,@from,@to);", conn))
+                            new MySqlCommand(
+                                @"call CallCenter.AdminBindDoorPhoneToAddress(@houseId,@uid,@number,@from,@to);", conn))
                     {
                         cmd.Parameters.AddWithValue("@houseId", houseId);
                         cmd.Parameters.AddWithValue("@uid", doorUid);
@@ -270,6 +290,7 @@ body = {
                         cmd.Parameters.AddWithValue("@to", toFlat);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
@@ -322,9 +343,11 @@ body = {
                                 PushId = dataReader.GetString("guid"),
                             };
                         }
+
                         dataReader.Close();
                     }
                 }
+
                 return null;
             }
         }
@@ -345,6 +368,7 @@ body = {
                         cmd.Parameters.AddWithValue("@ExpireDate", expireDate);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
@@ -443,8 +467,10 @@ body = {
                                 SpecialityId = dataReader.GetNullableInt("speciality_id"),
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return workers.ToArray();
                 }
             }
@@ -477,8 +503,10 @@ body = {
                                 SpecialityId = dataReader.GetNullableInt("speciality_id"),
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return workers.ToArray();
                 }
             }
@@ -508,8 +536,10 @@ body = {
                                 SpecialityId = dataReader.GetNullableInt("speciality_id"),
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return workers.ToArray();
                 }
             }
@@ -532,8 +562,10 @@ body = {
                         {
                             list.Add(dataReader.GetInt32("id"));
                         }
+
                         dataReader.Close();
                     }
+
                     return list.ToArray();
                 }
             }
@@ -569,6 +601,7 @@ body = {
 </Row>";
                 stringBuilder.Append(row);
             }
+
             //var rows = start.ElapsedMilliseconds;
             var writer = new StreamWriter(saver);
             writer.Write(prefix);
@@ -597,8 +630,10 @@ body = {
                         {
                             list.Add(dataReader.GetInt32("id"));
                         }
+
                         dataReader.Close();
                     }
+
                     return list.ToArray();
                 }
             }
@@ -626,8 +661,10 @@ body = {
                                 Description = dataReader.GetString("Description")
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return types.ToArray();
                 }
             }
@@ -655,8 +692,10 @@ body = {
                                 Description = dataReader.GetString("Description")
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return types.ToArray();
                 }
             }
@@ -687,8 +726,10 @@ body = {
                                 Extension = dataReader.GetNullableString("extension")
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return states.ToArray();
                 }
             }
@@ -718,16 +759,19 @@ body = {
                             {
                                 return File.ReadAllBytes(localFileName);
                             }
+
                             var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
                             if (File.Exists(localFileNameMp3))
                             {
                                 return File.ReadAllBytes(localFileNameMp3);
                             }
+
                             return null;
                         }
                     }
                 }
             }
+
             return new byte[0];
         }
 
@@ -737,6 +781,7 @@ body = {
             {
                 return File.ReadAllBytes($"{rootDir}\\{requestId}\\{fileName}");
             }
+
             return null;
         }
 
@@ -757,6 +802,7 @@ body = {
                     {
                         Directory.CreateDirectory($"{rootDir}\\{requestId}\\preview");
                     }
+
                     File.WriteAllBytes($"{rootDir}\\{requestId}\\preview\\{fileName}", buffer.ToArray());
                     return buffer.ToArray();
                 }
@@ -765,6 +811,7 @@ body = {
                     return null;
                 }
             }
+
             return null;
         }
 
@@ -824,8 +871,10 @@ body = {
                                 CityId = dataReader.GetInt32("city_id")
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return streets.ToArray();
                 }
             }
@@ -854,8 +903,10 @@ body = {
                                 StreetId = streetId
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return houses.Select(h => new WebHouseDto {Id = h.Id, Name = h.FullName}).ToArray();
                 }
             }
@@ -885,8 +936,10 @@ body = {
                                 ParentName = dataReader.GetNullableString("parent_name")
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return services;
                 }
             }
@@ -912,8 +965,10 @@ body = {
                                 Name = dataReader.GetString("name")
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return companies.OrderBy(i => i.Name).ToList();
                 }
             }
@@ -948,8 +1003,10 @@ body = {
                                 ParentName = dataReader.GetNullableString("parent_name")
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return services;
                 }
             }
@@ -1133,8 +1190,10 @@ body = {
                                     : null,
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return requests.ToArray();
                 }
             }
@@ -1142,7 +1201,8 @@ body = {
 
         public static int WebRequestListCount(int currentWorkerId, int? requestId, bool filterByCreateDate,
             DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetIds,
-            int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds, int[] workerIds,
+            int[] houseIds, int[] addressIds, int[] parentServiceIds, int[] serviceIds, int[] statusIds,
+            int[] workerIds,
             int[] executerIds, int[] ratingIds, int[] companies, int[] warrantyIds, int[] immediateIds, int[] regionIds,
             bool badWork = false, bool garanty = false, bool onlyRetry = false, bool chargeable = false,
             bool onlyExpired = false, bool onlyByClient = false, string clientPhone = null)
@@ -1337,8 +1397,10 @@ body = {
                                     : null,
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return requests.ToArray();
                 }
             }
@@ -1353,7 +1415,8 @@ body = {
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"insert into CallCenter.RequestNoteHistory (request_id,operation_date,user_id,note,worker_id)
+                            new MySqlCommand(
+                                @"insert into CallCenter.RequestNoteHistory (request_id,operation_date,user_id,note,worker_id)
  values(@RequestId,sysdate(),0,@Note,@WorkerId);", conn))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
@@ -1361,6 +1424,7 @@ body = {
                         cmd.Parameters.AddWithValue("@Note", note);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
@@ -1386,6 +1450,7 @@ body = {
                         cmd.Parameters.AddWithValue("@Desc", description);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
@@ -1401,7 +1466,8 @@ body = {
                     using (
                         var cmd =
                             new MySqlCommand(
-                                @"CALL CallCenter.DispexSetExecuteDate2(@WorkerId,@RequestId,@ExecuteDate,@Note);", conn)
+                                @"CALL CallCenter.DispexSetExecuteDate2(@WorkerId,@RequestId,@ExecuteDate,@Note);",
+                                conn)
                     )
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
@@ -1410,6 +1476,7 @@ body = {
                         cmd.Parameters.AddWithValue("@Note", note);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
@@ -1439,8 +1506,10 @@ body = {
                                 TypeName = dataReader.GetString("Name"),
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return flats.OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6, '0')).ToArray();
                 }
             }
@@ -1485,7 +1554,8 @@ body = {
             {
                 conn.Open();
                 using (var cmd =
-                    new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id,worker_id)
+                    new MySqlCommand(
+                        @"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id,worker_id)
  values(@RequestId,@Name,@FileName,sysdate(),0,@WorkerId);", conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -1504,7 +1574,8 @@ body = {
                 conn.Open();
                 using (
                     var cmd =
-                        new MySqlCommand(@"SELECT a.id,a.request_id,a.name,a.file_name,a.create_date,u.id user_id,u.SurName,u.FirstName,u.PatrName FROM CallCenter.RequestAttachments a
+                        new MySqlCommand(
+                            @"SELECT a.id,a.request_id,a.name,a.file_name,a.create_date,u.id user_id,u.SurName,u.FirstName,u.PatrName FROM CallCenter.RequestAttachments a
  join CallCenter.Users u on u.id = a.user_id where a.deleted = 0 and a.request_id = @requestId", conn))
                 {
                     cmd.Parameters.AddWithValue("@requestId", requestId);
@@ -1530,6 +1601,7 @@ body = {
                                 }
                             });
                         }
+
                         dataReader.Close();
                         return attachments;
                     }
@@ -1567,6 +1639,7 @@ body = {
                                 },
                             });
                         }
+
                         dataReader.Close();
                         return noteList;
                     }
@@ -1596,6 +1669,7 @@ body = {
                                 Name = dataReader.GetString("name")
                             });
                         }
+
                         dataReader.Close();
                         return regions;
                     }
@@ -1613,7 +1687,8 @@ body = {
                 {
                     using (
                         var cmd =
-                            new MySqlCommand(@"insert into CallCenter.RequestStateHistory (request_id,operation_date,user_id,state_id,worker_id) 
+                            new MySqlCommand(
+                                @"insert into CallCenter.RequestStateHistory (request_id,operation_date,user_id,state_id,worker_id) 
     values(@RequestId,sysdate(),0,@StatusId,@WorkerId);", conn))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
@@ -1621,6 +1696,7 @@ body = {
                         cmd.Parameters.AddWithValue("@StatusId", stateId);
                         cmd.ExecuteNonQuery();
                     }
+
                     using (var cmd =
                         new MySqlCommand(
                             @"update CallCenter.Requests set state_id = @StatusId where id = @RequestId", conn))
@@ -1844,8 +1920,10 @@ body = {
 
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return docs.ToArray();
                 }
             }
@@ -1890,8 +1968,10 @@ body = {
 
                             };
                         }
+
                         dataReader.Close();
                     }
+
                     return null;
                 }
             }
@@ -1920,7 +2000,8 @@ body = {
 
         }
 
-        public static void WarrantyAddDoc(int id, int? orgId, int typeId, string name, DateTime docDate, string fileName,
+        public static void WarrantyAddDoc(int id, int? orgId, int typeId, string name, DateTime docDate,
+            string fileName,
             string direction, int workerId, string extension)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1998,8 +2079,10 @@ body = {
                             };
                             list.Add(type);
                         }
+
                         dataReader.Close();
                     }
+
                     return list;
                 }
             }
@@ -2029,8 +2112,10 @@ body = {
                             };
                             list.Add(type);
                         }
+
                         dataReader.Close();
                     }
+
                     return list;
                 }
             }
@@ -2094,8 +2179,10 @@ body = {
                                 FileName = dataReader.GetString("filename")
                             };
                         }
+
                         dataReader.Close();
                     }
+
                     return null;
                 }
             }
@@ -2111,7 +2198,8 @@ body = {
                 using (
                     var cmd =
                         new MySqlCommand(
-                            @"CALL CallCenter.DispexGetScheduleTask(@CurrentWorkerId,@WorkerId,@FromDate,@ToDate)", conn)
+                            @"CALL CallCenter.DispexGetScheduleTask(@CurrentWorkerId,@WorkerId,@FromDate,@ToDate)",
+                            conn)
                 )
                 {
                     cmd.Parameters.AddWithValue("@CurrentWorkerId", currentWorkerId);
@@ -2140,8 +2228,10 @@ body = {
                                 }
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return taskDtos.ToArray();
                 }
             }
@@ -2185,8 +2275,10 @@ body = {
                                 }
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return taskDtos.ToArray();
                 }
             }
@@ -2320,8 +2412,10 @@ body = {
                             };
                             list.Add(type);
                         }
+
                         dataReader.Close();
                     }
+
                     return list;
                 }
             }
@@ -2348,9 +2442,11 @@ body = {
                                 DeviceId = deviceId
                             };
                         }
+
                         dataReader.Close();
                     }
                 }
+
                 return null;
             }
         }
@@ -2363,7 +2459,8 @@ body = {
                 using (var transaction = conn.BeginTransaction())
                 {
                     using (var cmd =
-                        new MySqlCommand(@"CALL CallCenter.ClientAddTokenV2(@ClientId,@Token,@ExpireDate,@deviceId);", conn))
+                        new MySqlCommand(@"CALL CallCenter.ClientAddTokenV2(@ClientId,@Token,@ExpireDate,@deviceId);",
+                            conn))
                     {
                         cmd.Parameters.AddWithValue("@ClientId", clientId);
                         cmd.Parameters.AddWithValue("@Token", refreshToken);
@@ -2371,6 +2468,7 @@ body = {
                         cmd.Parameters.AddWithValue("@deviceId", deviceId);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
@@ -2401,9 +2499,11 @@ body = {
                                 DeviceId = dataReader.GetNullableString("device_uid"),
                             };
                         }
+
                         dataReader.Close();
                     }
                 }
+
                 return null;
             }
         }
@@ -2425,6 +2525,7 @@ body = {
                         cmd.Parameters.AddWithValue("@Code", code);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
@@ -2447,8 +2548,10 @@ body = {
                         cmd.Parameters.AddWithValue("@Code", code);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
+
                 return code;
             }
         }
@@ -2480,8 +2583,10 @@ body = {
                                 CityId = dataReader.GetInt32("city_id")
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return streets.ToArray();
                 }
             }
@@ -2510,8 +2615,10 @@ body = {
                                 StreetId = streetId
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return houses.Select(h => new WebHouseDto {Id = h.Id, Name = h.FullName}).ToArray();
                 }
             }
@@ -2540,8 +2647,10 @@ body = {
                                 TypeName = dataReader.GetString("Name"),
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return flats.OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6, '0')).ToArray();
                 }
             }
@@ -2572,8 +2681,10 @@ body = {
                                 ParentName = dataReader.GetNullableString("parent_name")
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return services.ToArray();
                 }
             }
@@ -2608,8 +2719,10 @@ body = {
                                 ParentName = dataReader.GetNullableString("parent_name")
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return services.ToArray();
                 }
             }
@@ -2762,8 +2875,10 @@ body = {
                                     : null,
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return requests.ToArray();
                 }
             }
@@ -2775,7 +2890,8 @@ body = {
             using (var devConn = new MySqlConnection(_connectionString))
             {
                 devConn.Open();
-                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetDevicesForDeleteV2(@ClientId,@AddressId)", devConn))
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetDevicesForDeleteV2(@ClientId,@AddressId)",
+                    devConn))
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
                     cmd.Parameters.AddWithValue("@AddressId", addressId);
@@ -2785,14 +2901,16 @@ body = {
                         {
                             devIds.Add(dataReader.GetInt32("id"));
                         }
+
                         dataReader.Close();
                     }
                 }
             }
-                foreach(var dev in devIds)
-                {
+
+            foreach (var dev in devIds)
+            {
                 DeleteSipAccount(dev);
-                }
+            }
 
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -2806,7 +2924,8 @@ body = {
             }
         }
 
-        public static string ClientCreateRequest(int clientId, int addressId, int typeId, string description, string origin)
+        public static string ClientCreateRequest(int clientId, int addressId, int typeId, string description,
+            string origin)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -2858,18 +2977,23 @@ body = {
                                 CanBeCalled = dataReader.GetNullableBoolean("can_be_called"),
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return addresses.ToArray();
                 }
             }
         }
-        public static void CanBeCalled(int clientId, string deviceId,int addressId, bool value)
+
+        public static void CanBeCalled(int clientId, string deviceId, int addressId, bool value)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientSetCanBeCalledV2(@ClientId,@DeviceId,@AddressId,@Value)", conn))
+                using (var cmd =
+                    new MySqlCommand(@"CALL CallCenter.ClientSetCanBeCalledV2(@ClientId,@DeviceId,@AddressId,@Value)",
+                        conn))
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
                     cmd.Parameters.AddWithValue("@DeviceId", deviceId);
@@ -2879,6 +3003,7 @@ body = {
                 }
             }
         }
+
         public static ClientRequestForListDto[] ClientRequestListArrayParam(int clientId, int? requestId,
             DateTime fromDate, DateTime toDate, int[] addressIds)
         {
@@ -2976,8 +3101,10 @@ body = {
                                     : null,
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return requests.ToArray();
                 }
             }
@@ -3017,6 +3144,7 @@ body = {
                                 }
                             });
                         }
+
                         dataReader.Close();
                         return attachments.ToArray();
                     }
@@ -3031,7 +3159,8 @@ body = {
                 conn.Open();
                 using (
                     var cmd =
-                        new MySqlCommand(@"call CallCenter.ClientDropAttachment(@clientId,@requestId, @attachId)", conn))
+                        new MySqlCommand(@"call CallCenter.ClientDropAttachment(@clientId,@requestId, @attachId)",
+                            conn))
                 {
                     cmd.Parameters.AddWithValue("@clientId", clientId);
                     cmd.Parameters.AddWithValue("@requestId", requestId);
@@ -3048,7 +3177,8 @@ body = {
             {
                 conn.Open();
                 using (var cmd =
-                    new MySqlCommand(@"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id,client_id)
+                    new MySqlCommand(
+                        @"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id,client_id)
  values(@RequestId,@Name,@FileName,sysdate(),100,@ClientId);", conn))
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
@@ -3090,6 +3220,7 @@ body = {
                                 },
                             });
                         }
+
                         dataReader.Close();
                         return noteList.ToArray();
                     }
@@ -3113,6 +3244,7 @@ body = {
                         cmd.Parameters.AddWithValue("@Note", note);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
@@ -3136,10 +3268,12 @@ body = {
                         cmd.Parameters.AddWithValue("@Desc", description);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
         }
+
         public static void DismissRequest(int clientId, int requestId, string description)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3157,6 +3291,7 @@ body = {
                         cmd.Parameters.AddWithValue("@Desc", description);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
@@ -3174,7 +3309,8 @@ body = {
                     using (
                         var cmd =
                             new MySqlCommand(
-                                @"call CallCenter.ClientBindDoorPhoneWithDevice(@clientPhone,@uid,@deviceId,@addressId);", conn))
+                                @"call CallCenter.ClientBindDoorPhoneWithDevice(@clientPhone,@uid,@deviceId,@addressId);",
+                                conn))
                     {
                         cmd.Parameters.AddWithValue("@clientPhone", phone);
                         cmd.Parameters.AddWithValue("@uid", doorUid);
@@ -3187,31 +3323,34 @@ body = {
                                 devId = dataReader.GetInt32("id");
                                 sipAccount = dataReader.GetNullableString("sip_account");
                             }
+
                             dataReader.Close();
                         }
+
                         if (string.IsNullOrEmpty(sipAccount))
                         {
-                            var password = (addressId + devId).ToString().PadLeft(9,'0');
+                            var password = (addressId + devId).ToString().PadLeft(9, '0');
                             //Создаем аккаунт на удаленной базе астериск
-                            var sip = CreateSipAccount(devId,password);
+                            var sip = CreateSipAccount(devId, password);
                             using (
                                 var cmd2 =
                                     new MySqlCommand(
                                         @"call CallCenter.ClientBindDoorAddSip(@deviceId,@sipAccount,@secret);", conn))
                             {
                                 cmd2.Parameters.AddWithValue("@deviceId", devId);
-                                cmd2.Parameters.AddWithValue("@sipAccount", "SIP/"+ sip);
+                                cmd2.Parameters.AddWithValue("@sipAccount", "SIP/" + sip);
                                 cmd2.Parameters.AddWithValue("@secret", password);
                                 cmd2.ExecuteNonQuery();
                             }
                         }
+
                         transaction.Commit();
                     }
                 }
             }
         }
 
-        private static string CreateSipAccount(int devId,string password)
+        private static string CreateSipAccount(int devId, string password)
         {
             string sipAccount = devId.ToString().PadLeft(10, '0');
             string secret = password;
@@ -3225,15 +3364,18 @@ body = {
                             new MySqlCommand(@"INSERT INTO asterisk.sippeers
 (name, defaultuser, host, type, context, secret,directmedia, nat, callgroup, language, disallow, allow, callerid, regexten, qualify, rtpkeepalive, `call-limit`)
 VALUES
-(@SipAccount, @SipAccount, 'dynamic', 'friend', 'outcalling', @Secret,'no', 'force_rport,comedia', '1', 'ru', 'all', 'alaw', @SipAccount, @SipAccount,'yes','10','1');", conn))
+(@SipAccount, @SipAccount, 'dynamic', 'friend', 'outcalling', @Secret,'no', 'force_rport,comedia', '1', 'ru', 'all', 'alaw', @SipAccount, @SipAccount,'yes','10','1');",
+                                conn))
                     {
                         cmd.Parameters.AddWithValue("@SipAccount", sipAccount);
                         cmd.Parameters.AddWithValue("@Secret", secret);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
+
             return sipAccount;
         }
 
@@ -3252,10 +3394,12 @@ VALUES
                         cmd.Parameters.AddWithValue("@SipAccount", sipAccount);
                         cmd.ExecuteNonQuery();
                     }
+
                     transaction.Commit();
                 }
             }
         }
+
         public static bool GetDoorPhone(string phone, string doorUid, int addressId, string deviceId)
         {
             var result = false;
@@ -3264,7 +3408,8 @@ VALUES
                 conn.Open();
                 using (
                     var cmd =
-                        new MySqlCommand(@"call CallCenter.ClientGetBindDoorPhoneV2(@clientPhone,@uid,@addressId,@deviceId);", conn))
+                        new MySqlCommand(
+                            @"call CallCenter.ClientGetBindDoorPhoneV2(@clientPhone,@uid,@addressId,@deviceId);", conn))
                 {
                     cmd.Parameters.AddWithValue("@clientPhone", phone);
                     cmd.Parameters.AddWithValue("@uid", doorUid);
@@ -3276,12 +3421,14 @@ VALUES
                         {
                             result = dataReader.GetBoolean("result");
                         }
+
                         dataReader.Close();
                         return result;
                     }
                 }
             }
         }
+
         public static bool ExistsSipPhone(int addressId)
         {
             var result = 0;
@@ -3299,12 +3446,14 @@ VALUES
                         {
                             result = dataReader.GetInt32("sip_count");
                         }
+
                         dataReader.Close();
-                        return result>0;
+                        return result > 0;
                     }
                 }
             }
         }
+
         public static string[] GetBindDoorPushIdsOld(string flat, string doorUid)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3323,6 +3472,7 @@ VALUES
                         {
                             result.Add(dataReader.GetString("guid"));
                         }
+
                         dataReader.Close();
                         return result.ToArray();
                     }
@@ -3353,8 +3503,10 @@ VALUES
                             };
                             list.Add(type);
                         }
+
                         dataReader.Close();
                     }
+
                     return list;
                 }
             }
@@ -3380,6 +3532,7 @@ VALUES
                         newId = dataReader.GetInt32("newId");
                     }
                 }
+
                 return newId;
             }
         }
@@ -3408,12 +3561,15 @@ VALUES
                             };
                             list.Add(type);
                         }
+
                         dataReader.Close();
                     }
+
                     return list;
                 }
             }
         }
+
         public static IEnumerable<DocStatusDto> DocsGetStatuses(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3436,21 +3592,25 @@ VALUES
                             };
                             list.Add(type);
                         }
+
                         dataReader.Close();
                     }
+
                     return list;
                 }
             }
         }
 
-        public static IEnumerable<DocDto> DocsGetList(int workerId, DateTime fromDate, DateTime toDate, string inNumber, int[] orgs, int[] statuses, int[] types)
+        public static IEnumerable<DocDto> DocsGetList(int workerId, DateTime fromDate, DateTime toDate, string inNumber,
+            int[] orgs, int[] statuses, int[] types)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var sqlQuery = "call docs_pack.get_docs(@CurWorker,@FromDate,@ToDate, @InNumber, @Orgs, @Statuses, @Types);";
+                var sqlQuery =
+                    "call docs_pack.get_docs(@CurWorker,@FromDate,@ToDate, @InNumber, @Orgs, @Statuses, @Types);";
 
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
@@ -3483,19 +3643,22 @@ VALUES
                             {
                                 attachOrgs = JsonConvert.DeserializeObject<DocAttachOrgDto[]>(attachOrgStr);
                             }
+
                             requests.Add(new DocDto()
                             {
                                 Id = dataReader.GetInt32("id"),
                                 CreateDate = dataReader.GetDateTime("create_date"),
                                 CreateUser = new UserDto
-                                    {
-                                        Id = dataReader.GetInt32("create_worker_id"),
-                                        SurName = dataReader.GetNullableString("sur_name"),
-                                        FirstName = dataReader.GetNullableString("first_name"),
-                                        PatrName = dataReader.GetNullableString("patr_name"),
-                                    },
-                                DocNumber = dataReader.GetNullableString("doc_number"),
+                                {
+                                    Id = dataReader.GetInt32("create_worker_id"),
+                                    SurName = dataReader.GetNullableString("sur_name"),
+                                    FirstName = dataReader.GetNullableString("first_name"),
+                                    PatrName = dataReader.GetNullableString("patr_name"),
+                                },
+                                DocNumber = (dataReader.GetNullableString("doc_number") ?? "") + "/" +
+                                            (dataReader.GetNullableString("doc_inc_number") ?? ""),
                                 DocDate = dataReader.GetDateTime("doc_date"),
+                                DocYear = dataReader.GetInt32("doc_year"),
                                 InNumber = dataReader.GetNullableString("addit_number"),
                                 InDate = dataReader.GetNullableDateTime("addit_date"),
                                 Topic = dataReader.GetNullableString("topic"),
@@ -3535,15 +3698,19 @@ VALUES
 
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return requests.ToArray();
                 }
             }
         }
 
-        public static string CreateDoc(int workerId, int typeId, string topic, string docNumber, DateTime docDate, string inNumber,
-            DateTime? inDate,int? orgId, OrgDocDto[] orgs, int? organizationalTypeId, string description,int? appoinedWorkerId)
+        public static string CreateDoc(int workerId, int typeId, string topic, string docNumber, DateTime docDate,
+            string inNumber,
+            DateTime? inDate, int? orgId, OrgDocDto[] orgs, int? organizationalTypeId, string description,
+            int? appoinedWorkerId)
         {
             var newDocId = string.Empty;
             using (var conn = new MySqlConnection(_connectionString))
@@ -3592,7 +3759,9 @@ VALUES
                 }
             }
         }
-        public static void AttachFileToDoc(int workerId, int docId, string fileName, string generatedFileName, string extension)
+
+        public static void AttachFileToDoc(int workerId, int docId, string fileName, string generatedFileName,
+            string extension)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -3606,7 +3775,8 @@ IN vExtension varchar(6) CHARACTER SET utf8
 
                 conn.Open();
                 using (var cmd =
-                    new MySqlCommand(@"call docs_pack.attach_file(@WorkerId,@Id,@Name,@generatedName,@Extension);", conn))
+                    new MySqlCommand(@"call docs_pack.attach_file(@WorkerId,@Id,@Name,@generatedName,@Extension);",
+                        conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
                     cmd.Parameters.AddWithValue("@Id", docId);
@@ -3617,6 +3787,7 @@ IN vExtension varchar(6) CHARACTER SET utf8
                 }
             }
         }
+
         public static List<AttachmentToDocDto> GetAttachmentsToDocs(int workerId, int docId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3651,6 +3822,7 @@ IN vExtension varchar(6) CHARACTER SET utf8
                                 }
                             });
                         }
+
                         dataReader.Close();
                         return attachments;
                     }
@@ -3658,6 +3830,101 @@ IN vExtension varchar(6) CHARACTER SET utf8
             }
         }
 
+        public static byte[] GenerateMasterStatisticsReport(int currentWorkerId, DateTime fromDate, DateTime toDate)
+        {
+            var items = GetMasterStatistics(currentWorkerId, fromDate, toDate);
+            XElement root = new XElement("Records");
+            foreach (var item in items)
+            {
+                root.AddFirst(
+                    new XElement("Record",
+                        new[]
+                        {
+                                        new XElement("Дата", item.Date),
+                                        new XElement("Поступило", item.Incoming),
+                                        new XElement("Выполнено_Всего", item.Done),
+                                        new XElement("Выполнено_созданых_в_этот_день", item.DoneInThisDay),
+                                        new XElement("Выполнено_созданых_в_другой_день", item.DoneInOtherDay),
+                                        
+                        }));
+            }
+            var saver = new MemoryStream();
+            root.Save(saver);
+            var buffer = saver.ToArray();
+            saver.Close();
+            return buffer;
+        }
 
+        public static MasterStatDto[] GetMasterStatistics(int currentWorkerId, DateTime fromDate, DateTime toDate)
+        {
+            var findFromDate = fromDate.Date;
+            var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
+            var result = new List<MasterStatDto>();
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var sqlQuery =
+                    "CALL CallCenter.ReportGetNewRequest(@CurWorker,@FromDate,@ToDate)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            result.Add(new MasterStatDto
+                            {
+                                Date = dataReader.GetDateTime("rep_date"),
+                                Incoming = dataReader.GetInt32("item_count"),
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                }
+                sqlQuery = "CALL CallCenter.ReportGetDoneRequest(@CurWorker,@FromDate,@ToDate,false)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurWorker", currentWorkerId);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var date = dataReader.GetDateTime("rep_date");
+                            var doneCount = dataReader.GetInt32("done_count");
+                            var doneInThisDayCount = dataReader.GetInt32("in_this_day_done");
+                            var item = result.FirstOrDefault(r => r.Date.Equals(date));
+                            if(item == null)
+                            { result.Add(new MasterStatDto
+                            {
+                                Date = date,
+                                Done = doneCount,
+                                DoneInOtherDay = doneCount - doneInThisDayCount,
+                                DoneInThisDay = doneInThisDayCount,
+                                Incoming = 0
+                            });
+                            }
+                            else
+                            {
+                                item.Done = doneCount;
+                                item.DoneInOtherDay = doneCount - doneInThisDayCount;
+                                item.DoneInThisDay = doneInThisDayCount;
+                            }
+                        }
+
+                        dataReader.Close();
+                    }
+
+                }
+
+
+                return result.ToArray();
+            }
+        }
     }
 }

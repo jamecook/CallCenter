@@ -201,5 +201,43 @@ namespace WebApi.Controllers
             byte[] buffer = RequestService.GenerateExcel(requests);
             return buffer;
         }
+        [HttpGet("requestStat")]
+        public byte[] MasterDetailReport([FromQuery]string requestId, [FromQuery] bool? filterByCreateDate,
+            [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] streets,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] houses,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] addresses,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] parentServices,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] services,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] statuses,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] workers,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] executors,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] ratings,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] companies,
+            [FromQuery] bool? badWork,
+            [FromQuery] bool? garanty,
+            [FromQuery] bool? onlyRetry,
+            [FromQuery] bool? chargeable,
+            [FromQuery] bool? onlyExpired,
+            [FromQuery] bool? onlyByClient,
+            [FromQuery] string clientPhone,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] regions
+            )
+
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+
+            var awailableReports = RequestService.ReportsGetAwailable(workerId);
+            if (awailableReports.All(r => r.Url != "/report/requestStat"))
+                return null;
+
+            var result = RequestService.GenerateMasterStatisticsReport(workerId,
+                fromDate ?? DateTime.Today,
+                toDate ?? DateTime.Today.AddDays(1));
+            return result;
+        }
     }
 }
