@@ -3511,6 +3511,36 @@ VALUES
                 }
             }
         }
+        public static IEnumerable<DocTypeDto> DocsGetOrdTypes(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL docs_pack.get_organizational_types(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var list = new List<DocTypeDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var type = new DocTypeDto()
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                            };
+                            list.Add(type);
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return list;
+                }
+            }
+        }
 
         public static int DocsAddOrganisations(int workerId, DocOrgDto organisationDto)
         {
@@ -3756,6 +3786,39 @@ VALUES
                     }
 
                     return newDocId;
+                }
+            }
+        }
+        
+        public static WorkerDto[] DocGetWorkers(int workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL docs_pack.get_workers(@WorkerId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    var workers = new List<WorkerDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            workers.Add(new WorkerDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                SurName = dataReader.GetString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                                SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return workers.ToArray();
                 }
             }
         }

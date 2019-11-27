@@ -55,6 +55,14 @@ namespace WebApi.Controllers
             int.TryParse(workerIdStr, out int workerId);
             return RequestService.DocsGetTypes(workerId);
         }
+
+        [HttpGet("ord_types")]
+        public IEnumerable<DocTypeDto> GetOrdTypes()
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.DocsGetOrdTypes(workerId);
+        }
         [HttpGet("statuses")]
         public IEnumerable<DocStatusDto> GetStatuses()
         {
@@ -95,6 +103,13 @@ namespace WebApi.Controllers
             int.TryParse(workerIdStr, out int workerId);
             return "";
                 //RequestService.CreateDoc(workerId, id, value.CreateDate, value.InNumber, value.OutNumber, value.InDate, value.OutDate, value.AgentId, value.StatusId, value.KindId, value.TypeId, value.Description);
+        }
+        [HttpGet("workers")]
+        public IEnumerable<WorkerDto> GetWorkers()
+        {
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            return RequestService.DocGetWorkers(workerId);
         }
 
         [HttpPost("attach_file/{id}")]
