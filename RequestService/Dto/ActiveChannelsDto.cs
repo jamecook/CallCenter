@@ -17,7 +17,9 @@ namespace RequestServiceImpl.Dto
         public Visibility VisibleRequest => RequestId.HasValue ? Visibility.Visible : Visibility.Collapsed;
 
         public string CallerIdNum { get; set; }
+        public string PhoneOrName => Master?.ShortName ?? CallerIdNum;
         public string ServiceCompany { get; set; }
+        public RequestUserDto Master { get; set; }
 
         public string ChannelState { get; set; }
 

@@ -72,7 +72,7 @@ namespace WebApi.Controllers
         }
         [HttpGet]
         public IEnumerable<DocDto> GetDocs([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate,
-            [FromQuery] string inNumber,
+            [FromQuery] string inNumber,[FromQuery] int? documentId, [FromQuery] int? appointedWorkerId,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] orgs,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] statuses,
             [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] types)
@@ -80,7 +80,7 @@ namespace WebApi.Controllers
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
             return RequestService.DocsGetList(workerId, fromDate ?? DateTime.Today, toDate ?? DateTime.Today.AddDays(1),
-                inNumber,  orgs, statuses, types);
+                inNumber,  orgs, statuses, types, documentId, appointedWorkerId);
         }
         [HttpPost]
         public IActionResult Post([FromBody]CreateDocDto value)

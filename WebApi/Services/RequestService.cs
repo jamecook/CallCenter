@@ -3632,15 +3632,15 @@ VALUES
         }
 
         public static IEnumerable<DocDto> DocsGetList(int workerId, DateTime fromDate, DateTime toDate, string inNumber,
-            int[] orgs, int[] statuses, int[] types)
+            int[] orgs, int[] statuses, int[] types, int? documentId, int? appointedWorkerId)
         {
-            var findFromDate = fromDate.Date;
-            var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
+            var findFromDate = documentId.HasValue ? DateTime.MinValue : fromDate.Date;
+            var findToDate = documentId.HasValue ? DateTime.MaxValue : toDate.Date.AddDays(1).AddSeconds(-1);
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 var sqlQuery =
-                    "call docs_pack.get_docs(@CurWorker,@FromDate,@ToDate, @InNumber, @Orgs, @Statuses, @Types);";
+                    "call docs_pack.get_docs(@CurWorker,@FromDate,@ToDate, @InNumber, @Orgs, @Statuses, @Types, @documentId, @appointedWorkerId);";
 
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
@@ -3648,6 +3648,8 @@ VALUES
                     cmd.Parameters.AddWithValue("@FromDate", fromDate);
                     cmd.Parameters.AddWithValue("@ToDate", toDate);
                     cmd.Parameters.AddWithValue("@InNumber", inNumber);
+                    cmd.Parameters.AddWithValue("@documentId", documentId);
+                    cmd.Parameters.AddWithValue("@appointedWorkerId", appointedWorkerId);
 
                     cmd.Parameters.AddWithValue("@Orgs",
                         orgs != null && orgs.Length > 0
@@ -3674,6 +3676,7 @@ VALUES
                                 attachOrgs = JsonConvert.DeserializeObject<DocAttachOrgDto[]>(attachOrgStr);
                             }
 
+                            var docType = dataReader.GetNullableInt("type_id");
                             requests.Add(new DocDto()
                             {
                                 Id = dataReader.GetInt32("id"),
@@ -3685,12 +3688,18 @@ VALUES
                                     FirstName = dataReader.GetNullableString("first_name"),
                                     PatrName = dataReader.GetNullableString("patr_name"),
                                 },
-                                DocNumber = (dataReader.GetNullableString("doc_number") ?? "") + "/" +
+                                DocNumber = docType == 2 ? dataReader.GetNullableString("doc_number") 
+                                          : (dataReader.GetNullableString("doc_number") ?? "") + "/" +
                                             (dataReader.GetNullableString("doc_inc_number") ?? ""),
+
                                 DocDate = dataReader.GetDateTime("doc_date"),
                                 DocYear = dataReader.GetInt32("doc_year"),
-                                InNumber = dataReader.GetNullableString("addit_number"),
-                                InDate = dataReader.GetNullableDateTime("addit_date"),
+                                InNumber = docType == 2 ? dataReader.GetNullableString("doc_inc_number")
+                                          : dataReader.GetNullableString("addit_number"),
+
+                                InDate = docType == 2 ? dataReader.GetDateTime("create_date")
+                                          : dataReader.GetNullableDateTime("addit_date"),
+
                                 Topic = dataReader.GetNullableString("topic"),
                                 Description = dataReader.GetNullableString("descript"),
                                 DoneDate = dataReader.GetNullableDateTime("done_date"),
@@ -3710,11 +3719,20 @@ VALUES
                                         Name = dataReader.GetNullableString("status_name"),
                                     }
                                     : null,
-                                Type = dataReader.GetNullableInt("type_id") != null
+                                Type = docType != null
                                     ? new DocTypeDto
                                     {
                                         Id = dataReader.GetInt32("type_id"),
                                         Name = dataReader.GetNullableString("type_name"),
+                                    }
+                                    : null,
+                                AppointedWorker = dataReader.GetNullableInt("appointed_worker_id") != null
+                                    ? new UserDto()
+                                    {
+                                        Id = dataReader.GetInt32("appointed_worker_id"),
+                                        SurName = dataReader.GetNullableString("asur_name"),
+                                        FirstName = dataReader.GetNullableString("afirst_name"),
+                                        PatrName = dataReader.GetNullableString("apatr_name"),
                                     }
                                     : null,
                                 OrganizationalType = dataReader.GetNullableInt("organiz_type_id") != null

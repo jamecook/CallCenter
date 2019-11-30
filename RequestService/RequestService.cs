@@ -2940,7 +2940,7 @@ group_concat(concat(C2.peer_number, ':', C2.ChannelState) order by C2.UniqueId d
 C.ivr_menu,C.ivr_dial
 FROM asterisk.ChannelHistory C
 left join asterisk.ChannelBridges B on B.UniqueId = C.UniqueId
-left join asterisk.ChannelHistory C2 on C2.BridgeId = B.BridgeId and C2.UniqueId<> C.UniqueId
+left join asterisk.ChannelHistory C2 on C2.BridgeId = B.BridgeId and C2.UniqueId <> C.UniqueId
 left join CallCenter.ServiceCompanies sc on sc.trunk_name = C.ServiceComp
 left join CallCenter.RequestCalls r on r.uniqueID = C.UniqueID
 where C.UniqueId >= '1552128123.322928' and C.UniqueId = C.LinkedId and C.Direction is not null

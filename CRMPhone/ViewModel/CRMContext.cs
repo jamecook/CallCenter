@@ -1671,10 +1671,11 @@ namespace CRMPhone.ViewModel
         {
             var readedChannels = new List<ActiveChannelsDto>();
             using (var cmd = new MySqlCommand(@"SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf,
-null as request_id,s.short_name
+null as request_id,s.short_name, w.id,w.sur_name,w.first_name,w.patr_name, w.id worker_id,w.sur_name,w.first_name,w.patr_name
 FROM asterisk.ActiveChannels a
 left join CallCenter.ServiceCompanies s on a.ServiceComp = s.trunk_name
-where Application = 'queue' and BridgeId is null order by UniqueID", _dbRefreshConnection))
+left join CallCenter.Workers w on w.phone = a.PhoneNum and not exists (select 1 from CallCenter.Workers w2 where w2.phone = w.phone and w2.id> w.id)
+where Application = 'queue' and AppData like 'dispetchers%' and BridgeId is null order by UniqueID", _dbRefreshConnection))
 //            using (var cmd = new MySqlCommand(@"SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf,
 //(SELECT r.id from CallCenter.ClientPhones cp2
 //join CallCenter.RequestContacts rc2 on cp2.id = rc2.ClientPhone_id
@@ -1696,7 +1697,15 @@ where Application = 'queue' and BridgeId is null order by UniqueID", _dbRefreshC
                         WaitSecond = dataReader.GetInt32("waitSec"),
                         IvrDtmf = dataReader.GetNullableInt("ivr_dtmf"),
                         RequestId = dataReader.GetNullableInt("request_id"),
-                        CreateTime = dataReader.GetNullableDateTime("CreateTime")
+                        CreateTime = dataReader.GetNullableDateTime("CreateTime"),
+                        Master = dataReader.GetNullableInt("worker_id")!=null?
+                            new RequestUserDto()
+                            {
+                                Id = dataReader.GetInt32("worker_id"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                SurName = dataReader.GetNullableString("sur_name"),
+                                PatrName = dataReader.GetNullableString("patr_name")
+                            } : null
                     });
                 }
                 dataReader.Close();

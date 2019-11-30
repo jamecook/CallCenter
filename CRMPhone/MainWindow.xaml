@@ -8,7 +8,7 @@
         xmlns:dto="clr-namespace:RequestServiceImpl.Dto;assembly=RequestServiceImpl"
         xmlns:admins="clr-namespace:CRMPhone.Controls.Admins"
         mc:Ignorable="d"
-        FontSize="14"
+        FontSize="13"
         d:DataContext="{d:DesignInstance viewModel:CRMContext}"
         Title="{Binding AppTitle}" Height="700" Width="1200" MinWidth="1200" MinHeight="700" Closing="Window_Closing">
     <Window.Resources>
@@ -119,7 +119,7 @@
                             <TextBlock Margin ="2" Width="50" Text="{Binding Path=ServiceCompany}" />
                             <TextBlock Margin ="2" Foreground="Red" Background="LawnGreen" VerticalAlignment="Center" Width="16" TextAlignment="Center" FontWeight="DemiBold" Text="З" Visibility="{Binding VisibleRequest}"/>
 
-                            <TextBlock Margin ="2" Foreground="{Binding Path=Color}" FontWeight="DemiBold" Text="{Binding Path=CallerIdNum}" />
+                            <TextBlock Margin ="2" Foreground="{Binding Path=Color}" FontWeight="DemiBold" MaxWidth="120" Text="{Binding Path=PhoneOrName}" ToolTip="{Binding Path=PhoneOrName}" />
                             <TextBlock Margin ="2" FontWeight="DemiBold" Text="{Binding Path=WaitSecondText}" />
                             <Button  Margin="2" Width="24" Height="24" 
                                  Command="{Binding Path=DataContext.GetCallFromQueryCommand, ElementName=ActiveCallsListBox}"
