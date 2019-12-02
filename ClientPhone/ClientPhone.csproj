@@ -1,0 +1,788 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8C7F55EE-F198-4441-A5AE-3EE8D8E580D1}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ClientPhone</RootNamespace>
+    <AssemblyName>ClientPhone</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>..\Public\</PublishUrl>
+    <Install>false</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>1.0.0.1</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>PhoneIco.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.7.2.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.7.2\lib\net40\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.6.9.9\lib\net40\MySql.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.4.8\lib\net40\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net4\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>..\packages\Stimulsoft.Base.2014.1.1900.0\lib\net20\Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Controls.Win">
+      <HintPath>..\packages\Stimulsoft.Controls.Win.2014.1.1900.0\lib\net20\Stimulsoft.Controls.Win.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Report">
+      <HintPath>..\packages\Stimulsoft.Report.2014.1.1900.0\lib\net20\Stimulsoft.Report.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Activities" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="AmiService.cs" />
+    <Compile Include="ContextSaver.cs" />
+    <Compile Include="Controls\Admins\CallsNotificationControl.xaml.cs">
+      <DependentUpon>CallsNotificationControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Admins\HouseAdminControl.xaml.cs">
+      <DependentUpon>HouseAdminControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Admins\RingUpAdminControl.xaml.cs">
+      <DependentUpon>RingUpAdminControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Admins\RedirectAdminControl.xaml.cs">
+      <DependentUpon>RedirectAdminControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Admins\ServiceAdminControl.xaml.cs">
+      <DependentUpon>ServiceAdminControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Admins\BlackListControl.xaml.cs">
+      <DependentUpon>BlackListControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Admins\SpecialityAdminControl.xaml.cs">
+      <DependentUpon>SpecialityAdminControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Admins\WorkerAdminControl.xaml.cs">
+      <DependentUpon>WorkerAdminControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AlertAndWorkControl.xaml.cs">
+      <DependentUpon>AlertAndWorkControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AlertRequestControl.xaml.cs">
+      <DependentUpon>AlertRequestControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FilteredComboBox.cs" />
+    <Compile Include="Controls\ReportControl.xaml.cs">
+      <DependentUpon>ReportControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\DispexRequestControl.xaml.cs">
+      <DependentUpon>DispexRequestControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\NotifyRequestControl.xaml.cs">
+      <DependentUpon>NotifyRequestControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ServiceCompanyFondControl.xaml.cs">
+      <DependentUpon>ServiceCompanyFondControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\BindRequestTypeToAddressDialog.xaml.cs">
+      <DependentUpon>BindRequestTypeToAddressDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\BindCompanyToWorkerDialog.xaml.cs">
+      <DependentUpon>BindCompanyToWorkerDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\DigitsDialog.xaml.cs">
+      <DependentUpon>DigitsDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\EditExecuterBindDialog.xaml.cs">
+      <DependentUpon>EditExecuterBindDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\BindAddressToWorkerDialog.xaml.cs">
+      <DependentUpon>BindAddressToWorkerDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\WorkerHouseAndTypeAddOrEditDialog.xaml.cs">
+      <DependentUpon>WorkerHouseAndTypeAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ExecuterBindDialog.xaml.cs">
+      <DependentUpon>ExecuterBindDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\CalendarDialog.xaml.cs">
+      <DependentUpon>CalendarDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\NewAppointment.xaml.cs">
+      <DependentUpon>NewAppointment.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\SelectPeriodDialog.xaml.cs">
+      <DependentUpon>SelectPeriodDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\GetScInfoDialog.xaml.cs">
+      <DependentUpon>GetScInfoDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\AddRequestToCallDialog.xaml.cs">
+      <DependentUpon>AddRequestToCallDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\AddRatingDialog.xaml.cs">
+      <DependentUpon>AddRatingDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\RingUpNewDialog.xaml.cs">
+      <DependentUpon>RingUpNewDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\HouseAddOrEditDialog.xaml.cs">
+      <DependentUpon>HouseAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\BlackListPhoneAddDialog.xaml.cs">
+      <DependentUpon>BlackListPhoneAddDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\PhoneAddOrUpdateDialog.xaml.cs">
+      <DependentUpon>PhoneAddOrUpdateDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\ServiceAddOrEditDialog.xaml.cs">
+      <DependentUpon>ServiceAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\ServiceCompanyAddOrEditDialog.xaml.cs">
+      <DependentUpon>ServiceCompanyAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\SpecialityAddOrEditDialog.xaml.cs">
+      <DependentUpon>SpecialityAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\StreetAddOrEditDialog.xaml.cs">
+      <DependentUpon>StreetAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Admins\WorkerAddOrEditDialog.xaml.cs">
+      <DependentUpon>WorkerAddOrEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\EditAddressOnRequestDialog.xaml.cs">
+      <DependentUpon>EditAddressOnRequestDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\AlertAndWorkDialog.xaml.cs">
+      <DependentUpon>AlertAndWorkDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\AlertByHouseListDialog.xaml.cs">
+      <DependentUpon>AlertByHouseListDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ChangeAlertTimeDialog.xaml.cs">
+      <DependentUpon>ChangeAlertTimeDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\WorkerInfoDialog.xaml.cs">
+      <DependentUpon>WorkerInfoDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\NotesDialog.xaml.cs">
+      <DependentUpon>NotesDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\AttachmentDialog.xaml.cs">
+      <DependentUpon>AttachmentDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\CallsHistoryDialog.xaml.cs">
+      <DependentUpon>CallsHistoryDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\MeterDeviceDialog.xaml.cs">
+      <DependentUpon>MeterDeviceDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ServiceCompanyInfoDialog.xaml.cs">
+      <DependentUpon>ServiceCompanyInfoDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\SetWorkingTimesDialog.xaml.cs">
+      <DependentUpon>SetWorkingTimesDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
+    <Compile Include="BooleanToVisibilityConverter.cs" />
+    <Compile Include="Dialogs\ChangeExecuteDateDialog.xaml.cs">
+      <DependentUpon>ChangeExecuteDateDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\AddRequestToCallDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\BindAddressToWorkerDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\BindRequestTypeToAddressDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\BindCompanyToWorkerDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\BlackListPhoneDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\RingUpNewDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\HouseAdminDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\PhoneDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\ServiceDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\SpecialityDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\StreetAdminDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\WorkerAdminDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\WorkerHouseAndTypeAdminDialogViewModel.cs" />
+    <Compile Include="ViewModel\AlertAndWorkControlContext.cs" />
+    <Compile Include="ViewModel\CalendarDialogViewModel.cs" />
+    <Compile Include="ViewModel\CallsNotificationContext.cs" />
+    <Compile Include="ViewModel\DigitsDialogViewModel.cs" />
+    <Compile Include="ViewModel\EditExecuterBindDialogViewModel.cs" />
+    <Compile Include="ViewModel\ExecuterBindDialogViewModel.cs" />
+    <Compile Include="ViewModel\InputBindingsManager.cs" />
+    <Compile Include="ViewModel\NotificationYesNo.cs" />
+    <Compile Include="ViewModel\SelectPeriodDialogViewModel.cs" />
+    <Compile Include="ViewModel\ChangeExecuterDialogViewModel.cs" />
+    <Compile Include="ViewModel\CRMContextNewSIP.cs" />
+    <Compile Include="ViewModel\ReportControlModel.cs" />
+    <Compile Include="ViewModel\DispexRequestControlModel.cs" />
+    <Compile Include="ViewModel\EditAddressOnRequestDialogViewModel.cs" />
+    <Compile Include="ViewModel\AlertAndWorkDialogViewModel.cs" />
+    <Compile Include="ViewModel\AlertForHouseDialogViewModel.cs" />
+    <Compile Include="ViewModel\AttachmentDialogViewModel.cs" />
+    <Compile Include="ViewModel\BlackListControlContext.cs" />
+    <Compile Include="ViewModel\CallsHistoryDialogViewModel.cs" />
+    <Compile Include="ViewModel\ChangeExecuteDateDialogViewModel.cs" />
+    <Compile Include="Dialogs\ChangeStatusDialog.xaml.cs">
+      <DependentUpon>ChangeStatusDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\ChangeStatusDialogViewModel.cs" />
+    <Compile Include="Dialogs\ChangeWorkerDialog.xaml.cs">
+      <DependentUpon>ChangeWorkerDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\ChangeAlertTimeDialogViewModel.cs" />
+    <Compile Include="ViewModel\ChangeWorkerDialogViewModel.cs" />
+    <Compile Include="Controls\RequestItem.xaml.cs">
+      <DependentUpon>RequestItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Admins\ServiceCompanyControl.xaml.cs">
+      <DependentUpon>ServiceCompanyControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\UsersControl.xaml.cs">
+      <DependentUpon>UsersControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\GetScInfoDialogViewModel.cs" />
+    <Compile Include="ViewModel\HouseAdminControlContext.cs" />
+    <Compile Include="ViewModel\MeterDeviceViewModel.cs" />
+    <Compile Include="ViewModel\NoteDialogViewModel.cs" />
+    <Compile Include="ViewModel\RingUpAdminControlContext.cs" />
+    <Compile Include="ViewModel\RedirectAdminControlContext.cs" />
+    <Compile Include="ViewModel\AlertRequestControlContext.cs" />
+    <Compile Include="ViewModel\AlertRequestControlModel.cs" />
+    <Compile Include="ViewModel\RequestItemViewModel.cs" />
+    <Compile Include="LoginView.xaml.cs">
+      <DependentUpon>LoginView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\RequestDialogViewModel.cs" />
+    <Compile Include="ViewModel\LoginContext.cs" />
+    <Compile Include="PasswordHelper.cs" />
+    <Compile Include="Controls\PhoneControl.xaml.cs">
+      <DependentUpon>PhoneControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\RelayCommand.cs" />
+    <Compile Include="ViewModel\RequestControlContext.cs" />
+    <Compile Include="Controls\RequestControl.xaml.cs">
+      <DependentUpon>RequestControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\RequestDialog.xaml.cs">
+      <DependentUpon>RequestDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\TransferDialog.xaml.cs">
+      <DependentUpon>TransferDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\Admins\ServiceCompanyDialogViewModel.cs" />
+    <Compile Include="ViewModel\ServiceAdminControlContext.cs" />
+    <Compile Include="ViewModel\ServiceCompanyFondControlContext.cs" />
+    <Compile Include="ViewModel\ServiceCompanyInfoDialogViewModel.cs" />
+    <Compile Include="ViewModel\SetWorkingTimesDialogViewModel.cs" />
+    <Compile Include="ViewModel\SpecialityControlContext.cs" />
+    <Compile Include="ViewModel\TrasferDialogViewModel.cs" />
+    <Compile Include="ViewModel\ServiceCompanyControlContext.cs" />
+    <Compile Include="ViewModel\WorkerAdminControlContext.cs" />
+    <Compile Include="ViewModel\WorkerInfoViewModel.cs" />
+    <Page Include="Controls\Admins\CallsNotificationControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\Admins\HouseAdminControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Admins\RingUpAdminControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\Admins\RedirectAdminControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Admins\ServiceAdminControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Admins\BlackListControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\Admins\SpecialityAdminControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Admins\WorkerAdminControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\AlertAndWorkControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\AlertRequestControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\ReportControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\DispexRequestControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\NotifyRequestControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\ServiceCompanyFondControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\Admins\BindRequestTypeToAddressDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\Admins\BindCompanyToWorkerDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\DigitsDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\EditExecuterBindDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\Admins\BindAddressToWorkerDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\Admins\WorkerHouseAndTypeAddOrEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\ExecuterBindDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\CalendarDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\NewAppointment.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\SelectPeriodDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\GetScInfoDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\AddRequestToCallDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\AddRatingDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\RingUpNewDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\Admins\HouseAddOrEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\BlackListPhoneAddDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\Admins\PhoneAddOrUpdateDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\ServiceAddOrEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\SpecialityAddOrEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\StreetAddOrEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\WorkerAddOrEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\EditAddressOnRequestDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\AlertAndWorkDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\AlertByHouseListDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ChangeAlertTimeDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\WorkerInfoDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\NotesDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\AttachmentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\CallsHistoryDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ChangeExecuteDateDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ChangeStatusDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ChangeWorkerDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\RequestItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Admins\ServiceCompanyControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\UsersControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\Admins\ServiceCompanyAddOrEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\MeterDeviceDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ServiceCompanyInfoDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\SetWorkingTimesDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LoginView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandler.cs" />
+    <Compile Include="ViewModel\CRMContext.cs" />
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="Controls\PhoneControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\RequestControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\RequestDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\TransferDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MysqlDecorator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <None Include="Properties\app.manifest" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Resource Include="Resources\ringtone.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\ringin.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\NoAnswer.png" />
+    <Resource Include="Images\CanAnswer.png" />
+    <Resource Include="Images\dispex.png" />
+    <Resource Include="Images\floppy.ico" />
+    <Resource Include="Images\Calendar.png" />
+    <Resource Include="Images\Calendar_new.png" />
+    <Resource Include="Images\Calendar_small.png" />
+    <Resource Include="Images\delete.png" />
+    <Resource Include="Images\numbers.png" />
+    <Content Include="russian.lex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="templates\act.mrt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="templates\meters.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="templates\calls.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="templates\requests.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Resource Include="Images\edit_small.png" />
+    <Resource Include="Images\attach.png" />
+    <Resource Include="Images\delete-24.png" />
+    <Resource Include="Images\info_24.png" />
+    <Resource Include="Images\prib_ucheta_small.png" />
+    <Resource Include="Images\danger_small.png" />
+    <Resource Include="Images\tech_work_small.png" />
+    <Resource Include="Images\retry.png" />
+    <Resource Include="Images\hold.png" />
+    <Resource Include="Images\merge.png" />
+    <Resource Include="Images\bridgeBlack.png" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\play.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\phone3.png" />
+    <Resource Include="Images\PhoneList.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\incalls.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\outcalls.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="PhoneIco.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\answer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\hangupsmall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\forward.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\mic-mute.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\settings.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\events.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\events_small.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\PhoneList_small.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\settings_small.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\button_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RequestService\RequestServiceImpl.csproj">
+      <Project>{f8832d54-a8e8-44ea-a64b-26202d7b64c9}</Project>
+      <Name>RequestServiceImpl</Name>
+    </ProjectReference>
+    <ProjectReference Include="RudiGrobler.Controls\RudiGrobler.Controls.csproj">
+      <Project>{73ca44ce-7dc1-4edd-8f32-303d51e09911}</Project>
+      <Name>RudiGrobler.Controls</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="conaito">
+      <Guid>{C925F211-6A67-4E38-93AB-8B2F30ABE8FD}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

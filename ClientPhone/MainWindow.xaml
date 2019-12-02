@@ -1,0 +1,847 @@
+﻿<Window x:Class="CRMPhone.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:CRMPhone.Controls"
+        xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
+        xmlns:dto="clr-namespace:RequestServiceImpl.Dto;assembly=RequestServiceImpl"
+        xmlns:admins="clr-namespace:CRMPhone.Controls.Admins"
+        mc:Ignorable="d"
+        FontSize="13"
+        d:DataContext="{d:DesignInstance viewModel:CRMContext}"
+        Title="{Binding AppTitle}" Height="700" Width="1200" MinWidth="1200" MinHeight="700" Closing="Window_Closing">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Name="PhoneGrid"  Grid.Column ="0" Margin="3" Visibility="{Binding PhoneVisibility}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row ="0">
+                <DockPanel>
+                    <TextBlock Text="Входящий вызов от:" Margin="3" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding IncomingCallFrom}" Margin="3" FontWeight="Bold"/>
+                </DockPanel>
+                <DockPanel>
+                    <TextBlock Text="УК:" Margin="3" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding CallFromServiceCompany.Name}" Margin="3" FontWeight="Bold"/>
+                    <Button HorizontalAlignment="Right" Background="Transparent" BorderThickness="0" Command="{Binding ServiceCompanyInfoCommand}">
+                        <Image Source="pack://application:,,,/Images/info_24.png" Height="24" />
+                    </Button>
+                </DockPanel>
+
+                <StackPanel HorizontalAlignment ="Center">
+                    <DockPanel>
+                        <TextBlock Text="Номер:" VerticalAlignment="Center"/>
+                        <TextBox Margin="5" Width="100" Text="{Binding SipPhone}"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <TextBlock Text="Набрать от:" VerticalAlignment="Center"/>
+                        <ComboBox Margin="5" Width="160" DisplayMemberPath="ShortNameWithPrefix" SelectedItem="{Binding SelectedOutgoingCompany}" ItemsSource="{Binding ForOutcoinCallsCompanyList}"/>
+                    </DockPanel>
+                </StackPanel>
+                <WrapPanel HorizontalAlignment="Center">
+                    <Button  Margin="5" Width="48" Height="48" Command="{Binding CallCommand}" ToolTip="Ответить на звонок/набрать номер">
+                        <Image Source="pack://application:,,,/Images/answer.png" Width="32" Height="32" />
+                    </Button>
+                    <!--<Button  Margin="5" Width="48" Height="48" Command="{Binding DtmfCommand}" ToolTip="DTMF">
+                        <Image Source="pack://application:,,,/Images/answer.png" Width="32" Height="32" />
+                    </Button>-->
+                    <Button Margin="5" Width="48" Height="48" Command="{Binding HangUpCommand}" ToolTip="Положить трубку">
+                        <Image Source="pack://application:,,,/Images/hangupsmall.png" Width="32" Height="32" />
+                    </Button>
+                    <Button  Margin="5" Width="48" Height="48" Command="{Binding TransferCommand}" ToolTip="Перевести звонок">
+                        <Image Source="pack://application:,,,/Images/forward.png" Width="32" Height="32" />
+                    </Button>
+                </WrapPanel>
+                <WrapPanel HorizontalAlignment="Center">
+                    <Button  Margin="5" Width="36" Height="36" Command="{Binding MuteCommand}" ToolTip="Микрофон" Background="{Binding MuteButtonBackground}">
+                        <Image Source="pack://application:,,,/Images/mic-mute.png" Width="24" Height="24" />
+                    </Button>
+                    <Button  Margin="5" Width="36" Height="36" Command="{Binding HoldCommand}" ToolTip="Hold/UnHold">
+                        <Image Source="pack://application:,,,/Images/hold.png" Width="24" Height="24" />
+                    </Button>
+                    <Button  Margin="5" Width="36" Height="36" Command="{Binding BridgeCommand}" Visibility="Collapsed" ToolTip="Соединить линии">
+                        <Image Source="pack://application:,,,/Images/bridgeBlack.png" Width="32" Height="32" />
+                    </Button>
+                    <Button  Margin="5" Width="36" Height="36" Command="{Binding NumbersCommand}" ToolTip="Номеронабиратель">
+                        <Image Source="pack://application:,,,/Images/numbers.png" Width="32" Height="32" />
+                    </Button>
+                    <Button  Margin="5" Width="36" Height="36" Command="{Binding ConferenceCommand}" Visibility="Collapsed" ToolTip="Конференция">
+                        <Image Source="pack://application:,,,/Images/merge.png" Width="24" Height="24" />
+                    </Button>
+                    <Button  Margin="5" Width="36" Height="36" Command="{Binding QueuePauseCommand}" ToolTip="Не принимать звонки">
+                        <Image Source="pack://application:,,,/Images/NoAnswer.png" Width="32" Height="32" />
+                    </Button>
+                    <Button  Margin="5" Width="36" Height="36" Command="{Binding QueueUnPauseCommand}" ToolTip="Принимать звонки">
+                        <Image Source="pack://application:,,,/Images/CanAnswer.png" Width="32" Height="32" />
+                    </Button>
+                </WrapPanel>
+                <StackPanel>
+                    <ListBox ItemsSource="{Binding Path=SipLines}" Margin="3" SelectedItem="{Binding SelectedLine}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,2">
+                                    <TextBlock Margin ="2" Text="{Binding Path=Name}" />
+                                    <TextBlock Margin ="2" Text="{Binding Path=State}" />
+                                    <TextBlock Margin ="2" Foreground="Blue" FontWeight="DemiBold" Text="{Binding Path=Phone}" />
+                                    <TextBlock Margin ="2" Foreground="{Binding Path=CallTimeColor}" FontWeight="DemiBold" Text="{Binding Path=CallTime}" />
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <WrapPanel>
+                    <TextBlock Text="Последний №:" Margin="3" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding LastAnsweredPhoneNumber}" Margin="3" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    </WrapPanel>
+                </StackPanel>
+
+                <TextBlock Margin ="1" FontWeight="Bold" TextAlignment="Center" Text="Абоненты в очереди:"/>
+            </StackPanel>
+            <ListBox Grid.Row ="1" ItemsSource="{Binding Path=ActiveChannels}" Margin="3" Name="ActiveCallsListBox">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel Margin="0,2">
+                            <TextBlock Margin ="2" Text="{Binding Path=CreateTime, StringFormat='{}{0:HH:mm}'}" />
+                            <TextBlock Margin ="2" Width="50" Text="{Binding Path=ServiceCompany}" />
+                            <TextBlock Margin ="2" Foreground="Red" Background="LawnGreen" VerticalAlignment="Center" Width="16" TextAlignment="Center" FontWeight="DemiBold" Text="З" Visibility="{Binding VisibleRequest}"/>
+
+                            <TextBlock Margin ="2" Foreground="{Binding Path=Color}" FontWeight="DemiBold" MaxWidth="120" Text="{Binding Path=PhoneOrName}" ToolTip="{Binding Path=PhoneOrName}" />
+                            <TextBlock Margin ="2" FontWeight="DemiBold" Text="{Binding Path=WaitSecondText}" />
+                            <Button  Margin="2" Width="24" Height="24" 
+                                 Command="{Binding Path=DataContext.GetCallFromQueryCommand, ElementName=ActiveCallsListBox}"
+                                     CommandParameter="{Binding}"
+                                 ToolTip="Взять из очереди">
+                                <Image Source="pack://application:,,,/Images/answer.png" Stretch="Fill" />
+                            </Button>
+
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <DockPanel Grid.Row="2" Margin="3">
+                <TextBlock  Margin ="3" FontWeight="Bold" TextAlignment="Center" Text="Непринятые звонки:"/>
+                <Button HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" ToolTip="Удаление пропущенных звонков исключая звонки за сегодня!" Command="{Binding DeleteNotAnsweredCommand}">
+                    <Image Source="pack://application:,,,/Images/delete-24.png" Stretch="UniformToFill" Height="24"/>
+                </Button>
+            </DockPanel>
+            <ListBox Grid.Row="3" Name ="notAnsweredListBox" 
+                     ItemsSource="{Binding Path=NotAnsweredCalls}" 
+                     SelectedItem ="{Binding Path=SelectedCall}"
+                     MouseDoubleClick="NotAnsweredListBox_OnMouseDoubleClick"
+                     Margin="3">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel Margin="0,2">
+                            <TextBlock Margin ="2" Text="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yy HH:mm}'}" />
+                            <TextBlock Margin ="2" Width="60" Text="{Binding Path=ServiceCompany}" />
+                            <TextBlock Margin ="2" Foreground="{Binding Color}" FontWeight="DemiBold" Text="{Binding Path=CallerId}" />
+                            <Button HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" ToolTip="Удаление звонок!" Visibility="{Binding Path=DataContext.IsAdminRoleExist, ElementName=notAnsweredListBox}"
+                                    Command="{Binding Path=DataContext.DeleteCallFromListCommand, ElementName=notAnsweredListBox}"
+                                    CommandParameter="{Binding}">
+                                <Image Source="pack://application:,,,/Images/delete.png" Stretch="UniformToFill" Height="24"/>
+                            </Button>
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+        <TabControl Margin="3" Grid.Row="0" Grid.Column="1">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" >
+                        <Image  Source="pack://application:,,,/Images/PhoneList_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text ="История звонков"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <WrapPanel Grid.Row ="0">
+                        <TextBlock Margin="5" VerticalAlignment="Center" Text="№ заявки:"/>
+                        <TextBox Margin="5" Width="50" Text="{Binding RequestNum}"/>
+                        <TextBlock Margin="10,5" VerticalAlignment="Center" Text="Дата с:"/>
+                        <DatePicker Height="24" Width="120" SelectedDate="{Binding FromDate}"/>
+                        <TextBlock Margin="10,5" VerticalAlignment="Center" Text="по:"/>
+                        <DatePicker Height="24" Width="120" SelectedDate="{Binding ToDate}"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="Оператор:"/>
+                        <ComboBox Margin="3" Width="110" DisplayMemberPath="ShortName" SelectedItem="{Binding SelectedUser}" ItemsSource="{Binding UserList}" IsEditable="True" />
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="УК:"/>
+                        <ComboBox Margin="3" Width="180" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCompany}" ItemsSource="{Binding CompanyList}" IsEditable="True" />
+                        <TextBlock Margin="5" VerticalAlignment="Center" Text="телефон:"/>
+                        <TextBox Margin="5" Width="150" Text="{Binding PhoneNumber}"/>
+
+                        <Button  Margin="5" Padding ="5,0" Height="24" Content="Обновить" Command="{Binding RefreshCommand}"/>
+                        <Button  Margin="5" Padding ="5,0" Height="24" Content="Привязать заявку" Command="{Binding AddRequestToCallCommand}"/>
+                        <Button  Margin="5" Padding ="5,0" Height="24" Content="Экспорт" Command="{Binding ExportCommand}"/>
+                    </WrapPanel>
+                    <DataGrid Name="RecordGrid" Grid.Row ="1"
+                          AutoGenerateColumns="False"
+                          ItemsSource="{Binding Path=CallsList}"
+                          SelectedItem="{Binding SelectedRecordCall}"
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow"
+                          IsReadOnly="True"
+                          HorizontalScrollBarVisibility="Disabled">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Время звонка" Width="120"
+                             Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
+                            <DataGridTextColumn Header="УК" Width="120"
+                             Binding="{Binding Path=ServiceCompany}"/>
+                            <DataGridTemplateColumn Width="120" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Номер" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <Image Width="16" Source="{Binding Path=ImagePath}"/>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=CallerId}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="80" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Время ожидания" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=WaitingTime}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="80" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Время разговора" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=TalkTime}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="90" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="№ заявки" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=Requests}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="*" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Оператор" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=User.ShortName}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="*" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Переадресация" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=RedirectPhone}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="60" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Запись" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel HorizontalAlignment="Center">
+                                            <Button Width="20" Command="{Binding ElementName=RecordGrid, Path=DataContext.PlayCommand}" CommandParameter="{Binding ElementName=RecordGrid, Path=SelectedItem}"
+                                            Visibility="{Binding EnablePlayButton, Converter={StaticResource BooleanToVisibility} }">
+                                                <Image Source="pack://application:,,,/Images/play.png"/>
+                                            </Button>
+                                            <Button Width="20" Margin="3,0" Command="{Binding ElementName=RecordGrid, Path=DataContext.DownloadRecordCommand}" CommandParameter="{Binding ElementName=RecordGrid, Path=SelectedItem}"
+                                    Visibility="{Binding EnablePlayButton, Converter={StaticResource BooleanToVisibility} }">
+                                                <Image Source="pack://application:,,,/Images/floppy.ico"/>
+                                            </Button>
+
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <DockPanel Grid.Row="2" HorizontalAlignment="Right">
+                        <TextBlock Margin="3" Text="Всего записей:"/>
+                        <TextBlock Margin="3" MinWidth="45" TextAlignment="Right"  Text="{Binding CallsCount}"/>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/danger_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Контроль аварийных"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <controls:AlertRequestControl DataContext="{Binding AlertRequestDataContext}"/>
+            </TabItem>
+
+            <TabItem Visibility="Collapsed">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/prib_ucheta_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Приборы учёта"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <WrapPanel Grid.Row="0">
+                        <Button  Margin="25,3" Content="Принять показания" Padding="3" Command="{Binding AddMeterCommand}"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="УК:"/>
+                        <ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="Name" SelectedItem="{Binding SelectedMetersSC}" ItemsSource="{Binding MetersSCList}" IsEditable="True"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="с:"/>
+                        <DatePicker  Margin="3" Width="110" SelectedDate="{Binding MetersFromDate}"/>
+                        <TextBlock Margin="3" VerticalAlignment="Center" Text="по:"/>
+                        <DatePicker  Margin="3" Width="110" SelectedDate="{Binding MetersToDate}"/>
+                        <Button  Margin="15,3" Content="Обновить" Padding="3" Command="{Binding RefreshMeterCommand}"/>
+                        <Button  Margin="15,3" Content="Удалить" Padding="3" Command="{Binding DeleteCommand}"/>
+                        <Button  Margin="15,3" Content="Экспорт" Padding="3" Command="{Binding ExportMetersCommand}"/>
+                        <Button  Margin="15,3" Content="Экспортировать в файл Триц" Padding="3" Command="{Binding ExportToTrizCommand}"/>
+                    </WrapPanel>
+                    <DataGrid Name="MetersGrid" Grid.Row="1"
+                          AutoGenerateColumns="False"
+                          ItemsSource="{Binding Path=MetersHistoryList}"
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow"
+                          IsReadOnly="True"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto"
+                          SelectedItem="{Binding Path=SelectedMeter}">
+                        <DataGrid.InputBindings>
+                            <MouseBinding MouseAction="LeftDoubleClick"
+                  Command="{Binding Path=OpenMetersCommand}"
+                  CommandParameter="{Binding ElementName=MetersGrid, Path=SelectedItem}" />
+                        </DataGrid.InputBindings>
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="УК" Width="2*" MinWidth="60"
+                                            Binding="{Binding Path=ServiceCompany}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Адрес" Width="3*" MinWidth="80"
+                                            Binding="{Binding Path=FullAddress}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Лиц. счет" Width="100"
+                                            Binding="{Binding Path=PersonalAccount}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Дата" Width="2*" MinWidth="80"
+                                            Binding="{Binding Path=Date, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Эл. Т1" Width="80"
+                                            Binding="{Binding Path=Electro1}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Эл. Т2" Width="80"
+                                            Binding="{Binding Path=Electro2}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="ГВС ст.1(кух)" Width="80"
+                                            Binding="{Binding Path=HotWater1}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="ХВС ст.1(кух)" Width="80"
+                                            Binding="{Binding Path=ColdWater1}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="ГВС ст.2(ван)" Width="80"
+                                            Binding="{Binding Path=HotWater2}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="ХВС ст.2(ван)" Width="80"
+                                            Binding="{Binding Path=ColdWater2}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="ГВС ст.3" Width="80"
+                                            Binding="{Binding Path=HotWater3}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="ХВС ст.3" Width="80"
+                                            Binding="{Binding Path=ColdWater3}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Отоп.1" Width="80"
+                                            Binding="{Binding Path=Heating}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Отоп.2" Width="80"
+                                            Binding="{Binding Path=Heating2}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Отоп.3" Width="80"
+                                            Binding="{Binding Path=Heating3}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Отоп.4" Width="80"
+                                            Binding="{Binding Path=Heating4}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Margin" Value="3"/>
+
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Visibility="Collapsed">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" >
+                        <Image  Source="pack://application:,,,/Images/PhoneList_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text ="Оповещения"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="71*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <WrapPanel Grid.Row ="0" Margin="3,3,3,228" Grid.ColumnSpan="2">
+                        <TextBlock Margin="10,5" VerticalAlignment="Center" Text="Дата с:"/>
+                        <DatePicker Height="24" SelectedDate="{Binding FromDate}"/>
+                        <TextBlock Margin="10,5" VerticalAlignment="Center" Text="по:"/>
+                        <DatePicker Height="24" SelectedDate="{Binding ToDate}"/>
+
+                        <Button  Margin="5" Width="80" Height="24" Content="Обновить" Command="{Binding RefreshCommand}"/>
+                        <Button  Margin="5" Width="80" Height="24" Content="Создать" Command="{Binding CreateCommand}"/>
+                    </WrapPanel>
+                    <DataGrid Name="NotificationsGrid"
+                              AutoGenerateColumns="False"
+                              ItemsSource="{Binding Path=NotificationList}"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              IsReadOnly="True"
+                              HorizontalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Margin="0,41,0,0" Grid.RowSpan="2">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Время звонка" Width="120"
+                                                Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"></DataGridTextColumn>
+                            <DataGridTemplateColumn Width="*" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Номер" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <Image Width="16" Source="{Binding Path=ImagePath}"/>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=CallerId}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="110" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Время ожидания" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=WaitingTime}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="110" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Время разговора" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=TalkTime}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="110" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="№ заявки" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=RequestId}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="110" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Оператор" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=User.ShortName}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="50" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Запись" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <Button Width="20" Command="{Binding ElementName=RecordGrid, Path=DataContext.PlayCommand}" CommandParameter="{Binding ElementName=RecordGrid, Path=SelectedItem}"
+                                                Visibility="{Binding EnablePlayButton, Converter={StaticResource BooleanToVisibility} }">
+                                            <Image Source="pack://application:,,,/Images/play.png"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <DockPanel Grid.Row="2" HorizontalAlignment="Right" Grid.Column="1">
+                        <TextBlock Margin="3" Text="Всего записей:"/>
+                        <TextBlock Margin="3" MinWidth="45" TextAlignment="Right"  Text="{Binding CallsCount}"/>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <!--<TabItem Visibility="{Binding IsAdminRoleExist}">-->
+            <TabItem Visibility="Collapsed">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/settings_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Администрирование"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <TabControl TabStripPlacement="Left">
+                        <TabItem Name="UsersTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Пользователи"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <controls:UsersControl/>
+                        </TabItem>
+                        <TabItem Name="ServiceCompanyTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="УК"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:ServiceCompanyControl DataContext="{Binding ServiceCompanyDataContext}"/>
+                        </TabItem>
+                        <TabItem Name="SpecialitiesTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Специальности"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:SpecialityAdminControl DataContext="{Binding SpecialityAdminContext}"/>
+                        </TabItem>
+                        <TabItem Name="WorkersTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Исполнители"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:WorkerAdminControl DataContext="{Binding WorkerAdminDataContext}"/>
+                        </TabItem>
+                        <TabItem Name="ServicesTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Услуги"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:ServiceAdminControl DataContext="{Binding ServiceAdminContext}"/>
+                        </TabItem>
+                        <TabItem Name="HousesTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Адреса"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:HouseAdminControl DataContext="{Binding HouseAdminContext}"/>
+                        </TabItem>
+                        <TabItem Name="RedirectTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Автообзвон"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:RingUpAdminControl DataContext="{Binding RingUpAdminContext}"/>
+                        </TabItem>
+                        <TabItem Name="BlackListTaab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Черный список"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:BlackListControl DataContext="{Binding BlackListContext}"/>
+                        </TabItem>
+                        <TabItem Name="CallsNotificationTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Уведомления в IVR"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:CallsNotificationControl DataContext="{Binding CallsNotificationContext}"/>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <TextBlock Margin ="10,0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Height="24" Text="{Binding SipState}" />
+    </Grid>
+</Window>

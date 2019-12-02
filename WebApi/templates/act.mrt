@@ -39,7 +39,7 @@
           <Brush>Transparent</Brush>
           <BusinessObjectGuid>e307ccd422fb4aff8a39c86632a75266</BusinessObjectGuid>
           <ClientRectangle>0,0.4,19,13</ClientRectangle>
-          <Components isList="true" count="15">
+          <Components isList="true" count="14">
             <Text1 Ref="5" type="Text" isKey="true">
               <AutoWidth>True</AutoWidth>
               <Brush>Transparent</Brush>
@@ -78,6 +78,7 @@
               <ClientRectangle>0.4,2.8,18,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
               <Font>Arial,12</Font>
+              <GrowToHeight>True</GrowToHeight>
               <Guid>c1b6183de744484c894ca9bba04bdbe8</Guid>
               <Margins>0,0,0,0</Margins>
               <Name>Text4</Name>
@@ -85,6 +86,7 @@
               <Parent isRef="4" />
               <Text>Содержание заявки: {Acts.Description}</Text>
               <TextBrush>Black</TextBrush>
+              <TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions>
               <Type>Expression</Type>
             </Text4>
             <Text8 Ref="8" type="Text" isKey="true">
@@ -165,7 +167,7 @@
             <Text14 Ref="13" type="Text" isKey="true">
               <Brush>Transparent</Brush>
               <CanGrow>True</CanGrow>
-              <ClientRectangle>0.4,9.4,18,0.6</ClientRectangle>
+              <ClientRectangle>0.4,8.8,18,0.6</ClientRectangle>
               <Conditions isList="true" count="0" />
               <Font>Arial,12</Font>
               <GrowToHeight>True</GrowToHeight>
@@ -253,21 +255,6 @@
               <TextBrush>Black</TextBrush>
               <Type>Expression</Type>
             </Text11>
-            <Text12 Ref="19" type="Text" isKey="true">
-              <Brush>Transparent</Brush>
-              <CanGrow>True</CanGrow>
-              <ClientRectangle>0.4,8.8,18,0.6</ClientRectangle>
-              <Conditions isList="true" count="0" />
-              <Font>Arial,12</Font>
-              <Guid>35d87947a1fa46fa81bee24e2f916878</Guid>
-              <Margins>0,0,0,0</Margins>
-              <Name>Text12</Name>
-              <Page isRef="3" />
-              <Parent isRef="4" />
-              <Text>________________________________________________________________________________</Text>
-              <TextBrush>Black</TextBrush>
-              <Type>Expression</Type>
-            </Text12>
           </Components>
           <Conditions isList="true" count="0" />
           <DataRelationName isNull="true" />
@@ -286,13 +273,13 @@
       <PageHeight>29.7</PageHeight>
       <PageWidth>21</PageWidth>
       <Report isRef="0" />
-      <Watermark Ref="20" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
+      <Watermark Ref="19" type="Stimulsoft.Report.Components.StiWatermark" isKey="true">
         <Font>Arial,100</Font>
         <TextBrush>[50:0:0:0]</TextBrush>
       </Watermark>
     </Page1>
   </Pages>
-  <PrinterSettings Ref="21" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
+  <PrinterSettings Ref="20" type="Stimulsoft.Report.Print.StiPrinterSettings" isKey="true" />
   <ReferencedAssemblies isList="true" count="8">
     <value>System.Dll</value>
     <value>System.Drawing.Dll</value>
@@ -304,10 +291,10 @@
     <value>Stimulsoft.Report.Dll</value>
   </ReferencedAssemblies>
   <ReportAlias>Report</ReportAlias>
-  <ReportChanged>2/11/2019 11:28:13 PM</ReportChanged>
+  <ReportChanged>12/2/2019 12:39:14 PM</ReportChanged>
   <ReportCreated>7/26/2017 8:11:07 PM</ReportCreated>
-  <ReportFile>C:\Users\zerg\Google Диск\CallCenter\CallCenter\WebApi\templates\act.mrt</ReportFile>
-  <ReportGuid>580892f6952d449c9f2c71f83adfbac4</ReportGuid>
+  <ReportFile>C:\Projects\CallCenter\WebApi\templates\act.mrt</ReportFile>
+  <ReportGuid>cb54fe2a79a24aaa98bbd5135ed5dc19</ReportGuid>
   <ReportName>Report</ReportName>
   <ReportUnit>Centimeters</ReportUnit>
   <ReportVersion>2014.1.1900</ReportVersion>

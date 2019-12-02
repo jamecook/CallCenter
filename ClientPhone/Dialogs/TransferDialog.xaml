@@ -1,0 +1,28 @@
+﻿<Window x:Class="CRMPhone.TransferDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        FontSize="14"
+        d:DataContext="{d:DesignInstance viewModel:TrasferDialogViewModel}"
+        Title="Перевести звонок" Height="140" Width="260" ResizeMode="NoResize">
+    <Grid>
+        <StackPanel>
+            <DockPanel>
+            <TextBlock Margin ="5" Text="Номер:"/>
+            <ComboBox Margin="5" Text="{Binding Path=ClientPhone}"
+                      ItemsSource="{Binding Path=PhonesList}"
+                      DisplayMemberPath="Name"
+                      SelectedItem="{Binding ClientPhone}"/>
+            </DockPanel>
+            <DockPanel>
+                <TextBlock Margin ="5" Text="Произвольный номер:"/>
+                <TextBox Margin="5" Text="{Binding Path=TransferPhone}"/>
+            </DockPanel>
+            <Button Margin="5" Content="Перевести звонок" Command="{Binding Path=TransferCommand}" Width="140"/>
+        </StackPanel>
+    </Grid>
+</Window>

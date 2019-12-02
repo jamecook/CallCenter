@@ -1,0 +1,266 @@
+﻿<Window x:Class="CRMPhone.Dialogs.MeterDeviceDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CRMPhone.Dialogs"
+        xmlns:crmPhone="clr-namespace:CRMPhone"
+        mc:Ignorable="d"
+        Title="Показания приборов учёта" MinHeight="300" MinWidth ="1240" Height="300" Width="1240"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="ToolWindow"
+        FontSize="12"
+        d:DataContext="{d:DesignInstance crmPhone:MeterDeviceViewModel}">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <DockPanel>
+            <TextBlock Margin="3" VerticalAlignment="Center" Text="Телефон:"/>
+            <TextBlock Margin="3" VerticalAlignment="Center" Text="{Binding PhoneNumber}"/>
+        </DockPanel>
+        <WrapPanel Grid.Row="1" Margin="5" IsEnabled ="{Binding CanEdit}" >
+            <TextBlock Margin="3" VerticalAlignment="Center" Text="город:"/>
+            <ComboBox Margin="3" Width="100" TabIndex ="1" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCity}" ItemsSource="{Binding CityList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+            <TextBlock Margin="3" VerticalAlignment="Center" Text="улица:"/>
+            <ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="NameWithPrefix" SelectedItem="{Binding SelectedStreet}" ItemsSource="{Binding StreetList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+            <TextBlock Margin="3" VerticalAlignment="Center" Text="дом:"/>
+            <ComboBox Margin="3" Width="65" TabIndex ="3" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+            <ComboBox Margin="3" Width="100" TabIndex ="5" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFlat}" ItemsSource="{Binding FlatList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+        </WrapPanel>
+        <StackPanel Grid.Row="2">
+            <TextBlock Margin ="3" Text="История ранее переданных показаний:"/>
+        </StackPanel>
+        <DataGrid Grid.Row="3"
+                AutoGenerateColumns="False"
+                          ItemsSource="{Binding Path=MetersHistoryList}"
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow"
+                          IsReadOnly="True"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Дата" Width="120"
+                                            Binding="{Binding Path=Date, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Margin" Value="3"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                <DataGridTextColumn Header="Лиц. счет" Width="90"
+                                            Binding="{Binding Path=PersonalAccount}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Эл. Т1" Width="90"
+                                            Binding="{Binding Path=Electro1}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Margin" Value="3"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Эл. Т2" Width="90"
+                                            Binding="{Binding Path=Electro2}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Margin" Value="3"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="ГВС ст.1(кух)" Width="80"
+                                            Binding="{Binding Path=HotWater1}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Margin" Value="3"/>
+
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                <DataGridTextColumn Header="ХВС ст.1(кух)" Width="80"
+                                            Binding="{Binding Path=ColdWater1}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Margin" Value="3"/>
+
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="ГВС ст.2(ван)" Width="80"
+                                            Binding="{Binding Path=HotWater2}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Margin" Value="3"/>
+
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                <DataGridTextColumn Header="ХВС ст.2(ван)" Width="80"
+                                            Binding="{Binding Path=ColdWater2}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Margin" Value="3"/>
+
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                <DataGridTextColumn Header="ГВС ст.3" Width="80"
+                                            Binding="{Binding Path=HotWater3}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="ХВС ст.3" Width="80"
+                                            Binding="{Binding Path=ColdWater3}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Header="Отоп.1" Width="80"
+                                            Binding="{Binding Path=Heating}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Margin" Value="3"/>
+
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                <DataGridTextColumn Header="Отоп.2" Width="80"
+                                            Binding="{Binding Path=Heating2}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Отоп.3" Width="80"
+                                            Binding="{Binding Path=Heating3}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Отоп.4" Width="80"
+                                            Binding="{Binding Path=Heating4}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+            </DataGrid>
+        <DockPanel Grid.Row="4" HorizontalAlignment="Center">
+            <DockPanel>
+                <StackPanel>
+                    <TextBlock Margin="3" VerticalAlignment="Center" Text="№ счетчика"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Лиц. счет"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding PersonalAccount}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Electro1Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Электро1"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Electro1}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Electro2Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Электро2"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Electro2}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater1Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ГВС стояк 1" MinWidth="60"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater1}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater1Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ХВС стояк 1" MinWidth="60"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater1}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater2Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ГВС стояк 2"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater2}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater2Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ХВС стояк 2"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater2}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater3Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ГВС стояк 3"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HotWater3}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater3Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="ХВС стояк 3"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding ColdWater3}"/>
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding HeatingCode}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating2Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление2"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating2}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating3Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление3"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating3}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating4Code}" IsEnabled="False"/>
+                    <TextBlock Margin="10,3" VerticalAlignment="Center" Text="Отопление4"/>
+                    <TextBox Margin="3" VerticalAlignment="Center" Text="{Binding Heating4}"/>
+                </StackPanel>
+            </DockPanel>
+        </DockPanel>
+        <DockPanel Grid.Row="5" HorizontalAlignment="Right">
+            <Button Content="Сохранить" Margin="0,5,10,5" Padding="20,3" Command="{Binding SaveCommand}"/>
+            <Button Content="Закрыть" Margin="0,5,10,5" Padding="20,3" Command="{Binding CloseCommand}"/>
+        </DockPanel>
+    </Grid>
+</Window>

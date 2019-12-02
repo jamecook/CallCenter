@@ -3127,6 +3127,35 @@ left join CallCenter.Users u on u.id = a.userId";
             }
 
         }
+        public List<RequestUserDto> GetAizkOperators()
+        {
+            using (
+                var cmd = new MySqlCommand(@"SELECT u.id, SurName, FirstName, PatrName 
+FROM CallCenter.Users u 
+join CallCenter.Workers w on w.id = u.worker_id
+where w.service_company_id = 17
+and u.enabled = 1 and u.ShowInForm = 1 order by SurName,FirstName",
+                    _dbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    var usersList = new List<RequestUserDto>();
+                    while (dataReader.Read())
+                    {
+                        usersList.Add(new RequestUserDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            SurName = dataReader.GetNullableString("SurName"),
+                            FirstName = dataReader.GetNullableString("FirstName"),
+                            PatrName = dataReader.GetNullableString("PatrName")
+                        });
+                    }
+                    dataReader.Close();
+                    return usersList;
+                }
+            }
+
+        }
 
         public void ChangeDescription(int requestId, string description)
         {

@@ -1,0 +1,25 @@
+﻿<Window x:Class="CRMPhone.Dialogs.CalendarDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
+        xmlns:controls="http://schemas.rudigrobler.com/wpf/2008"
+        mc:Ignorable="d"
+        Title="Календарь" Height="720" Width="320" MinWidth ="320" MinHeight="640" MaxHeight="866"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="ToolWindow"
+        d:DataContext="{d:DesignInstance viewModel:CalendarDialogViewModel}"
+        Loaded="On_Loaded">
+    <Window.Resources>
+        <Style x:Key="Style1" TargetType="{x:Type controls:CalendarTimeslotItem}">
+            <Setter Property="Background" Value="Blue" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <controls:Calendar x:Name="calendar" Appointments="{Binding ScheduleTasks}"  AddAppointment="Calendar_AddAppointment" EditAppointment="Calendar_OnEditAppointment">
+        </controls:Calendar>
+    </Grid>
+    
+</Window>
+
