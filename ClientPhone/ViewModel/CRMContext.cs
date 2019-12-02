@@ -20,13 +20,16 @@ using System.Reflection;
 using System.Security.RightsManagement;
 using System.Threading;
 using System.Xml.Linq;
+using ClientPhone.Services;
 using conaito;
 using CRMPhone.Dialogs;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using NLog;
+using RestSharp;
 using Stimulsoft.Report.Events;
 using Brush = System.Windows.Media.Brush;
 using Color = System.Windows.Media.Color;
@@ -37,7 +40,6 @@ namespace CRMPhone.ViewModel
     {
         private static Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly DispatcherTimer _refreshTimer;
-        private MySqlConnection _dbRefreshConnection;
         private MySqlConnection _dbMainConnection;
         private UserAgent _sipAgent;
         //public MainWindow mainWindow;
@@ -111,6 +113,7 @@ namespace CRMPhone.ViewModel
             _ringPlayer = new SoundPlayer(Application.GetResourceStream(uri).Stream);
             _lastAliveTime = DateTime.Today;
             EnablePhone = false;
+            /*
             RequestDataContext = new RequestControlContext();
             ServiceCompanyFondContext = new ServiceCompanyFondControlContext();
             ServiceCompanyDataContext = new ServiceCompanyControlContext();
@@ -121,12 +124,16 @@ namespace CRMPhone.ViewModel
             RedirectAdminContext = new RedirectAdminControlContext();
             RingUpAdminContext = new RingUpAdminControlContext();
             BlackListContext = new BlackListControlContext();
-            AlertRequestDataContext = new AlertRequestControlContext();
             AlertAndWorkContext = new AlertAndWorkControlContext();
+            /**/
+            AlertRequestDataContext = new AlertRequestControlContext();
+
+            /*
             AlertRequestControlModel = new AlertRequestControlModel();
             DispexRequestControlModel = new DispexRequestControlModel();
             ReportControlModel = new ReportControlModel();
             CallsNotificationContext = new CallsNotificationContext();
+            /**/
         }
 
         public AlertRequestControlModel AlertRequestControlModel
@@ -158,6 +165,7 @@ namespace CRMPhone.ViewModel
             }
             InitMySql();
             AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser}) ver. {Assembly.GetEntryAssembly().GetName().Version}";
+            /*
             AlertRequestDataContext.InitCollections();
             RequestDataContext.InitCollections();
             ServiceCompanyFondContext.InitCollections();
@@ -171,6 +179,7 @@ namespace CRMPhone.ViewModel
             BlackListContext.RefreshList();
             CallsNotificationContext.Init();
             AlertAndWorkContext.InitCollections();
+            /**/
             OnPropertyChanged(nameof(IsAdminRoleExist));
             if (!string.IsNullOrEmpty(AppSettings.SipInfo?.SipUser))
             {
@@ -1192,25 +1201,25 @@ namespace CRMPhone.ViewModel
         private void InitMySql()
         {
             var connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", _serverIP, "asterisk", "mysqlasterisk", "asterisk");
-            _dbRefreshConnection = new MySqlConnection(connectionString);
             _dbMainConnection = new MySqlConnection(connectionString);
             try
             {
-                _dbRefreshConnection.Open();
                 _dbMainConnection.Open();
                 _requestService = new RequestService(_dbMainConnection);
-                UserList = new ObservableCollection<RequestUserDto>(_requestService.GetAizkOperators());
-                CompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies().Where(s=>s.Id == 17));
-                MetersSCList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies().Where(s => s.Id == 17));
-                ForOutcoinCallsCompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompaniesForCalls().Where(s => s.Id == 17));
+                UserList = new ObservableCollection<RequestUserDto>(RestRequestService.GetFilterDispatchers(AppSettings.CurrentUser.Id));
+                var companyList = RestRequestService.GetFilterServiceCompanies(AppSettings.CurrentUser.Id);
+                CompanyList = new ObservableCollection<ServiceCompanyDto>(companyList);
+                MetersSCList = new ObservableCollection<ServiceCompanyDto>(companyList);
+                ForOutcoinCallsCompanyList = new ObservableCollection<ServiceCompanyDto>(RestRequestService.GetCompaniesForCall(AppSettings.CurrentUser.Id));
                 SelectedOutgoingCompany = ForOutcoinCallsCompanyList.FirstOrDefault();
-                var curDate = _requestService.GetCurrentDate().Date;
+                var curDate = RestRequestService.GetCurrentDate().Date;
                 FromDate = curDate;
                 ToDate = FromDate.AddDays(1);
                 MetersToDate = curDate;
                 MetersFromDate = curDate.AddDays(-30);
 
-                if (EnablePhone && false)
+                //if (EnablePhone && false)
+                if (EnablePhone)
                 {
                     _refreshTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
                     _refreshTimer.Tick += RefreshTimerOnTick;
@@ -1618,7 +1627,7 @@ namespace CRMPhone.ViewModel
                 if (t.TotalSeconds > 30)
                 {
                     SendAlive();
-                    RefreshAlertRequest();
+                    //RefreshAlertRequest();
                     _lastAliveTime = DateTime.Now;
                 }
             }
@@ -1669,47 +1678,9 @@ namespace CRMPhone.ViewModel
         }
         private void RefreshActiveChannels()
         {
-            var readedChannels = new List<ActiveChannelsDto>();
-            using (var cmd = new MySqlCommand(@"SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf,
-null as request_id,s.short_name, w.id,w.sur_name,w.first_name,w.patr_name, w.id worker_id,w.sur_name,w.first_name,w.patr_name
-FROM asterisk.ActiveChannels a
-left join CallCenter.ServiceCompanies s on a.ServiceComp = s.trunk_name
-left join CallCenter.Workers w on w.phone = a.PhoneNum and not exists (select 1 from CallCenter.Workers w2 where w2.phone = w.phone and w2.id> w.id)
-where Application = 'queue' and AppData like 'dispetchers%' and BridgeId is null order by UniqueID", _dbRefreshConnection))
-//            using (var cmd = new MySqlCommand(@"SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf,
-//(SELECT r.id from CallCenter.ClientPhones cp2
-//join CallCenter.RequestContacts rc2 on cp2.id = rc2.ClientPhone_id
-//join CallCenter.Requests r on r.id = rc2.request_id
-//where r.state_id in (1, 2, 6) and substr(cp2.Number, length(cp2.Number) - 9) = substr(CallerIDNum, length(CallerIDNum) - 9) order by id desc limit 1) as request_id
-//FROM asterisk.ActiveChannels where Application = 'queue' and BridgeId is null order by UniqueID", _dbRefreshConnection))
-            using (var dataReader = cmd.ExecuteReader())
-            {
-                while (dataReader.Read())
-                {
-                    readedChannels.Add(new ActiveChannelsDto
-                    {
-                        UniqueId = dataReader.GetNullableString("UniqueID"),
-                        Channel = dataReader.GetNullableString("Channel"),
-                        CallerIdNum = dataReader.GetNullableString("CallerIDNum"),
-                        ChannelState = dataReader.GetNullableString("ChannelState"),
-                        AnswerTime = dataReader.GetNullableDateTime("AnswerTime"),
-                        ServiceCompany = dataReader.GetNullableString("short_name"),
-                        WaitSecond = dataReader.GetInt32("waitSec"),
-                        IvrDtmf = dataReader.GetNullableInt("ivr_dtmf"),
-                        RequestId = dataReader.GetNullableInt("request_id"),
-                        CreateTime = dataReader.GetNullableDateTime("CreateTime"),
-                        Master = dataReader.GetNullableInt("worker_id")!=null?
-                            new RequestUserDto()
-                            {
-                                Id = dataReader.GetInt32("worker_id"),
-                                FirstName = dataReader.GetNullableString("first_name"),
-                                SurName = dataReader.GetNullableString("sur_name"),
-                                PatrName = dataReader.GetNullableString("patr_name")
-                            } : null
-                    });
-                }
-                dataReader.Close();
-            }
+            var result = RestRequestService.GetActiveChannels(AppSettings.CurrentUser.Id);
+            var readedChannels = new List<ActiveChannelsDto>(result);
+
             var remotedChannels = ActiveChannels.Where(n => readedChannels.All(c => c.UniqueId != n.UniqueId)).ToList();
             var newChannels = readedChannels.Where(n => ActiveChannels.All(c => c.UniqueId != n.UniqueId)).ToList();
             newChannels.ForEach(c => ActiveChannels.Add(c));
@@ -1726,29 +1697,8 @@ where Application = 'queue' and AppData like 'dispetchers%' and BridgeId is null
 
         private void RefreshNotAnsweredCalls()
         {
-            var callList = new List<NotAnsweredDto>();
-            using (var connection = new MySqlConnection(AppSettings.ConnectionString))
-            {
-                connection.Open();
-                using (var cmd = new MySqlCommand("CALL CallCenter.GetNotAnswered()", connection))
-                using (var dataReader = cmd.ExecuteReader())
-                {
-                    while (dataReader.Read())
-                    {
-                        callList.Add(new NotAnsweredDto
-                        {
-                            UniqueId = dataReader.GetNullableString("UniqueID"),
-                            CallerId = dataReader.GetNullableString("CallerIDNum"),
-                            CreateTime = dataReader.GetNullableDateTime("CreateTime"),
-                            ServiceCompany = dataReader.GetNullableString("short_name"),
-                            Prefix = dataReader.GetNullableString("prefix"),
-                            IvrDtmf = dataReader.GetNullableInt("ivr_dtmf"),
-                            
-                        });
-                    }
-                    dataReader.Close();
-                }
-            }
+            var callList = new List<NotAnsweredDto>(RestRequestService.GetNotAnswered(AppSettings.CurrentUser.Id));
+
             var remotedCalls = NotAnsweredCalls.Where(n => !callList.Any(c=>c.CallerId == n.CallerId && c.CreateTime == n.CreateTime)).ToList();
             var newCalls = callList.Where(n => !NotAnsweredCalls.Any(c => c.CallerId == n.CallerId && c.CreateTime == n.CreateTime)).ToList();
             newCalls.ForEach(c=>NotAnsweredCalls.Add(c));

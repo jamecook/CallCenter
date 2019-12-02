@@ -1,0 +1,10 @@
+using System.Collections.Generic;
+
+namespace ClientPhoneWebApi.Dto
+{
+    public class SipDto
+    {
+        public string SipUser { get; set; }
+        public string SipSecret { get; set; }
+    }
+}

@@ -21,6 +21,7 @@ namespace ClientPhoneWebApi.Controllers
         private RequestService RequestService { get; }
         private static DateTime _lastGetActiveChannelsTime;
         private static ActiveChannelsDto[] _lastActiveChannels;
+        private static readonly string ApiKey = "qwertyuiop987654321";
         public ClientController(RequestService requestService, ILogger<ProductsController> logger)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -41,16 +42,112 @@ namespace ClientPhoneWebApi.Controllers
             return result;
         }
         [HttpGet("activeCalls")]
-        public Dto.ActiveChannelsDto[] GetActiveCalls()
+        public IActionResult GetActiveCalls([FromQuery]int userId)
         {
-            if (_lastGetActiveChannelsTime.AddSeconds(10) < DateTime.Now)
+            if (userId == 0)
+                return BadRequest();
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
             {
-                _lastActiveChannels = RequestService.GetActiveChannels();
-                _lastGetActiveChannelsTime = DateTime.Now;
+                return BadRequest("Authorization error!");
             }
 
-            return _lastActiveChannels;
+            if (_lastGetActiveChannelsTime.AddSeconds(1) < DateTime.Now)
+            {
+                _lastActiveChannels = RequestService.GetActiveChannels(userId);
+                _lastGetActiveChannelsTime = DateTime.Now;
+            }
+            return Ok(_lastActiveChannels);
         }
+
+        [HttpGet("getSipInfoByIp")]
+        public IActionResult GetSipInfoByIp([FromQuery]string ipAddr)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetSipInfoByIp(ipAddr));
+        }
+
+        [HttpGet("getDispatchers")]
+        public IActionResult GetDispatchers([FromQuery]int companyId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetDispatchers(companyId));
+        }
+
+        [HttpGet("getFilterDispatchers")]
+        public IActionResult GetFilterDispatchers([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetFilterDispatchers(userId));
+        }
+
+        [HttpGet("getFilterCompanies")]
+        public IActionResult GetFilterCompanies([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetFilterServiceCompanies(userId));
+        }
+
+        [HttpGet("getCompaniesForCall")]
+        public IActionResult GetCompaniesForCall([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetServiceCompaniesForCall(userId));
+        }
+
+        [HttpGet("getNotAnswered")]
+        public IActionResult GetNotAnswered([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetNotAnsweredCalls(userId));
+        }
+
+        [HttpGet("currentDate")]
+        public IActionResult CurrentDate()
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetCurrentDate());
+        }
+        [HttpGet("login")]
+        public IActionResult Login([FromQuery]string login,string password, string sipUser)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.Login(login, password, sipUser));
+        }
+
+
         /*
         /// <summary>
         /// Get a product by id

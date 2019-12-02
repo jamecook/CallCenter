@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
-using CRMPhone.Annotations;
+using ClientPhone.Services;
 using MySql.Data.MySqlClient;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
@@ -40,44 +38,14 @@ namespace CRMPhone.ViewModel
             }
             throw new Exception("No network adapters with an IPv4 address in the system!");
         }
-        public LoginContext(string server)
+
+        public LoginContext()
         {
-            var connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", server, "asterisk", "mysqlasterisk", "asterisk");
-            AppSettings.SetDbConnection(new MySqlConnection(connectionString));
-            AppSettings.ConnectionString = connectionString;
             try
             {
-                AppSettings.DbConnection.Open();
                 var localIp = GetLocalIpAddress();
-                using (var cmd = new MySqlCommand($"CALL CallCenter.GetSIPInfoByIp('{localIp}')", AppSettings.DbConnection))
-                {
-                    using (var dataReader = cmd.ExecuteReader())
-                    {
-                        while (dataReader.Read())
-                        {
-                            AppSettings.SetSipInfo(new SipDto {SipUser = dataReader.GetNullableString("SIPName"), SipSecret = dataReader.GetNullableString("Secret") });
-                        }
-                        dataReader.Close();
-                    }
-                }
-
-                using (var cmd = new MySqlCommand(@"SELECT id,Login FROM CallCenter.Users where Enabled = 1 and ShowInForm = 1 order by Login", AppSettings.DbConnection))
-                {
-                    using (var dataReader = cmd.ExecuteReader())
-                    {
-                        Users = new List<UserDto>();
-                        while (dataReader.Read())
-                        {
-                            Users.Add( new UserDto()
-                            {
-                                Id = dataReader.GetInt32("Id"),
-                                Login = dataReader.GetNullableString("Login")
-                            });
-                        }
-                        dataReader.Close();
-                    }
-                }
-
+                AppSettings.SetSipInfo(RestRequestService.GetSipInfoByIp(localIp));
+                Users = new List<UserDto>(RestRequestService.GetDispatchers(1));
             }
             catch (Exception ex)
             {
@@ -104,52 +72,9 @@ namespace CRMPhone.ViewModel
 
         private void Login()
         {
-            var userId = 0;
-            using (
-                var cmd =
-                    new MySqlCommand($"Call CallCenter.LoginUser('{UserName}','{Password}','{AppSettings.SipInfo?.SipUser}')", AppSettings.DbConnection))
+            CurrentUser = RestRequestService.Login(UserName, Password, AppSettings.SipInfo?.SipUser);
+            if (CurrentUser != null)
             {
-                using (var dataReader = cmd.ExecuteReader())
-                {
-                    while (dataReader.Read())
-                    {
-                        userId = dataReader.GetInt32("Id");
-                        CurrentUser = new UserDto()
-                        {
-                            Id = dataReader.GetInt32("Id"),
-                            Login = dataReader.GetNullableString("Login"),
-                            FirstName = dataReader.GetNullableString("FirstName"),
-                            SurName = dataReader.GetNullableString("SurName"),
-                            PatrName = dataReader.GetNullableString("PatrName")
-                        };
-
-                    }
-                    dataReader.Close();
-                }
-            }
-            if (userId > 0)
-            {
-                using (var cmd =
-                    new MySqlCommand(
-                        $@"SELECT r.* FROM CallCenter.UserRoles u
-                            join CallCenter.Roles r on r.id = u.role_id
-                            where u.user_id = {
-                            userId}", AppSettings.DbConnection))
-                {
-                    using (var dataReader = cmd.ExecuteReader())
-                    {
-                        CurrentUser.Roles = new List<RoleDto>();
-                        while (dataReader.Read())
-                        {
-                            CurrentUser.Roles.Add(new RoleDto
-                            {
-                                Id = dataReader.GetInt32("Id"),
-                                Name = dataReader.GetNullableString("Name")
-                            });
-                        }
-                        dataReader.Close();
-                    }
-                }
                 AppSettings.SetUser(CurrentUser);
                 View.Done();
             }

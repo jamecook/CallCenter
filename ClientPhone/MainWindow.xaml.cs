@@ -32,7 +32,7 @@ namespace CRMPhone
             DataContext = mainContext;
             ((CRMContext) DataContext).mainWindow = this;
             var login = new LoginView();
-            var loginModel = new LoginContext(mainContext.serverIp);
+            var loginModel = new LoginContext();
             login.DataContext = loginModel;
             loginModel.View = login;
             var t = login.ShowDialog();

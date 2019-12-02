@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml.Linq;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
 using Microsoft.Win32;
 using RequestServiceImpl;
@@ -148,7 +149,7 @@ namespace CRMPhone.ViewModel
         public void InitCollections()
         {
             _requestService = new RequestService(AppSettings.DbConnection);
-            ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
+            ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>(RestRequestService.GetFilterServiceCompanies(AppSettings.CurrentUser.Id));
             RefreshRequest();
         }
 

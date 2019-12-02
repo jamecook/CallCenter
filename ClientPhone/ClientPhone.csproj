@@ -267,6 +267,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="Services\RestRequestService.cs" />
     <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
     <Compile Include="BooleanToVisibilityConverter.cs" />
     <Compile Include="Dialogs\ChangeExecuteDateDialog.xaml.cs">
@@ -777,6 +778,7 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

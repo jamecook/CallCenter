@@ -104,8 +104,8 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                     <WrapPanel>
-                    <TextBlock Text="Последний №:" Margin="3" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <TextBlock Text="{Binding LastAnsweredPhoneNumber}" Margin="3" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Последний №:" Margin="3" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding LastAnsweredPhoneNumber}" Margin="3" FontWeight="Bold" HorizontalAlignment="Center"/>
                     </WrapPanel>
                 </StackPanel>
 
@@ -168,12 +168,16 @@
                     </StackPanel>
                 </TabItem.Header>
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="59*"/>
+                        <ColumnDefinition Width="113*"/>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <WrapPanel Grid.Row ="0">
+                    <WrapPanel Grid.Row ="0" Grid.ColumnSpan="2" Margin="0,0,0,119">
                         <TextBlock Margin="5" VerticalAlignment="Center" Text="№ заявки:"/>
                         <TextBox Margin="5" Width="50" Text="{Binding RequestNum}"/>
                         <TextBlock Margin="10,5" VerticalAlignment="Center" Text="Дата с:"/>
@@ -191,14 +195,14 @@
                         <Button  Margin="5" Padding ="5,0" Height="24" Content="Привязать заявку" Command="{Binding AddRequestToCallCommand}"/>
                         <Button  Margin="5" Padding ="5,0" Height="24" Content="Экспорт" Command="{Binding ExportCommand}"/>
                     </WrapPanel>
-                    <DataGrid Name="RecordGrid" Grid.Row ="1"
+                    <DataGrid Name="RecordGrid"
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding Path=CallsList}"
                           SelectedItem="{Binding SelectedRecordCall}"
                           SelectionMode="Single"
                           SelectionUnit="FullRow"
                           IsReadOnly="True"
-                          HorizontalScrollBarVisibility="Disabled">
+                          HorizontalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Margin="0,63,0,0" Grid.RowSpan="2">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Время звонка" Width="120"
                              Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
@@ -360,7 +364,7 @@
 
                         </DataGrid.Columns>
                     </DataGrid>
-                    <DockPanel Grid.Row="2" HorizontalAlignment="Right">
+                    <DockPanel Grid.Row="2" HorizontalAlignment="Right" Grid.Column="1">
                         <TextBlock Margin="3" Text="Всего записей:"/>
                         <TextBlock Margin="3" MinWidth="45" TextAlignment="Right"  Text="{Binding CallsCount}"/>
                     </DockPanel>

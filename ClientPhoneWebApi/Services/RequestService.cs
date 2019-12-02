@@ -71,7 +71,7 @@ namespace ClientPhoneWebApi.Services
             }
         }
 
-        public ActiveChannelsDto[] GetActiveChannels()
+        public ActiveChannelsDto[] GetActiveChannels(int userId)
         {
             var readedChannels = new List<ActiveChannelsDto>();
             using (var conn = new MySqlConnection(_connectionString))
@@ -116,6 +116,250 @@ where Application = 'queue' and AppData like 'dispetchers%' and BridgeId is null
             }
 
             return readedChannels.ToArray();
+        }
+
+        public NotAnsweredDto[] GetNotAnsweredCalls(int userId)
+        {
+            var callList = new List<NotAnsweredDto>();
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand("CALL phone_client.get_not_answered(@userId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            callList.Add(new NotAnsweredDto
+                            {
+                                UniqueId = dataReader.GetNullableString("UniqueID"),
+                                CallerId = dataReader.GetNullableString("CallerIDNum"),
+                                CreateTime = dataReader.GetNullableDateTime("CreateTime"),
+                                ServiceCompany = dataReader.GetNullableString("short_name"),
+                                Prefix = dataReader.GetNullableString("prefix"),
+                                IvrDtmf = dataReader.GetNullableInt("ivr_dtmf"),
+
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+                }
+            }
+
+            return callList.ToArray();
+        }
+
+        public SipDto GetSipInfoByIp(string localIp)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand($"CALL CallCenter.GetSIPInfoByIp('{localIp}')", conn))
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            return new SipDto
+                            {
+                                SipUser = dataReader.GetNullableString("SIPName"),
+                                SipSecret = dataReader.GetNullableString("Secret")
+                            };
+                        }
+
+                        dataReader.Close();
+                    }
+                }
+            }
+            return null;
+        }
+        public UserDto[] GetDispatchers(int companyId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"SELECT u.id,u.Login FROM CallCenter.Users u
+ join Workers w on w.id = u.worker_id and w.enabled = 1
+ where u.Enabled = 1 and u.ShowInForm = 1 and w.service_company_id = @CompanyId order by u.Login", conn))
+                {
+                    cmd.Parameters.AddWithValue("@CompanyId", companyId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var users = new List<UserDto>();
+                        while (dataReader.Read())
+                        {
+                            users.Add(new UserDto()
+                            {
+                                Id = dataReader.GetInt32("Id"),
+                                Login = dataReader.GetNullableString("Login")
+                            });
+                        }
+                        dataReader.Close();
+                        return users.ToArray();
+                    }
+                }
+            }
+        }
+        public RequestUserDto[] GetFilterDispatchers(int userId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand("call phone_client.get_filtered_dispatcher(@userId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var usersList = new List<RequestUserDto>();
+                        while (dataReader.Read())
+                        {
+                            usersList.Add(new RequestUserDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                SurName = dataReader.GetNullableString("SurName"),
+                                FirstName = dataReader.GetNullableString("FirstName"),
+                                PatrName = dataReader.GetNullableString("PatrName")
+                            });
+                        }
+                        dataReader.Close();
+                        return usersList.ToArray();
+                    }
+                }
+            }
+        }
+
+        public ServiceCompanyDto[] GetFilterServiceCompanies(int userId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand("call phone_client.get_filtered_companies(@userId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                        var companies = new List<ServiceCompanyDto>();
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            while (dataReader.Read())
+                            {
+                                companies.Add(new ServiceCompanyDto
+                                {
+                                    Id = dataReader.GetInt32("id"),
+                                    Name = dataReader.GetString("name")
+                                });
+                            }
+
+                            dataReader.Close();
+                        }
+                        return companies.OrderBy(i => i.Name).ToArray();
+                }
+            }
+        }
+
+        public ServiceCompanyDto[] GetServiceCompaniesForCall(int userId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand("call phone_client.get_companies_for_call(@userId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                        var companies = new List<ServiceCompanyDto>();
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            while (dataReader.Read())
+                            {
+                                companies.Add(new ServiceCompanyDto
+                                {
+                                    Id = dataReader.GetInt32("id"),
+                                    Name = dataReader.GetNullableString("name"),
+                                    Prefix = dataReader.GetNullableString("prefix"),
+                                    Phone = dataReader.GetNullableString("phone"),
+                                    ShortName = dataReader.GetNullableString("short_name")
+                                });
+                            }
+
+                            dataReader.Close();
+                        }
+                        return companies.OrderBy(i => i.Name).ToArray();
+                }
+            }
+        }
+        public DateTime GetCurrentDate()
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand("select sysdate() curdate", conn))
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        dataReader.Read();
+                        return dataReader.GetDateTime("curdate");
+                    }
+                }
+            }
+        }
+        public UserDto Login(string login, string password, string sipUser)
+        {
+            UserDto currentUser = null;
+            var userId = 0;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(
+                            $"Call CallCenter.LoginUser('{login}','{password}','{sipUser}')",
+                            conn))
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            userId = dataReader.GetInt32("Id");
+                            currentUser = new UserDto()
+                            {
+                                Id = dataReader.GetInt32("Id"),
+                                Login = dataReader.GetNullableString("Login"),
+                                FirstName = dataReader.GetNullableString("FirstName"),
+                                SurName = dataReader.GetNullableString("SurName"),
+                                PatrName = dataReader.GetNullableString("PatrName")
+                            };
+
+                        }
+
+                        dataReader.Close();
+                    }
+                }
+
+                if (userId > 0)
+                {
+                    using (var cmd = new MySqlCommand($@"SELECT r.* FROM CallCenter.UserRoles u
+                            join CallCenter.Roles r on r.id = u.role_id
+                            where u.user_id = {
+                                userId}", conn)) 
+                    {
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            var userRoles = new List<RoleDto>();
+                            while (dataReader.Read())
+                            {
+                                userRoles.Add(new RoleDto
+                                {
+                                    Id = dataReader.GetInt32("Id"),
+                                    Name = dataReader.GetNullableString("Name")
+                                });
+                            }
+
+                            dataReader.Close();
+                            currentUser.Roles = userRoles.ToArray();
+                        }
+                    }
+                }
+            }
+            return currentUser;
         }
 
         private void RefreshNotAnsweredCalls()
