@@ -125,6 +125,89 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetNotAnsweredCalls(userId));
         }
+        [HttpGet("getCallList")]
+        public IActionResult GetCallList([FromQuery]int userId, [FromQuery]DateTime fromDate, [FromQuery]DateTime toDate, [FromQuery]string requestId, [FromQuery]int? operatorId, [FromQuery]int? serviceCompanyId, [FromQuery]string phoneNumber)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetCallList(fromDate, toDate, requestId, operatorId, serviceCompanyId, phoneNumber));
+        }
+        [HttpGet("sendAlive")]
+        public IActionResult SendAlive([FromQuery]int userId, [FromQuery]string sipUser)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.SendAlive(userId, sipUser);
+            return Ok();
+        }
+        [HttpGet("logout")]
+        public IActionResult Logout([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.Logout(userId);
+            return Ok();
+        }
+
+        [HttpGet("increaseRingCount")]
+        public IActionResult IncreaseRingCount([FromQuery]int userId,[FromQuery]string callId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.IncreaseRingCount(userId,callId);
+            return Ok();
+        }
+        [HttpGet("GetRecordById")]
+        public IActionResult getRecordById([FromQuery]int userId,[FromQuery]string path)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetRecordById(userId, path));
+        }
+
+        [HttpGet("attachCall")]
+        public IActionResult AttachCall([FromQuery]int userId, [FromQuery]int requestId, [FromQuery]string callId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            if(requestId == 0)
+            {
+                return BadRequest("RequestId mast be not null!");
+            }
+
+            RequestService.AddCallToRequest(userId, requestId, callId);
+            return Ok();
+        }
+
+        [HttpGet("deleteByRingCount")]
+        public IActionResult DeleteCallFromNotAnsweredListByTryCount([FromQuery]int userId,[FromQuery]string callId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.DeleteCallFromNotAnsweredListByTryCount(userId,callId);
+            return Ok();
+        }
 
         [HttpGet("currentDate")]
         public IActionResult CurrentDate()
@@ -135,6 +218,16 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             return Ok(RequestService.GetCurrentDate());
+        }
+        [HttpGet("getTransferList")]
+        public IActionResult GetTransferList([FromQuery] int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetTransferList(userId));
         }
         [HttpGet("login")]
         public IActionResult Login([FromQuery]string login,string password, string sipUser)

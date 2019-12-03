@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using ClientPhoneWebApi.Dto;
 using Microsoft.Extensions.Logging;
@@ -151,6 +152,335 @@ where Application = 'queue' and AppData like 'dispetchers%' and BridgeId is null
             return callList.ToArray();
         }
 
+        public CallsListDto[] GetCallList(DateTime fromDate, DateTime toDate, string requestId, int? operatorId, int? serviceCompanyId, string phoneNumber)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                //           var sqlQuery = @"SELECT UniqueId,CallDirection,CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime, 
+                //MonitorFile,TalkTime,WaitingTime, userId, SurName, FirstName, PatrName, RequestId FROM asterisk.CallsHistory C";
+
+                var sqlQuery = @"select C.UniqueID AS UniqueId,C.Direction AS CallDirection,
+            (case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) AS CallerIDNum,
+C.CreateTime AS CreateTime,
+C.AnswerTime AS AnswerTime,
+C.EndTime AS EndTime,
+C.BridgedTime AS BridgedTime,
+C.MonitorFile AS MonitorFile,
+timestampdiff(SECOND, C.BridgedTime, C.EndTime) AS TalkTime,
+  (timestampdiff(SECOND, C.CreateTime, C.EndTime) - ifnull(timestampdiff(SECOND, C.BridgedTime, C.EndTime), 0)) AS WaitingTime,
+       u.id AS userId,
+u.SurName AS SurName,
+u.FirstName AS FirstName,
+u.PatrName AS PatrName,
+group_concat(r.request_id order by r.request_id separator ', ') AS RequestId, sc.Name ServiceCompanyName,
+null as redirect_phone,
+null as ivr_menu,
+null as ivr_dial
+from
+(((asterisk.ChannelHistory C left join asterisk.ChannelHistory C2 on(((C2.BridgeId = C.BridgeId) and(C.UniqueID <> C2.UniqueID))))
+left join CallCenter.Users u on((u.id = ifnull(C.UserId, C2.UserId))))
+left join CallCenter.RequestCalls r on((r.uniqueID = C.UniqueID)))
+left join CallCenter.ServiceCompanies sc on sc.trunk_name = C.ServiceComp
+where C.Direction is not null and C.UniqueId < '1552128123.322928'";
+                //where(((C.Context = 'from-trunk') and(C.Exten = 's')) or((C.Context = 'localphones') and(C.CallerIDNum = 'scvip500415')))";
+
+                if (!string.IsNullOrEmpty(requestId))
+                {
+                    sqlQuery += " and r.id = @RequestNum";
+                }
+                else
+                {
+                    sqlQuery += " and C.CreateTime between @fromdate and @todate";
+                    if (operatorId.HasValue)
+                    {
+                        sqlQuery += " and u.id = @UserNum";
+
+                    }
+                    if (serviceCompanyId.HasValue)
+                    {
+                        sqlQuery += " and sc.id = @ServiceCompanyId";
+
+                    }
+                    if (!string.IsNullOrEmpty(phoneNumber))
+                    {
+                        sqlQuery +=
+                            " and (case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) like @PhoneNumber";
+                    }
+                }
+                sqlQuery += " group by C.UniqueID";
+
+                sqlQuery += @"
+union
+select UniqueId,CallDirection,CallerIDNum,CreateTime,AnswerTime,
+EndTime,BridgedTime,MonitorFile,TalkTime,WaitingTime,u.id AS userId,
+u.SurName AS SurName,u.FirstName AS FirstName,u.PatrName AS PatrName,
+RequestId, ServiceCompanyName,redirect_phone,ivr_menu,ivr_dial from
+(
+select C.UniqueID AS UniqueId, C.Direction AS CallDirection,
+(case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) AS CallerIDNum,
+C.CreateTime AS CreateTime,
+C.AnswerTime AS AnswerTime,
+C.EndTime AS EndTime,
+C.BridgedTime AS BridgedTime,
+C.MonitorFile AS MonitorFile,
+timestampdiff(SECOND, C.BridgedTime, C.EndTime) AS TalkTime,
+  (timestampdiff(SECOND, C.CreateTime, C.EndTime) - ifnull(timestampdiff(SECOND, C.BridgedTime, C.EndTime), 0)) AS WaitingTime,
+ifnull(C.UserId, max(C2.UserId)) userId,
+(select group_concat(r.request_id order by r.request_id separator ', ') from CallCenter.RequestCalls r where r.uniqueID = C.UniqueID) AS RequestId,
+sc.Name ServiceCompanyName,
+group_concat(concat(C2.peer_number, ':', C2.ChannelState) order by C2.UniqueId desc separator ',') as redirect_phone,
+C.ivr_menu,C.ivr_dial
+FROM asterisk.ChannelHistory C
+left join asterisk.ChannelBridges B on B.UniqueId = C.UniqueId
+left join asterisk.ChannelHistory C2 on C2.BridgeId = B.BridgeId and C2.UniqueId <> C.UniqueId
+left join CallCenter.ServiceCompanies sc on sc.trunk_name = C.ServiceComp
+left join CallCenter.RequestCalls r on r.uniqueID = C.UniqueID
+where C.UniqueId >= '1552128123.322928' and C.UniqueId = C.LinkedId and C.Direction is not null
+and C.Context not in ('autoring','ringupcalls')
+";
+                if (!string.IsNullOrEmpty(requestId))
+                {
+                    sqlQuery += " and r.id = @RequestNum";
+                }
+                else
+                {
+                    sqlQuery += " and C.CreateTime between @fromdate and @todate";
+                    if (operatorId.HasValue)
+                    {
+                        sqlQuery += " and (C.UserId = @UserNum or C2.UserId = @UserNum)";
+
+                    }
+                    if (serviceCompanyId.HasValue)
+                    {
+                        sqlQuery += " and sc.id = @ServiceCompanyId";
+
+                    }
+                    if (!string.IsNullOrEmpty(phoneNumber))
+                    {
+                        sqlQuery +=
+                            " and (case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) like @PhoneNumber";
+                    }
+                }
+                sqlQuery += @" group by C.UniqueId
+) a
+left join CallCenter.Users u on u.id = a.userId";
+
+
+                using (
+                var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    if (!string.IsNullOrEmpty(requestId))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestNum", requestId.Trim());
+
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@fromdate", fromDate);
+                        cmd.Parameters.AddWithValue("@todate", toDate);
+                        if (operatorId.HasValue)
+                        {
+                            cmd.Parameters.AddWithValue("@UserNum", operatorId);
+                        }
+                        if (serviceCompanyId.HasValue)
+                        {
+                            cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+                        }
+                        if (!string.IsNullOrEmpty(phoneNumber))
+                        {
+                            cmd.Parameters.AddWithValue("@PhoneNumber", "%" + phoneNumber + "%");
+                        }
+
+                    }
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var callList = new List<CallsListDto>();
+                        while (dataReader.Read())
+                        {
+                            var redirectPhone = dataReader.GetNullableString("redirect_phone");
+                            if (!string.IsNullOrEmpty(redirectPhone))
+                            {
+                                var position = redirectPhone.IndexOf("/");
+                                redirectPhone = redirectPhone.Substring(position + 1);
+                                if (!string.IsNullOrEmpty(redirectPhone))
+                                {
+                                    var items = redirectPhone.Split(':');
+                                    if (items[0].Length > 4)
+                                    {
+                                        redirectPhone = "";
+                                    }
+                                }
+                            }
+                            var ivrMenu = dataReader.GetNullableString("ivr_menu");
+                            var ivrDial = dataReader.GetNullableString("ivr_dial");
+                            var ivrUser = string.IsNullOrEmpty(ivrMenu) || ivrDial == "dispetcher"
+                                ? (RequestUserDto)null
+                                : new RequestUserDto
+                                {
+                                    Id = -1,
+                                    SurName = "IVR Переадресация"
+                                };
+                            callList.Add(new CallsListDto
+                            {
+                                UniqueId = dataReader.GetNullableString("UniqueID"),
+                                CallerId = dataReader.GetNullableString("CallerIDNum"),
+                                Direction = dataReader.GetNullableString("CallDirection"),
+                                AnswerTime = dataReader.GetNullableDateTime("AnswerTime"),
+                                CreateTime = dataReader.GetNullableDateTime("CreateTime"),
+                                BridgedTime = dataReader.GetNullableDateTime("BridgedTime"),
+                                EndTime = dataReader.GetNullableDateTime("EndTime"),
+                                TalkTime = dataReader.GetNullableInt("TalkTime"),
+                                WaitingTime = dataReader.GetNullableInt("WaitingTime"),
+                                MonitorFileName = dataReader.GetNullableString("MonitorFile"),
+                                Requests = dataReader.GetNullableString("RequestId"),
+                                RedirectPhone = redirectPhone,
+                                ServiceCompany = dataReader.GetNullableString("ServiceCompanyName"),
+                                User = dataReader.GetNullableInt("userId").HasValue
+                                    ? new RequestUserDto
+                                    {
+                                        Id = dataReader.GetInt32("userId"),
+                                        SurName = dataReader.GetNullableString("SurName"),
+                                        FirstName = dataReader.GetNullableString("FirstName"),
+                                        PatrName = dataReader.GetNullableString("PatrName")
+                                    }
+                                    : ivrUser
+                            });
+                        }
+                        dataReader.Close();
+                        return callList.ToArray();
+                    }
+                }
+            }
+        }
+
+        public TransferIntoDto[] GetTransferList(int userId)
+        {
+            var query = "call phone_client.get_transfer_list(@userId);";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    var transferList = new List<TransferIntoDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            transferList.Add(new TransferIntoDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                SipNumber = dataReader.GetString("sip_number")
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return transferList.ToArray();
+                }
+            }
+        }
+        public void SendAlive(int userId, string sipUser)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(@"call CallCenter.SendAliveAndSip(@UserId,@Sip)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.Parameters.AddWithValue("@Sip", sipUser);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+       public void IncreaseRingCount(int userId, string callerId)
+       {
+           using (var conn = new MySqlConnection(_connectionString))
+           {
+               conn.Open();
+                var query = "update asterisk.NotAnsweredQueue set call_count = call_count + 1 where CallerIDNum  = @CallerId;";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CallerId", callerId);
+                    cmd.ExecuteNonQuery();
+                }
+           }
+
+       }
+       public void AddCallToRequest(int userId, int requestId, string callUniqueId)
+       {
+           if (requestId <= 0 || string.IsNullOrEmpty(callUniqueId))
+               return;
+           using (var conn = new MySqlConnection(_connectionString))
+           {
+               conn.Open();
+               using (var cmd =
+                   new MySqlCommand(
+                       "insert into CallCenter.RequestCalls(request_id,uniqueID) values(@Request, @UniqueId) ON DUPLICATE KEY UPDATE uniqueID = @UniqueId",
+                       conn))
+               {
+                   cmd.Parameters.AddWithValue("@Request", requestId);
+                   cmd.Parameters.AddWithValue("@UniqueId", callUniqueId);
+                   cmd.ExecuteNonQuery();
+               }
+           }
+       }
+       public byte[] GetRecordById(int userId, string path)
+       {
+           using (var conn = new MySqlConnection(_connectionString))
+           {
+                           var fileName = path;
+                           var serverIpAddress = conn.DataSource;
+                           var localFileName =
+                               fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\")
+                                   .Replace("/", "\\");
+                           if (File.Exists(localFileName))
+                           {
+                               return File.ReadAllBytes(localFileName);
+                           }
+
+                           var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
+                           if (File.Exists(localFileNameMp3))
+                           {
+                               return File.ReadAllBytes(localFileNameMp3);
+                           }
+                           return null;
+           }
+       }
+
+        public void DeleteCallFromNotAnsweredListByTryCount(int userId, string callerId)
+       {
+           using (var conn = new MySqlConnection(_connectionString))
+           {
+               conn.Open();
+               var query = "delete from asterisk.NotAnsweredQueue where CallerIDNum  = @CallerId and call_count >= 2;";
+               using (var cmd = new MySqlCommand(query, conn))
+               {
+                   cmd.Parameters.AddWithValue("@CallerId", callerId);
+                   cmd.ExecuteNonQuery();
+               }
+           }
+       }
+        public void Logout(int userId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(@"call CallCenter.LogoutUser(@UserId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
         public SipDto GetSipInfoByIp(string localIp)
         {
             using (var conn = new MySqlConnection(_connectionString))

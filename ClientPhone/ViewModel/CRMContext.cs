@@ -9,15 +9,11 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using CRMPhone.Annotations;
 using MySql.Data.MySqlClient;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Security.RightsManagement;
 using System.Threading;
 using System.Xml.Linq;
 using ClientPhone.Services;
@@ -27,10 +23,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Win32;
-using Newtonsoft.Json;
 using NLog;
-using RestSharp;
-using Stimulsoft.Report.Events;
 using Brush = System.Windows.Media.Brush;
 using Color = System.Windows.Media.Color;
 
@@ -40,9 +33,7 @@ namespace CRMPhone.ViewModel
     {
         private static Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly DispatcherTimer _refreshTimer;
-        private MySqlConnection _dbMainConnection;
         private UserAgent _sipAgent;
-        //public MainWindow mainWindow;
 
         private SipLine[] _sipLinesArray = {new SipLine { Id = 0, Name = "Линия 1:"}, new SipLine { Id = 1, Name = "Линия 2:" } };
         private DateTime _lastAliveTime;
@@ -163,7 +154,7 @@ namespace CRMPhone.ViewModel
                 EnablePhone = true;
                 SipRegister();
             }
-            InitMySql();
+            InitCollections();
             AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser}) ver. {Assembly.GetEntryAssembly().GetName().Version}";
             /*
             AlertRequestDataContext.InitCollections();
@@ -330,19 +321,18 @@ namespace CRMPhone.ViewModel
             saveDialog.Filter = "Audio файл|*.wav";
             if (saveDialog.ShowDialog() == true)
             {
-                var localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/", "\\");
-                var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
-                if (File.Exists(localFileNameMp3))
-                    File.Copy(localFileNameMp3, saveDialog.FileName);
-                else if (File.Exists(localFileName))
-                    File.Copy(localFileName, saveDialog.FileName);
+                var buffer = RestRequestService.GetRecordById(AppSettings.CurrentUser.Id, record.MonitorFileName);
+                var file = File.Create(saveDialog.FileName);
+                file.Write(buffer,0,buffer.Length);
+                file.Close();
             }
         }
         private void PlayRecord(object obj)
         {
             var record = obj as CallsListDto;
             var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
-            _requestService.PlayRecord(serverIpAddress,record.MonitorFileName);
+
+            //_requestService.PlayRecord(serverIpAddress,record.MonitorFileName);
 /*
             var localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/","\\");
             var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
@@ -383,48 +373,23 @@ namespace CRMPhone.ViewModel
         private ICommand _serviceCompanyInfoCommand;
         public ICommand ServiceCompanyInfoCommand { get { return _serviceCompanyInfoCommand ?? (_serviceCompanyInfoCommand = new CommandHandler(ServiceCompanyInfo, _canExecute)); } }
 
-        private ICommand _openMetersCommand;
-        public ICommand OpenMetersCommand { get { return _openMetersCommand ?? (_openMetersCommand = new RelayCommand(OpenMeters)); } }
-
         private ICommand _getCallFromQueryCommand;
         public ICommand GetCallFromQueryCommand { get { return _getCallFromQueryCommand ?? (_getCallFromQueryCommand = new RelayCommand(GetCallFromQuery)); } }
         private ICommand _deleteCallFromListCommand;
         public ICommand DeleteCallFromListCommand { get { return _deleteCallFromListCommand ?? (_deleteCallFromListCommand = new RelayCommand(DeleteCallFromList)); } }
 
-
-        private void BridgeFunc(object number)
-        {
-            var item = number as ActiveChannelsDto;
-            //if(item == null || string.IsNullOrEmpty(item.Channel))
-            //  return;
-            Thread.Sleep(600);
-            var channel1 = _requestService.GetCurrentChannel(_sipUser);
-            if(string.IsNullOrEmpty(channel1))
-                return;
-            using (var bridgeService = new AmiService(_serverIP, 5038))
-            {
-                if (bridgeService.LoginAndBridge("zerg", "asteriskzerg", channel1, item.Channel))
-                {
-                    SipLines[0].Phone = item.CallerIdNum;
-                    LastAnsweredPhoneNumber = item.CallerIdNum;
-                    IncomingCallFrom = item.CallerIdNum;
-                    SipLines[0].LastAnswerTime = DateTime.Now;
-                }
-            }
-        }
-
         private void ServiceCompanyInfo()
         {
-            if(CallFromServiceCompany!=null)
-            {
-                var info = _requestService.GetServiceCompanyInfo(CallFromServiceCompany.Id);
-                var view = new ServiceCompanyInfoDialog();
-                var model = new ServiceCompanyInfoDialogViewModel(CallFromServiceCompany.Name,info);
-                view.DataContext = model;
-                view.Owner = mainWindow;
-                view.ShowDialog();
+            //if(CallFromServiceCompany!=null)
+            //{
+            //    var info = _ requestService.GetServiceCompanyInfo(CallFromServiceCompany.Id);
+            //    var view = new ServiceCompanyInfoDialog();
+            //    var model = new ServiceCompanyInfoDialogViewModel(CallFromServiceCompany.Name,info);
+            //    view.DataContext = model;
+            //    view.Owner = mainWindow;
+            //    view.ShowDialog();
 
-            }
+            //}
         }
 
         public ObservableCollection<ServiceCompanyDto> ForOutcoinCallsCompanyList
@@ -444,7 +409,7 @@ namespace CRMPhone.ViewModel
 
         private void DeleteNotAnswered()
         {
-            _requestService.DeleteNotAnswered();
+            //_ requestService.DeleteNotAnswered();
         }
 
         public DateTime MetersToDate
@@ -488,7 +453,7 @@ namespace CRMPhone.ViewModel
         private ICommand _conferenceCommand;
         public ICommand ConferenceCommand { get { return _conferenceCommand ?? (_conferenceCommand = new CommandHandler(Conference, _canExecute)); } }
         private ICommand _bridgeCommand;
-        public ICommand BridgeCommand { get { return _bridgeCommand ?? (_bridgeCommand = new CommandHandler(Bridge, _canExecute)); } }
+        //public ICommand BridgeCommand { get { return _bridgeCommand ?? (_bridgeCommand = new CommandHandler(Bridge, _canExecute)); } }
         private ICommand _numbersCommand;
         public ICommand NumbersCommand { get { return _numbersCommand ?? (_numbersCommand = new CommandHandler(Numbers, _canExecute)); } }
 
@@ -535,63 +500,8 @@ namespace CRMPhone.ViewModel
             }
         }
 
-        private ICommand _addMeterCommand;
-        public ICommand AddMeterCommand { get { return _addMeterCommand ?? (_addMeterCommand = new CommandHandler(AddMeters, _canExecute)); } }
-
-        private ICommand _refreshMeterCommand;
-        public ICommand RefreshMeterCommand { get { return _refreshMeterCommand ?? (_refreshMeterCommand = new CommandHandler(RefreshMeters, _canExecute)); } }
-
-        private ICommand _deleteCommand;
-        public ICommand DeleteCommand { get { return _deleteCommand ?? (_deleteCommand = new CommandHandler(Delete, _canExecute)); } }
         private ICommand _exportCommand;
         public ICommand ExportCommand { get { return _exportCommand ?? (_exportCommand = new CommandHandler(Export, _canExecute)); } }
-
-        private void Delete()
-        {
-            if (SelectedMeter != null)
-            {
-                _requestService.DeleteMeter(SelectedMeter.Id);
-                RefreshMeters();
-            }
-        }
-
-        private void RefreshMeters()
-        {
-            MetersHistoryList.Clear();
-            var meters = _requestService.GetMetersByDate(SelectedMetersSC?.Id, MetersFromDate, MetersToDate);
-            foreach (var meter in meters)
-            {
-                MetersHistoryList.Add(meter);
-            }
-        }
-
-        private void OpenMeters(object sender)
-        {
-            var selectedItem = sender as MeterListDto;
-            if (selectedItem == null)
-                return;
-            if (_requestService == null)
-                _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
-
-            var model = new MeterDeviceViewModel(selectedItem);
-            var view = new MeterDeviceDialog();
-            model.SetView(view);
-            model.PhoneNumber = LastAnsweredPhoneNumber;
-            view.DataContext = model;
-            view.Owner = mainWindow;
-            view.ShowDialog();
-        }
-        private void AddMeters()
-        {
-            var model = new MeterDeviceViewModel();
-            var view = new MeterDeviceDialog();
-            model.SetView(view);
-            model.PhoneNumber = LastAnsweredPhoneNumber;
-            view.DataContext = model;
-            view.Owner = mainWindow;
-            view.ShowDialog();
-
-        }
 
         private ICommand _muteCommand;
         public ICommand MuteCommand { get { return _muteCommand ?? (_muteCommand = new CommandHandler(Mute, _canExecute)); } }
@@ -607,7 +517,6 @@ namespace CRMPhone.ViewModel
         private string _appTitle;
         private bool _enablePhone;
         private RequestControlContext _requestDataContext;
-        private RequestService _requestService;
         private string _requestNum;
         private RequestUserDto _selectedUser;
         private ObservableCollection<RequestUserDto> _userList;
@@ -1061,8 +970,7 @@ namespace CRMPhone.ViewModel
             view.Owner = mainWindow;
             if (view.ShowDialog()??false)
             {
-                _requestService.AddCallToRequest(model.RequestId,SelectedRecordCall.UniqueId);
-                _requestService.AddCallHistory(model.RequestId, SelectedRecordCall.UniqueId, AppSettings.CurrentUser.Id, null, "AddRequestToCall");
+                RestRequestService.AddCallToRequest(AppSettings.CurrentUser.Id, model.RequestId,SelectedRecordCall.UniqueId);
             }
         }
 
@@ -1198,14 +1106,10 @@ namespace CRMPhone.ViewModel
             set { _companyList = value; OnPropertyChanged(nameof(CompanyList));}
         }
 
-        private void InitMySql()
+        private void InitCollections()
         {
-            var connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", _serverIP, "asterisk", "mysqlasterisk", "asterisk");
-            _dbMainConnection = new MySqlConnection(connectionString);
             try
             {
-                _dbMainConnection.Open();
-                _requestService = new RequestService(_dbMainConnection);
                 UserList = new ObservableCollection<RequestUserDto>(RestRequestService.GetFilterDispatchers(AppSettings.CurrentUser.Id));
                 var companyList = RestRequestService.GetFilterServiceCompanies(AppSettings.CurrentUser.Id);
                 CompanyList = new ObservableCollection<ServiceCompanyDto>(companyList);
@@ -1343,7 +1247,7 @@ namespace CRMPhone.ViewModel
 
                 SelectedLine = SipLines.FirstOrDefault(s => s.Id == callId);
             }
-            CallFromServiceCompany = _requestService?.ServiceCompanyByIncommingPhoneNumber(phoneNumber);
+            //CallFromServiceCompany = _ requestService?.ServiceCompanyByIncommingPhoneNumber(phoneNumber);
             SipState = $"Входящий вызов от {phoneNumber}";
             IncomingCallFrom = phoneNumber;
 
@@ -1428,11 +1332,11 @@ namespace CRMPhone.ViewModel
 
         private void DeleteCallFromList(object currentCall)
         {
-            var call = currentCall as NotAnsweredDto;
-            if(call == null)
-                return;
-            _requestService.DeleteCallFromNotAnsweredList(call.CallerId);
-            RefreshNotAnsweredCalls();
+            //var call = currentCall as NotAnsweredDto;
+            //if(call == null)
+            //    return;
+            //_ requestService.DeleteCallFromNotAnsweredList(call.CallerId);
+            //RefreshNotAnsweredCalls();
         }
 
         private void GetCallFromQuery(object currentChannel)
@@ -1451,7 +1355,7 @@ namespace CRMPhone.ViewModel
             }
             var phone = item.CallerIdNum.Replace("+", "");
             IncomingCallFrom = phone;
-            CallFromServiceCompany = _requestService?.ServiceCompanyByIncommingPhoneNumber(phone);
+            //CallFromServiceCompany = _ requestService?.ServiceCompanyByIncommingPhoneNumber(phone);
             string callId = string.Format("sip:#{0}@{1}", phone, _serverIP);
             _sipAgent.CallMaker.Invite(callId);
 
@@ -1528,10 +1432,10 @@ namespace CRMPhone.ViewModel
             var phone = SelectedCall.CallerId.Substring(SelectedCall.CallerId.Length - 10);
             SipPhone = phone;
             IncomingCallFrom = phone;
-            _requestService.IncreaseBackRingCount(SelectedCall.CallerId);
+            RestRequestService.IncreaseRingCount(AppSettings.CurrentUser.Id, SelectedCall.CallerId);
             string callId = string.Format("sip:{2}{0}@{1}", phone, _serverIP,SelectedCall.Prefix);
             _sipAgent.CallMaker.Invite(callId);
-            _requestService.DeleteCallFromNotAnsweredListByTryCount(SelectedCall.CallerId);
+            RestRequestService.DeleteCallFromNotAnsweredListByTryCount(AppSettings.CurrentUser.Id, SelectedCall.CallerId);
         }
 
         public void Mute()
@@ -1554,7 +1458,7 @@ namespace CRMPhone.ViewModel
 
         public void Transfer()
         {
-            var phoneList = _requestService.GetTransferList();
+            var phoneList = new List<TransferIntoDto>(RestRequestService.GetTransferList(AppSettings.CurrentUser.Id));
             phoneList.Remove(phoneList.FirstOrDefault(p => p.SipNumber == _sipUser));
             var transferContext = new TrasferDialogViewModel(phoneList);
             var transfer = new TransferDialog(transferContext);
@@ -1602,17 +1506,16 @@ namespace CRMPhone.ViewModel
         }
         public void Unregister()
         {
-            using (var cmd = new MySqlCommand($"call CallCenter.LogoutUser({AppSettings.CurrentUser.Id})", AppSettings.DbConnection))
-            {
-                cmd.ExecuteNonQuery();
-            }
+            RestRequestService.Logout(AppSettings.CurrentUser.Id);
+
             _sipAgent?.Registrator.Unregister();
             //_sipAgent?.Shutdown();
         }
 
         public void RefreshList()
         {
-            CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallList(FromDate, ToDate, RequestNum, SelectedUser?.Id, 17,PhoneNumber));
+            CallsList = new ObservableCollection<CallsListDto>(
+                RestRequestService.GetCallList(AppSettings.CurrentUser.Id, FromDate, ToDate, RequestNum, SelectedUser?.Id, 17, PhoneNumber));
             CallsCount = CallsList.Count;
         }
 
@@ -1657,25 +1560,11 @@ namespace CRMPhone.ViewModel
             }
         }
 
-        private void RefreshAlertRequest()
-        {
-            var alertedRequests = _requestService.GetAlertedRequests();
-            if (alertedRequests.Count > 0 && !_sipCallActive)
-            {
-                AlertRequestControlModel.RequestList.Clear();
-                foreach (var request in alertedRequests)
-                {
-                    AlertRequestControlModel.RequestList.Add(request);
-                }
-                AlertRequestControlModel.RequestCount = alertedRequests.Count;
-                mainWindow.ShowNotify("Напоминалка!", "Обнаружены заявки требующие контроля");
-            }
-        }
-
         private void SendAlive()
         {
-            _requestService.SendAlive();
+            RestRequestService.SendAlive(AppSettings.CurrentUser.Id, AppSettings.SipInfo.SipUser);
         }
+
         private void RefreshActiveChannels()
         {
             var result = RestRequestService.GetActiveChannels(AppSettings.CurrentUser.Id);
@@ -1731,10 +1620,6 @@ namespace CRMPhone.ViewModel
             {
                 cmd.ExecuteNonQuery();
             }
-        }
-
-        private void Bridge()
-        {
         }
 
         private static string GetPhoneNumberFromUri(string remoteUri)
