@@ -3566,6 +3566,39 @@ VALUES
                 return newId;
             }
         }
+        public static void DocsUpdateOrganisations(int workerId, int orgId, DocOrgDto organisationDto)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL docs_pack.update_org(@WorkerId,@OrgId, @Name,@Inn,@Fio)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@OrgId", orgId);
+                    cmd.Parameters.AddWithValue("@Name", organisationDto.Name);
+                    cmd.Parameters.AddWithValue("@Inn", organisationDto.Inn);
+                    cmd.Parameters.AddWithValue("@Fio", organisationDto.Director);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static void DocsDeleteOrganisations(int workerId, int orgId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var sqlQuery = @"CALL docs_pack.delete_org(@WorkerId,@OrgId)";
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@OrgId", orgId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
 
         public static IEnumerable<DocOrgDto> DocsGetOrganisations(int workerId)
         {
@@ -3807,7 +3840,93 @@ VALUES
                 }
             }
         }
-        
+
+        public static int AddOrgToDoc(int workerId, int docId, int orgId, string inNumber, DateTime? inDate)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var orgQuery =
+                    "call docs_pack.attach_org_to_doc(@workerId, @docId, @orgId, @inNumber, @inDate);";
+                using (var cmd = new MySqlCommand(orgQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@workerId", workerId);
+                    cmd.Parameters.AddWithValue("@docId", docId);
+                    cmd.Parameters.AddWithValue("@orgId", orgId);
+                    cmd.Parameters.AddWithValue("@inNumber", inNumber);
+                    cmd.Parameters.AddWithValue("@inDate", inDate);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        dataReader.Read();
+                        return dataReader.GetInt32("newId");
+                    }
+                }
+            }
+        }
+        public static void UpdateOrgInDoc(int workerId, int docId, int orgId, string inNumber, DateTime? inDate)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var orgQuery =
+                    "call docs_pack.update_org_in_doc(@workerId, @docId, @orgId, @inNumber, @inDate);";
+                using (var cmd = new MySqlCommand(orgQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@workerId", workerId);
+                    cmd.Parameters.AddWithValue("@docId", docId);
+                    cmd.Parameters.AddWithValue("@orgId", orgId);
+                    cmd.Parameters.AddWithValue("@inNumber", inNumber);
+                    cmd.Parameters.AddWithValue("@inDate", inDate);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static void DeleteOrgFromDoc(int workerId, int docId, int orgId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var orgQuery =
+                    "call docs_pack.delete_org_from_doc(@workerId, @docId, @orgId);";
+                using (var cmd = new MySqlCommand(orgQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@workerId", workerId);
+                    cmd.Parameters.AddWithValue("@docId", docId);
+                    cmd.Parameters.AddWithValue("@orgId", orgId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static void UpdateDoc(int workerId,int docId, int typeId, string topic, string docNumber, DateTime docDate,
+             string inNumber, DateTime? inDate, int? orgId, int? organizationalTypeId, string description,
+             int? appoinedWorkerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query =
+                    "call docs_pack.update_doc(@WorkerId,@DocId,@TypeId,@Topic, @DocNumber, @DocDate, @InNumber,@InDate,@OrgId,@OrganizTypeId,@Descript,@appoinedWorkerId);";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    cmd.Parameters.AddWithValue("@DocId", docId);
+                    cmd.Parameters.AddWithValue("@TypeId", typeId);
+                    cmd.Parameters.AddWithValue("@Topic", topic);
+                    cmd.Parameters.AddWithValue("@DocNumber", docNumber);
+                    cmd.Parameters.AddWithValue("@DocDate", docDate);
+                    cmd.Parameters.AddWithValue("@InNumber", inNumber);
+                    cmd.Parameters.AddWithValue("@InDate", inDate);
+                    cmd.Parameters.AddWithValue("@OrgId", orgId);
+                    cmd.Parameters.AddWithValue("@OrganizTypeId", organizationalTypeId);
+                    cmd.Parameters.AddWithValue("@Descript", description);
+                    cmd.Parameters.AddWithValue("@appoinedWorkerId", appoinedWorkerId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
         public static WorkerDto[] DocGetWorkers(int workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3846,14 +3965,6 @@ VALUES
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
-                /*
-                 IN currentWorkerId int,
-IN vId int,
-IN vName varchar(255) CHARACTER SET utf8,
-IN vFileName varchar(255) CHARACTER SET utf8,
-IN vExtension varchar(6) CHARACTER SET utf8
-                 */
-
                 conn.Open();
                 using (var cmd =
                     new MySqlCommand(@"call docs_pack.attach_file(@WorkerId,@Id,@Name,@generatedName,@Extension);",

@@ -45,7 +45,7 @@ namespace CRMPhone.ViewModel
             };
             if (openDialog.ShowDialog() == DialogResult.OK)
             {
-                File.Copy(openDialog.FileName, @"\\192.168.1.130\ivr\ukrus.wav", true);
+                File.Copy(openDialog.FileName, @"\\qq\ivr\ukrus.wav", true);
                 MessageBox.Show("Файл успешно загружен на сервер!");
             }
 
@@ -59,7 +59,7 @@ namespace CRMPhone.ViewModel
         }
         private void Play()
         {
-            Process.Start(@"\\192.168.1.130\ivr\ukrus.wav");
+            Process.Start(@"\\qq\ivr\ukrus.wav");
         }
 
 

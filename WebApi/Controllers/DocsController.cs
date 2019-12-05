@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RestSharp;
 using WebApi.Models;
 using WebApi.Services;
 
@@ -47,6 +48,33 @@ namespace WebApi.Controllers
             int.TryParse(workerIdStr, out int workerId);
             return Ok(RequestService.DocsAddOrganisations(workerId,value));
         }
+        [HttpPut("orgs/{id}")]
+        public IActionResult UpdateOrganisation(int id,[FromBody] DocOrgDto value)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            RequestService.DocsUpdateOrganisations(workerId, id, value);
+            return Ok();
+        }
+        [HttpDelete("orgs/{id}")]
+        public IActionResult DeleteOrganisation(int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            RequestService.DocsDeleteOrganisations(workerId, id);
+            return Ok();
+        }
+
 
         [HttpGet("types")]
         public IEnumerable<DocTypeDto> GetTypes()
@@ -82,6 +110,7 @@ namespace WebApi.Controllers
             return RequestService.DocsGetList(workerId, fromDate ?? DateTime.Today, toDate ?? DateTime.Today.AddDays(1),
                 inNumber,  orgs, statuses, types, documentId, appointedWorkerId);
         }
+
         [HttpPost]
         public IActionResult Post([FromBody]CreateDocDto value)
         {
@@ -95,15 +124,64 @@ namespace WebApi.Controllers
 
             return Ok(RequestService.CreateDoc(workerId,  value.TypeId, value.Topic, value.DocNumber, value.DocDate, value.InNumber, value.InDate, value.OrgId, value.Orgs, value.OrganizationalTypeId, value.Description, value.AppointedWorkerId));
         }
+
         [HttpPut("{id}")]
-        public string Post(int id, [FromBody]CreateDocDto value)
+        public IActionResult Update(int id, [FromBody]CreateDocDto value)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
             _logger.LogInformation($"---------- Update Doc with id ({id}): " + JsonConvert.SerializeObject(value));
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
-            return "";
+            RequestService.UpdateDoc(workerId,id, value.TypeId, value.Topic, value.DocNumber, value.DocDate,
+                value.InNumber, value.InDate, value.OrgId, value.OrganizationalTypeId, value.Description,
+                value.AppointedWorkerId);
+            return Ok();
                 //RequestService.CreateDoc(workerId, id, value.CreateDate, value.InNumber, value.OutNumber, value.InDate, value.OutDate, value.AgentId, value.StatusId, value.KindId, value.TypeId, value.Description);
         }
+
+        [HttpPost("addOrgToDoc/{id}")]
+        public IActionResult AddOrgToDoc(int id, [FromBody] OrgDocDto value)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            _logger.LogInformation($"---------- AddOrgToDoc id ({id}): " + JsonConvert.SerializeObject(value));
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            RequestService.AddOrgToDoc(workerId, id, value.OrgId, value.InNumber, value.InDate);
+            return Ok();
+        }
+        [HttpPut("updateOrgInDoc/{id}")]
+        public IActionResult UpdateOrgInDoc(int id, [FromBody] OrgDocDto value)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            _logger.LogInformation($"---------- UpdateOrgInDoc id ({id}): " + JsonConvert.SerializeObject(value));
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            RequestService.UpdateOrgInDoc(workerId, id, value.OrgId, value.InNumber, value.InDate);
+            return Ok();
+        }
+        [HttpDelete("deleteOrgFromDoc")]
+        public IActionResult DeleteOrgFromDoc([FromQuery] int docId, [FromQuery] int orgId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            _logger.LogInformation($"---------- DeleteOrgFromDoc id ({docId}), orgId ({orgId})");
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            RequestService.DeleteOrgFromDoc(workerId, docId, orgId);
+            return Ok();
+        }
+
         [HttpGet("workers")]
         public IEnumerable<WorkerDto> GetWorkers()
         {
