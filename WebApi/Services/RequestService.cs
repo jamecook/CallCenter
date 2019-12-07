@@ -3678,8 +3678,8 @@ VALUES
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@CurWorker", workerId);
-                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
-                    cmd.Parameters.AddWithValue("@ToDate", toDate);
+                    cmd.Parameters.AddWithValue("@FromDate", findFromDate);
+                    cmd.Parameters.AddWithValue("@ToDate", findToDate);
                     cmd.Parameters.AddWithValue("@InNumber", inNumber);
                     cmd.Parameters.AddWithValue("@documentId", documentId);
                     cmd.Parameters.AddWithValue("@appointedWorkerId", appointedWorkerId);
