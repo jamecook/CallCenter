@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -31,6 +32,7 @@ namespace CRMPhone.ViewModel
         private int? _selectedServiceCompanyId;
         private ObservableCollection<ContactDto> _contactList;
         private int _requestId;
+        private List<ContactDto> requestContacts;
 
         public ObservableCollection<CityDto> CityList
         {
@@ -122,7 +124,9 @@ namespace CRMPhone.ViewModel
                 requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
             }
             requestModel.TermOfExecution = request.TermOfExecution;
-            viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
+            viewModel.
+                ContactList = new ObservableCollection<ContactDto>(request.Contacts);
+
             view.Show();
 
         }
@@ -134,12 +138,17 @@ namespace CRMPhone.ViewModel
                 _requestId = value;
                 OnPropertyChanged(nameof(RequestId));
                 OnPropertyChanged(nameof(CanEdit));
+                OnPropertyChanged(nameof(CanEditPhone));
+                OnPropertyChanged(nameof(ReadOnlyPhone));
                 OnPropertyChanged(nameof(ReadOnly));
             }
         }
 
-        public bool CanEdit { get { return RequestId == 0; } }
-        public bool ReadOnly { get { return !CanEdit; } }
+        public bool CanEdit => RequestId == 0;
+        public bool CanEditPhone { get { return RequestId == 0 || (AppSettings.CurrentUser != null && AppSettings.CurrentUser.Roles.Exists(r => r.Name == "admin" || r.Name == "supervizor")); } }
+        public bool ReadOnly => !CanEdit;
+        public bool ReadOnlyPhone => !CanEditPhone;
+
         public CityDto SelectedCity
         {
             get { return _selectedCity; }
@@ -344,7 +353,15 @@ namespace CRMPhone.ViewModel
         public ObservableCollection<ContactDto> ContactList
         {
             get { return _contactList; }
-            set { _contactList = value; OnPropertyChanged(nameof(ContactList)); }
+            set
+            {
+                _contactList = value; OnPropertyChanged(nameof(ContactList));
+                requestContacts = new List<ContactDto>();
+                foreach (var contactDto in ContactList)
+                {
+                    requestContacts.Add(contactDto.Copy());
+                }
+            }
         }
         private ContactDto _selectedContact;
         private RequestItemViewModel _selectedRequest;
@@ -798,6 +815,23 @@ namespace CRMPhone.ViewModel
             }
             if (requestModel.RequestId.HasValue)
             {
+                if (requestContacts != null)
+                {
+                    var forDeleteItems = requestContacts?.Where(c => ContactList.All(l => l.Id != c.Id)).ToArray();
+                    _requestService.DeleteContacts(requestModel.RequestId.Value, forDeleteItems);
+
+                    var newItems = ContactList.Where(c => requestContacts.All(l => l.Id != c.Id)).Where(c=>!string.IsNullOrEmpty(c.PhoneNumber)).ToArray();
+                    _requestService.SaveContacts(requestModel.RequestId.Value,newItems);
+
+                    var changedItems = (from c in ContactList
+                        from r in requestContacts
+                        where c.PhoneNumber == r.PhoneNumber && (c.Name != r.Name || c.IsMain != r.IsMain || c.AdditionInfo != r.AdditionInfo || c.Email != r.Email )
+                        select c).ToArray();
+                    _requestService.EditContacts(requestModel.RequestId.Value, changedItems);
+                    var updatedRequest = _requestService.GetRequest(RequestId);
+                    ContactList = new ObservableCollection<ContactDto>(updatedRequest.Contacts);
+                }
+
                 _requestService.EditRequest(requestModel.RequestId.Value, requestModel.SelectedService.Id,
                     requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork,requestModel.SelectedGaranty?.Id??0, requestModel.IsRetry, requestModel.AlertTime, requestModel.TermOfExecution);
                 //Делаем назначение в расписании
@@ -945,7 +979,7 @@ namespace CRMPhone.ViewModel
         {
             AlertExists = false;
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
-            var contactInfo = new ContactDto {Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall};
+            var contactInfo = new ContactDto {Id = 0, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall};
             _callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(AppSettings.LastCallId);
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
@@ -972,7 +1006,7 @@ namespace CRMPhone.ViewModel
                     SelectedHouse = HouseList.FirstOrDefault(h => h.Building == clientInfoDto.Building &&
                                                       h.Corpus == clientInfoDto.Corpus);
                     SelectedFlat = FlatList.FirstOrDefault(f => f.Flat == clientInfoDto.Flat);
-                    contactInfo = new ContactDto { Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall,Name = clientInfoDto.Name};
+                    contactInfo = new ContactDto { Id = 0, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall,Name = clientInfoDto.Name};
                 }
             }
             ContactList = new ObservableCollection<ContactDto>(new[] {contactInfo});

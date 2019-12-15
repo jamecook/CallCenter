@@ -171,7 +171,7 @@
         </StackPanel>
         <StackPanel Grid.Row="1">
             <TextBlock Margin ="3" Text="Контактные телефоны:"/>
-            <Button Margin ="3" Content="Добавить" Width="120" Command="{Binding AddContactCommand}" HorizontalAlignment="Left"/>
+            <Button Margin ="3" Content="Добавить" Width="120" IsEnabled ="{Binding CanEditPhone}" Command="{Binding AddContactCommand}" HorizontalAlignment="Left"/>
             <ListBox x:Name="ContactListBox"
                      HorizontalAlignment="Left" MaxHeight="100"
                      ItemsSource="{Binding ContactList}" 
@@ -204,16 +204,17 @@
                     <DataTemplate>
                         <StackPanel>
                             <DockPanel>
-                                <CheckBox Margin="3" VerticalAlignment="Center" Content="Осн." IsEnabled="{Binding DataContext.CanEdit, ElementName=RequestGrid}" IsChecked="{Binding IsMain}" Command="{Binding DataContext.ChangeCheckedStateCommand, ElementName=RequestGrid}"/>
-                                <TextBox Margin ="3" Width="125" Text="{Binding PhoneNumber}" IsReadOnly="{Binding DataContext.ReadOnly, ElementName=RequestGrid}"/>
-                                <CheckBox Margin="3" VerticalAlignment="Center" Content="Собств." IsEnabled="{Binding DataContext.CanEdit, ElementName=RequestGrid}" IsChecked="{Binding IsOwner}"/>
+                                <CheckBox Margin="3" VerticalAlignment="Center" Content="Осн." IsEnabled="{Binding DataContext.CanEditPhone, ElementName=RequestGrid}" IsChecked="{Binding IsMain}" Command="{Binding DataContext.ChangeCheckedStateCommand, ElementName=RequestGrid}"/>
+                                <TextBox Margin ="3" Width="125" Text="{Binding PhoneNumber}" IsReadOnly="{Binding ReadOnlyPhone}"/>
+                                <!--<TextBox Margin ="3" Width="125" Text="{Binding PhoneNumber}" IsReadOnly="{Binding DataContext.ReadOnlyPhone, ElementName=RequestGrid}"/>-->
+                                <CheckBox Margin="3" VerticalAlignment="Center" Content="Собств." IsEnabled="{Binding DataContext.CanEditPhone, ElementName=RequestGrid}" IsChecked="{Binding IsOwner}"/>
                                 <TextBlock Margin="3" VerticalAlignment="Center" Text="ФИО"/>
-                                <TextBox Margin ="3" Width="175" IsReadOnly="{Binding DataContext.ReadOnly, ElementName=RequestGrid}" HorizontalAlignment="Left" Text="{Binding Name}" />
-                                <TextBlock Margin="3" VerticalAlignment="Center" Text="e-mail"/>
-                                <TextBox Margin ="3" Width="100" IsReadOnly="{Binding DataContext.ReadOnly, ElementName=RequestGrid}" HorizontalAlignment="Left" Text="{Binding Email}" />
+                                <TextBox Margin ="3" Width="175" IsReadOnly="{Binding DataContext.ReadOnlyPhone, ElementName=RequestGrid}" HorizontalAlignment="Left" Text="{Binding Name}" />
+                                <!--<TextBlock Margin="3" VerticalAlignment="Center" Text="e-mail"/>
+                                <TextBox Margin ="3" Width="100" IsReadOnly="{Binding DataContext.ReadOnlyPhone, ElementName=RequestGrid}" HorizontalAlignment="Left" Text="{Binding Email}" />-->
                                 <TextBlock Margin="3" VerticalAlignment="Center" Text="примеч."/>
-                                <TextBox Margin ="3" Width="140" IsReadOnly="{Binding DataContext.ReadOnly, ElementName=RequestGrid}" HorizontalAlignment="Left" Text="{Binding AdditionInfo}" />
-                                <Button Margin="3"  Width="32" HorizontalAlignment="Right" IsEnabled ="{Binding DataContext.CanEdit, ElementName=RequestGrid}" Command="{Binding DataContext.DeleteCommand, ElementName=RequestGrid}">
+                                <TextBox Margin ="3" Width="140" IsReadOnly="{Binding DataContext.ReadOnlyPhone, ElementName=RequestGrid}" HorizontalAlignment="Left" Text="{Binding AdditionInfo}" />
+                                <Button Margin="3"  Width="32" HorizontalAlignment="Right" IsEnabled ="{Binding DataContext.CanEditPhone, ElementName=RequestGrid}" Command="{Binding DataContext.DeleteCommand, ElementName=RequestGrid}">
                                     <Image Source="pack://application:,,,/Images/button_delete.png" Width="16" Height="16" />
                                 </Button>
                             </DockPanel>

@@ -205,7 +205,15 @@
                 </TabItem.Header>
                 <controls:AlertAndWorkControl DataContext="{Binding AlertAndWorkContext}"/>
             </TabItem>
-
+            <TabItem Visibility="{Binding IsAdminRoleExist}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/phones.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Диспетчера"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <controls:DispatcherControl DataContext="{Binding DispatcherContext}"/>
+            </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">

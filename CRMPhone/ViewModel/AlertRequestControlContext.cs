@@ -104,7 +104,7 @@ namespace CRMPhone.ViewModel
             requestModel.RequestState = request.State.Description;
             requestModel.SelectedMaster = request.MasterId.HasValue ? _requestService.GetWorkerById(request.MasterId.Value) : null;
             requestModel.SelectedExecuter = request.ExecuterId.HasValue ? _requestService.GetWorkerById(request.ExecuterId.Value) : null;
-            requestModel.RequestId = request.Id;
+
             requestModel.Rating = request.Rating;
             if (request.ServiceCompanyId.HasValue)
             {

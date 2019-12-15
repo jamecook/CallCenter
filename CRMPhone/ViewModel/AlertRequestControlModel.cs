@@ -80,9 +80,9 @@ namespace CRMPhone.ViewModel
             }
 
             var viewModel = new RequestDialogViewModel();
+            viewModel.RequestId = request.Id;
             var view = new RequestDialog(viewModel);
             viewModel.SetView(view);
-            viewModel.RequestId = request.Id;
             viewModel.SelectedCity = viewModel.CityList.SingleOrDefault(i=>i.Id == request.Address.CityId);
             viewModel.SelectedStreet = viewModel.StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
             viewModel.StreetName = request.Address.StreetName;

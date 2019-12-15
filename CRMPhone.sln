@@ -43,7 +43,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestSync", "RequestSync\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientPhone", "ClientPhone\ClientPhone.csproj", "{8C7F55EE-F198-4441-A5AE-3EE8D8E580D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientPhoneWebApi", "ClientPhoneWebApi\ClientPhoneWebApi.csproj", "{2FC14D5C-5774-411C-944C-C8B4151DF8AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientPhoneWebApi", "ClientPhoneWebApi\ClientPhoneWebApi.csproj", "{2FC14D5C-5774-411C-944C-C8B4151DF8AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrizTest", "TrizTest\TrizTest.csproj", "{86BEC0BC-9857-424D-8EAD-E6E77F4DA462}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,6 +137,10 @@ Global
 		{2FC14D5C-5774-411C-944C-C8B4151DF8AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FC14D5C-5774-411C-944C-C8B4151DF8AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FC14D5C-5774-411C-944C-C8B4151DF8AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86BEC0BC-9857-424D-8EAD-E6E77F4DA462}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86BEC0BC-9857-424D-8EAD-E6E77F4DA462}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86BEC0BC-9857-424D-8EAD-E6E77F4DA462}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86BEC0BC-9857-424D-8EAD-E6E77F4DA462}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

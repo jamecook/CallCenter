@@ -127,6 +127,7 @@ namespace CRMPhone.ViewModel
             DispexRequestControlModel = new DispexRequestControlModel();
             ReportControlModel = new ReportControlModel();
             CallsNotificationContext = new CallsNotificationContext();
+            DispatcherContext = new DispatcherControlContext();
         }
 
         public AlertRequestControlModel AlertRequestControlModel
@@ -170,6 +171,7 @@ namespace CRMPhone.ViewModel
             RingUpAdminContext.Refresh();
             BlackListContext.RefreshList();
             CallsNotificationContext.Init();
+            DispatcherContext.InitCollections();
             AlertAndWorkContext.InitCollections();
             OnPropertyChanged(nameof(IsAdminRoleExist));
             if (!string.IsNullOrEmpty(AppSettings.SipInfo?.SipUser))
@@ -1035,9 +1037,11 @@ namespace CRMPhone.ViewModel
         private DispexRequestControlModel _dispexRequestControlModel;
         private ReportControlModel _reportControlModel;
         private CallsNotificationContext _callsNotificationContext;
+        
         private ServiceCompanyDto _selectedOutgoingCompany;
         private ObservableCollection<ServiceCompanyDto> _forOutcoinCallsCompanyList;
         private ServiceCompanyFondControlContext _serviceCompanyFondContext;
+        private DispatcherControlContext _dispatcherContext;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 
@@ -1150,6 +1154,16 @@ namespace CRMPhone.ViewModel
         {
             get { return _callsNotificationContext; }
             set { _callsNotificationContext = value; OnPropertyChanged(nameof(CallsNotificationContext)); }
+        }
+
+        public DispatcherControlContext DispatcherContext
+        {
+            get => _dispatcherContext;
+            set
+            {
+             _dispatcherContext = value;
+             OnPropertyChanged(nameof(DispatcherContext));
+            }
         }
 
         public SpecialityControlContext SpecialityAdminContext

@@ -168,71 +168,7 @@ namespace RequestServiceImpl
 
                     #region Сохранение контактных номеров 
 
-                    foreach (
-                        var contact in
-                            contactList.Where(c => !string.IsNullOrEmpty(c.PhoneNumber))
-                                .OrderByDescending(c => c.IsMain))
-                    {
-                        var clientPhoneId = 0;
-                        ContactDto currentInfo = null;
-                        using (
-                            var cmd = new MySqlCommand(
-                                "SELECT id,name,email,addition FROM CallCenter.ClientPhones C where Number = @Phone", _dbConnection))
-                        {
-                            cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
-
-                            using (var dataReader = cmd.ExecuteReader())
-                            {
-                                if (dataReader.Read())
-                                {
-                                    currentInfo = new ContactDto
-                                    {
-                                        Id = dataReader.GetInt32("id"),
-                                        Name = dataReader.GetNullableString("name"),
-                                        Email = dataReader.GetNullableString("email"),
-                                        AdditionInfo = dataReader.GetNullableString("addition"),
-                                    };
-                                    clientPhoneId = currentInfo.Id;
-                                }
-                                dataReader.Close();
-                            }
-                        }
-                        if (currentInfo == null)
-                        {
-                            using (
-                                var cmd = new MySqlCommand(@"insert into CallCenter.ClientPhones(Number,name,email,addition) values(@Phone,@Name,@Email,@AddInfo);
-    select LAST_INSERT_ID();", _dbConnection))
-                            {
-                                cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
-                                cmd.Parameters.AddWithValue("@Name", contact.Name);
-                                cmd.Parameters.AddWithValue("@Email", contact.Email);
-                                cmd.Parameters.AddWithValue("@AddInfo", contact.AdditionInfo);
-                                clientPhoneId = Convert.ToInt32(cmd.ExecuteScalar());
-                            }
-                        }
-                        else
-                        {
-                            using (
-    var cmd = new MySqlCommand(@"update CallCenter.ClientPhones set name = @Name,email = @Email,addition = @AddInfo where id = @Id;", _dbConnection))
-                            {
-                                cmd.Parameters.AddWithValue("@Id", currentInfo.Id);
-                                cmd.Parameters.AddWithValue("@Name", string.IsNullOrEmpty(contact.Name) ? currentInfo.Name : contact.Name);
-                                cmd.Parameters.AddWithValue("@Email", string.IsNullOrEmpty(contact.Email) ? currentInfo.Email : contact.Email);
-                                cmd.Parameters.AddWithValue("@AddInfo", string.IsNullOrEmpty(contact.AdditionInfo) ? currentInfo.AdditionInfo : contact.AdditionInfo);
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-                        using (
-                            var cmd =
-                                new MySqlCommand(@"insert into CallCenter.RequestContacts (request_id,IsMain,ClientPhone_id) 
-    values(@RequestId,@IsMain,@PhoneId);", _dbConnection))
-                        {
-                            cmd.Parameters.AddWithValue("@RequestId", newId);
-                            cmd.Parameters.AddWithValue("@IsMain", contact.IsMain);
-                            cmd.Parameters.AddWithValue("@PhoneId", clientPhoneId);
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
+                    SaveContacts(newId, contactList);
 
                     #endregion
 
@@ -260,6 +196,141 @@ namespace RequestServiceImpl
                 _logger.Error(exc);
             }
             return null;
+        }
+
+        public void DeleteContacts(int requestId)
+        {
+            using (
+                var cmd = new MySqlCommand(
+                    @"delete from CallCenter.ClientPhones where id = @Id;",
+                    _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Id", requestId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void EditContacts(int requestId, ContactDto[] contactList)
+        {
+            foreach (var contact in contactList)
+            {
+                using (
+                    var cmd = new MySqlCommand(
+                        @"update CallCenter.ClientPhones set name = @Name,email = @Email,addition = @AddInfo where Number = @Phone;",
+                        _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
+                    cmd.Parameters.AddWithValue("@Name", contact.Name);
+                    cmd.Parameters.AddWithValue("@Email", contact.Email);
+                    cmd.Parameters.AddWithValue("@AddInfo", contact.AdditionInfo);
+                    cmd.ExecuteNonQuery();
+                }
+                using (
+                    var cmd =
+                        new MySqlCommand(@"update CallCenter.RequestContacts set IsMain = @IsMain where id = @Id;", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", contact.Id);
+                    cmd.Parameters.AddWithValue("@IsMain", contact.IsMain);
+                    cmd.ExecuteNonQuery();
+                }
+
+
+            }
+        }
+        public void DeleteContacts(int requestId, ContactDto[] contactList)
+        {
+            foreach (var contact in contactList)
+            {
+                using (
+                    var cmd = new MySqlCommand(
+                        @"delete from CallCenter.RequestContacts where id = @Id;",
+                        _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", contact.Id);
+                    cmd.ExecuteNonQuery();
+                }
+
+
+            }
+        }
+
+        public void SaveContacts(int requestId, ContactDto[] contactList)
+        {
+            foreach (
+                var contact in
+                contactList.Where(c => !string.IsNullOrEmpty(c.PhoneNumber))
+                    .OrderByDescending(c => c.IsMain))
+            {
+                var clientPhoneId = 0;
+                ContactDto currentInfo = null;
+                using (
+                    var cmd = new MySqlCommand(
+                        "SELECT id,name,email,addition FROM CallCenter.ClientPhones C where Number = @Phone", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            currentInfo = new ContactDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetNullableString("name"),
+                                Email = dataReader.GetNullableString("email"),
+                                AdditionInfo = dataReader.GetNullableString("addition"),
+                            };
+                            clientPhoneId = currentInfo.Id;
+                        }
+
+                        dataReader.Close();
+                    }
+                }
+
+                if (currentInfo == null)
+                {
+                    using (
+                        var cmd = new MySqlCommand(
+                            @"insert into CallCenter.ClientPhones(Number,name,email,addition) values(@Phone,@Name,@Email,@AddInfo);
+    select LAST_INSERT_ID();", _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
+                        cmd.Parameters.AddWithValue("@Name", contact.Name);
+                        cmd.Parameters.AddWithValue("@Email", contact.Email);
+                        cmd.Parameters.AddWithValue("@AddInfo", contact.AdditionInfo);
+                        clientPhoneId = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+                }
+                else
+                {
+                    using (
+                        var cmd = new MySqlCommand(
+                            @"update CallCenter.ClientPhones set name = @Name,email = @Email,addition = @AddInfo where id = @Id;",
+                            _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", currentInfo.Id);
+                        cmd.Parameters.AddWithValue("@Name",
+                            string.IsNullOrEmpty(contact.Name) ? currentInfo.Name : contact.Name);
+                        cmd.Parameters.AddWithValue("@Email",
+                            string.IsNullOrEmpty(contact.Email) ? currentInfo.Email : contact.Email);
+                        cmd.Parameters.AddWithValue("@AddInfo",
+                            string.IsNullOrEmpty(contact.AdditionInfo) ? currentInfo.AdditionInfo : contact.AdditionInfo);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                using (
+                    var cmd =
+                        new MySqlCommand(@"insert into CallCenter.RequestContacts (request_id,IsMain,ClientPhone_id) 
+    values(@RequestId,@IsMain,@PhoneId);
+    select LAST_INSERT_ID();", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    cmd.Parameters.AddWithValue("@IsMain", contact.IsMain);
+                    cmd.Parameters.AddWithValue("@PhoneId", clientPhoneId);
+                    contact.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
         }
 
         public byte[] GetMediaByRequestId(int requestId)
@@ -1564,6 +1635,39 @@ namespace RequestServiceImpl
                     dataReader.Close();
                 }
                 return workers;
+            }
+        }
+        public IList<DispatcherStatDto> GetDispatcherStatistics()
+        {
+            var query = @"CALL CallCenter.AdminGetActiveUsers()";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var dispatcherStatistics = new List<DispatcherStatDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        dispatcherStatistics.Add(new DispatcherStatDto()
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            SurName = dataReader.GetString("SurName"),
+                            IpAddress = dataReader.GetString("ip_addr"),
+                            FirstName = dataReader.GetNullableString("FirstName"),
+                            PatrName = dataReader.GetNullableString("PatrName"),
+                            //SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            //SpecialityName = dataReader.GetNullableString("speciality_name"),
+                            SipNumber = dataReader.GetNullableString("sip"),
+                            PhoneNumber = dataReader.GetNullableString("PhoneNum"),
+                            Direction = dataReader.GetNullableString("Direction"),
+                            UniqueId = dataReader.GetNullableString("UniqueId"),
+                            TalkTime = dataReader.GetNullableInt("TalkTime"),
+                            WaitingTime = dataReader.GetNullableInt("WaitingTime"),
+                            AliveTime = dataReader.GetDateTime("alive_time")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return dispatcherStatistics;
             }
         }
         public IList<WorkerDto> GetExecutersByServiceType(int serviceCompanyId, int typeId)

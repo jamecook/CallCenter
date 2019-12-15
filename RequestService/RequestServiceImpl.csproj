@@ -84,6 +84,7 @@
     <Compile Include="Dto\CityDto.cs" />
     <Compile Include="Dto\ClientAddressInfoDto.cs" />
     <Compile Include="Dto\ContactDto.cs" />
+    <Compile Include="Dto\DispatcherStatDto.cs" />
     <Compile Include="Dto\DispexForListDto.cs" />
     <Compile Include="Dto\EquipmentDto.cs" />
     <Compile Include="Dto\ExecuteDateHistoryDto.cs" />
