@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Windows.Media;
 
 namespace RequestServiceImpl.Dto
 {
@@ -10,6 +11,7 @@ namespace RequestServiceImpl.Dto
         private string _phoneNumber;
         private string _direction;
         private string _uniqueId;
+        private bool? _onLine;
 
         public int Id { get; set; }
         //public int? ServiceCompanyId { get; set; }
@@ -19,6 +21,36 @@ namespace RequestServiceImpl.Dto
         public string FirstName { get; set; }
         public string PatrName { get; set; }
         public string SipNumber { get; set; }
+        public string Version { get; set; }
+
+        public bool? OnLine
+        {
+            get => _onLine;
+            set
+            {
+                _onLine = value;
+                OnPropertyChanged(nameof(OnLine));
+                OnPropertyChanged(nameof(OnLineText));
+                OnPropertyChanged(nameof(Color));
+            }
+        }
+        public string OnLineText => OnLine.HasValue? OnLine.Value?"מםכאים":"מפפכאים" : "";
+        public Brush Color
+        {
+            get
+            {
+                if (!OnLine.HasValue)
+                    return new SolidColorBrush(Colors.Black);
+                switch (OnLine.Value)
+                {
+                    case true:
+                        return new SolidColorBrush(Colors.Blue);
+                    case false:
+                        return new SolidColorBrush(Colors.Red);
+                }
+                return new SolidColorBrush(Colors.Black);
+            }
+        }
 
         public string Direction
         {

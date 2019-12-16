@@ -40,6 +40,9 @@ namespace CRMPhone.ViewModel
         private MySqlConnection _dbRefreshConnection;
         private MySqlConnection _dbMainConnection;
         private UserAgent _sipAgent;
+
+        private bool _queuePaused;
+        private string _version;
         //public MainWindow mainWindow;
 
         private SipLine[] _sipLinesArray = {new SipLine { Id = 0, Name = "Линия 1:"}, new SipLine { Id = 1, Name = "Линия 2:" } };
@@ -93,6 +96,7 @@ namespace CRMPhone.ViewModel
 
         public CRMContext()
         {
+            _queuePaused = false;
             ContextSaver.CrmContext = this;
             IsMuted = false;
             _serverIP = ConfigurationManager.AppSettings["CallCenterIP"];
@@ -158,6 +162,7 @@ namespace CRMPhone.ViewModel
                 SipRegister();
             }
             InitMySql();
+            _version = Assembly.GetEntryAssembly().GetName().Version.ToString();
             AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser}) ver. {Assembly.GetEntryAssembly().GetName().Version}";
             AlertRequestDataContext.InitCollections();
             RequestDataContext.InitCollections();
@@ -179,6 +184,8 @@ namespace CRMPhone.ViewModel
                 using (var bridgeService = new AmiService(_serverIP, 5038))
                 {
                     bridgeService.LoginAndQueuePause("zerg", "asteriskzerg", AppSettings.SipInfo.SipUser, false);
+                    _queuePaused = false;
+                    SendAlive();
                 }
 
             }
@@ -512,6 +519,8 @@ namespace CRMPhone.ViewModel
             {
                 if (bridgeService.LoginAndQueuePause("zerg", "asteriskzerg", AppSettings.SipInfo.SipUser, false))
                 {
+                    _queuePaused = false;
+                    SendAlive();
                     MessageBox.Show("Теперь вы будете принимать звонки!");
                 }
             }
@@ -523,6 +532,8 @@ namespace CRMPhone.ViewModel
             {
                 if (bridgeService.LoginAndQueuePause("zerg", "asteriskzerg", AppSettings.SipInfo.SipUser, true))
                 {
+                    _queuePaused = true;
+                    SendAlive();
                     MessageBox.Show("Вы не будете принимать звонки из очереди!");
                 }
             }
@@ -1679,7 +1690,7 @@ namespace CRMPhone.ViewModel
 
         private void SendAlive()
         {
-            _requestService.SendAlive();
+            _requestService.SendAlive(!_queuePaused, _version);
         }
         private void RefreshActiveChannels()
         {

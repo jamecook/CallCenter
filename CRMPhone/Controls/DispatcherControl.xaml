@@ -26,9 +26,9 @@
                           SelectionUnit="FullRow"
                           IsReadOnly="True"
                           HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Auto">
+                          VerticalScrollBarVisibility="Auto" LoadingRow="DispatcherGrid_OnLoadingRow">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ФИО" Width="260"
+                <DataGridTextColumn Header="ФИО" Width="230"
                              Binding="{Binding Path=FullName}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -37,7 +37,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="IP адрес" Width="100"
+                <DataGridTextColumn Header="IP адрес" Width="95"
                                     Binding="{Binding Path=IpAddress}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -46,7 +46,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="SIP номер" Width="100"
+                <DataGridTextColumn Header="SIP номер" Width="70"
                                     Binding="{Binding Path=SipNumber}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -55,7 +55,26 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Direction" Width="80"
+                <DataGridTextColumn Header="На линии" Width="70"
+                                    Binding="{Binding Path=OnLineText}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+                            <Setter Property="Foreground" Value="{Binding Color}"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Версия" Width="60"
+                                    Binding="{Binding Path=Version}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Margin" Value="3"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Direction" Width="65"
                                     Binding="{Binding Path=Direction}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -64,7 +83,6 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-
                 <DataGridTextColumn Header="Номер телефона" Width="120"
                              Binding="{Binding Path=PhoneNumber}">
                     <DataGridTextColumn.ElementStyle>
@@ -75,7 +93,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Время ожидания" Width="120"
+                <DataGridTextColumn Header="Вр. ожидания" Width="100"
                              Binding="{Binding Path=WaitingTime}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
@@ -85,7 +103,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Время разговора" Width="120"
+                <DataGridTextColumn Header="Вр. разговора" Width="100"
                              Binding="{Binding Path= TalkTime}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">

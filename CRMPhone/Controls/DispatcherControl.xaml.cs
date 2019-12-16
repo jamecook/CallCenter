@@ -19,7 +19,7 @@ namespace CRMPhone.Controls
             InitializeComponent();
         }
 
-        private void RequestsGrid_OnLoadingRow(object sender, DataGridRowEventArgs e)
+        private void DispatcherGrid_OnLoadingRow(object sender, DataGridRowEventArgs e)
         {
         }
     }

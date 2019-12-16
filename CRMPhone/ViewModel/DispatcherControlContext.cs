@@ -36,6 +36,8 @@ namespace CRMPhone.ViewModel
                     dto.UniqueId = statDto.UniqueId;
                     dto.TalkTime = statDto.TalkTime;
                     dto.WaitingTime = statDto.WaitingTime;
+                    dto.OnLine = statDto.OnLine;
+                    dto.Version = statDto.Version;
                 }
             }
 

@@ -75,6 +75,7 @@
       <HintPath>..\packages\NLog.4.4.8\lib\net40\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PresentationFramework.Classic" />
     <Reference Include="Stimulsoft.Base">
       <HintPath>..\packages\Stimulsoft.Base.2014.1.1900.0\lib\net20\Stimulsoft.Base.dll</HintPath>
     </Reference>
@@ -157,6 +158,7 @@
     <Compile Include="Controls\ServiceCompanyFondControl.xaml.cs">
       <DependentUpon>ServiceCompanyFondControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomComboBox.cs" />
     <Compile Include="Dialogs\Admins\BindRequestTypeToAddressDialog.xaml.cs">
       <DependentUpon>BindRequestTypeToAddressDialog.xaml</DependentUpon>
     </Compile>

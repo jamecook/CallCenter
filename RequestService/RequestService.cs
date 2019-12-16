@@ -75,7 +75,7 @@ namespace RequestServiceImpl
             }
         }
 
-        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, int garanty,bool isRetry,DateTime? alertTime, DateTime? termOfExecution)
+        public void EditRequest(int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, int garanty, bool isRetry,DateTime? alertTime, DateTime? termOfExecution)
         {
             using (var cmd = new MySqlCommand(
                    @"call CallCenter.UpdateRequest(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable,@badWork,@garanty,@retry,@alertTime,@termOfExecution);",
@@ -97,7 +97,7 @@ namespace RequestServiceImpl
         }
 
         public int? SaveNewRequest(int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
-            bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, DateTime? alertTime,bool isRetry, bool isBedWork,int? equipmentId)
+            bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, DateTime? alertTime,bool isRetry, bool isBedWork,int? equipmentId,int garanty)
         {
             int newId;
             //_logger.Debug($"RequestService.SaveNewRequest({addressId},{requestTypeId},[{contactList.Select(x => $"{x.PhoneNumber}").Aggregate((f1, f2) => f1 + ";" + f2)}],{requestMessage},{chargeable},{immediate},{callUniqueId})");
@@ -128,8 +128,8 @@ namespace RequestServiceImpl
 
                         using (
                         var cmd = new MySqlCommand(
-                            @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_chargeable,create_user_id,state_id,is_immediate, entrance, floor, service_company_id,retry ,bad_work , alert_time, equipment_id)
- values(@AddressId, @TypeId, @Message, sysdate(),@IsChargeable,@UserId,@State,@IsImmediate,@Entrance,@Floor,@ServiceCompanyId,@Retry,@BadWork,@AlertTime, @EquipmentId);
+                            @"insert into CallCenter.Requests(address_id,type_id,description,create_time,is_chargeable,create_user_id,state_id,is_immediate, entrance, floor, service_company_id,retry ,bad_work , alert_time, equipment_id, garanty)
+ values(@AddressId, @TypeId, @Message, sysdate(),@IsChargeable,@UserId,@State,@IsImmediate,@Entrance,@Floor,@ServiceCompanyId,@Retry,@BadWork,@AlertTime, @EquipmentId, @Garanty);
  select LAST_INSERT_ID();", _dbConnection))
                     {
                         cmd.Parameters.AddWithValue("@AddressId", addressId);
@@ -146,6 +146,7 @@ namespace RequestServiceImpl
                         cmd.Parameters.AddWithValue("@Retry", isRetry);
                         cmd.Parameters.AddWithValue("@BadWork", isBedWork);
                         cmd.Parameters.AddWithValue("@EquipmentId", equipmentId);
+                        cmd.Parameters.AddWithValue("@Garanty", garanty);
                         newId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 
@@ -1654,6 +1655,8 @@ namespace RequestServiceImpl
                             IpAddress = dataReader.GetString("ip_addr"),
                             FirstName = dataReader.GetNullableString("FirstName"),
                             PatrName = dataReader.GetNullableString("PatrName"),
+                            Version = dataReader.GetNullableString("version"),
+                            OnLine = dataReader.GetNullableBoolean("on_line"),
                             //SpecialityId = dataReader.GetNullableInt("speciality_id"),
                             //SpecialityName = dataReader.GetNullableString("speciality_name"),
                             SipNumber = dataReader.GetNullableString("sip"),
@@ -4538,14 +4541,16 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
             }
         }
 
-        public void SendAlive()
+        public void SendAlive(bool online, string version)
         {
             using (
                 var cmd =
-                    new MySqlCommand(@"call CallCenter.SendAliveAndSip(@UserId,@Sip)", _dbConnection))
+                    new MySqlCommand(@"call CallCenter.SendAliveAndSip2(@UserId,@Sip,@OnLine,@Version)", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@UserId", AppSettings.CurrentUser.Id);
                 cmd.Parameters.AddWithValue("@Sip", AppSettings.SipInfo.SipUser);
+                cmd.Parameters.AddWithValue("@OnLine", online);
+                cmd.Parameters.AddWithValue("@Version", version);
                 cmd.ExecuteNonQuery();
             }
         }

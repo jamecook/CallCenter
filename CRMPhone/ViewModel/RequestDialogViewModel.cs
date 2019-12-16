@@ -815,7 +815,7 @@ namespace CRMPhone.ViewModel
             }
             if (requestModel.RequestId.HasValue)
             {
-                if (requestContacts != null)
+                if (requestContacts != null && AppSettings.CurrentUser.Roles.Exists(r => r.Name == "admin" || r.Name == "supervizor"))
                 {
                     var forDeleteItems = requestContacts?.Where(c => ContactList.All(l => l.Id != c.Id)).ToArray();
                     _requestService.DeleteContacts(requestModel.RequestId.Value, forDeleteItems);
@@ -829,7 +829,10 @@ namespace CRMPhone.ViewModel
                         select c).ToArray();
                     _requestService.EditContacts(requestModel.RequestId.Value, changedItems);
                     var updatedRequest = _requestService.GetRequest(RequestId);
-                    ContactList = new ObservableCollection<ContactDto>(updatedRequest.Contacts);
+                    if(updatedRequest != null)
+                    {
+                        ContactList = new ObservableCollection<ContactDto>(updatedRequest.Contacts);
+                    }
                 }
 
                 _requestService.EditRequest(requestModel.RequestId.Value, requestModel.SelectedService.Id,
@@ -852,7 +855,7 @@ namespace CRMPhone.ViewModel
                 _callUniqueId = _requestService.GetOnlyActiveCallUniqueIdByCallId(AppSettings.LastCallId);
             }
             //var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, null, Entrance, Floor, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id);
-            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id);
+            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id, requestModel.SelectedGaranty?.Id ?? 0);
             if (!request.HasValue)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");
