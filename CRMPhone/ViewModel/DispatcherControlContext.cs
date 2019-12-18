@@ -1,7 +1,10 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -42,6 +45,40 @@ namespace CRMPhone.ViewModel
             }
 
             OnPropertyChanged(nameof(DispatcherList));
+        }
+        private ICommand _screenCommand;
+        public ICommand ScreenCommand { get { return _screenCommand ?? (_screenCommand = new RelayCommand(ScreenShot)); } }
+
+        private void ScreenShot(object obj)
+        {
+            var item = obj as DispatcherStatDto;
+            if (item == null)
+                return;
+            var commandId = _requestService.DispatcherSendCommand(item.IpAddress, 1);
+            for (int t = 1; t <= 6; t++)
+            {
+                var stream = _requestService.DispatcherGetScreenShot(commandId.Value);
+                if (stream != null)
+                {
+                    stream.Position = 0;
+                    var fileName = Path.GetTempPath() + "screen.jpg";
+                    if (File.Exists(fileName))
+                    {
+                        File.Delete(fileName);
+                    }
+                    var file = File.Create(fileName);
+                    stream.WriteTo(file);
+                    file.Close();
+                    Process.Start(fileName);
+                    return;
+                }
+                Thread.Sleep(500);
+            }
+
+            MessageBox.Show("Не удалось получить скриншот за отведенное время!");
+            //var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
+            //var fileName = _requestService.GetRecordFileNameByUniqueId(item.RecordUniqueId);
+            //_requestService.PlayRecord(serverIpAddress, fileName);
         }
 
         public DispatcherControlContext()

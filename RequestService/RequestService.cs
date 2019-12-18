@@ -4555,6 +4555,71 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
             }
         }
 
+        public int? ScreenShotId()
+        {
+            using (var cmd =
+                    new MySqlCommand(@"call CallCenter.DispatcherGetScreenShotCommand()", _dbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        return dataReader.GetInt32("id");
+                    }
+                    dataReader.Close();
+                    return null;
+                }
+            }
+        }
+        public int? DispatcherSendCommand(string ipAddr, int commandId)
+        {
+            using (var cmd =
+                    new MySqlCommand(@"call CallCenter.DispatcherSendCommand(@IpAddr,@Command)", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Command", commandId);
+                cmd.Parameters.AddWithValue("@IpAddr", ipAddr);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        return dataReader.GetInt32("id");
+                    }
+                    dataReader.Close();
+                    return null;
+                }
+            }
+        }
+        public MemoryStream DispatcherGetScreenShot(int commandId)
+        {
+            using (var cmd =
+                    new MySqlCommand(@"call CallCenter.DispatcherGetScreenShot(@Command)", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Command", commandId);
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    if (dataReader.Read())
+                    {
+                        var buffer = new byte[1024 * 1024];
+                        var readed =  dataReader.GetBytes(0,0, buffer,0,buffer.Length);
+                        MemoryStream retStream = new MemoryStream(buffer,0,(int)readed);
+                        return retStream;
+                    }
+                    dataReader.Close();
+                    return null;
+                }
+            }
+        }
+        public void SaveScreenShot(int commandId, byte[] screenShot)
+        {
+            using (var cmd =
+                    new MySqlCommand(@"call CallCenter.DispatcherSendScreenShot(@CommandId,@ScreenShot)", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@CommandId", commandId);
+                cmd.Parameters.AddWithValue("@ScreenShot", screenShot);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         public void RequestChangeAddress(int requestId, int addressId)
         {
             using (

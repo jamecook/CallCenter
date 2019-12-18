@@ -642,6 +642,9 @@
     <Resource Include="Images\delete.png" />
     <Resource Include="Images\numbers.png" />
     <Resource Include="Images\phones.png" />
+    <Resource Include="Images\offline.png" />
+    <Resource Include="Images\online.png" />
+    <Resource Include="Images\screen32.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

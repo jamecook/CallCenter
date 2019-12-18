@@ -66,6 +66,12 @@
                     <Button  Margin="5" Width="48" Height="48" Command="{Binding TransferCommand}" ToolTip="Перевести звонок">
                         <Image Source="pack://application:,,,/Images/forward.png" Width="32" Height="32" />
                     </Button>
+                    <Button  Margin="5" Width="56" Height="36" Command="{Binding OnlineCommand}" ToolTip="На линии">
+                        <StackPanel>
+                            <Image Visibility="{Binding OnLineVisibility}" Source="pack://application:,,,/Images/online.png" />
+                            <Image Visibility="{Binding OffLineVisibility}" Source="pack://application:,,,/Images/offline.png" />
+                        </StackPanel>
+                    </Button>
                 </WrapPanel>
                 <WrapPanel HorizontalAlignment="Center">
                     <Button  Margin="5" Width="36" Height="36" Command="{Binding MuteCommand}" ToolTip="Микрофон" Background="{Binding MuteButtonBackground}">

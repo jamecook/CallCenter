@@ -15,21 +15,26 @@ using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
 using System.Security.RightsManagement;
 using System.Threading;
+using System.Windows.Forms;
 using System.Xml.Linq;
 using conaito;
 using CRMPhone.Dialogs;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.Win32;
 using NLog;
 using Stimulsoft.Report.Events;
+using Application = System.Windows.Application;
 using Brush = System.Windows.Media.Brush;
 using Color = System.Windows.Media.Color;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 
 namespace CRMPhone.ViewModel
 {
@@ -41,7 +46,6 @@ namespace CRMPhone.ViewModel
         private MySqlConnection _dbMainConnection;
         private UserAgent _sipAgent;
 
-        private bool _queuePaused;
         private string _version;
         //public MainWindow mainWindow;
 
@@ -74,6 +78,19 @@ namespace CRMPhone.ViewModel
             }
         }
 
+        public bool QueuePaused
+        {
+            get => _queuePaused;
+            set
+            {
+                _queuePaused = value;
+                OnPropertyChanged(nameof(QueuePaused));
+                OnPropertyChanged(nameof(OnLineVisibility));
+                OnPropertyChanged(nameof(OffLineVisibility));
+            }
+
+        }
+
         public Visibility PhoneVisibility { get { return EnablePhone?Visibility.Visible:Visibility.Collapsed;} }
 
         public bool EnablePhone
@@ -96,7 +113,7 @@ namespace CRMPhone.ViewModel
 
         public CRMContext()
         {
-            _queuePaused = false;
+            QueuePaused = false;
             ContextSaver.CrmContext = this;
             IsMuted = false;
             _serverIP = ConfigurationManager.AppSettings["CallCenterIP"];
@@ -184,8 +201,6 @@ namespace CRMPhone.ViewModel
                 using (var bridgeService = new AmiService(_serverIP, 5038))
                 {
                     bridgeService.LoginAndQueuePause("zerg", "asteriskzerg", AppSettings.SipInfo.SipUser, false);
-                    _queuePaused = false;
-                    SendAlive();
                 }
 
             }
@@ -508,6 +523,15 @@ namespace CRMPhone.ViewModel
         private ICommand _transferCommand;
         public ICommand TransferCommand { get { return _transferCommand ?? (_transferCommand = new CommandHandler(Transfer, _canExecute)); } }
 
+        private ICommand _onlineCommand;
+        public ICommand OnlineCommand { get { return _onlineCommand ?? (_onlineCommand = new CommandHandler(Online, _canExecute)); } }
+
+        private void Online()
+        {
+            QueuePaused = !QueuePaused;
+            SendAlive();
+        }
+
         private ICommand _queuePauseCommand;
         public ICommand QueuePauseCommand { get { return _queuePauseCommand ?? (_queuePauseCommand = new CommandHandler(QueuePause, _canExecute)); } }
         private ICommand _queueUnPauseCommand;
@@ -519,8 +543,6 @@ namespace CRMPhone.ViewModel
             {
                 if (bridgeService.LoginAndQueuePause("zerg", "asteriskzerg", AppSettings.SipInfo.SipUser, false))
                 {
-                    _queuePaused = false;
-                    SendAlive();
                     MessageBox.Show("Теперь вы будете принимать звонки!");
                 }
             }
@@ -532,8 +554,6 @@ namespace CRMPhone.ViewModel
             {
                 if (bridgeService.LoginAndQueuePause("zerg", "asteriskzerg", AppSettings.SipInfo.SipUser, true))
                 {
-                    _queuePaused = true;
-                    SendAlive();
                     MessageBox.Show("Вы не будете принимать звонки из очереди!");
                 }
             }
@@ -1053,6 +1073,7 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<ServiceCompanyDto> _forOutcoinCallsCompanyList;
         private ServiceCompanyFondControlContext _serviceCompanyFondContext;
         private DispatcherControlContext _dispatcherContext;
+        private bool _queuePaused;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 
@@ -1166,6 +1187,9 @@ namespace CRMPhone.ViewModel
             get { return _callsNotificationContext; }
             set { _callsNotificationContext = value; OnPropertyChanged(nameof(CallsNotificationContext)); }
         }
+
+        public Visibility OnLineVisibility => QueuePaused ? Visibility.Collapsed : Visibility.Visible;
+        public Visibility OffLineVisibility => QueuePaused ? Visibility.Visible : Visibility.Collapsed;
 
         public DispatcherControlContext DispatcherContext
         {
@@ -1646,6 +1670,8 @@ namespace CRMPhone.ViewModel
                     RefreshAlertRequest();
                     _lastAliveTime = DateTime.Now;
                 }
+                GetScreenShot();
+
             }
             catch
             {
@@ -1686,6 +1712,28 @@ namespace CRMPhone.ViewModel
                 AlertRequestControlModel.RequestCount = alertedRequests.Count;
                 mainWindow.ShowNotify("Напоминалка!", "Обнаружены заявки требующие контроля");
             }
+
+        }
+
+        private void GetScreenShot()
+        {
+            var screenShotId = _requestService.ScreenShotId();
+            if (!screenShotId.HasValue)
+                return;
+            Graphics graph = null;
+
+            var bmp = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+
+            graph = Graphics.FromImage(bmp);
+
+            graph.CopyFromScreen(0, 0, 0, 0, bmp.Size);
+
+            MemoryStream ms = new MemoryStream();
+            // Save to memory using the Jpeg format
+            bmp.Save(ms, ImageFormat.Jpeg);
+            // read to end
+            byte[] bmpBytes = ms.GetBuffer();
+            _requestService.SaveScreenShot(screenShotId.Value, bmpBytes);
         }
 
         private void SendAlive()
@@ -1695,12 +1743,7 @@ namespace CRMPhone.ViewModel
         private void RefreshActiveChannels()
         {
             var readedChannels = new List<ActiveChannelsDto>();
-            using (var cmd = new MySqlCommand(@"SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf,
-null as request_id,s.short_name, w.id,w.sur_name,w.first_name,w.patr_name, w.id worker_id,w.sur_name,w.first_name,w.patr_name
-FROM asterisk.ActiveChannels a
-left join CallCenter.ServiceCompanies s on a.ServiceComp = s.trunk_name
-left join CallCenter.Workers w on w.phone = a.PhoneNum and not exists (select 1 from CallCenter.Workers w2 where w2.phone = w.phone and w2.id> w.id)
-where Application = 'queue' and AppData like 'dispetchers%' and BridgeId is null order by UniqueID", _dbRefreshConnection))
+            using (var cmd = new MySqlCommand(@"call CallCenter.DesktopGetInQueue();", _dbRefreshConnection))
 //            using (var cmd = new MySqlCommand(@"SELECT UniqueID,Channel,CallerIDNum,ChannelState,AnswerTime,CreateTime,TIMESTAMPDIFF(SECOND,CreateTime,sysdate()) waitSec,ivr_dtmf,
 //(SELECT r.id from CallCenter.ClientPhones cp2
 //join CallCenter.RequestContacts rc2 on cp2.id = rc2.ClientPhone_id

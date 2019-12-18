@@ -12,6 +12,7 @@ namespace RequestServiceImpl.Dto
         private string _direction;
         private string _uniqueId;
         private bool? _onLine;
+        private string _version;
 
         public int Id { get; set; }
         //public int? ServiceCompanyId { get; set; }
@@ -21,7 +22,16 @@ namespace RequestServiceImpl.Dto
         public string FirstName { get; set; }
         public string PatrName { get; set; }
         public string SipNumber { get; set; }
-        public string Version { get; set; }
+
+        public string Version
+        {
+            get => _version;
+            set
+            {
+                _version = value;
+                OnPropertyChanged(nameof(Version));
+            }
+        }
 
         public bool? OnLine
         {
