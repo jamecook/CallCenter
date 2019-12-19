@@ -885,6 +885,30 @@ join asterisk.ChannelHistory c on c.UniqueID = rc.uniqueID where r.id = @reqId o
                 return transferList;
             }
         }
+        public List<TransferIntoDto> GetTransferList(int serviceCompanyId)
+        {
+            var query = "SELECT * FROM CallCenter.ServiceCompanyTransfer T where service_company_id = @CompanyId and enabled = 1 order by order_id,id;";
+
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@CompanyId", serviceCompanyId);
+                var transferList = new List<TransferIntoDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        transferList.Add(new TransferIntoDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Name = dataReader.GetString("name"),
+                            SipNumber = dataReader.GetString("sip_number")
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return transferList;
+            }
+        }
         public void DeleteRequestRatingById(int itemId)
         {
             var query = "delete from CallCenter.RequestRating where id = @Id;";

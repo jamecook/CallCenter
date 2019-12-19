@@ -1594,16 +1594,17 @@ namespace CRMPhone.ViewModel
 
         public void Transfer()
         {
-            var phoneList = _requestService.GetTransferList();
-            phoneList.Remove(phoneList.FirstOrDefault(p => p.SipNumber == _sipUser));
-            var transferContext = new TrasferDialogViewModel(phoneList);
+           
+            var transferContext = new TrasferDialogViewModel(CallFromServiceCompany?.Id);
             var transfer = new TransferDialog(transferContext);
             transfer.Owner = Application.Current.MainWindow;
             if (transfer.ShowDialog() == true)
             {
                 var phone = string.IsNullOrEmpty(transferContext.TransferPhone)
-                    ? transferContext.ClientPhone.SipNumber
+                    ? transferContext.ClientPhone?.SipNumber
                     : transferContext.TransferPhone;
+                if (string.IsNullOrEmpty(phone))
+                    return;
                 string callId = string.Format("sip:{0}@{1}", phone, _serverIP);
                 _sipAgent.CallMaker.Transfer(SelectedLine.Id, callId);
             }

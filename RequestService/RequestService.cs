@@ -1068,6 +1068,17 @@ namespace RequestServiceImpl
             return null;
         }
 
+        public void UpdateFondRecord(int fondId, string name, string phones)
+        {
+            var sqlQuery = "update CallCenter.CitizenAddresses set name = @Name, phones = @Phone where id = @Id;";
+            using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@Name", name);
+                cmd.Parameters.AddWithValue("@Phone", phones);
+                cmd.Parameters.AddWithValue("@Id", fondId);
+                cmd.ExecuteNonQuery();
+            }
+        }
         public IList<FondDto> GetServiceCompanyFondList(int[] streetsId, int? houseId, int? addressId)
         {
             var sqlQuery = @"SELECT s.name street_name, h.building,h.corps,a.flat,c.* FROM CallCenter.CitizenAddresses c

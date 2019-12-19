@@ -88,7 +88,7 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Имя" Width="150"
-                             Binding="{Binding Path=Name}">
+                             Binding="{Binding Path=Name, Mode=TwoWay}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextWrapping" Value="Wrap"/>
@@ -98,7 +98,7 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Контакты" Width="160"
-                             Binding="{Binding Path=Phones}">
+                             Binding="{Binding Path=Phones, Mode=TwoWay}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextWrapping" Value="Wrap"/>
@@ -116,6 +116,27 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
+                <DataGridTemplateColumn Width="30" >
+                    <DataGridTemplateColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <Image Source="pack://application:,,,/Images/edit_small.png" Height="24" HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate DataType="dto:RequestForListDto">
+                            <Button Width="20" VerticalAlignment="Center" Command="{Binding ElementName=FondGrid, Path=DataContext.EditCommand}" CommandParameter="{Binding ElementName=FondGrid, Path=SelectedItem}">
+                                <Image Source="pack://application:,,,/Images/edit_small.png"/>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
 
             </DataGrid.Columns>
         </DataGrid>

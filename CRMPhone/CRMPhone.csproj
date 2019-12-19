@@ -159,6 +159,9 @@
       <DependentUpon>ServiceCompanyFondControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomComboBox.cs" />
+    <Compile Include="Dialogs\EditFondDialog.xaml.cs">
+      <DependentUpon>EditFondDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\Admins\BindRequestTypeToAddressDialog.xaml.cs">
       <DependentUpon>BindRequestTypeToAddressDialog.xaml</DependentUpon>
     </Compile>
@@ -269,6 +272,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="ViewModel\EditFondDialogViewModel.cs" />
     <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
     <Compile Include="BooleanToVisibilityConverter.cs" />
     <Compile Include="Dialogs\ChangeExecuteDateDialog.xaml.cs">
@@ -422,6 +426,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\ServiceCompanyFondControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\EditFondDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -8,21 +8,35 @@
         WindowStartupLocation="CenterOwner"
         FontSize="14"
         d:DataContext="{d:DesignInstance viewModel:TrasferDialogViewModel}"
-        Title="Перевести звонок" Height="140" Width="260" ResizeMode="NoResize">
+        Title="Перевести звонок" Height="240" Width="460" ResizeMode="NoResize">
     <Grid>
-        <StackPanel>
-            <DockPanel>
-            <TextBlock Margin ="5" Text="Номер:"/>
-            <ComboBox Margin="5" Text="{Binding Path=ClientPhone}"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+            <DockPanel Grid.Row="0">
+            <TextBlock Margin ="5" Width="60" Text="УК:"/>
+            <ComboBox Margin="5"
+                      DisplayMemberPath="ShortName"
+                      SelectedItem="{Binding SelectedOutgoingCompany}"
+                      ItemsSource="{Binding ForOutcoinCallsCompanyList}"/>
+        </DockPanel>
+        <DockPanel Grid.Row="1">
+            <TextBlock Margin ="5" Width="60" Text="Номер:"/>
+            <ComboBox Margin="5" 
                       ItemsSource="{Binding Path=PhonesList}"
                       DisplayMemberPath="Name"
                       SelectedItem="{Binding ClientPhone}"/>
             </DockPanel>
-            <DockPanel>
+        <DockPanel Grid.Row="2">
                 <TextBlock Margin ="5" Text="Произвольный номер:"/>
                 <TextBox Margin="5" Text="{Binding Path=TransferPhone}"/>
             </DockPanel>
+        <DockPanel Grid.Row="3">
             <Button Margin="5" Content="Перевести звонок" Command="{Binding Path=TransferCommand}" Width="140"/>
-        </StackPanel>
+        </DockPanel>
     </Grid>
 </Window>

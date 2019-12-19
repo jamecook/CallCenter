@@ -26,6 +26,34 @@ namespace CRMPhone.ViewModel
         public ICommand RefreshRequestCommand { get { return _refreshRequestCommand ?? (_refreshRequestCommand = new CommandHandler(RefreshRequest, true)); } }
         private ICommand _clearFiltersCommand;
         public ICommand ClearFiltersCommand { get { return _clearFiltersCommand ?? (_clearFiltersCommand = new CommandHandler(ClearFilters, true)); } }
+        private ICommand _editCommand;
+        public ICommand EditCommand { get { return _editCommand ?? (_editCommand = new RelayCommand(Edit)); } }
+
+        private void Edit(object obj)
+        {
+            var item = obj as FondDto;
+            if (item == null)
+                return;
+            var address = item.StreetName;
+            if (string.IsNullOrEmpty(item.Corpus))
+                address += " " + item.Building;
+            else
+                address += " " + item.Building + "/" + item.Corpus;
+            address += " " + item.Flat;
+            var model = new EditFondDialogViewModel(address,item.Name,item.Phones);
+            var view = new EditFondDialog();
+            model.SetView(view);
+            view.DataContext = model;
+            view.Owner = Application.Current.MainWindow;
+            if (view.ShowDialog() == true)
+            {
+                _requestService.UpdateFondRecord(item.Id,model.AbonentName,model.PhoneNumbers);
+
+                item.Name = model.AbonentName;
+                item.Phones = model.PhoneNumbers;
+                RefreshRequest();
+            }
+        }
 
         private void ClearFilters()
         {
