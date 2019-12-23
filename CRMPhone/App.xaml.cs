@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using MySql.Data.MySqlClient;
+using RequestServiceImpl;
 
 namespace CRMPhone
 {

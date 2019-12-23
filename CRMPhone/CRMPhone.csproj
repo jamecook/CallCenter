@@ -653,6 +653,7 @@
     <Resource Include="Images\offline.png" />
     <Resource Include="Images\online.png" />
     <Resource Include="Images\screen32.png" />
+    <Resource Include="Images\filter.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

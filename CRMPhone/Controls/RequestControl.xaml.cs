@@ -72,6 +72,21 @@ namespace CRMPhone.Controls
 
         }
 
+        private void CbOnDropDownStreetClosed(object sender, EventArgs e)
+        {
+            var count = ((ComboBox)sender).ItemsSource.Cast<FieldForFilterDto>().Count(w => w.Selected);
+            var model = ((ComboBox)sender).DataContext as RequestControlContext;
+            if (model == null)
+                return;
+            if (count >= 1)
+            {
+                model.StreetFilterImageVisibility = Visibility.Visible;
+            }
+            else
+                model.StreetFilterImageVisibility = Visibility.Collapsed;
+        }
+
+
         private void RequestsGrid_OnLoadingRow(object sender, DataGridRowEventArgs e)
         {
                 try

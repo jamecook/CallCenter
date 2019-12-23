@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Xml.Linq;
 using DocumentFormat.OpenXml;
@@ -28,6 +29,26 @@ namespace CRMPhone.ViewModel
 
         private ICommand _addRequestCommand;
         public ICommand AddRequestCommand { get { return _addRequestCommand ?? (_addRequestCommand = new CommandHandler(AddRequest, true)); } }
+        private ICommand _clearStreetFilterCommand;
+        public ICommand ClearStreetFilterCommand { get { return _clearStreetFilterCommand ?? (_clearStreetFilterCommand = new CommandHandler(ClearStreetFilter, true)); } }
+
+        private void ClearStreetFilter()
+        {
+            foreach (var fieldForFilterDto in FilterStreetList.Where(x=>x.Selected))
+            {
+                fieldForFilterDto.Selected = false;
+            }
+
+            StreetView.Refresh();
+        }
+        private ICommand _clearStreetSearchStringCommand;
+        public ICommand ClearStreetSearchStringCommand { get { return _clearStreetSearchStringCommand ?? (_clearStreetSearchStringCommand = new CommandHandler(ClearStreetSearchString, true)); } }
+
+        private void ClearStreetSearchString()
+        {
+            StreetSearch = "";
+        }
+
         private ICommand _refreshRequestCommand;
         public ICommand RefreshRequestCommand { get { return _refreshRequestCommand ?? (_refreshRequestCommand = new CommandHandler(RefreshRequest, true)); } }
         private ICommand _exportRequestCommand;
@@ -61,6 +82,15 @@ namespace CRMPhone.ViewModel
                 */
         }
 
+        public Visibility StreetFilterImageVisibility
+        {
+            get => _streetFilterImageVisibility;
+            set
+            {
+                _streetFilterImageVisibility = value;
+                OnPropertyChanged(nameof(StreetFilterImageVisibility));
+            }
+        }
 
         private void ClearFilters()
         {
@@ -487,6 +517,7 @@ namespace CRMPhone.ViewModel
             get { return _requestNum; }
             set { _requestNum = value; OnPropertyChanged(nameof(RequestNum));}
         }
+        public StreetSearchDto StreetFilter { get; set; }
 
         public ObservableCollection<FieldForFilterDto> FilterStreetList
         {
@@ -682,7 +713,35 @@ namespace CRMPhone.ViewModel
                 street.PropertyChanged += StreetOnPropertyChanged;
             }
             OnPropertyChanged(nameof(FilterStreetList));
+            StreetView = new ListCollectionView(FilterStreetList);
         }
+
+        private string _streetSearch;
+        public string StreetSearch
+        {
+            get { return _streetSearch; }
+            set
+            {
+                _streetSearch = value; OnPropertyChanged(nameof(StreetSearch));
+                if (String.IsNullOrEmpty(value))
+                    StreetView.Filter = null;
+                else
+                    StreetView.Filter = new Predicate<object>(o => ((FieldForFilterDto)o).Name.ToUpper().Contains(value.ToUpper()));
+            }
+        }
+
+
+        public ICollectionView StreetView
+        {
+            get => _streetView;
+            set
+            {
+                _streetView = value;
+                OnPropertyChanged(nameof(StreetView));
+            }
+        }
+        private ICollectionView _streetView;
+        private Visibility _streetFilterImageVisibility;
 
         private void StreetOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
@@ -862,12 +921,14 @@ namespace CRMPhone.ViewModel
             ToDate = DateTime.Today;
             ExecuteFromDate = FromDate;
             ExecuteToDate = ToDate;
+            StreetFilterImageVisibility = Visibility.Collapsed;
         }
 
         public void InitCollections()
         {
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             FilterStreetList = new ObservableCollection<FieldForFilterDto>();
+            StreetFilter  = new StreetSearchDto();
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
             ServiceList = new ObservableCollection<ServiceDto>();

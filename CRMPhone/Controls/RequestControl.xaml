@@ -10,6 +10,119 @@
              d:DataContext="{d:DesignInstance viewModel:RequestControlContext}">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        <Style x:Key="DataGridComboBoxStyle" TargetType="{x:Type ComboBox}">
+            <Setter Property="Foreground" Value="DimGray" />
+            <Setter Property="BorderBrush" Value="LightGray" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontFamily" Value="Tahoma, Verdana" />
+            <Setter Property="Height" Value="25" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="MaxDropDownHeight" Value="650" />
+            <Setter Property="StaysOpenOnEdit" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                                <ToggleButton Name="ToggleButton"
+                                      BorderBrush="{TemplateBinding BorderBrush}"
+                                      Background="{TemplateBinding Background}"
+                                      Foreground="{TemplateBinding Foreground}"
+                                      Focusable="false"
+                                      IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
+                                      ClickMode="Press">
+                                <DockPanel>
+                                    <TextBlock Text="Улица"></TextBlock>
+                                    <Image Visibility ="{Binding StreetFilterImageVisibility}" Source="pack://application:,,,/Images/filter.png" Height="16"/>
+                                </DockPanel>
+                            </ToggleButton>
+                            <!--<ContentPresenter Name="ContentSite"
+                                          IsHitTestVisible="False"
+                                          Content="{Binding ElementName=ItemsPresenter, Path=SelectedItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                          Margin="10,3,30,3"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Center" />-->
+                            <TextBox x:Name="PART_EditableTextBox"
+                                 Style="{x:Null}"
+                                 SelectionBrush="Transparent"
+                                 Foreground="{TemplateBinding Foreground}"
+                                 FontFamily="{TemplateBinding FontFamily}"
+                                 FontSize="{TemplateBinding FontSize}"
+                                 FontWeight="{TemplateBinding FontWeight}"
+                                 MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                 HorizontalAlignment="Stretch"
+                                 HorizontalContentAlignment="Left"
+                                 VerticalAlignment="Stretch"
+                                 VerticalContentAlignment="Center"
+                                 Background="Transparent"
+                                 Margin="3,3,23,3"
+                                 Focusable="True"                               
+                                 Visibility="Hidden"
+                                 IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                            <Popup Name="Popup"
+                               Placement="Bottom"
+                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                               AllowsTransparency="True"
+                               Focusable="False"
+                               PopupAnimation="Slide">
+
+                                <Grid Name="DropDown"
+                                  SnapsToDevicePixels="True"               
+                                  MinWidth="{TemplateBinding ActualWidth}"
+                                  MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0" Grid.RowSpan="3" x:Name="DropDownBorder"
+                                            Background="White"
+                                            BorderThickness="1"
+                                            BorderBrush="LightGray"/>
+                                    <Grid Grid.Row="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" Margin="3" Text="{Binding StreetSearch, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <Button Grid.Column="1" Margin="3" Width="24" Command="{Binding ClearStreetSearchStringCommand}">
+                                            <Image Source="pack://application:,,,/Images/delete.png" Height="16"/>
+                                    </Button>
+                                    </Grid>
+                                    <Button Grid.Row="1" Content="Очистить" Margin="3" Command="{Binding ClearStreetFilterCommand}"/>
+                                    <ListBox x:Name="ItemsPresenter" Grid.Row="2" Margin="1,2" SnapsToDevicePixels="True" 
+                                                  ScrollViewer.CanContentScroll="True" 
+                                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                                                  ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                                                  ItemsSource="{TemplateBinding ItemsSource}" 
+                                                  BorderBrush="Transparent" 
+                                                  KeyboardNavigation.DirectionalNavigation="Contained"
+                                                  MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="2">
+                                                    <CheckBox IsChecked="{Binding Path=Selected}" Content="{Binding  Path=Name}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <!-- Triggers -->
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -37,6 +150,8 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
+                <ComboBox Style="{StaticResource DataGridComboBoxStyle}" Margin="3" Width="120" VerticalAlignment="Center" ItemsSource="{Binding StreetView}" Text=""
+                          DropDownClosed="CbOnDropDownStreetClosed"/>
 
                 <TextBlock Margin="3" VerticalAlignment="Center" Text="Дом:"/>
             <ComboBox Margin="3" Width="65" TabIndex ="3" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
