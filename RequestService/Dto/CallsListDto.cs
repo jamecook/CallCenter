@@ -24,6 +24,8 @@ namespace RequestServiceImpl.Dto
 
         public int? WaitingTime { get; set; }
 
+        public int? ClearWaitingTime { get; set; }
+
         public int? TalkTime { get; set; }
 
         public bool EnablePlayButton

@@ -139,17 +139,6 @@
                      
                      PreviewKeyUp="UIElement_OnPreviewKeyDown"/>
             <WrapPanel HorizontalAlignment="Center">
-            <TextBlock Margin="3" VerticalAlignment="Center" Text="Улица:"/>
-                <ComboBox Margin="3" Width="120" VerticalAlignment="Center" ItemsSource="{Binding FilterStreetList}" IsEditable="True"
-                      IsReadOnly="False" TextInput ="UIElement_OnTextInput" SelectionChanged="CbOnSelectionChanged" DropDownClosed="CbOnDropDownClosed" Text="{Binding StreetText}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Margin="2">
-                                <CheckBox IsChecked="{Binding Selected}" Content="{Binding Name}"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
                 <ComboBox Style="{StaticResource DataGridComboBoxStyle}" Margin="3" Width="120" VerticalAlignment="Center" ItemsSource="{Binding StreetView}" Text=""
                           DropDownClosed="CbOnDropDownStreetClosed"/>
 

@@ -491,7 +491,7 @@
                                         <Setter Property="ContentTemplate">
                                             <Setter.Value>
                                                 <DataTemplate>
-                                                    <TextBlock Text="Время ожидания" />
+                                                    <TextBlock Text="Вр. ожидания" />
                                                 </DataTemplate>
                                             </Setter.Value>
                                         </Setter>
@@ -501,6 +501,27 @@
                                     <DataTemplate DataType="dto:CallsListDto">
                                         <DockPanel>
                                             <TextBlock Margin ="5,0" Text="{Binding Path=WaitingTime}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="80" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Чистое вр. ожидания" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:CallsListDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=ClearWaitingTime}"/>
                                         </DockPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

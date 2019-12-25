@@ -991,6 +991,7 @@ namespace CRMPhone.ViewModel
                                         new XElement("Направление", record.Direction  == "in" ? "вх." :  record.Direction  == "callback" ? "callback" : "исх."),
                                         new XElement("Номер", record.CallerId),
                                         new XElement("ВремяОжидания", record.WaitingTime),
+                                        new XElement("ЧистоеВремяОжидания", record.ClearWaitingTime),
                                         new XElement("ВремяРазговора", record.TalkTime),
                                         new XElement("Заявки", record.Requests),
                                         new XElement("Оператор", record.User?.ShortName),
