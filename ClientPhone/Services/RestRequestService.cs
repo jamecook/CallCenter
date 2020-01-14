@@ -145,6 +145,19 @@ namespace ClientPhone.Services
             return JsonConvert.DeserializeObject<TransferIntoDto[]>(responce.Content);
         }
 
+        public static RequestForListShortDto[] GetRequestByPhone(int userId,string phoneNumber)
+        {
+            var restUrl = $"{ApiUrl}/getRequestByPhone?userId={userId}&phoneNumber={phoneNumber}";
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<RequestForListShortDto[]>(responce.Content);
+        }
+
         public static void SendAlive(int userId,string sipUser)
         {
             var restUrl = $"{ApiUrl}/sendAlive?userId={userId}&sipUser={sipUser}";
@@ -241,6 +254,20 @@ namespace ClientPhone.Services
 
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<byte[]>(responce.Content);
+        }
+
+        public static string GetUniqueIdByCallId(int userId, string callId)
+        {
+            var restUrl = $"{ApiUrl}/getCallUniqueId?userId={userId}&callId={callId}";
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<string>(responce.Content);
+
         }
     }
 }

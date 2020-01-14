@@ -296,7 +296,6 @@
     <Compile Include="ViewModel\NotificationYesNo.cs" />
     <Compile Include="ViewModel\SelectPeriodDialogViewModel.cs" />
     <Compile Include="ViewModel\ChangeExecuterDialogViewModel.cs" />
-    <Compile Include="ViewModel\CRMContextNewSIP.cs" />
     <Compile Include="ViewModel\ReportControlModel.cs" />
     <Compile Include="ViewModel\DispexRequestControlModel.cs" />
     <Compile Include="ViewModel\EditAddressOnRequestDialogViewModel.cs" />
@@ -635,6 +634,8 @@
     <Resource Include="Images\Calendar_small.png" />
     <Resource Include="Images\delete.png" />
     <Resource Include="Images\numbers.png" />
+    <Resource Include="Images\clipboard-copy-24.png" />
+    <Resource Include="Images\pin-48.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -768,8 +769,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="conaito">
-      <Guid>{C925F211-6A67-4E38-93AB-8B2F30ABE8FD}</Guid>
+    <COMReference Include="SIPEVOActiveXLib">
+      <Guid>{21785C9C-E97E-4723-A1FE-0B362DA953B0}</Guid>
       <VersionMajor>1</VersionMajor>
       <VersionMinor>0</VersionMinor>
       <Lcid>0</Lcid>
@@ -778,7 +779,6 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

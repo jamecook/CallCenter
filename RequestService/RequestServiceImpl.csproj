@@ -94,6 +94,7 @@
     <Compile Include="Dto\FondDto.cs" />
     <Compile Include="Dto\GarantyDto.cs" />
     <Compile Include="Dto\HouseDto.cs" />
+    <Compile Include="Dto\AudioDeviceDto.cs" />
     <Compile Include="Dto\LoginDto.cs" />
     <Compile Include="Dto\CityRegionDto.cs" />
     <Compile Include="Dto\NotAnsweredDto.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="Dto\PeriodDto.cs" />
     <Compile Include="Dto\RecuestRatingDto.cs" />
     <Compile Include="Dto\RequestForListDto.cs" />
+    <Compile Include="Dto\RequestForListShortDto.cs" />
     <Compile Include="Dto\RequestInfoDto.cs" />
     <Compile Include="Dto\RequestRatingListDto.cs" />
     <Compile Include="Dto\RequestStateDto.cs" />

@@ -143,7 +143,69 @@
                           DropDownClosed="CbOnDropDownStreetClosed"/>
 
                 <TextBlock Margin="3" VerticalAlignment="Center" Text="Дом:"/>
-            <ComboBox Margin="3" Width="65" TabIndex ="3" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+                <StackPanel>
+                    <ToggleButton Name="AddressBtn" Margin="5"  Width="120" VerticalAlignment="Center">
+                        <ToggleButton.Template>
+                            <ControlTemplate TargetType="ToggleButton">
+                                    <DockPanel >
+                                    <Border Background="Red"></Border>
+                                    <TextBlock Text="Улица"></TextBlock>
+                                    <Image Visibility ="{Binding StreetFilterImageVisibility}" Source="pack://application:,,,/Images/filter.png" Height="16"/>
+                                </DockPanel>
+                            </ControlTemplate>
+                        </ToggleButton.Template>
+                    </ToggleButton>
+ 
+                    <Popup
+                        Placement="Bottom"
+                               IsOpen="{Binding IsChecked, ElementName=AddressBtn}"
+                               AllowsTransparency="True"
+                               Focusable="False"
+                               PopupAnimation="Slide"
+                        StaysOpen="False" Closed="Popup_OnClosed">
+
+                        <Grid Name="DropDown"
+                                  SnapsToDevicePixels="True">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Grid.RowSpan="3" x:Name="DropDownBorder"
+                                            Background="White"
+                                            BorderThickness="1"
+                                            BorderBrush="LightGray"/>
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Margin="3" Text="{Binding StreetSearch, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Button Grid.Column="1" Margin="3" Width="24" Command="{Binding ClearStreetSearchStringCommand}">
+                                    <Image Source="pack://application:,,,/Images/delete.png" Height="16"/>
+                                </Button>
+                            </Grid>
+                            <Button Grid.Row="1" Content="Очистить" Margin="3" Command="{Binding ClearStreetFilterCommand}"/>
+                            <ListBox Name="StreetBox" Grid.Row="2" Margin="1,2" SnapsToDevicePixels="True" 
+                                                  ScrollViewer.CanContentScroll="True" 
+                                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                                                  ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                                                  ItemsSource="{Binding StreetView}" 
+                                                  BorderBrush="Transparent" 
+                                                  KeyboardNavigation.DirectionalNavigation="Contained">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="2">
+                                            <CheckBox IsChecked="{Binding Path=Selected}" Content="{Binding  Path=Name}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Popup>
+
+                </StackPanel>
+                <ComboBox Margin="3" Width="65" TabIndex ="3" DisplayMemberPath="FullName" SelectedItem="{Binding SelectedHouse}" ItemsSource="{Binding HouseList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
             <ComboBox Margin="3" Width="100" TabIndex ="5" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFlat}" ItemsSource="{Binding FlatList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
             </WrapPanel>
             <Expander Header="Доп. фильтры">

@@ -52,6 +52,7 @@ namespace WebApi.Models
         public int GarantyId { get; set; }
         public string GarantyTest => Garanty ? "Да" : "Нет";
         public int StatusId { get; set; }
+        public int StatusOrder { get; set; }
         public string Status { get; set; }
         public string SpendTime { get; set; }
         public DateTime? FromTime { get; set; }

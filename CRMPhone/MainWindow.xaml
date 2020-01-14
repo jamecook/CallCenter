@@ -95,6 +95,9 @@
                     <Button  Margin="5" Width="36" Height="36" Command="{Binding QueueUnPauseCommand}" ToolTip="Принимать звонки">
                         <Image Source="pack://application:,,,/Images/CanAnswer.png" Width="32" Height="32" />
                     </Button>
+                    <Button  Margin="5" Width="36" Height="36" Command="{Binding SettingCommand}" ToolTip="Настройки звука">
+                        <Image Source="pack://application:,,,/Images/audio_settings_48.png" Width="32" Height="32" />
+                    </Button>
                 </WrapPanel>
                 <StackPanel>
                     <ListBox ItemsSource="{Binding Path=SipLines}" Margin="3" SelectedItem="{Binding SelectedLine}">

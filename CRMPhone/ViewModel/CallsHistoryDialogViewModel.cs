@@ -112,8 +112,9 @@ namespace CRMPhone.ViewModel
                         //.Aggregate((i, j) => i + ";" + j);
             if (smsSettings.SendToWorker)
             {
-                var smsText = $"{request.Id} {phones ?? ""} {request.Address.FullAddress}.{request.Type.Name}({request.Description ?? ""})";
-                if (smsText.Length > 70)
+                var immediateMessage = request.IsImmediate ? "ÀÂÀÐÈÉÍÀß " : "";
+                var smsText = $"{immediateMessage}{request.Id} {phones ?? ""} {request.Address.FullAddress}.{request.Type.Name}({request.Description ?? ""})";
+                if (!request.IsImmediate && smsText.Length > 70)
                 {
                     smsText = smsText.Substring(0, 70);
                 }

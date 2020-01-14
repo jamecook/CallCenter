@@ -383,6 +383,87 @@ left join CallCenter.Users u on u.id = a.userId";
                 }
             }
         }
+        public RequestForListDto[] GetRequestByPhone(int userId, string phoneNumber)
+        {
+            var query = "call phone_client.get_requests_by_client_phone(@userId,@clientPhone);";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@clientPhone", phoneNumber);
+                    var requests = new List<RequestForListDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            //var recordUniqueId = dataReader.GetNullableString("recordId");
+                            requests.Add(new RequestForListDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                //HasAttachment = dataReader.GetBoolean("has_attach"),
+                                //IsBadWork = dataReader.GetBoolean("bad_work"),
+                                //IsRetry = dataReader.GetBoolean("retry"),
+                                //Warranty = dataReader.GetInt32("garanty"),
+                                //Immediate = dataReader.GetBoolean("is_immediate"),
+                                //HasRecord = !string.IsNullOrEmpty(recordUniqueId),
+                                //RecordUniqueId = recordUniqueId,
+                                StreetPrefix = dataReader.GetString("prefix_name"),
+                                //RegionName = dataReader.GetNullableString("region_name"),
+                                StreetName = dataReader.GetString("street_name"),
+                                AddressType = dataReader.GetString("address_type"),
+                                Flat = dataReader.GetString("flat"),
+                                Building = dataReader.GetString("building"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                CreateTime = dataReader.GetDateTime("create_time"),
+                                Description = dataReader.GetNullableString("description"),
+                                ContactPhones = dataReader.GetNullableString("client_phones"),
+                                ParentService = dataReader.GetNullableString("parent_name"),
+                                Service = dataReader.GetNullableString("service_name"),
+                                ServiceCompany = dataReader.GetNullableString("service_company_name"),
+
+                                //Master = dataReader.GetNullableInt("worker_id") != null ? new RequestUserDto
+                                //{
+                                //    Id = dataReader.GetInt32("worker_id"),
+                                //    SurName = dataReader.GetNullableString("sur_name"),
+                                //    FirstName = dataReader.GetNullableString("first_name"),
+                                //    PatrName = dataReader.GetNullableString("patr_name"),
+                                //} : null,
+                                //Executer = dataReader.GetNullableInt("executer_id") != null ? new RequestUserDto
+                                //{
+                                //    Id = dataReader.GetInt32("executer_id"),
+                                //    SurName = dataReader.GetNullableString("exec_sur_name"),
+                                //    FirstName = dataReader.GetNullableString("exec_first_name"),
+                                //    PatrName = dataReader.GetNullableString("exec_patr_name"),
+                                //} : null,
+                                //CreateUser = new RequestUserDto
+                                //{
+                                //    Id = dataReader.GetInt32("create_user_id"),
+                                //    SurName = dataReader.GetNullableString("surname"),
+                                //    FirstName = dataReader.GetNullableString("firstname"),
+                                //    PatrName = dataReader.GetNullableString("patrname"),
+                                //},
+                                //ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                                //TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
+                                //ExecutePeriod = dataReader.GetNullableString("Period_Name"),
+                                //Rating = dataReader.GetNullableString("Rating"),
+                                //RatingDescription = dataReader.GetNullableString("RatingDesc"),
+                                //Status = dataReader.GetNullableString("Req_Status"),
+                                //SpendTime = dataReader.GetNullableString("spend_time"),
+                                //FromTime = dataReader.GetNullableDateTime("from_time"),
+                                //ToTime = dataReader.GetNullableDateTime("to_time"),
+                                //AlertTime = dataReader.GetNullableDateTime("alert_time"),
+                                //MainFio = dataReader.GetNullableString("clinet_fio"),
+                                //LastNote = dataReader.GetNullableString("last_note"),
+                            });
+                        }
+                        dataReader.Close();
+                    }
+                    return requests.ToArray();
+                }
+            }
+        }
         public void SendAlive(int userId, string sipUser)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -505,16 +586,14 @@ left join CallCenter.Users u on u.id = a.userId";
             }
             return null;
         }
+
         public UserDto[] GetDispatchers(int companyId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand(@"SELECT u.id,u.Login FROM CallCenter.Users u
- join Workers w on w.id = u.worker_id and w.enabled = 1
- where u.Enabled = 1 and u.ShowInForm = 1 and w.service_company_id = @CompanyId order by u.Login", conn))
+                using (var cmd = new MySqlCommand(@"call phone_client.get_dispatchers()", conn))
                 {
-                    cmd.Parameters.AddWithValue("@CompanyId", companyId);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         var users = new List<UserDto>();
@@ -609,7 +688,6 @@ left join CallCenter.Users u on u.id = a.userId";
                                     ShortName = dataReader.GetNullableString("short_name")
                                 });
                             }
-
                             dataReader.Close();
                         }
                         return companies.OrderBy(i => i.Name).ToArray();
@@ -629,6 +707,26 @@ left join CallCenter.Users u on u.id = a.userId";
                         return dataReader.GetDateTime("curdate");
                     }
                 }
+            }
+        }
+        public string GetUniqueIdByCallId(int userId,string callId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand("call phone_client.get_uniqueid_by_callid(@userId,@callId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@callId", callId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if(dataReader.Read())
+                            return dataReader.GetNullableString("uniqueIdStr");
+                    }
+
+                }
+
+                return null;
             }
         }
         public UserDto Login(string login, string password, string sipUser)

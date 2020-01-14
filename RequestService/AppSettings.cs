@@ -21,6 +21,7 @@ namespace RequestServiceImpl
         }
         public static string ConnectionString { get; set; }
         public static UserAgent SipAgent { get; set; }
+        public static object NewSipAgent { get; set; }
         public static SipDto SipInfo
         {
             get { return _sipInfo; }

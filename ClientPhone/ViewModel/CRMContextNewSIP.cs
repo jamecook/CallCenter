@@ -7,13 +7,13 @@ using System.Windows;
 using MySql.Data.MySqlClient;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
-//using SIPEVOActiveXLib;
+using SIPEVOActiveXLib;
 
 namespace CRMPhone.ViewModel
 {
     public partial class CRMContext
     {
-        /*
+        /**/
         private SIPClientCtl _sipClient;
         private void GetCallFromQuery(object currentChannel)
         {

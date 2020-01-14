@@ -135,6 +135,16 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetCallList(fromDate, toDate, requestId, operatorId, serviceCompanyId, phoneNumber));
         }
+        [HttpGet("getRequestByPhone")]
+        public IActionResult GetRequestByPhone([FromQuery]int userId, [FromQuery]string phoneNumber)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetRequestByPhone(userId, phoneNumber));
+        }
         [HttpGet("sendAlive")]
         public IActionResult SendAlive([FromQuery]int userId, [FromQuery]string sipUser)
         {
@@ -219,6 +229,18 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetCurrentDate());
         }
+
+        [HttpGet("getCallUniqueId")]
+        public IActionResult GetCallUniqueId([FromQuery]int userId, [FromQuery]string callId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetUniqueIdByCallId(userId, callId));
+        }
+
         [HttpGet("getTransferList")]
         public IActionResult GetTransferList([FromQuery] int userId)
         {

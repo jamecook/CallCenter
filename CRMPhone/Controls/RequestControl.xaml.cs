@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -154,6 +155,20 @@ namespace CRMPhone.Controls
                 var model = DataContext as RequestControlContext;
                 model?.RefreshRequest();
             }
+        }
+
+        private void Popup_OnClosed(object sender, EventArgs e)
+        {
+            var count = StreetBox.ItemsSource.Cast<FieldForFilterDto>().Count(w => w.Selected);
+            var model = ((Popup)sender).DataContext as RequestControlContext;
+            if (model == null)
+                return;
+            if (count >= 1)
+            {
+                model.StreetFilterImageVisibility = Visibility.Visible;
+            }
+            else
+                model.StreetFilterImageVisibility = Visibility.Collapsed;
         }
     }
 }

@@ -159,6 +159,9 @@
       <DependentUpon>ServiceCompanyFondControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomComboBox.cs" />
+    <Compile Include="Dialogs\AudioSettingsDialog.xaml.cs">
+      <DependentUpon>AudioSettingsDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\EditFondDialog.xaml.cs">
       <DependentUpon>EditFondDialog.xaml</DependentUpon>
     </Compile>
@@ -272,6 +275,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="ViewModel\AudioSettingsDialogViewModel.cs" />
     <Compile Include="ViewModel\EditFondDialogViewModel.cs" />
     <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
     <Compile Include="BooleanToVisibilityConverter.cs" />
@@ -426,6 +430,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\ServiceCompanyFondControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\AudioSettingsDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -654,6 +662,7 @@
     <Resource Include="Images\online.png" />
     <Resource Include="Images\screen32.png" />
     <Resource Include="Images\filter.png" />
+    <Resource Include="Images\audio_settings_48.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

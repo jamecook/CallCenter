@@ -34,6 +34,7 @@
                 <DockPanel>
                     <TextBlock Text="Входящий вызов от:" Margin="3" FontWeight="Bold"/>
                     <TextBlock Text="{Binding IncomingCallFrom}" Margin="3" FontWeight="Bold"/>
+
                 </DockPanel>
                 <DockPanel>
                     <TextBlock Text="УК:" Margin="3" FontWeight="Bold"/>
@@ -65,6 +66,9 @@
                     </Button>
                     <Button  Margin="5" Width="48" Height="48" Command="{Binding TransferCommand}" ToolTip="Перевести звонок">
                         <Image Source="pack://application:,,,/Images/forward.png" Width="32" Height="32" />
+                    </Button>
+                    <Button  Margin="5" Width="48" Height="48" Command="{Binding PinCommand}" ToolTip="Прикрепить последний разговор к заявке">
+                        <Image Source="pack://application:,,,/Images/pin-48.png" Width="32" Height="32" />
                     </Button>
                 </WrapPanel>
                 <WrapPanel HorizontalAlignment="Center">
@@ -106,6 +110,9 @@
                     <WrapPanel>
                         <TextBlock Text="Последний №:" Margin="3" FontWeight="Bold" HorizontalAlignment="Center"/>
                         <TextBlock Text="{Binding LastAnsweredPhoneNumber}" Margin="3" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <Button  Margin="5" Width="28" Height="28" Command="{Binding CopyToClipboardCommand}" ToolTip="Скопировать">
+                            <Image Source="pack://application:,,,/Images/clipboard-copy-24.png" Width="24" Height="24" />
+                        </Button>
                     </WrapPanel>
                 </StackPanel>
 
@@ -160,6 +167,62 @@
             </ListBox>
         </Grid>
         <TabControl Margin="3" Grid.Row="0" Grid.Column="1">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Заявки"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <DataGrid Name="RequestsGrid"
+                          AutoGenerateColumns="False"
+                          ItemsSource="{Binding Path=RequestList}"
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow"
+                          IsReadOnly="True"
+                          HorizontalScrollBarVisibility="Disabled" Margin="0,63,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="120" >
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="Номер заявки" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="dto:RequestForListShortDto">
+                                        <DockPanel>
+                                            <TextBlock Margin ="5,0" Text="{Binding Path=Id}"/>
+                                            <Button Width="20" VerticalAlignment="Center" Command="{Binding ElementName=RequestsGrid, Path=DataContext.CopyCommand}" CommandParameter="{Binding ElementName=RequestsGrid, Path=SelectedItem}"
+                                                    >
+                                                <Image Source="pack://application:,,,/Images/clipboard-copy-24.png"/>
+                                            </Button>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Дата создания" Width="120"
+                             Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
+                            <DataGridTextColumn Header="УК" Width="120"
+                             Binding="{Binding Path=ServiceCompany}"/>
+                            <DataGridTextColumn Header="Адрес" Width="*"
+                             Binding="{Binding Path=FullAddress}"/>
+                            <DataGridTextColumn Header="Услуга" Width="*"
+                             Binding="{Binding Path=ParentService}"/>
+                            <DataGridTextColumn Header="Причина" Width="*"
+                             Binding="{Binding Path=Service}"/>
+                            <DataGridTextColumn Header="Примечание" Width="*"
+                             Binding="{Binding Path=Description}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" >

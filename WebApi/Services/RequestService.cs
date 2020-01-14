@@ -657,6 +657,7 @@ body = {
                             types.Add(new StatusDto
                             {
                                 Id = dataReader.GetInt32("id"),
+                                OrderNum = dataReader.GetInt32("order_num"),
                                 Name = dataReader.GetString("name"),
                                 Description = dataReader.GetString("Description")
                             });
@@ -688,6 +689,7 @@ body = {
                             types.Add(new StatusDto
                             {
                                 Id = dataReader.GetInt32("id"),
+                                OrderNum = dataReader.GetInt32("order_num"),
                                 Name = dataReader.GetString("name"),
                                 Description = dataReader.GetString("Description")
                             });
@@ -1097,6 +1099,7 @@ body = {
                             : null);
 
                     var requests = new List<RequestForListDto>();
+                    cmd.CommandTimeout = 180;
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
@@ -1166,6 +1169,7 @@ body = {
                                 IsRetry = dataReader.GetBoolean("retry"),
                                 Garanty = dataReader.GetBoolean("garanty"),
                                 StatusId = dataReader.GetInt32("req_status_id"),
+                                StatusOrder = dataReader.GetInt32("status_order"),
                                 Status = dataReader.GetNullableString("Req_Status"),
                                 TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
                                 RatingDescription = dataReader.GetNullableString("RatingDesc"),
@@ -3722,6 +3726,7 @@ VALUES
                                     PatrName = dataReader.GetNullableString("patr_name"),
                                 },
                                 DocNumber = docType == 2 ? dataReader.GetNullableString("doc_number") 
+                                          :  docType == 3 ? dataReader.GetNullableString("doc_inc_number")
                                           : (dataReader.GetNullableString("doc_number") ?? "") + "/" +
                                             (dataReader.GetNullableString("doc_inc_number") ?? ""),
 

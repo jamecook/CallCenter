@@ -1,0 +1,342 @@
+Really destroying SIP dialog '5fe6485c0d3dde222371f335370490a3@192.168.1.130:5060' Method: OPTIONS
+    -- Stopped music on hold on SIP/trunk-sibitex-00001aed
+    -- <SIP/trunk-sibitex-00001aed> Playing 'queue-thereare.gsm' (language 'ru')
+    -- Stopped music on hold on SIP/trunk-rus-comp-00001b15
+    -- <SIP/trunk-rus-comp-00001b15> Playing 'queue-thereare.gsm' (language 'ru')
+    -- <SIP/trunk-rus-comp-00001b09> Playing 'digits/7.gsm' (language 'ru')
+    -- <SIP/trunk-rus-comp-00001b09> Playing 'queue-callswaiting.gsm' (language 'ru')
+    -- <SIP/trunk-sibitex-00001aed> Playing 'digits/5.gsm' (language 'ru')
+    -- <SIP/trunk-rus-comp-00001b15> Playing 'digits/11.gsm' (language 'ru')
+    -- <SIP/trunk-sibitex-00001aed> Playing 'queue-callswaiting.gsm' (language 'ru')
+  == Using SIP RTP CoS mark 5
+    -- Executing [039323232177@localphones:1] Answer("SIP/199-00001b29", "") in new stack
+       > 0x7f0bbc131950 -- Probation passed - setting RTP source address to 192.168.1.92:60000
+    -- Executing [039323232177@localphones:2] Set("SIP/199-00001b29", "PHONE=9323232177") in new stack
+    -- Executing [039323232177@localphones:3] Set("SIP/199-00001b29", "CALLERID(name)=aijk150") in new stack
+    -- Executing [039323232177@localphones:4] Set("SIP/199-00001b29", "Direction=out") in new stack
+    -- Executing [039323232177@localphones:5] Set("SIP/199-00001b29", "PhoneNum=9323232177") in new stack
+    -- Executing [039323232177@localphones:6] Set("SIP/199-00001b29", "ExtenNum=039323232177") in new stack
+    -- Executing [039323232177@localphones:7] Set("SIP/199-00001b29", "ServiceComp=amega") in new stack
+    -- Executing [039323232177@localphones:8] Set("SIP/199-00001b29", "CurDate=20191017") in new stack
+    -- Executing [039323232177@localphones:9] MixMonitor("SIP/199-00001b29", "/raid/monitor/20191017/1571333286.14233-222806.wav") in new stack
+  == Begin MixMonitor Recording SIP/199-00001b29
+    -- Executing [039323232177@localphones:10] Dial("SIP/199-00001b29", "SIP/trunk-amega/89323232177,300") in new stack
+  == Using SIP RTP CoS mark 5
+Audio is at 18950
+Adding codec ulaw to SDP
+Adding codec alaw to SDP
+Adding codec gsm to SDP
+Adding non-codec 0x1 (telephone-event) to SDP
+Reliably Transmitting (no NAT) to 217.116.48.15:5060:
+INVITE sip:89323232177@amega.t72.ru:5060 SIP/2.0
+Via: SIP/2.0/UDP 192.168.1.130:5060;branch=z9hG4bK6d3f73e3
+Max-Forwards: 70
+From: "aijk150" <sip:199@amega.t72.ru>;tag=as2cb528af
+To: <sip:89323232177@amega.t72.ru:5060>
+Contact: <sip:199@192.168.1.130:5060>
+Call-ID: 11ddacfa4aa9022e75cf75ef453a3ac7@amega.t72.ru
+CSeq: 102 INVITE
+User-Agent: Asterisk PBX 13.15.0
+Date: Thu, 17 Oct 2019 17:28:06 GMT
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH, MESSAGE
+Supported: replaces, timer
+Content-Type: application/sdp
+Content-Length: 287
+
+v=0
+o=root 459934394 459934394 IN IP4 192.168.1.130
+s=Asterisk PBX 13.15.0
+c=IN IP4 192.168.1.130
+t=0 0
+m=audio 18950 RTP/AVP 0 8 3 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:3 GSM/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-16
+a=maxptime:150
+a=sendrecv
+
+---
+    -- Called SIP/trunk-amega/89323232177
+
+<--- SIP read from UDP:217.116.48.15:5060 --->
+SIP/2.0 401 Unauthorized
+Via: SIP/2.0/UDP 192.168.1.130:5060;branch=z9hG4bK6d3f73e3;received=192.168.1.130;rport=5060
+From: "aijk150" <sip:199@amega.t72.ru>;tag=as2cb528af
+To: <sip:89323232177@amega.t72.ru:5060>;tag=as4ef907df
+Call-ID: 11ddacfa4aa9022e75cf75ef453a3ac7@amega.t72.ru
+CSeq: 102 INVITE
+Server: IP PBX
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH
+Supported: replaces, timer
+WWW-Authenticate: Digest algorithm=MD5, realm="t72", nonce="3d7f1195"
+Content-Length: 0
+
+<------------->
+--- (11 headers 0 lines) ---
+Transmitting (no NAT) to 217.116.48.15:5060:
+ACK sip:89323232177@amega.t72.ru:5060 SIP/2.0
+Via: SIP/2.0/UDP 192.168.1.130:5060;branch=z9hG4bK6d3f73e3
+Max-Forwards: 70
+From: "aijk150" <sip:199@amega.t72.ru>;tag=as2cb528af
+To: <sip:89323232177@amega.t72.ru:5060>;tag=as4ef907df
+Contact: <sip:199@192.168.1.130:5060>
+Call-ID: 11ddacfa4aa9022e75cf75ef453a3ac7@amega.t72.ru
+CSeq: 102 ACK
+User-Agent: Asterisk PBX 13.15.0
+Content-Length: 0
+
+
+---
+Audio is at 18950
+Adding codec ulaw to SDP
+Adding codec alaw to SDP
+Adding codec gsm to SDP
+Adding non-codec 0x1 (telephone-event) to SDP
+Reliably Transmitting (no NAT) to 217.116.48.15:5060:
+INVITE sip:89323232177@amega.t72.ru:5060 SIP/2.0
+Via: SIP/2.0/UDP 192.168.1.130:5060;branch=z9hG4bK06c24307
+Max-Forwards: 70
+From: "aijk150" <sip:199@amega.t72.ru>;tag=as2cb528af
+To: <sip:89323232177@amega.t72.ru:5060>
+Contact: <sip:199@192.168.1.130:5060>
+Call-ID: 11ddacfa4aa9022e75cf75ef453a3ac7@amega.t72.ru
+CSeq: 103 INVITE
+User-Agent: Asterisk PBX 13.15.0
+Authorization: Digest username="aijk150", realm="t72", algorithm=MD5, uri="sip:89323232177@amega.t72.ru:5060", nonce="3d7f1195", response="ab5f48ba0c9477a004c9d6b867bc9434"
+Date: Thu, 17 Oct 2019 17:28:06 GMT
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH, MESSAGE
+Supported: replaces, timer
+Content-Type: application/sdp
+Content-Length: 287
+
+v=0
+o=root 459934394 459934395 IN IP4 192.168.1.130
+s=Asterisk PBX 13.15.0
+c=IN IP4 192.168.1.130
+t=0 0
+m=audio 18950 RTP/AVP 0 8 3 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:3 GSM/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-16
+a=maxptime:150
+a=sendrecv
+
+---
+
+<--- SIP read from UDP:217.116.48.15:5060 --->
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 192.168.1.130:5060;branch=z9hG4bK06c24307;received=192.168.1.130;rport=5060
+From: "aijk150" <sip:199@amega.t72.ru>;tag=as2cb528af
+To: <sip:89323232177@amega.t72.ru:5060>
+Call-ID: 11ddacfa4aa9022e75cf75ef453a3ac7@amega.t72.ru
+CSeq: 103 INVITE
+Server: IP PBX
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH
+Supported: replaces, timer
+Session-Expires: 1800;refresher=uas
+Contact: <sip:89323232177@217.116.48.15:5060>
+Content-Length: 0
+
+<------------->
+--- (12 headers 0 lines) ---
+
+<--- SIP read from UDP:217.116.48.15:5060 --->
+SIP/2.0 183 Session Progress
+Via: SIP/2.0/UDP 192.168.1.130:5060;branch=z9hG4bK06c24307;received=192.168.1.130;rport=5060
+From: "aijk150" <sip:199@amega.t72.ru>;tag=as2cb528af
+To: <sip:89323232177@amega.t72.ru:5060>;tag=as464298c6
+Call-ID: 11ddacfa4aa9022e75cf75ef453a3ac7@amega.t72.ru
+CSeq: 103 INVITE
+Server: IP PBX
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH
+Supported: replaces, timer
+Session-Expires: 1800;refresher=uas
+Contact: <sip:89323232177@217.116.48.15:5060>
+Content-Type: application/sdp
+Require: timer
+Content-Length: 224
+
+v=0
+o=root 1982114813 1982114813 IN IP4 217.116.48.15
+s=IP PBX
+c=IN IP4 217.116.48.15
+t=0 0
+m=audio 16208 RTP/AVP 0 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-16
+a=ptime:20
+a=sendrecv
+<------------->
+--- (14 headers 11 lines) ---
+sip_route_dump: route/path hop: <sip:89323232177@217.116.48.15:5060>
+Found RTP audio format 0
+Found RTP audio format 101
+Found audio description format PCMU for ID 0
+Found audio description format telephone-event for ID 101
+Capabilities: us - (alaw|ulaw|gsm), peer - audio=(ulaw)/video=(nothing)/text=(nothing), combined - (ulaw)
+Non-codec capabilities (dtmf): us - 0x1 (telephone-event|), peer - 0x1 (telephone-event|), combined - 0x1 (telephone-event|)
+Peer audio RTP is at port 217.116.48.15:16208
+    -- SIP/trunk-amega-00001b2a is making progress passing it to SIP/199-00001b29
+    -- <SIP/trunk-rus-comp-00001b15> Playing 'queue-callswaiting.gsm' (language 'ru')
+
+<--- SIP read from UDP:217.116.48.15:5060 --->
+INVITE sip:283002@192.168.1.130:5060 SIP/2.0
+Via: SIP/2.0/UDP 217.116.48.15:5060;branch=z9hG4bK1ea94eb6;rport
+Max-Forwards: 70
+From: <sip:89199346001@217.116.48.15>;tag=as022448e2
+To: <sip:283002@192.168.1.130:5060>
+Contact: <sip:89199346001@217.116.48.15:5060>
+Call-ID: 3130b6360bc01fdc3c5feacd5d4b3e06@217.116.48.15:5060
+CSeq: 102 INVITE
+User-Agent: IP PBX
+Date: Thu, 17 Oct 2019 17:28:05 GMT
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH
+Supported: replaces, timer
+Content-Type: application/sdp
+Content-Length: 222
+
+v=0
+o=root 224720024 224720024 IN IP4 217.116.48.15
+s=IP PBX
+c=IN IP4 217.116.48.15
+t=0 0
+m=audio 16996 RTP/AVP 0 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-16
+a=ptime:20
+a=sendrecv
+<------------->
+--- (14 headers 11 lines) ---
+Sending to 217.116.48.15:5060 (no NAT)
+Sending to 217.116.48.15:5060 (no NAT)
+Using INVITE request as basis request - 3130b6360bc01fdc3c5feacd5d4b3e06@217.116.48.15:5060
+Found peer 'trunk-rus-comp' for '89199346001' from 217.116.48.15:5060
+  == Using SIP RTP CoS mark 5
+Found RTP audio format 0
+Found RTP audio format 101
+Found audio description format PCMU for ID 0
+Found audio description format telephone-event for ID 101
+Capabilities: us - (alaw|ulaw|gsm), peer - audio=(ulaw)/video=(nothing)/text=(nothing), combined - (ulaw)
+Non-codec capabilities (dtmf): us - 0x1 (telephone-event|), peer - 0x1 (telephone-event|), combined - 0x1 (telephone-event|)
+Peer audio RTP is at port 217.116.48.15:16996
+Looking for 283002 in from-rus-comp (domain 192.168.1.130)
+sip_route_dump: route/path hop: <sip:89199346001@217.116.48.15:5060>
+
+<--- Transmitting (no NAT) to 217.116.48.15:5060 --->
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 217.116.48.15:5060;branch=z9hG4bK1ea94eb6;received=217.116.48.15;rport=5060
+From: <sip:89199346001@217.116.48.15>;tag=as022448e2
+To: <sip:283002@192.168.1.130:5060>
+Call-ID: 3130b6360bc01fdc3c5feacd5d4b3e06@217.116.48.15:5060
+CSeq: 102 INVITE
+Server: Asterisk PBX 13.15.0
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH, MESSAGE
+Supported: replaces, timer
+Session-Expires: 1800;refresher=uas
+Contact: <sip:283002@192.168.1.130:5060>
+Content-Length: 0
+
+
+<------------>
+    -- Executing [283002@from-rus-comp:1] Log("SIP/trunk-rus-comp-00001b2b", "NOTICE, Incoming call from "" <89199346001>") in new stack
+[Oct 17 22:28:07] NOTICE[9878][C-0000122b]: Ext. 283002:1 @ from-rus-comp:  Incoming call from "" <89199346001>
+    -- Executing [283002@from-rus-comp:2] Set("SIP/trunk-rus-comp-00001b2b", "CurDate=20191017") in new stack
+    -- Executing [283002@from-rus-comp:3] MixMonitor("SIP/trunk-rus-comp-00001b2b", "/raid/monitor/20191017/1571333287.14235-222807.wav") in new stack
+  == Begin MixMonitor Recording SIP/trunk-rus-comp-00001b2b
+    -- Executing [283002@from-rus-comp:4] Answer("SIP/trunk-rus-comp-00001b2b", "") in new stack
+Audio is at 18472
+Adding codec ulaw to SDP
+Adding non-codec 0x1 (telephone-event) to SDP
+
+<--- Reliably Transmitting (no NAT) to 217.116.48.15:5060 --->
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP 217.116.48.15:5060;branch=z9hG4bK1ea94eb6;received=217.116.48.15;rport=5060
+From: <sip:89199346001@217.116.48.15>;tag=as022448e2
+To: <sip:283002@192.168.1.130:5060>;tag=as5d8a3112
+Call-ID: 3130b6360bc01fdc3c5feacd5d4b3e06@217.116.48.15:5060
+CSeq: 102 INVITE
+Server: Asterisk PBX 13.15.0
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH, MESSAGE
+Supported: replaces, timer
+Session-Expires: 1800;refresher=uas
+Contact: <sip:283002@192.168.1.130:5060>
+Content-Type: application/sdp
+Require: timer
+Content-Length: 242
+
+v=0
+o=root 1131232152 1131232152 IN IP4 192.168.1.130
+s=Asterisk PBX 13.15.0
+c=IN IP4 192.168.1.130
+t=0 0
+m=audio 18472 RTP/AVP 0 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-16
+a=maxptime:150
+a=sendrecv
+
+<------------>
+
+<--- SIP read from UDP:217.116.48.15:5060 --->
+ACK sip:283002@192.168.1.130:5060 SIP/2.0
+Via: SIP/2.0/UDP 217.116.48.15:5060;branch=z9hG4bK3fe7242f;rport
+Max-Forwards: 70
+From: <sip:89199346001@217.116.48.15>;tag=as022448e2
+To: <sip:283002@192.168.1.130:5060>;tag=as5d8a3112
+Contact: <sip:89199346001@217.116.48.15:5060>
+Call-ID: 3130b6360bc01fdc3c5feacd5d4b3e06@217.116.48.15:5060
+CSeq: 102 ACK
+User-Agent: IP PBX
+Content-Length: 0
+
+<------------->
+--- (10 headers 0 lines) ---
+       > 0x7f0bbc1221e0 -- Probation passed - setting RTP source address to 217.116.48.15:16996
+    -- Executing [283002@from-rus-comp:5] Set("SIP/trunk-rus-comp-00001b2b", "Direction=in") in new stack
+    -- Executing [283002@from-rus-comp:6] Set("SIP/trunk-rus-comp-00001b2b", "PhoneNum=89199346001") in new stack
+    -- Executing [283002@from-rus-comp:7] Set("SIP/trunk-rus-comp-00001b2b", "ExtenNum=283002") in new stack
+    -- Hold time for dispetchers is 4 minute(s) 0 seconds
+    -- Told SIP/trunk-rus-comp-00001b09 in dispetchers their queue position (which was 7)
+    -- Executing [283002@from-rus-comp:8] Set("SIP/trunk-rus-comp-00001b2b", "ServiceComp=amega") in new stack
+    -- <SIP/trunk-rus-comp-00001b09> Playing 'queue-thankyou.gsm' (language 'ru')
+    -- Executing [283002@from-rus-comp:9] Set("SIP/trunk-rus-comp-00001b2b", "OutPhone=283002") in new stack
+    -- Executing [283002@from-rus-comp:10] Set("SIP/trunk-rus-comp-00001b2b", "OutTrunk=trunk-rus-comp") in new stack
+    -- Executing [283002@from-rus-comp:11] Goto("SIP/trunk-rus-comp-00001b2b", "vk-menu1,s,1") in new stack
+    -- Goto (vk-menu1,s,1)
+    -- Executing [s@vk-menu1:1] Answer("SIP/trunk-rus-comp-00001b2b", "") in new stack
+    -- Executing [s@vk-menu1:2] Set("SIP/trunk-rus-comp-00001b2b", "IVRMenu=vk-menu1") in new stack
+    -- Executing [s@vk-menu1:3] Set("SIP/trunk-rus-comp-00001b2b", "IVRDial=dispetcher") in new stack
+    -- Executing [s@vk-menu1:4] MYSQL("SIP/trunk-rus-comp-00001b2b", "Connect con localhost asterisk mysqlasterisk asterisk") in new stack
+    -- Executing [s@vk-menu1:5] MYSQL("SIP/trunk-rus-comp-00001b2b", "Query resultid 1 call CallCenter.IVRWork('amega')") in new stack
+    -- Executing [s@vk-menu1:6] MYSQL("SIP/trunk-rus-comp-00001b2b", "Fetch fetchid 2 IsWork ") in new stack
+    -- Executing [s@vk-menu1:7] MYSQL("SIP/trunk-rus-comp-00001b2b", "Clear 2") in new stack
+    -- Executing [s@vk-menu1:8] MYSQL("SIP/trunk-rus-comp-00001b2b", "Disconnect 1") in new stack
+    -- Executing [s@vk-menu1:9] GotoIf("SIP/trunk-rus-comp-00001b2b", "0?work") in new stack
+    -- Executing [s@vk-menu1:10] BackGround("SIP/trunk-rus-comp-00001b2b", "/var/spool/asterisk/ivr/All/IVR_1_2") in new stack
+    -- <SIP/trunk-rus-comp-00001b2b> Playing '/var/spool/asterisk/ivr/All/IVR_1_2.slin' (language 'ru')
+    -- Stopped music on hold on SIP/trunk-sibitex-00001b18
+    -- Playing periodic announcement
+    -- <SIP/trunk-sibitex-00001b18> Playing 'queue-periodic-announce.gsm' (language 'ru')
+    -- Hold time for dispetchers is 7 minute(s) 0 seconds
+    -- Told SIP/trunk-sibitex-00001aed in dispetchers their queue position (which was 5)
+    -- <SIP/trunk-sibitex-00001aed> Playing 'queue-thankyou.gsm' (language 'ru')
+    -- Started music on hold, class 'default', on channel 'SIP/trunk-rus-comp-00001b09'
+    -- Started music on hold, class 'default', on channel 'SIP/trunk-rus-comp-00001b24'
+    -- Hold time for dispetchers is 2 minute(s) 0 seconds
+    -- Told SIP/trunk-rus-comp-00001b15 in dispetchers their queue position (which was 11)
+    -- <SIP/trunk-rus-comp-00001b15> Playing 'queue-thankyou.gsm' (language 'ru')
+    -- Channel SIP/108-00001b26 left 'simple_bridge' basic-bridge <80422663-4850-44d3-b66a-a207c20a084d>
+    -- Channel SIP/trunk-rus-comp-00001b0c left 'simple_bridge' basic-bridge <80422663-4850-44d3-b66a-a207c20a084d>
+Scheduling destruction of SIP dialog '0dffb83c12821a3814c77a5e2d9c018c@217.116.48.15:5060' in 6400 ms (Method: ACK)
+  == MixMonitor close filestream (mixed)
+set_destination: Parsing <sip:89222658970@217.116.48.15:5060> for address/port to send to
+set_destination: set destination to 217.116.48.15:5060
+Reliably Transmitting (no NAT) to 217.116.48.15:5060:
+BYE sip:89222658970@217.116.48.15:5060 SIP/2.0

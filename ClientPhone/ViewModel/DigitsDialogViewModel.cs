@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
+using SIPEVOActiveXLib;
 
 namespace CRMPhone.ViewModel
 {
@@ -33,7 +34,8 @@ namespace CRMPhone.ViewModel
             var activeLine = lines?.FirstOrDefault(l => l.State == "Connect");
             if(activeLine == null)
                 return;
-            AppSettings.SipAgent.CallMaker.SendDtmf(activeLine.Id, digit);
+            var sipAgent = AppSettings.NewSipAgent as SIPClientCtl;
+            sipAgent?.SendDTMF(digit);
         }
 
         public void SetView(Window view)

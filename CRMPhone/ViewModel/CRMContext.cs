@@ -536,6 +536,19 @@ namespace CRMPhone.ViewModel
         public ICommand QueuePauseCommand { get { return _queuePauseCommand ?? (_queuePauseCommand = new CommandHandler(QueuePause, _canExecute)); } }
         private ICommand _queueUnPauseCommand;
         public ICommand QueueUnPauseCommand { get { return _queueUnPauseCommand ?? (_queueUnPauseCommand = new CommandHandler(QueueUnPause, _canExecute)); } }
+        private ICommand _settingCommand;
+        public ICommand SettingCommand { get { return _settingCommand ?? (_settingCommand = new CommandHandler(AudioSettings, _canExecute)); } }
+
+        private void AudioSettings()
+        {
+            var settingsContext = new AudioSettingsDialogViewModel(_sipAgent);
+            var settingsDialog = new AudioSettingsDialog(settingsContext);
+            settingsDialog.Owner = Application.Current.MainWindow;
+            if (settingsDialog.ShowDialog() == true)
+            {
+                //Save settings to local storage
+            }
+        }
 
         private void QueueUnPause()
         {
@@ -1302,13 +1315,15 @@ namespace CRMPhone.ViewModel
             }
             try
             {
+                _sipAgent.Registrator.Domain = _serverIP;
+                _sipAgent.Registrator.Realm = _serverIP;
                 _sipAgent.Registrator.Register(_serverIP, _sipUser, _sipSecret, _sipUser);
                 /*
                 object names = null;
                 object ids = null;
                 _sipAgent.VoiceSettings.GetPlayers(out names, out ids);
                 var playersId = ids as int[];
-                var playId = 1;
+                var playId = 0;
                 _sipAgent.VoiceSettings.PlayerDevice = playersId[playId];
                 _sipAgent.VoiceSettings.GetRecorders(out names, out ids);
                 var recordsId = ids as int[];
