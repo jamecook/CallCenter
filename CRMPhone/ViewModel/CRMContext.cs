@@ -1315,8 +1315,7 @@ namespace CRMPhone.ViewModel
             }
             try
             {
-                _sipAgent.Registrator.Domain = _serverIP;
-                _sipAgent.Registrator.Realm = _serverIP;
+
                 _sipAgent.Registrator.Register(_serverIP, _sipUser, _sipSecret, _sipUser);
                 /*
                 object names = null;
