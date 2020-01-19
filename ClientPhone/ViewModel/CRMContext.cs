@@ -121,6 +121,7 @@ namespace CRMPhone.ViewModel
             AlertAndWorkContext = new AlertAndWorkControlContext();
             /**/
             AlertRequestDataContext = new AlertRequestControlContext();
+            DispatcherContext = new DispatcherControlContext();
 
             /*
             AlertRequestControlModel = new AlertRequestControlModel();
@@ -174,6 +175,7 @@ namespace CRMPhone.ViewModel
             CallsNotificationContext.Init();
             AlertAndWorkContext.InitCollections();
             /**/
+            DispatcherContext.InitCollections();
             OnPropertyChanged(nameof(IsAdminRoleExist));
             if (!string.IsNullOrEmpty(AppSettings.SipInfo?.SipUser))
             {
@@ -487,7 +489,15 @@ namespace CRMPhone.ViewModel
             view.Owner = mainWindow;
             view.ShowDialog();
         }
-
+        public DispatcherControlContext DispatcherContext
+        {
+            get => _dispatcherContext;
+            set
+            {
+                _dispatcherContext = value;
+                OnPropertyChanged(nameof(DispatcherContext));
+            }
+        }
         private ICommand _hangUpCommand;
         public ICommand HangUpCommand { get {return _hangUpCommand ?? (_hangUpCommand = new CommandHandler(HangUp, _canExecute));}}
 
@@ -609,6 +619,7 @@ namespace CRMPhone.ViewModel
         private AlertAndWorkControlContext _alertAndWorkContext;
         private MeterListDto _selectedMeter;
         private ICommand _refreshCommand;
+        private DispatcherControlContext _dispatcherContext;
 
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(RefreshList, _canExecute)); } }
 
@@ -1459,7 +1470,7 @@ namespace CRMPhone.ViewModel
                 return;
             if (_sipClient.CallState[SelectedLine.Id] == CallState.CallState_Free)
             {
-                string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
+                string callId = string.Format("sip:{2}{0}@{1}", _sipPhone, _serverIP, SelectedOutgoingCompany.Prefix);
                 SipState = $"Исходящий вызов на номер {_sipPhone}";
                 _sipClient.PhoneLine = SelectedLine.Id;
                 _sipClient.Connect(callId);

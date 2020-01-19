@@ -144,6 +144,9 @@
     <Compile Include="Controls\AlertRequestControl.xaml.cs">
       <DependentUpon>AlertRequestControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\DispatcherControl.xaml.cs">
+      <DependentUpon>DispatcherControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\FilteredComboBox.cs" />
     <Compile Include="Controls\ReportControl.xaml.cs">
       <DependentUpon>ReportControl.xaml</DependentUpon>
@@ -290,6 +293,7 @@
     <Compile Include="ViewModel\CalendarDialogViewModel.cs" />
     <Compile Include="ViewModel\CallsNotificationContext.cs" />
     <Compile Include="ViewModel\DigitsDialogViewModel.cs" />
+    <Compile Include="ViewModel\DispatcherControlContext.cs" />
     <Compile Include="ViewModel\EditExecuterBindDialogViewModel.cs" />
     <Compile Include="ViewModel\ExecuterBindDialogViewModel.cs" />
     <Compile Include="ViewModel\InputBindingsManager.cs" />
@@ -399,6 +403,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\AlertRequestControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\DispatcherControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -636,6 +644,7 @@
     <Resource Include="Images\numbers.png" />
     <Resource Include="Images\clipboard-copy-24.png" />
     <Resource Include="Images\pin-48.png" />
+    <Resource Include="Images\phones.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

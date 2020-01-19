@@ -145,6 +145,16 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetRequestByPhone(userId, phoneNumber));
         }
+        [HttpGet("getDispatcherStat")]
+        public IActionResult GetDispatcherStat([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetDispatcherStatistics(userId));
+        }
         [HttpGet("sendAlive")]
         public IActionResult SendAlive([FromQuery]int userId, [FromQuery]string sipUser)
         {

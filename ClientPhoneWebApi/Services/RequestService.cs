@@ -383,6 +383,49 @@ left join CallCenter.Users u on u.id = a.userId";
                 }
             }
         }
+
+        public DispatcherStatDto[] GetDispatcherStatistics(int userId)
+        {
+            var query = @"CALL phone_client.get_dispatcher_stat(@userId)";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    var dispatcherStatistics = new List<DispatcherStatDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            dispatcherStatistics.Add(new DispatcherStatDto()
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                SurName = dataReader.GetString("SurName"),
+                                IpAddress = dataReader.GetString("ip_addr"),
+                                FirstName = dataReader.GetNullableString("FirstName"),
+                                PatrName = dataReader.GetNullableString("PatrName"),
+                                Version = dataReader.GetNullableString("version"),
+                                OnLine = dataReader.GetNullableBoolean("on_line"),
+                                //SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                                //SpecialityName = dataReader.GetNullableString("speciality_name"),
+                                SipNumber = dataReader.GetNullableString("sip"),
+                                PhoneNumber = dataReader.GetNullableString("PhoneNum"),
+                                Direction = dataReader.GetNullableString("Direction"),
+                                UniqueId = dataReader.GetNullableString("UniqueId"),
+                                TalkTime = dataReader.GetNullableInt("TalkTime"),
+                                WaitingTime = dataReader.GetNullableInt("WaitingTime"),
+                                AliveTime = dataReader.GetDateTime("alive_time")
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+                    return dispatcherStatistics.ToArray();
+                }
+            }
+        }
+
         public RequestForListDto[] GetRequestByPhone(int userId, string phoneNumber)
         {
             var query = "call phone_client.get_requests_by_client_phone(@userId,@clientPhone);";

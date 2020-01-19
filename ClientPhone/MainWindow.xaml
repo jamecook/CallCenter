@@ -241,8 +241,8 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <WrapPanel Grid.Row ="0" Grid.ColumnSpan="2" Margin="0,0,0,119">
-                        <TextBlock Margin="5" VerticalAlignment="Center" Text="№ заявки:"/>
-                        <TextBox Margin="5" Width="50" Text="{Binding RequestNum}"/>
+                        <!--<TextBlock Margin="5" VerticalAlignment="Center" Text="№ заявки:"/>
+                        <TextBox Margin="5" Width="50" Text="{Binding RequestNum}"/>-->
                         <TextBlock Margin="10,5" VerticalAlignment="Center" Text="Дата с:"/>
                         <DatePicker Height="24" Width="120" SelectedDate="{Binding FromDate}"/>
                         <TextBlock Margin="10,5" VerticalAlignment="Center" Text="по:"/>
@@ -436,6 +436,15 @@
                         <TextBlock Margin="3" MinWidth="45" TextAlignment="Right"  Text="{Binding CallsCount}"/>
                     </DockPanel>
                 </Grid>
+            </TabItem>
+            <TabItem Visibility="{Binding IsAdminRoleExist}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/phones.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Диспетчера"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <controls:DispatcherControl DataContext="{Binding DispatcherContext}"/>
             </TabItem>
             <TabItem Visibility="Collapsed">
                 <TabItem.Header>
