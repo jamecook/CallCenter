@@ -50,6 +50,7 @@ namespace WebApi.Models
         public DateTime? InDate { get; set; }
         public DateTime? DoneDate { get; set; }
         public UserDto CreateUser { get; set; }
+        public ShortAddressDto ClientAddress { get; set; }
         public UserDto AppointedWorker { get; set; }
         public DocOrgDto Org { get; set; }
         public DocStatusDto Status { get; set; }

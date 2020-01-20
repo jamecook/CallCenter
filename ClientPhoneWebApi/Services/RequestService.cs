@@ -197,17 +197,18 @@ where C.Direction is not null and C.UniqueId < '1552128123.322928'";
                         sqlQuery += " and u.id = @UserNum";
 
                     }
-                    if (serviceCompanyId.HasValue)
-                    {
-                        sqlQuery += " and sc.id = @ServiceCompanyId";
-
-                    }
+                    //if (serviceCompanyId.HasValue)
+                    //{
+                    //    sqlQuery += " and sc.id = @ServiceCompanyId";
+                    //}
                     if (!string.IsNullOrEmpty(phoneNumber))
                     {
                         sqlQuery +=
                             " and (case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) like @PhoneNumber";
                     }
                 }
+                sqlQuery += " and sc.id in (17,88)";
+
                 sqlQuery += " group by C.UniqueID";
 
                 sqlQuery += @"
@@ -251,17 +252,18 @@ and C.Context not in ('autoring','ringupcalls')
                         sqlQuery += " and (C.UserId = @UserNum or C2.UserId = @UserNum)";
 
                     }
-                    if (serviceCompanyId.HasValue)
-                    {
-                        sqlQuery += " and sc.id = @ServiceCompanyId";
+                    //if (serviceCompanyId.HasValue)
+                    //{
+                    //    sqlQuery += " and sc.id = @ServiceCompanyId";
 
-                    }
+                    //}
                     if (!string.IsNullOrEmpty(phoneNumber))
                     {
                         sqlQuery +=
                             " and (case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) like @PhoneNumber";
                     }
                 }
+                sqlQuery += " and sc.id in (17,88)";
                 sqlQuery += @" group by C.UniqueId
 ) a
 left join CallCenter.Users u on u.id = a.userId";
@@ -283,10 +285,10 @@ left join CallCenter.Users u on u.id = a.userId";
                         {
                             cmd.Parameters.AddWithValue("@UserNum", operatorId);
                         }
-                        if (serviceCompanyId.HasValue)
-                        {
-                            cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
-                        }
+                        //if (serviceCompanyId.HasValue)
+                        //{
+                        //    cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+                        //}
                         if (!string.IsNullOrEmpty(phoneNumber))
                         {
                             cmd.Parameters.AddWithValue("@PhoneNumber", "%" + phoneNumber + "%");

@@ -3725,6 +3725,17 @@ VALUES
                                     FirstName = dataReader.GetNullableString("first_name"),
                                     PatrName = dataReader.GetNullableString("patr_name"),
                                 },
+                                ClientAddress = dataReader.GetNullableInt("address_id") != null
+                                    ? new ShortAddressDto
+                                    {
+                                        Id = dataReader.GetInt32("address_id"),
+                                        StreetName = dataReader.GetNullableString("street_name"),
+                                        StreetPrefix = dataReader.GetNullableString("street_prefix"),
+                                        Building = dataReader.GetNullableString("building"),
+                                        Corpus = dataReader.GetNullableString("corps"),
+                                        Flat = dataReader.GetNullableString("flat"),
+                                    }
+                                    : null,
                                 DocNumber = docType == 2 ? dataReader.GetNullableString("doc_number") 
                                           :  docType == 3 ? dataReader.GetNullableString("doc_inc_number")
                                           : (dataReader.GetNullableString("doc_number") ?? "") + "/" +
@@ -3869,6 +3880,24 @@ VALUES
                 }
             }
         }
+        public static void AddAddressToDoc(int workerId, int docId, int addressId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var orgQuery =
+                    "call docs_pack.add_address(@workerId, @docId, @addressId);";
+                using (var cmd = new MySqlCommand(orgQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@workerId", workerId);
+                    cmd.Parameters.AddWithValue("@docId", docId);
+                    cmd.Parameters.AddWithValue("@addressId", addressId);
+                    cmd.ExecuteNonQuery();
+
+                }
+            }
+        }
         public static void UpdateOrgInDoc(int workerId, int docId, int orgId, string inNumber, DateTime? inDate)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3901,6 +3930,39 @@ VALUES
                     cmd.Parameters.AddWithValue("@workerId", workerId);
                     cmd.Parameters.AddWithValue("@docId", docId);
                     cmd.Parameters.AddWithValue("@orgId", orgId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static void DeleteAttachFromDoc(int workerId, int docId, int attachId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var orgQuery =
+                    "call docs_pack.delete_attach(@workerId, @docId, @attachId);";
+                using (var cmd = new MySqlCommand(orgQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@workerId", workerId);
+                    cmd.Parameters.AddWithValue("@docId", docId);
+                    cmd.Parameters.AddWithValue("@attachId", attachId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static void DeleteDoc(int workerId, int docId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var orgQuery =
+                    "call docs_pack.delete_doc(@workerId, @docId);";
+                using (var cmd = new MySqlCommand(orgQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@workerId", workerId);
+                    cmd.Parameters.AddWithValue("@docId", docId);
                     cmd.ExecuteNonQuery();
                 }
             }

@@ -155,6 +155,19 @@ namespace WebApi.Controllers
             RequestService.AddOrgToDoc(workerId, id, value.OrgId, value.InNumber, value.InDate);
             return Ok();
         }
+        [HttpPost("addAddress/{id}")]
+        public IActionResult AddAddressToDoc(int id, [FromBody] int addressId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            _logger.LogInformation($"---------- AddOrgToDoc id ({id}): AddressId {addressId}");
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            RequestService.AddAddressToDoc(workerId, id, addressId);
+            return Ok();
+        }
         [HttpPut("updateOrgInDoc/{id}")]
         public IActionResult UpdateOrgInDoc(int id, [FromBody] OrgDocDto value)
         {
@@ -213,7 +226,32 @@ namespace WebApi.Controllers
             RequestService.AttachFileToDoc(workerId, id, file.FileName, fileName, fileExtension?.TrimStart('.'));
             return Ok();
         }
-
+        [HttpDelete("deleteAttach")]
+        public IActionResult DeleteAttach([FromQuery] int docId, [FromQuery] int attachId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            _logger.LogInformation($"---------- DeleteAttach id ({docId}), attactId ({attachId})");
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            RequestService.DeleteAttachFromDoc(workerId, docId, attachId);
+            return Ok();
+        }
+        [HttpDelete("deleteDoc")]
+        public IActionResult DeleteDoc([FromQuery] int docId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            _logger.LogInformation($"---------- DeleteDoc id ({docId})");
+            var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
+            int.TryParse(workerIdStr, out int workerId);
+            RequestService.DeleteDoc(workerId, docId);
+            return Ok();
+        }
         [HttpGet("attachments/{id}")]
         public IEnumerable<AttachmentToDocDto> GetAttachments(int id)
         {
