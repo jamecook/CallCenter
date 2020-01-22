@@ -3669,7 +3669,7 @@ VALUES
         }
 
         public static IEnumerable<DocDto> DocsGetList(int workerId, DateTime fromDate, DateTime toDate, string inNumber,
-            int[] orgs, int[] statuses, int[] types, int? documentId, int? appointedWorkerId)
+            int[] orgs, int[] statuses, int[] types, int? documentId, int? appointedWorkerId, int[] streets, int[] houses, int[] addresses)
         {
             var findFromDate = documentId.HasValue ? DateTime.MinValue : fromDate.Date;
             var findToDate = documentId.HasValue ? DateTime.MaxValue : toDate.Date.AddDays(1).AddSeconds(-1);
@@ -3677,7 +3677,7 @@ VALUES
             {
                 conn.Open();
                 var sqlQuery =
-                    "call docs_pack.get_docs(@CurWorker,@FromDate,@ToDate, @InNumber, @Orgs, @Statuses, @Types, @documentId, @appointedWorkerId);";
+                    "call docs_pack.get_docs(@CurWorker,@FromDate,@ToDate, @InNumber, @Orgs, @Statuses, @Types, @documentId, @appointedWorkerId, @streets, @houses, @addresses);";
 
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
@@ -3699,6 +3699,21 @@ VALUES
                     cmd.Parameters.AddWithValue("@Types",
                         types != null && types.Length > 0
                             ? types.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+
+                    cmd.Parameters.AddWithValue("@streets",
+                        streets != null && streets.Length > 0
+                            ? streets.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+
+                    cmd.Parameters.AddWithValue("@houses",
+                        houses != null && houses.Length > 0
+                            ? houses.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
+                            : null);
+
+                    cmd.Parameters.AddWithValue("@addresses",
+                        addresses != null && addresses.Length > 0
+                            ? addresses.Select(i => i.ToString()).Aggregate((i, j) => i + "," + j)
                             : null);
 
                     var requests = new List<DocDto>();
