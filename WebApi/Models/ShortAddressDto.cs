@@ -3,6 +3,8 @@ namespace WebApi.Models
     public class ShortAddressDto
     {
         public int Id { get; set; }
+        public int StreetId { get; set; }
+        public int HouseId { get; set; }
         public string StreetPrefix { get; set; }
         public string StreetName { get; set; }
         public string Building { get; set; }

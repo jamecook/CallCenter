@@ -122,7 +122,7 @@ namespace WebApi.Controllers
             var workerIdStr = User.Claims.FirstOrDefault(c => c.Type == "WorkerId")?.Value;
             int.TryParse(workerIdStr, out int workerId);
 
-            return Ok(RequestService.CreateDoc(workerId,  value.TypeId, value.Topic, value.DocNumber, value.DocDate, value.InNumber, value.InDate, value.OrgId, value.Orgs, value.OrganizationalTypeId, value.Description, value.AppointedWorkerId));
+            return Ok(RequestService.CreateDoc(workerId,  value.TypeId, value.Topic, value.DocNumber, value.DocDate, value.InNumber, value.InDate, value.OrgId, value.Orgs, value.OrganizationalTypeId, value.Description, value.AppointedWorkerId,value.AddressId));
         }
 
         [HttpPut("{id}")]
@@ -137,7 +137,7 @@ namespace WebApi.Controllers
             int.TryParse(workerIdStr, out int workerId);
             RequestService.UpdateDoc(workerId,id, value.TypeId, value.Topic, value.DocNumber, value.DocDate,
                 value.InNumber, value.InDate, value.OrgId, value.OrganizationalTypeId, value.Description,
-                value.AppointedWorkerId);
+                value.AppointedWorkerId, value.AddressId);
             return Ok();
                 //RequestService.CreateDoc(workerId, id, value.CreateDate, value.InNumber, value.OutNumber, value.InDate, value.OutDate, value.AgentId, value.StatusId, value.KindId, value.TypeId, value.Description);
         }

@@ -74,6 +74,7 @@ namespace WebApi.Models
         public OrgDocDto[] Orgs { get; set; }
         public int? AppointedWorkerId { get; set; }
         public int? OrganizationalTypeId { get; set; }
+        public int? AddressId { get; set; }
         public string Description { get; set; }
     }
 

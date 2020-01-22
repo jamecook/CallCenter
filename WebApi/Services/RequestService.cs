@@ -3729,6 +3729,8 @@ VALUES
                                     ? new ShortAddressDto
                                     {
                                         Id = dataReader.GetInt32("address_id"),
+                                        StreetId = dataReader.GetInt32("street_id"),
+                                        HouseId = dataReader.GetInt32("house_id"),
                                         StreetName = dataReader.GetNullableString("street_name"),
                                         StreetPrefix = dataReader.GetNullableString("street_prefix"),
                                         Building = dataReader.GetNullableString("building"),
@@ -3807,14 +3809,14 @@ VALUES
         public static string CreateDoc(int workerId, int typeId, string topic, string docNumber, DateTime docDate,
             string inNumber,
             DateTime? inDate, int? orgId, OrgDocDto[] orgs, int? organizationalTypeId, string description,
-            int? appoinedWorkerId)
+            int? appoinedWorkerId, int? addressId)
         {
             var newDocId = string.Empty;
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 var query =
-                    "call docs_pack.create_doc(@WorkerId,@TypeId,@Topic, @DocNumber, @DocDate, @InNumber,@InDate,@OrgId,@OrganizTypeId,@Descript,@appoinedWorkerId);";
+                    "call docs_pack.create_doc(@WorkerId,@TypeId,@Topic, @DocNumber, @DocDate, @InNumber,@InDate,@OrgId,@OrganizTypeId,@Descript,@appoinedWorkerId,@addressId);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -3828,6 +3830,7 @@ VALUES
                     cmd.Parameters.AddWithValue("@OrganizTypeId", organizationalTypeId);
                     cmd.Parameters.AddWithValue("@Descript", description);
                     cmd.Parameters.AddWithValue("@appoinedWorkerId", appoinedWorkerId);
+                    cmd.Parameters.AddWithValue("@addressId", addressId);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         dataReader.Read();
@@ -3969,13 +3972,13 @@ VALUES
         }
         public static void UpdateDoc(int workerId,int docId, int typeId, string topic, string docNumber, DateTime docDate,
              string inNumber, DateTime? inDate, int? orgId, int? organizationalTypeId, string description,
-             int? appoinedWorkerId)
+             int? appoinedWorkerId, int? addressId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 var query =
-                    "call docs_pack.update_doc(@WorkerId,@DocId,@TypeId,@Topic, @DocNumber, @DocDate, @InNumber,@InDate,@OrgId,@OrganizTypeId,@Descript,@appoinedWorkerId);";
+                    "call docs_pack.update_doc(@WorkerId,@DocId,@TypeId,@Topic, @DocNumber, @DocDate, @InNumber,@InDate,@OrgId,@OrganizTypeId,@Descript,@appoinedWorkerId,@addressId);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@WorkerId", workerId);
@@ -3990,6 +3993,7 @@ VALUES
                     cmd.Parameters.AddWithValue("@OrganizTypeId", organizationalTypeId);
                     cmd.Parameters.AddWithValue("@Descript", description);
                     cmd.Parameters.AddWithValue("@appoinedWorkerId", appoinedWorkerId);
+                    cmd.Parameters.AddWithValue("@addressId", addressId);
                     cmd.ExecuteNonQuery();
                 }
             }
