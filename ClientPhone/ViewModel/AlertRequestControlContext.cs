@@ -16,8 +16,7 @@ namespace CRMPhone.ViewModel
 {
     public class AlertRequestControlContext : INotifyPropertyChanged
     {
-        private ObservableCollection<RequestForListDto> _requestList;
-        private RequestService _requestService;
+        private ObservableCollection<RequestForListShortDto> _requestList;
 
         private ICommand _refreshRequestCommand;
         public ICommand RefreshRequestCommand { get { return _refreshRequestCommand ?? (_refreshRequestCommand = new CommandHandler(RefreshRequest, true)); } }
@@ -57,6 +56,7 @@ namespace CRMPhone.ViewModel
         private ServiceCompanyDto _selectedServiceCompany;
         private ObservableCollection<ServiceCompanyDto> _serviceCompanyList;
         private bool _showDoned;
+        /*
         public ICommand OpenRequestCommand { get { return _openRequestCommand ?? (_openRequestCommand = new RelayCommand(OpenRequest));} }
 
 
@@ -122,11 +122,12 @@ namespace CRMPhone.ViewModel
             view.Show();
 
         }
+        */
 
         private void RefreshRequest()
         {
             RequestList.Clear();
-            var requests = _requestService.GetAlertRequestList(SelectedServiceCompany?.Id, ShowDoned).ToArray();
+             var requests = RestRequestService.GetAlertRequests(AppSettings.CurrentUser.Id);
             foreach (var request in requests)
             {
                 RequestList.Add(request);
@@ -143,17 +144,16 @@ namespace CRMPhone.ViewModel
 
         public AlertRequestControlContext()
         {
-            RequestList = new ObservableCollection<RequestForListDto>();
+            RequestList = new ObservableCollection<RequestForListShortDto>();
         }
 
         public void InitCollections()
         {
-            _requestService = new RequestService(AppSettings.DbConnection);
-            ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>(RestRequestService.GetFilterServiceCompanies(AppSettings.CurrentUser.Id));
+            //ServiceCompanyList = new ObservableCollection<ServiceCompanyDto>(RestRequestService.GetFilterServiceCompanies(AppSettings.CurrentUser.Id));
             RefreshRequest();
         }
 
-        public ObservableCollection<RequestForListDto> RequestList
+        public ObservableCollection<RequestForListShortDto> RequestList
         {
             get { return _requestList; }
             set { _requestList = value; OnPropertyChanged(nameof(RequestList));}

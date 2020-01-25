@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 using RestSharp;
 
@@ -90,6 +91,24 @@ namespace ClientPhone.Services
             return JsonConvert.DeserializeObject<ServiceCompanyDto[]>(responce.Content);
         }
 
+        public static MeterListDto[] GetMetersByDate(int userId, int? serviceCompanyId, DateTime fromDate, DateTime toDate)
+        {
+            var restUrl = $"{ApiUrl}/getMeters?userId={userId}&fromDate={fromDate.ToString("yyyy-MM-dd")}&toDate={toDate.ToString("yyyy-MM-dd")}";
+            if (serviceCompanyId.HasValue)
+            {
+                restUrl += $"&companyId={serviceCompanyId}";
+            }
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<MeterListDto[]>(responce.Content);
+        }
+
+
         public static CallsListDto[] GetCallList(int userId, DateTime fromDate, DateTime toDate, string requestId, int? operatorId, int? serviceCompanyId, string phoneNumber)
         {
             var restUrl = $"{ApiUrl}/getCallList?userId={userId}&fromDate={fromDate.ToString("yyyy-MM-dd")}&toDate={toDate.ToString("yyyy-MM-dd")}";
@@ -148,6 +167,18 @@ namespace ClientPhone.Services
         public static RequestForListShortDto[] GetRequestByPhone(int userId,string phoneNumber)
         {
             var restUrl = $"{ApiUrl}/getRequestByPhone?userId={userId}&phoneNumber={phoneNumber}";
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<RequestForListShortDto[]>(responce.Content);
+        }
+        public static RequestForListShortDto[] GetAlertRequests(int userId)
+        {
+            var restUrl = $"{ApiUrl}/getAlertRequests?userId={userId}";
 
             var client = new RestClient(restUrl);
             var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };

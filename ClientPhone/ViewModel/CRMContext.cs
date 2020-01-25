@@ -161,7 +161,6 @@ namespace CRMPhone.ViewModel
             InitCollections();
             AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser}) ver. {Assembly.GetEntryAssembly().GetName().Version}";
             /*
-            AlertRequestDataContext.InitCollections();
             RequestDataContext.InitCollections();
             ServiceCompanyFondContext.InitCollections();
             ServiceCompanyDataContext.RefreshList();
@@ -175,6 +174,7 @@ namespace CRMPhone.ViewModel
             CallsNotificationContext.Init();
             AlertAndWorkContext.InitCollections();
             /**/
+            AlertRequestDataContext.InitCollections();
             DispatcherContext.InitCollections();
             OnPropertyChanged(nameof(IsAdminRoleExist));
             if (!string.IsNullOrEmpty(AppSettings.SipInfo?.SipUser))
@@ -334,6 +334,21 @@ namespace CRMPhone.ViewModel
         private ICommand _downloadRecordCommand;
         public ICommand DownloadRecordCommand { get { return _downloadRecordCommand ?? (_downloadRecordCommand = new RelayCommand(DownloadRecord)); } }
 
+        private ICommand _addMeterCommand;
+        public ICommand AddMeterCommand { get { return _addMeterCommand ?? (_addMeterCommand = new CommandHandler(AddMeters, _canExecute)); } }
+
+        private void AddMeters()
+        {
+            var model = new MeterDeviceViewModel();
+            var view = new MeterDeviceDialog();
+            model.SetView(view);
+            model.PhoneNumber = LastAnsweredPhoneNumber;
+            view.DataContext = model;
+            view.Owner = mainWindow;
+            view.ShowDialog();
+
+        }
+
         private void DownloadRecord(object obj)
         {
             var record = obj as CallsListDto;
@@ -479,6 +494,30 @@ namespace CRMPhone.ViewModel
         //public ICommand BridgeCommand { get { return _bridgeCommand ?? (_bridgeCommand = new CommandHandler(Bridge, _canExecute)); } }
         private ICommand _numbersCommand;
         public ICommand NumbersCommand { get { return _numbersCommand ?? (_numbersCommand = new CommandHandler(Numbers, _canExecute)); } }
+        private ICommand _refreshMeterCommand;
+        public ICommand RefreshMeterCommand { get { return _refreshMeterCommand ?? (_refreshMeterCommand = new CommandHandler(RefreshMeters, _canExecute)); } }
+
+        private ICommand _deleteCommand;
+        public ICommand DeleteCommand { get { return _deleteCommand ?? (_deleteCommand = new CommandHandler(Delete, _canExecute)); } }
+
+
+        private void RefreshMeters()
+        {
+            MetersHistoryList.Clear();
+            var meters = RestRequestService.GetMetersByDate(AppSettings.CurrentUser.Id,SelectedMetersSC?.Id, MetersFromDate, MetersToDate);
+            foreach (var meter in meters)
+            {
+                MetersHistoryList.Add(meter);
+            }
+        }
+        private void Delete()
+        {
+            if (SelectedMeter != null)
+            {
+                //_requestService.DeleteMeter(SelectedMeter.Id);
+                RefreshMeters();
+            }
+        }
 
         private void Numbers()
         {

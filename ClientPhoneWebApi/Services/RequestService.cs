@@ -72,6 +72,94 @@ namespace ClientPhoneWebApi.Services
             }
         }
 
+        public MeterListDto[] GetMetersByDate(int userId, int? serviceCompanyId, DateTime fromDate, DateTime toDate)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand("CALL phone_client.get_meters(@userId,@ServiceCompanyId,@FromDate,@ToDate)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate.Date);
+                    cmd.Parameters.AddWithValue("@ToDate", toDate.Date.AddDays(1).AddSeconds(-1));
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var metersDtos = new List<MeterListDto>();
+                        while (dataReader.Read())
+                        {
+                            metersDtos.Add(new MeterListDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                StreetId = dataReader.GetInt32("street_id"),
+                                HouseId = dataReader.GetInt32("house_id"),
+                                AddressId = dataReader.GetInt32("address_id"),
+                                ServiceCompany = dataReader.GetNullableString("company_name"),
+                                PersonalAccount = dataReader.GetNullableString("personal_account"),
+                                StreetName = dataReader.GetString("street_name"),
+                                Flat = dataReader.GetString("flat"),
+                                Building = dataReader.GetString("building"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                Date = dataReader.GetDateTime("meters_date"),
+                                Electro1 = dataReader.GetDouble("electro_t1"),
+                                Electro2 = dataReader.GetDouble("electro_t2"),
+                                ColdWater1 = dataReader.GetDouble("cool_water1"),
+                                HotWater1 = dataReader.GetDouble("hot_water1"),
+                                ColdWater2 = dataReader.GetDouble("cool_water2"),
+                                HotWater2 = dataReader.GetDouble("hot_water2"),
+                                ColdWater3 = dataReader.GetDouble("cool_water3"),
+                                HotWater3 = dataReader.GetDouble("hot_water3"),
+                                Heating = dataReader.GetDouble("heating"),
+                                Heating2 = dataReader.GetNullableDouble("heating2"),
+                                Heating3 = dataReader.GetNullableDouble("heating3"),
+                                Heating4 = dataReader.GetNullableDouble("heating4"),
+                            });
+                        }
+                        dataReader.Close();
+                        return metersDtos.ToArray();
+                    }
+                }
+            }
+        }
+
+        public RequestForListDto[] GetAlertRequestList(int userId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand("CALL phone_client.get_alert_requests(@userId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    var requests = new List<RequestForListDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            requests.Add(new RequestForListDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                StreetPrefix = dataReader.GetString("prefix_name"),
+                                StreetName = dataReader.GetString("street_name"),
+                                AddressType = dataReader.GetString("address_type"),
+                                Flat = dataReader.GetString("flat"),
+                                Building = dataReader.GetString("building"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                CreateTime = dataReader.GetDateTime("create_time"),
+                                Description = dataReader.GetNullableString("description"),
+                                ContactPhones = dataReader.GetNullableString("client_phones"),
+                                ParentService = dataReader.GetNullableString("parent_name"),
+                                Service = dataReader.GetNullableString("service_name"),
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+                    return requests.ToArray();
+                }
+            }
+        }
+
+
         public ActiveChannelsDto[] GetActiveChannels(int userId)
         {
             var readedChannels = new List<ActiveChannelsDto>();

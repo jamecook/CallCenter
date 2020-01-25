@@ -446,7 +446,7 @@
                 </TabItem.Header>
                 <controls:DispatcherControl DataContext="{Binding DispatcherContext}"/>
             </TabItem>
-            <TabItem Visibility="Collapsed">
+            <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image  Source="pack://application:,,,/Images/prib_ucheta_small.png" Stretch="UniformToFill" Height="28" />
@@ -645,7 +645,33 @@
                     </DataGrid>
                 </Grid>
             </TabItem>
-
+            <TabItem Name="NotifyRequest" Visibility="Collapsed">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Напоминалки"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <controls:NotifyRequestControl DataContext="{Binding AlertRequestControlModel}"/>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/danger_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Контроль аварийных"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <controls:AlertRequestControl DataContext="{Binding AlertRequestDataContext}"/>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image  Source="pack://application:,,,/Images/tech_work_small.png" Stretch="UniformToFill" Height="28" />
+                        <TextBlock Margin="3" Text="Отключения"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <controls:AlertAndWorkControl DataContext="{Binding AlertAndWorkContext}"/>
+            </TabItem>
             <TabItem Visibility="Collapsed">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" >
@@ -818,7 +844,7 @@
                 </Grid>
             </TabItem>
             <!--<TabItem Visibility="{Binding IsAdminRoleExist}">-->
-            <TabItem Visibility="Collapsed">
+            <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image  Source="pack://application:,,,/Images/settings_small.png" Stretch="UniformToFill" Height="28" />

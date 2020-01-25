@@ -43,9 +43,9 @@
                           HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Auto">
             <DataGrid.InputBindings>
-                <MouseBinding MouseAction="LeftDoubleClick"
+                <!--<MouseBinding MouseAction="LeftDoubleClick"
                   Command="{Binding Path=OpenCommand}"
-                  CommandParameter="{Binding ElementName=RequestsGrid, Path=SelectedItem}" />
+                  CommandParameter="{Binding ElementName=RequestsGrid, Path=SelectedItem}" />-->
             </DataGrid.InputBindings>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="№" Width="60"
