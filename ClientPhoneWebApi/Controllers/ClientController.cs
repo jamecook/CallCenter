@@ -155,6 +155,49 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetAlertRequestList(userId));
         }
+        [HttpGet("getRequests")]
+        public IActionResult GetRequests([FromQuery]int userId, [FromQuery]string requestId, [FromQuery] bool? filterByCreateDate,
+                [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate,
+                [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] streets, 
+                [FromQuery]int? houseId,
+                [FromQuery]int? addressId,
+                [FromQuery]int? serviceId,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] parentServices,
+            //[ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] services,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] statuses,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] workers,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] executors,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] ratings,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] companies,
+            [ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] users,
+            [FromQuery] bool? badWork,
+            [FromQuery] bool? garanty,
+            [FromQuery] bool? onlyRetry,
+            [FromQuery] int? chargeable,
+            [FromQuery] bool? onlyExpired,
+            [FromQuery] bool? onlyByClient,
+            [FromQuery] bool? immediate,
+            [FromQuery] string clientPhone)
+            //[ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] warranties,
+            //[ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] immediates,
+            //[ModelBinder(typeof(CommaDelimitedArrayModelBinder))]int[] regions)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            var result = RequestService.GetRequestList(userId, requestId,
+                filterByCreateDate ?? true,
+                fromDate ?? DateTime.Today,
+                toDate ?? DateTime.Today.AddDays(1),
+                fromDate ?? DateTime.Today,
+                toDate ?? DateTime.Today.AddDays(1),
+                streets, houseId, addressId, parentServices, serviceId, statuses, workers, executors, companies, users, ratings,// warranties, immediates, regions,
+                chargeable, badWork ?? false, onlyRetry ?? false, clientPhone,
+                garanty ?? false, immediate ?? false, onlyByClient ?? false);
+            return Ok(result);
+        }
         [HttpGet("getMeters")]
         public IActionResult GetMeters([FromQuery]int userId, [FromQuery]int? companyId, [FromQuery]DateTime fromDate, [FromQuery]DateTime toDate)
         {
@@ -164,6 +207,116 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             return Ok(RequestService.GetMetersByDate(userId, companyId, fromDate, toDate));
+        }
+        [HttpGet("getStreets")]
+        public IActionResult GetStreets([FromQuery]int userId, [FromQuery]int? cityId, [FromQuery]int? companyId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetStreets(userId, cityId??1, companyId));
+        }
+        [HttpGet("getServices")]
+        public IActionResult GetServices([FromQuery]int userId, [FromQuery]int? parentId, [FromQuery]int? houseId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetServices(userId, parentId, houseId));
+        }
+        [HttpGet("getServiceById")]
+        public IActionResult GetServiceById([FromQuery]int userId, [FromQuery]int serviceId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetServiceById(userId, serviceId));
+        }
+        [HttpGet("getWorkerById")]
+        public IActionResult GetWorkerById([FromQuery]int userId, [FromQuery]int workerId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetWorkerById(userId, workerId));
+        }
+        [HttpGet("getScheduleTaskByRequestId")]
+        public IActionResult GetScheduleTaskByRequestId([FromQuery]int userId, [FromQuery]int requestId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetScheduleTaskByRequestId(userId, requestId));
+        }
+        [HttpGet("getFlats")]
+        public IActionResult GetFlats([FromQuery]int userId,  [FromQuery]int houseId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetFlats(userId, houseId));
+        }
+        [HttpGet("getStatuses")]
+        public IActionResult GetStatuses([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetStatuses(userId));
+        }
+        [HttpGet("getMasters")]
+        public IActionResult GetMasters([FromQuery]int userId, [FromQuery]int? companyId, [FromQuery]bool? showOnlyExecutors)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetMasters(userId, companyId, showOnlyExecutors??true));
+        }
+        [HttpGet("getExecutors")]
+        public IActionResult GetExecutors([FromQuery]int userId, [FromQuery]int? companyId, [FromQuery]bool? showOnlyExecutors)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetExecutors(userId, companyId, showOnlyExecutors??true));
+        }
+        [HttpGet("getRequest")]
+        public IActionResult GetRequest([FromQuery]int userId, [FromQuery]int requestId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetRequest(userId, requestId));
+        }
+        [HttpGet("getHouses")]
+        public IActionResult GetHouses([FromQuery]int userId, [FromQuery]int? companyId, [FromQuery]int streetId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetHouses(userId, companyId, streetId));
         }
 
         [HttpGet("getDispatcherStat")]

@@ -108,7 +108,7 @@ namespace CRMPhone.ViewModel
             _lastAliveTime = DateTime.Today;
             EnablePhone = false;
             /*
-            RequestDataContext = new RequestControlContext();
+
             ServiceCompanyFondContext = new ServiceCompanyFondControlContext();
             ServiceCompanyDataContext = new ServiceCompanyControlContext();
             WorkerAdminDataContext = new WorkerAdminControlContext();
@@ -120,6 +120,7 @@ namespace CRMPhone.ViewModel
             BlackListContext = new BlackListControlContext();
             AlertAndWorkContext = new AlertAndWorkControlContext();
             /**/
+            RequestDataContext = new RequestControlContext();
             AlertRequestDataContext = new AlertRequestControlContext();
             DispatcherContext = new DispatcherControlContext();
 
@@ -161,7 +162,6 @@ namespace CRMPhone.ViewModel
             InitCollections();
             AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser}) ver. {Assembly.GetEntryAssembly().GetName().Version}";
             /*
-            RequestDataContext.InitCollections();
             ServiceCompanyFondContext.InitCollections();
             ServiceCompanyDataContext.RefreshList();
             WorkerAdminDataContext.RefreshList();
@@ -174,6 +174,7 @@ namespace CRMPhone.ViewModel
             CallsNotificationContext.Init();
             AlertAndWorkContext.InitCollections();
             /**/
+            RequestDataContext.InitCollections();
             AlertRequestDataContext.InitCollections();
             DispatcherContext.InitCollections();
             OnPropertyChanged(nameof(IsAdminRoleExist));

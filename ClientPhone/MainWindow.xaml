@@ -174,54 +174,8 @@
                         <TextBlock Margin="3" Text="Заявки"/>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid>
-                    <DataGrid Name="RequestsGrid"
-                          AutoGenerateColumns="False"
-                          ItemsSource="{Binding Path=RequestList}"
-                          SelectionMode="Single"
-                          SelectionUnit="FullRow"
-                          IsReadOnly="True"
-                          HorizontalScrollBarVisibility="Disabled" Margin="0,63,0,0">
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Width="120" >
-                                <DataGridTemplateColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ContentTemplate">
-                                            <Setter.Value>
-                                                <DataTemplate>
-                                                    <TextBlock Text="Номер заявки" />
-                                                </DataTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridTemplateColumn.HeaderStyle>
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate DataType="dto:RequestForListShortDto">
-                                        <DockPanel>
-                                            <TextBlock Margin ="5,0" Text="{Binding Path=Id}"/>
-                                            <Button Width="20" VerticalAlignment="Center" Command="{Binding ElementName=RequestsGrid, Path=DataContext.CopyCommand}" CommandParameter="{Binding ElementName=RequestsGrid, Path=SelectedItem}"
-                                                    >
-                                                <Image Source="pack://application:,,,/Images/clipboard-copy-24.png"/>
-                                            </Button>
-                                        </DockPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Дата создания" Width="120"
-                             Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
-                            <DataGridTextColumn Header="УК" Width="120"
-                             Binding="{Binding Path=ServiceCompany}"/>
-                            <DataGridTextColumn Header="Адрес" Width="*"
-                             Binding="{Binding Path=FullAddress}"/>
-                            <DataGridTextColumn Header="Услуга" Width="*"
-                             Binding="{Binding Path=ParentService}"/>
-                            <DataGridTextColumn Header="Причина" Width="*"
-                             Binding="{Binding Path=Service}"/>
-                            <DataGridTextColumn Header="Примечание" Width="*"
-                             Binding="{Binding Path=Description}"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
+                <controls:RequestControl DataContext="{Binding RequestDataContext}"/>
+
             </TabItem>
             <TabItem>
                 <TabItem.Header>

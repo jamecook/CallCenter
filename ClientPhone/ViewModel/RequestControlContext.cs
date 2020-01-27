@@ -10,6 +10,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml.Linq;
+using ClientPhone.Services;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -528,7 +529,7 @@ namespace CRMPhone.ViewModel
             HouseList.Clear();
             if (!streetId.HasValue)
                 return;
-            foreach (var house in _requestService.GetHouses(streetId.Value).OrderBy(s => s.Building?.PadLeft(6, '0')).ThenBy(s => s.Corpus?.PadLeft(6, '0')))
+            foreach (var house in RestRequestService.GetHouses(AppSettings.CurrentUser.Id,streetId.Value,null).OrderBy(s => s.Building?.PadLeft(6, '0')).ThenBy(s => s.Corpus?.PadLeft(6, '0')))
             {
                 HouseList.Add(house);
             }
@@ -640,7 +641,7 @@ namespace CRMPhone.ViewModel
             ServiceList.Clear();
             if (!parentServiceId.HasValue)
                 return;
-            foreach (var source in _requestService.GetServices(parentServiceId.Value).OrderBy(s => s.Name))
+            foreach (var source in RestRequestService.GetServices(AppSettings.CurrentUser.Id,parentServiceId.Value,null).OrderBy(s => s.Name))
             {
                 ServiceList.Add(source);
             }
@@ -652,7 +653,7 @@ namespace CRMPhone.ViewModel
             FlatList.Clear();
             if (!houseId.HasValue)
                 return;
-            foreach (var flat in _requestService.GetFlats(houseId.Value).OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6, '0')))
+            foreach (var flat in RestRequestService.GetFlats(AppSettings.CurrentUser.Id,houseId.Value).OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6, '0')))
             {
                 FlatList.Add(flat);
             }
@@ -668,7 +669,7 @@ namespace CRMPhone.ViewModel
             FilterStreetList.Clear();
             if (!cityId.HasValue)
                 return;
-            foreach (var street in _requestService.GetStreets(cityId.Value).OrderBy(s => s.Name).Select(w => new FieldForFilterDto()
+            foreach (var street in RestRequestService.GetStreets(AppSettings.CurrentUser.Id,cityId.Value,null).OrderBy(s => s.Name).Select(w => new FieldForFilterDto()
             {
                 Id = w.Id,
                 Name = w.NameWithPrefix,
@@ -709,7 +710,7 @@ namespace CRMPhone.ViewModel
             if (_requestService == null)
                 _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
 
-            var request = _requestService.GetRequest(selectedItem.Id);
+            var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id,selectedItem.Id);
             if (request == null)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");
@@ -743,7 +744,7 @@ namespace CRMPhone.ViewModel
             var selectedParrentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
             if (selectedParrentService == null)
             {
-                var parrentServiceType = _requestService.GetServiceById(request.Type.ParentId ?? 0);
+                var parrentServiceType = RestRequestService.GetServiceById(AppSettings.CurrentUser.Id,request.Type.ParentId ?? 0);
                 requestModel.ParentServiceList.Add(parrentServiceType);
                 selectedParrentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
             }
@@ -751,7 +752,7 @@ namespace CRMPhone.ViewModel
             var service = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
             if (service == null)
             {
-                var serviceType = _requestService.GetServiceById(request.Type.Id);
+                var serviceType = RestRequestService.GetServiceById(AppSettings.CurrentUser.Id, request.Type.Id);
                 requestModel.ServiceList.Add(serviceType);
                 service = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
             }
@@ -767,7 +768,7 @@ namespace CRMPhone.ViewModel
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
             requestModel.RequestState = request.State.Description;
-            var sched = _requestService.GetScheduleTaskByRequestId(request.Id);
+            var sched = RestRequestService.GetScheduleTaskByRequestId(AppSettings.CurrentUser.Id, request.Id);
             requestModel.SelectedAppointment = sched!=null?new Appointment()
             {
                 Id = sched.Id,
@@ -776,7 +777,7 @@ namespace CRMPhone.ViewModel
                 EndTime = sched.ToDate,
             }: null;
             requestModel.OpenAppointment = requestModel.SelectedAppointment;
-            var master = request.MasterId.HasValue ? _requestService.GetWorkerById(request.MasterId.Value) : null;
+            var master = request.MasterId.HasValue ? RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id, request.MasterId.Value) : null;
             if (master != null)
             {
                 if (requestModel.MasterList.Count == 0 || requestModel.MasterList.All(e => e.Id != master.Id))
@@ -790,7 +791,7 @@ namespace CRMPhone.ViewModel
                 requestModel.SelectedMaster = null;
             }
 
-            var executer = request.ExecuterId.HasValue ? _requestService.GetWorkerById(request.ExecuterId.Value) : null;
+            var executer = request.ExecuterId.HasValue ? RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id, request.ExecuterId.Value) : null;
             if (executer != null)
             {
                 if (requestModel.ExecuterList.All(e => e.Id != executer.Id))
@@ -824,10 +825,20 @@ namespace CRMPhone.ViewModel
 
         public void RefreshRequest()
         {
-            if(_requestService == null)
-                _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
-            RequestList.Clear();
-            var requests = _requestService.GetRequestList(RequestNum, FilterByCreateDate, FromDate, ToDate,
+            //var requests = RestRequestService.GetRequestList(AppSettings.CurrentUser.Id, RequestNum, FilterByCreateDate, FromDate, ToDate,
+            //    ExecuteFromDate, ExecuteToDate,
+            //    FilterStreetList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+            //    _selectedHouse?.Id, SelectedFlat?.Id,
+            //    FilterParentServiceList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+            //    SelectedService?.Id,
+            //    FilterStatusList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+            //    FilterMasterList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+            //    FilterExecuterList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+            //    FilterServiceCompanyList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+            //    FilterUserList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+            //    FilterRatingList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+            //    SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone, OnlyGaranty, OnlyImmediate, OnlyByClient);
+            var requests = RestRequestService.GetRequestList(AppSettings.CurrentUser.Id, RequestNum, FilterByCreateDate, FromDate, ToDate,
                 ExecuteFromDate, ExecuteToDate,
                 FilterStreetList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 _selectedHouse?.Id, SelectedFlat?.Id,
@@ -840,6 +851,8 @@ namespace CRMPhone.ViewModel
                 FilterUserList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterRatingList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone, OnlyGaranty, OnlyImmediate, OnlyByClient);
+
+            RequestList.Clear();
             foreach (var request in requests)
             {
                 RequestList.Add(request);
@@ -866,58 +879,34 @@ namespace CRMPhone.ViewModel
 
         public void InitCollections()
         {
-            _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             FilterStreetList = new ObservableCollection<FieldForFilterDto>();
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
             ServiceList = new ObservableCollection<ServiceDto>();
-            FilterMasterList = new ObservableCollection<FieldForFilterDto>(_requestService.GetMasters(null).Select(
-                w => new FieldForFilterDto()
-                {
-                    Id = w.Id,
-                    Name = $"{w.SurName} {w.FirstName} {w.PatrName}",
-                    Selected = false
-                }).OrderBy(s=>s.Name));
-
-            FilterExecuterList = new ObservableCollection<FieldForFilterDto>(_requestService.GetExecuters(null).Select(
-                w => new FieldForFilterDto()
-                {
-                    Id = w.Id,
-                    Name = $"{w.SurName} {w.FirstName} {w.PatrName}",
-                    Selected = false
-                }).OrderBy(s=>s.Name));
-
-            FilterServiceCompanyList = new ObservableCollection<FieldForFilterDto>(_requestService.GetServiceCompanies().Select(
+            FilterServiceCompanyList = new ObservableCollection<FieldForFilterDto>(RestRequestService.GetFilterServiceCompanies(AppSettings.CurrentUser.Id).Select(
                 w => new FieldForFilterDto()
                 {
                     Id = w.Id,
                     Name = w.Name,
                     Selected = false
-                }).OrderBy(s=>s.Name));
-
-            FilterStatusList = new ObservableCollection<FieldForFilterDto>(_requestService.GetRequestStatuses().Select(
-                w => new FieldForFilterDto()
-                {
-                    Id = w.Id,
-                    Name = w.Description,
-                    Selected = false
                 }).OrderBy(s => s.Name));
-
-            FilterUserList = new ObservableCollection<FieldForFilterDto>(_requestService.GetUsers().Select(
+            FilterUserList = new ObservableCollection<FieldForFilterDto>(RestRequestService.GetFilterDispatchers(AppSettings.CurrentUser.Id).Select(
                 w => new FieldForFilterDto()
                 {
                     Id = w.Id,
                     Name = w.FullName,
                     Selected = false
                 }).OrderBy(s => s.Name));
-            FilterRatingList = new ObservableCollection<FieldForFilterDto>(new []{1,2,3,4,5}.Select(
+            FilterRatingList = new ObservableCollection<FieldForFilterDto>(new[] { 1, 2, 3, 4, 5 }.Select(
                 w => new FieldForFilterDto()
                 {
                     Id = w,
                     Name = w.ToString(),
                     Selected = false
                 }).OrderBy(s => s.Name));
-            FilterParentServiceList = new ObservableCollection<FieldForFilterDto>(_requestService.GetServices(null).Select(
+            PaymentList = new ObservableCollection<PaymentDto>(new[] { new PaymentDto { Id = 0, Name = "Бесплатные" }, new PaymentDto { Id = 1, Name = "Платные" } });
+            ChangeCity(1);
+            FilterParentServiceList = new ObservableCollection<FieldForFilterDto>(RestRequestService.GetServices(AppSettings.CurrentUser.Id,null,null).Select(
                 w => new FieldForFilterDto()
                 {
                     Id = w.Id,
@@ -928,13 +917,34 @@ namespace CRMPhone.ViewModel
             {
                 service.PropertyChanged += ServiceOnPropertyChanged;
             }
+            FilterStatusList = new ObservableCollection<FieldForFilterDto>(RestRequestService.GetStatuses(AppSettings.CurrentUser.Id).Select(
+                w => new FieldForFilterDto()
+                {
+                    Id = w.Id,
+                    Name = w.Description,
+                    Selected = false
+                }).OrderBy(s => s.Name));
             //foreach (var status in FilterStatusList)
             //{
             //    status.PropertyChanged += OnPropertyChanged;
             //}
 
-            PaymentList = new ObservableCollection<PaymentDto>(new [] {new PaymentDto{Id=0,Name="Бесплатные"}, new PaymentDto{Id = 1, Name = "Платные"}});
-            ChangeCity(_requestService.GetCities().FirstOrDefault().Id);
+            FilterMasterList = new ObservableCollection<FieldForFilterDto>(RestRequestService.GetMasters(AppSettings.CurrentUser.Id,null,true).Select(
+                w => new FieldForFilterDto()
+                {
+                    Id = w.Id,
+                    Name = $"{w.SurName} {w.FirstName} {w.PatrName}",
+                    Selected = false
+                }).OrderBy(s=>s.Name));
+
+            FilterExecuterList = new ObservableCollection<FieldForFilterDto>(RestRequestService.GetExecutors(AppSettings.CurrentUser.Id, null, true).Select(
+                w => new FieldForFilterDto()
+                {
+                    Id = w.Id,
+                    Name = $"{w.SurName} {w.FirstName} {w.PatrName}",
+                    Selected = false
+                }).OrderBy(s=>s.Name));
+            
         }
 
         private void ServiceOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
