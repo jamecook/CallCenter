@@ -229,6 +229,28 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<HouseDto[]>(responce.Content);
         }
+        public static HouseDto GetHouseById(int userId,int houseId)
+        {
+            var restUrl = $"{ApiUrl}/getHouseById?userId={userId}&houseId={houseId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<HouseDto>(responce.Content);
+        }
+        public static string GetActiveCallUniqueIdByCallId(int userId, string callId)
+        {
+            var restUrl = $"{ApiUrl}/getActiveCallUniqueIdByCallId?userId={userId}&callId={callId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<string>(responce.Content);
+        }
         public static StatusDto[] GetStatuses(int userId)
         {
             var restUrl = $"{ApiUrl}/getStatuses?userId={userId}";
@@ -239,6 +261,28 @@ namespace ClientPhone.Services
 
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<StatusDto[]>(responce.Content);
+        }
+        public static AddressTypeDto[] GetAddressTypes(int userId)
+        {
+            var restUrl = $"{ApiUrl}/getAddressTypes?userId={userId}";
+          var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<AddressTypeDto[]>(responce.Content);
+        }
+        public static CityDto[] GetCities(int userId)
+        {
+            var restUrl = $"{ApiUrl}/getCities?userId={userId}";
+          var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<CityDto[]>(responce.Content);
         }
         public static WorkerDto[] GetMasters(int userId, int? serviceCompanyId, bool showOnlyExecutors)
         {
@@ -338,6 +382,30 @@ namespace ClientPhone.Services
 
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<FlatDto[]>(responce.Content);
+        }
+        public static int? GetServiceCompanyIdByHouseId(int userId, int houseId)
+        {
+            var restUrl = $"{ApiUrl}/getServiceCompanyIdByHouseId?userId={userId}&houseId={houseId}";
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<int?>(responce.Content);
+        }
+        public static int AlertCountByHouseId(int userId, int houseId)
+        {
+            var restUrl = $"{ApiUrl}/alertCountByHouseId?userId={userId}&houseId={houseId}";
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<int>(responce.Content);
         }
 
         public static void SendAlive(int userId,string sipUser)

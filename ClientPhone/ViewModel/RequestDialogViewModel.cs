@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
 using CRMPhone.Dialogs;
 using Newtonsoft.Json;
@@ -52,7 +53,7 @@ namespace CRMPhone.ViewModel
             var selectedItem = sender as RequestForListDto;
             if (selectedItem == null)
                 return;
-            var request = _requestService.GetRequest(selectedItem.Id);
+            var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id,selectedItem.Id);
             if (request == null)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");
@@ -90,7 +91,7 @@ namespace CRMPhone.ViewModel
             requestModel.IsImmediate = request.IsImmediate;
             requestModel.IsBadWork = request.IsBadWork;
             requestModel.IsRetry = request.IsRetry;
-            var sched = _requestService.GetScheduleTaskByRequestId(request.Id);
+            var sched = RestRequestService.GetScheduleTaskByRequestId(AppSettings.CurrentUser.Id, request.Id);
             requestModel.SelectedAppointment = sched != null ? new Appointment()
             {
                 Id = sched.Id,
@@ -105,8 +106,8 @@ namespace CRMPhone.ViewModel
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
             requestModel.RequestState = request.State.Description;
-            requestModel.SelectedMaster = request.MasterId.HasValue ? _requestService.GetWorkerById(request.MasterId.Value) : null;
-            requestModel.SelectedExecuter = request.ExecuterId.HasValue ? _requestService.GetWorkerById(request.ExecuterId.Value) : null;
+            requestModel.SelectedMaster = request.MasterId.HasValue ? RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id,request.MasterId.Value) : null;
+            requestModel.SelectedExecuter = request.ExecuterId.HasValue ? RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id, request.ExecuterId.Value) : null;
 
             requestModel.SelectedEquipment = requestModel.EquipmentList.SingleOrDefault(e => e.Id == request.Equipment.Id);
             requestModel.RequestId = request.Id;
@@ -156,7 +157,7 @@ namespace CRMPhone.ViewModel
             StreetList.Clear();
             if (!cityId.HasValue)
                 return;
-            foreach (var street in _requestService.GetStreets(cityId.Value).OrderBy(s => s.Name))
+            foreach (var street in RestRequestService.GetStreets(AppSettings.CurrentUser.Id, cityId.Value,null).OrderBy(s => s.Name))
             {
                 StreetList.Add(street);
             }
@@ -168,7 +169,7 @@ namespace CRMPhone.ViewModel
             HouseList.Clear();
             if (!streetId.HasValue)
                 return;
-            foreach (var house in _requestService.GetHouses(streetId.Value).OrderBy(s => s.Building?.PadLeft(6,'0')).ThenBy(s=>s.Corpus?.PadLeft(6, '0')))
+            foreach (var house in RestRequestService.GetHouses(AppSettings.CurrentUser.Id, streetId.Value,null).OrderBy(s => s.Building?.PadLeft(6,'0')).ThenBy(s=>s.Corpus?.PadLeft(6, '0')))
             {
                 HouseList.Add(house);
             }
@@ -181,12 +182,12 @@ namespace CRMPhone.ViewModel
             if (!houseId.HasValue)
                 return;
             if(CanEdit)
-                AlertExists = _requestService.AlertCountByHouseId(houseId.Value)>0;
-            foreach (var flat in _requestService.GetFlats(houseId.Value).OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6,'0')))
+                AlertExists = RestRequestService.AlertCountByHouseId(AppSettings.CurrentUser.Id, houseId.Value)>0;
+            foreach (var flat in RestRequestService.GetFlats(AppSettings.CurrentUser.Id, houseId.Value).OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6,'0')))
             {
                 FlatList.Add(flat);
             }
-            var serviceCompanyId = _requestService.GetServiceCompany(houseId.Value);
+            var serviceCompanyId = RestRequestService.GetServiceCompanyIdByHouseId(AppSettings.CurrentUser.Id, houseId.Value);
             _selectedServiceCompanyId = serviceCompanyId;
 
             foreach (var request in RequestList.Where(r => r.CanSave))
@@ -200,7 +201,7 @@ namespace CRMPhone.ViewModel
             }
             if (houseId.HasValue)
             {
-                var house = _requestService.GetHouseById(houseId.Value);
+                var house = RestRequestService.GetHouseById(AppSettings.CurrentUser.Id, houseId.Value);
                 CommissioningDate = house.CommissioningDate;
                 ElevatorCount = house.ElevatorCount;
                 ServiceCompany = house.ServiceCompanyName;
@@ -301,7 +302,7 @@ namespace CRMPhone.ViewModel
                     LoadRequestsBySelectedAddress(_selectedFlat.Id);
                     if (string.IsNullOrEmpty(_callUniqueId))
                     {
-                        _callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(AppSettings.LastCallId);
+                        _callUniqueId = RestRequestService.GetActiveCallUniqueIdByCallId(AppSettings.CurrentUser.Id,AppSettings.LastCallId);
                     }
                 }
                 else
@@ -313,8 +314,8 @@ namespace CRMPhone.ViewModel
 
         private void LoadRequestsBySelectedAddress(int addressId)
         {
-            var currentDate = _requestService.GetCurrentDate();
-            AddressRequestList = new ObservableCollection<RequestForListDto>(_requestService.GetRequestList(null, true, currentDate.AddDays(-365), currentDate.AddDays(1), DateTime.Today,
+            var currentDate = RestRequestService.GetCurrentDate();
+            AddressRequestList = new ObservableCollection<RequestForListDto>(RestRequestService.GetRequestList(AppSettings.CurrentUser.Id,null, true, currentDate.AddDays(-365), currentDate.AddDays(1), DateTime.Today,
                 DateTime.Today, null, null, addressId, null, null,null,null,null,null,null,null,null,false,false,null,false,false, false));
         }
 
@@ -544,7 +545,7 @@ namespace CRMPhone.ViewModel
             if (!requestModel.RequestId.HasValue)
                 return;
 
-            var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(lastCallId);
+            var callUniqueId = RestRequestService.GetActiveCallUniqueIdByCallId(AppSettings.CurrentUser.Id, lastCallId);
             _requestService.AddCallToRequest(requestModel.RequestId.Value, callUniqueId);
             _requestService.AddCallHistory(requestModel.RequestId.Value, callUniqueId, AppSettings.CurrentUser.Id, AppSettings.LastCallId,"RequestDialogAddCall");
             MessageBox.Show("Текущий разговор прикреплен к заявке!");
@@ -615,8 +616,8 @@ namespace CRMPhone.ViewModel
             view.DataContext = model;
             if(view.ShowDialog() ?? false)
             {
-                var currentTime = model.ByTime?_requestService.GetCurrentDate().AddMinutes(model.SelectedTime.AddMinutes)
-                        :(model.SelectedDate ?? _requestService.GetCurrentDate()).Date.AddMinutes(model.SelectedDateTime.AddMinutes);
+                var currentTime = model.ByTime ? RestRequestService.GetCurrentDate().AddMinutes(model.SelectedTime.AddMinutes)
+                        :(model.SelectedDate ?? RestRequestService.GetCurrentDate()).Date.AddMinutes(model.SelectedDateTime.AddMinutes);
                 requestModel.AlertTime = currentTime;
             }
 
@@ -946,11 +947,11 @@ namespace CRMPhone.ViewModel
             AlertExists = false;
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             var contactInfo = new ContactDto {Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall};
-            _callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(AppSettings.LastCallId);
+            _callUniqueId = RestRequestService.GetActiveCallUniqueIdByCallId(AppSettings.CurrentUser.Id, AppSettings.LastCallId);
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
-            AddressTypeList = new ObservableCollection<AddressTypeDto>(_requestService.GetAddressTypes());
+            AddressTypeList = new ObservableCollection<AddressTypeDto>(RestRequestService.GetAddressTypes(AppSettings.CurrentUser.Id));
             //if (AddressTypeList.Count > 0)
             //{
             //    SelectedAddressType = AddressTypeList.FirstOrDefault();

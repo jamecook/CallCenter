@@ -409,6 +409,205 @@ namespace ClientPhoneWebApi.Services
                 return service;
             }
         }
+
+        public AddressTypeDto[] GetAddressTypes(int userId)
+        {
+            var query = "SELECT id,Name FROM CallCenter.AddressesTypes A order by OrderNum";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var types = new List<AddressTypeDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            types.Add(new AddressTypeDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name")
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return types.ToArray();
+                }
+            }
+        }
+        public CityDto[] GetCities(int userId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"select id,name from CallCenter.Cities where enabled = 1", conn)
+                )
+                {
+                    var cities = new List<CityDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            cities.Add(new CityDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name")
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return cities.ToArray();
+                }
+            }
+        }
+
+        public string GetActiveCallUniqueIdByCallId(int userId, string callId)
+        {
+            string retVal = null;
+            if (string.IsNullOrEmpty(callId))
+                return null;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var query =
+                    $@"SELECT case when (A.UniqueID < A2.UniqueID) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ActiveChannels A
+ left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
+ where A.call_id like '{callId}%'";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            retVal = dataReader.GetNullableString("uniqueId");
+                        }
+
+                        dataReader.Close();
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(retVal))
+                    return retVal;
+                query =
+                    $@"SELECT case when (A.UniqueID < A2.UniqueID) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ChannelHistory A
+ left join asterisk.ChannelHistory A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
+ where A.call_id like '{callId}%'";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            retVal = dataReader.GetNullableString("uniqueId");
+                        }
+
+                        dataReader.Close();
+                    }
+                }
+
+                return retVal;
+            }
+        }
+
+        public HouseDto GetHouseById(int userId, int houseId)
+        {
+            HouseDto house = null;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(
+                    @"SELECT h.id, h.street_id, h.building, h.corps, h.service_company_id, h.entrance_count, h.flat_count, h.floor_count, h.service_company_id, s.Name service_company_name,commissioning_date,have_parking,elevator_count,region_id, r.name region_name FROM CallCenter.Houses h
+ left join CallCenter.ServiceCompanies s on s.id = h.service_company_id
+ left join CallCenter.CityRegions r on r.id = h.region_id where h.enabled = 1 and h.id = @HouseId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@HouseId", houseId);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            house = new HouseDto()
+                            {
+                                Building = dataReader.GetString("building"),
+                                StreetId = dataReader.GetInt32("street_id"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                RegionId = dataReader.GetNullableInt("region_id"),
+                                RegionName = dataReader.GetNullableString("region_name"),
+                                ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
+                                ServiceCompanyName = dataReader.GetNullableString("service_company_name"),
+                                EntranceCount = dataReader.GetNullableInt("entrance_count"),
+                                FlatCount = dataReader.GetNullableInt("flat_count"),
+                                FloorCount = dataReader.GetNullableInt("floor_count"),
+                                ElevatorCount = dataReader.GetNullableInt("elevator_count"),
+                                HaveParking = dataReader.GetBoolean("have_parking"),
+                                CommissioningDate = dataReader.GetNullableDateTime("commissioning_date"),
+                            };
+                        }
+
+                        dataReader.Close();
+                    }
+                }
+
+            }
+            return house;
+        }
+        public int? GetServiceCompanyIdByHouseId(int userId, int houseId)
+        {
+            int? retVal = null;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd =
+                    new MySqlCommand(@"SELECT service_company_id FROM CallCenter.Houses H where id = @HouseId",
+                        conn))
+                {
+                    cmd.Parameters.AddWithValue("@HouseId", houseId);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            retVal = dataReader.GetNullableInt("service_company_id");
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return retVal;
+                }
+            }
+        }
+        public int AlertCountByHouseId(int userId, int houseId)
+        {
+            int result = 0;
+            var sqlQuery = @"SELECT count(1) alert_count FROM CallCenter.Alerts a
+ where a.house_id = @HouseId and (end_date is null or a.end_date > sysdate())";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@HouseId", houseId);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            result = dataReader.GetInt32("alert_count");
+                        }
+
+                        dataReader.Close();
+                        return result;
+                    }
+                }
+            }
+        }
         public ScheduleTaskDto GetScheduleTaskByRequestId(int userId, int requestId)
         {
             ScheduleTaskDto result = null;

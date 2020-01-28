@@ -268,6 +268,66 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetFlats(userId, houseId));
         }
+        [HttpGet("alertCountByHouseId")]
+        public IActionResult AlertCountByHouseId([FromQuery]int userId,  [FromQuery]int houseId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.AlertCountByHouseId(userId, houseId));
+        }
+        [HttpGet("getServiceCompanyIdByHouseId")]
+        public IActionResult GetServiceCompanyIdByHouseId([FromQuery]int userId,  [FromQuery]int houseId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetServiceCompanyIdByHouseId(userId, houseId));
+        }
+        [HttpGet("getHouseById")]
+        public IActionResult GetHouseById([FromQuery]int userId,  [FromQuery]int houseId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetHouseById(userId, houseId));
+        }
+        [HttpGet("getActiveCallUniqueIdByCallId")]
+        public IActionResult GetActiveCallUniqueIdByCallId([FromQuery]int userId,  [FromQuery]string callId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest(        "Authorization error!");
+            }
+            return Ok(RequestService.GetActiveCallUniqueIdByCallId(userId, callId));
+        }
+        [HttpGet("getAddressTypes")]
+        public IActionResult GetAddressTypes([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest(        "Authorization error!");
+            }
+            return Ok(RequestService.GetAddressTypes(userId));
+        }
+        [HttpGet("getCities")]
+        public IActionResult GetCities([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest(        "Authorization error!");
+            }
+            return Ok(RequestService.GetCities(userId));
+        }
         [HttpGet("getStatuses")]
         public IActionResult GetStatuses([FromQuery]int userId)
         {

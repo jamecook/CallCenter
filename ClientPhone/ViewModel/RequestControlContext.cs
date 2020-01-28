@@ -707,8 +707,6 @@ namespace CRMPhone.ViewModel
             var selectedItem = sender as RequestForListDto;
             if (selectedItem == null)
                 return;
-            if (_requestService == null)
-                _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
 
             var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id,selectedItem.Id);
             if (request == null)
