@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
@@ -13,8 +14,6 @@ namespace CRMPhone.ViewModel
     public class EditAddressOnRequestDialogViewModel : INotifyPropertyChanged
     {
         private Window _view;
-
-        private readonly RequestService _requestService;
         private ObservableCollection<CityDto> _cityList;
         private CityDto _selectedCity;
         private ObservableCollection<StreetDto> _streetList;
@@ -45,7 +44,7 @@ namespace CRMPhone.ViewModel
             StreetList.Clear();
             if (!cityId.HasValue)
                 return;
-            foreach (var street in _requestService.GetStreets(cityId.Value).OrderBy(s => s.Name))
+            foreach (var street in RestRequestService.GetStreets(AppSettings.CurrentUser.Id, cityId.Value).OrderBy(s => s.Name))
             {
                 StreetList.Add(street);
             }
@@ -57,7 +56,7 @@ namespace CRMPhone.ViewModel
             HouseList.Clear();
             if (!streetId.HasValue)
                 return;
-            foreach (var house in _requestService.GetHouses(streetId.Value).OrderBy(s => s.Building?.PadLeft(6,'0')).ThenBy(s=>s.Corpus?.PadLeft(6, '0')))
+            foreach (var house in RestRequestService.GetHouses(AppSettings.CurrentUser.Id, streetId.Value).OrderBy(s => s.Building?.PadLeft(6,'0')).ThenBy(s=>s.Corpus?.PadLeft(6, '0')))
             {
                 HouseList.Add(house);
             }
@@ -104,7 +103,7 @@ namespace CRMPhone.ViewModel
             FlatList.Clear();
             if (!houseId.HasValue)
                 return;
-            foreach (var flat in _requestService.GetFlats(houseId.Value).OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6, '0')))
+            foreach (var flat in RestRequestService.GetFlats(AppSettings.CurrentUser.Id, houseId.Value).OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6, '0')))
             {
                 FlatList.Add(flat);
             }
@@ -148,12 +147,11 @@ namespace CRMPhone.ViewModel
         public EditAddressOnRequestDialogViewModel(int requestId)
         {
             _requestId = requestId;
-            _requestService = new RequestService(AppSettings.DbConnection);
 
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
-            CityList = new ObservableCollection<CityDto>(_requestService.GetCities());
+            CityList = new ObservableCollection<CityDto>(RestRequestService.GetCities(AppSettings.CurrentUser.Id));
             SelectedCity = CityList.FirstOrDefault();
         }
 

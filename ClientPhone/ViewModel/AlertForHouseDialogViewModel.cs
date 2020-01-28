@@ -36,7 +36,7 @@ namespace CRMPhone.ViewModel
             set { _alertList = value; OnPropertyChanged(nameof(AlertList));}
         }
 
-        public AlertForHouseDialogViewModel(List<AlertDto> alertList)
+        public AlertForHouseDialogViewModel(AlertDto[] alertList)
         {
             AlertList = new ObservableCollection<AlertDto>(alertList);
         }

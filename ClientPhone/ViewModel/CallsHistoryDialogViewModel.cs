@@ -7,8 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
 using Microsoft.Win32;
+using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 
 namespace CRMPhone.ViewModel
@@ -64,7 +66,7 @@ namespace CRMPhone.ViewModel
 
         private void SendSmsToCitizen(object obj)
         {
-            var request = _requestService.GetRequest(_requestId);
+            var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, _requestId);
             var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
             if (smsSettings.SendToClient && request.Contacts.Any(c => c.IsMain))
             {
@@ -83,10 +85,10 @@ namespace CRMPhone.ViewModel
 
         private void SendSmsToWorker(object obj)
         {
-            var request = _requestService.GetRequest(_requestId);
+            var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, _requestId);
             var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
-            var service = _requestService.GetServiceById(request.Type.Id);
-            var parrentService = request.Type.ParentId.HasValue ? _requestService.GetServiceById(request.Type.ParentId.Value) : null;
+            var service = RestRequestService.GetServiceById(AppSettings.CurrentUser.Id, request.Type.Id);
+            var parrentService = request.Type.ParentId.HasValue ? RestRequestService.GetServiceById(AppSettings.CurrentUser.Id, request.Type.ParentId.Value) : null;
             if (!((parrentService?.CanSendSms ?? true) && service.CanSendSms))
             {
                 return;
@@ -94,7 +96,7 @@ namespace CRMPhone.ViewModel
 
             if (!request.MasterId.HasValue)
                 return;
-            var worker = _requestService.GetWorkerById(request.MasterId.Value);
+            var worker = RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id, request.MasterId.Value);
             if(!worker.SendSms)
                 return;
             string phones = "";

@@ -14,15 +14,13 @@ namespace CRMPhone.ViewModel
     {
         private Window _view;
 
-        private RequestServiceImpl.RequestService _requestService;
         private int? _requestId;
         private ObservableCollection<Appointment> _scheduleTaskList;
         private AttachmentDto _selectedNoteItem;
 
 
-        public CalendarDialogViewModel(RequestServiceImpl.RequestService requestService, int? requestId)
+        public CalendarDialogViewModel(int? requestId)
         {
-            _requestService = requestService;
             _requestId = requestId;
             ScheduleTaskList = new ObservableCollection<Appointment>(GetList());
         }

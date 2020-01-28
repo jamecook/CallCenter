@@ -360,12 +360,12 @@ namespace CRMPhone.ViewModel
 
         private void GetScInfo(object obj)
         {
-            var view = new GetScInfoDialog();
-            var model = new GetScInfoDialogViewModel(_requestService,_selectedServiceCompanyId,view);
-            view.DataContext = model;
-            model.SetView(view);
-            view.Owner = _view;
-            view.Show();
+            //var view = new GetScInfoDialog();
+            //var model = new GetScInfoDialogViewModel(_re questService,_selectedServiceCompanyId,view);
+            //view.DataContext = model;
+            //model.SetView(view);
+            //view.Owner = _view;
+            //view.Show();
         }
 
         private void AddRequest()
@@ -400,12 +400,12 @@ namespace CRMPhone.ViewModel
             SelectedStreet = StreetList.FirstOrDefault(s=>s.Id == model.SelectedStreet.Id);
             SelectedHouse = HouseList.FirstOrDefault(h=>h.Id == model.SelectedHouse.Id);
             SelectedFlat = FlatList.FirstOrDefault(f=>f.Id == model.SelectedFlat.Id);
-            _requestService.RequestChangeAddress(RequestId,model.SelectedFlat.Id);
+            RestRequestService.RequestChangeAddress(AppSettings.CurrentUser.Id, RequestId,model.SelectedFlat.Id);
         }
 
         private void OpenAlerts()
         {
-            var alerts = _requestService.GetAlerts(DateTime.Now, DateTime.Now, SelectedHouse.Id);
+            var alerts = RestRequestService.GetAlerts(AppSettings.CurrentUser.Id,DateTime.Now, DateTime.Now, SelectedHouse.Id);
             var model = new AlertForHouseDialogViewModel(alerts);
             var view = new AlertByHouseListDialog();
             view.DataContext = model;
@@ -442,7 +442,7 @@ namespace CRMPhone.ViewModel
         private ICommand _showExecuterInfoCommand;
         public ICommand ShowExecuterInfoCommand
         {
-            get { return _showExecuterInfoCommand ?? (_showExecuterInfoCommand = new RelayCommand(ShowExecuterInfo)); }
+            get { return _showExecuterInfoCommand ?? (_showExecuterInfoCommand = new RelayCommand(ShowExecutorInfo)); }
             
         }
 
@@ -468,16 +468,16 @@ namespace CRMPhone.ViewModel
                 if (string.IsNullOrEmpty(AppSettings.LastCallId))
                 {
                     var sipState = JsonConvert.SerializeObject(ContextSaver.CrmContext.SipLines);
-                    _requestService.AddCallHistory(viewModel.RequestId.Value, "-------",
+                    RestRequestService.AddCallHistory(viewModel.RequestId.Value, "-------",
                         AppSettings.CurrentUser.Id, sipState, "RequestDialogDial");
                     return;
                 }
-                var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(AppSettings.LastCallId);
+                var callUniqueId = RestRequestService.GetActiveCallUniqueIdByCallId(AppSettings.CurrentUser.Id, AppSettings.LastCallId);
 
                 if (!string.IsNullOrEmpty(callUniqueId))
                 {
-                    _requestService.AddCallToRequest(viewModel.RequestId.Value, callUniqueId);
-                    _requestService.AddCallHistory(viewModel.RequestId.Value, callUniqueId,
+                    RestRequestService.AddCallToRequest(AppSettings.CurrentUser.Id, viewModel.RequestId.Value, callUniqueId);
+                    RestRequestService.AddCallHistory(viewModel.RequestId.Value, callUniqueId,
                         AppSettings.CurrentUser.Id, AppSettings.LastCallId, "RequestDialogDial");
                 }
             }
@@ -490,20 +490,20 @@ namespace CRMPhone.ViewModel
                 return;
             var view = new WorkerInfoDialog();
             view.Owner = _view;
-            var viewModel = new WorkerInfoViewModel(_requestService,model?.SelectedMaster?.Id??0,_requestId);
+            var viewModel = new WorkerInfoViewModel(model?.SelectedMaster?.Id??0,_requestId);
             view.DataContext = viewModel;
             viewModel.SetView(view);
             view.ShowDialog();
             //throw new NotImplementedException();
         }
-        private void ShowExecuterInfo(object obj)
+        private void ShowExecutorInfo(object obj)
         {
             var model = obj as RequestItemViewModel;
             if(model?.SelectedExecuter == null)
                 return;
             var view = new WorkerInfoDialog();
             view.Owner = _view;
-            var viewModel = new WorkerInfoViewModel(_requestService,model?.SelectedExecuter?.Id??0,_requestId);
+            var viewModel = new WorkerInfoViewModel(model?.SelectedExecuter?.Id??0,_requestId);
             view.DataContext = viewModel;
             viewModel.SetView(view);
             view.ShowDialog();
@@ -546,8 +546,8 @@ namespace CRMPhone.ViewModel
                 return;
 
             var callUniqueId = RestRequestService.GetActiveCallUniqueIdByCallId(AppSettings.CurrentUser.Id, lastCallId);
-            _requestService.AddCallToRequest(requestModel.RequestId.Value, callUniqueId);
-            _requestService.AddCallHistory(requestModel.RequestId.Value, callUniqueId, AppSettings.CurrentUser.Id, AppSettings.LastCallId,"RequestDialogAddCall");
+            RestRequestService.AddCallToRequest(AppSettings.CurrentUser.Id, requestModel.RequestId.Value, callUniqueId);
+            RestRequestService.AddCallHistory(requestModel.RequestId.Value, callUniqueId, AppSettings.CurrentUser.Id, AppSettings.LastCallId,"RequestDialogAddCall");
             MessageBox.Show("Текущий разговор прикреплен к заявке!");
         }
 
@@ -573,13 +573,13 @@ namespace CRMPhone.ViewModel
             if (!(sender is RequestItemViewModel))
                 return;
             var requestModel = sender as RequestItemViewModel;
-            var model = new CalendarDialogViewModel(_requestService,requestModel.RequestId);
+            var model = new CalendarDialogViewModel(requestModel.RequestId);
             if (requestModel.SelectedExecuter == null)
             {
                 MessageBox.Show(_view, "Необходимо выбрать исполнителя!");
                 return;
             }
-            var sched = _requestService.GetScheduleTasks(requestModel.SelectedExecuter.Id, DateTime.Now.Date.AddDays(-7),
+            var sched = RestRequestService.GetScheduleTasks(AppSettings.CurrentUser.Id, requestModel.SelectedExecuter.Id, DateTime.Now.Date.AddDays(-7),
                 DateTime.Now.Date.AddDays(14));
             var app = sched.Select(s => new Appointment()
             {
@@ -608,7 +608,7 @@ namespace CRMPhone.ViewModel
             if (!(sender is RequestItemViewModel))
                 return;
             var requestModel = sender as RequestItemViewModel;
-            var times = _requestService.GetAlertTimes(requestModel.IsImmediate);
+            var times = RestRequestService.GetAlertTimes(AppSettings.CurrentUser.Id, requestModel.IsImmediate);
             var model = new ChangeAlertTimeDialogViewModel(times);
             var view = new ChangeAlertTimeDialog();
             model.SetView(view);
@@ -630,7 +630,7 @@ namespace CRMPhone.ViewModel
             var requestModel = sender as RequestItemViewModel;
             if (!requestModel.RequestId.HasValue)
                 return;
-            _requestService.ChangeDescription(requestModel.RequestId.Value, requestModel.Description);
+            RestRequestService.ChangeDescription(AppSettings.CurrentUser.Id, requestModel.RequestId.Value, requestModel.Description);
             MessageBox.Show("Примечание сохранено!");
         }
         private void OpenAttachmentDialog(object sender)
@@ -816,7 +816,7 @@ namespace CRMPhone.ViewModel
             }
             //if (string.IsNullOrEmpty(_callUniqueId))
             {
-                _callUniqueId = _requestService.GetOnlyActiveCallUniqueIdByCallId(AppSettings.LastCallId);
+                _callUniqueId = RestRequestService.GetOnlyActiveCallUniqueIdByCallId(AppSettings.CurrentUser.Id,AppSettings.LastCallId);
             }
             //var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, null, Entrance, Floor, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id);
             var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id,0);
@@ -826,7 +826,7 @@ namespace CRMPhone.ViewModel
                 return;
             }
             //Надо УК брать из сохраненной заявки
-            var requestDto = _requestService.GetRequest(request.Value);
+            var requestDto = RestRequestService.GetRequest(AppSettings.CurrentUser.Id,request.Value);
             var smsSettings = _requestService.GetSmsSettingsForServiceCompany(requestDto.ServiceCompanyId);
             if (smsSettings.SendToClient && ContactList.Any(c => c.IsMain) && requestModel.SelectedParentService.CanSendSms && requestModel.SelectedService.CanSendSms)
             {
@@ -945,7 +945,6 @@ namespace CRMPhone.ViewModel
         public RequestDialogViewModel()
         {
             AlertExists = false;
-            _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             var contactInfo = new ContactDto {Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall};
             _callUniqueId = RestRequestService.GetActiveCallUniqueIdByCallId(AppSettings.CurrentUser.Id, AppSettings.LastCallId);
             StreetList = new ObservableCollection<StreetDto>();
@@ -956,7 +955,7 @@ namespace CRMPhone.ViewModel
             //{
             //    SelectedAddressType = AddressTypeList.FirstOrDefault();
             //}
-            CityList = new ObservableCollection<CityDto>(_requestService.GetCities());
+            CityList = new ObservableCollection<CityDto>(RestRequestService.GetCities(AppSettings.CurrentUser.Id));
             if (CityList.Count > 0)
             {
                 SelectedCity = CityList.FirstOrDefault();
@@ -966,7 +965,7 @@ namespace CRMPhone.ViewModel
             CanEditAddress = AppSettings.CurrentUser.Roles.Select(r => r.Name).Contains("admin");
             if (!string.IsNullOrEmpty(AppSettings.LastIncomingCall))
             {
-                var clientInfoDto = _requestService.GetLastAddressByClientPhone(AppSettings.LastIncomingCall);
+                var clientInfoDto = RestRequestService.GetLastAddressByClientPhone(AppSettings.CurrentUser.Id,AppSettings.LastIncomingCall);
                 if (clientInfoDto != null)
                 {
                     SelectedStreet = StreetList.FirstOrDefault(s => s.Id == clientInfoDto.StreetId);
@@ -977,7 +976,6 @@ namespace CRMPhone.ViewModel
                 }
             }
             ContactList = new ObservableCollection<ContactDto>(new[] {contactInfo});
-
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

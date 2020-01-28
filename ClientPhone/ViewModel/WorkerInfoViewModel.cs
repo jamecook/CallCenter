@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using ClientPhone.Services;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
@@ -14,15 +15,13 @@ namespace CRMPhone.ViewModel
     {
         private Window _view;
 
-        private RequestServiceImpl.RequestService _requestService;
         private ObservableCollection<WorkerDto> _workersList;
         private WorkerDto _selectedWorker;
         private int _requestId;
 
-        public WorkerInfoViewModel(RequestServiceImpl.RequestService requestService, int workerId,int requestId)
+        public WorkerInfoViewModel(int workerId,int requestId)
         {
-            _requestService = requestService;
-            WorkersList = new ObservableCollection<WorkerDto>(requestService.GetWorkerInfoWithParrents(workerId));
+            WorkersList = new ObservableCollection<WorkerDto>(RestRequestService.GetWorkerInfoWithParrents(AppSettings.CurrentUser.Id, workerId));
             _requestId = requestId;
         }
 
@@ -56,12 +55,12 @@ namespace CRMPhone.ViewModel
                 MessageBox.Show("ОШИБКА прикрепление звонка! Пустой номер последнего звонка!");
                 return;
             }
-            var callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(lastCallId);
+            var callUniqueId = RestRequestService.GetActiveCallUniqueIdByCallId(AppSettings.CurrentUser.Id, lastCallId);
 
             if (!string.IsNullOrEmpty(callUniqueId))
             {
-                _requestService.AddCallToRequest(_requestId, callUniqueId);
-                _requestService.AddCallHistory(_requestId, callUniqueId, AppSettings.CurrentUser.Id, AppSettings.LastCallId,"WorkerInfoDial");
+                RestRequestService.AddCallToRequest(AppSettings.CurrentUser.Id, _requestId, callUniqueId);
+                RestRequestService.AddCallHistory(_requestId, callUniqueId, AppSettings.CurrentUser.Id, AppSettings.LastCallId,"WorkerInfoDial");
 
             }
 

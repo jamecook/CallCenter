@@ -248,6 +248,50 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetWorkerById(userId, workerId));
         }
+        [HttpPut("RequestChangeAddress")]
+        public IActionResult RequestChangeAddress([FromBody]ChangeAddressDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.RequestChangeAddress(value.UserId, value.RequestId, value.AddressId);
+            return Ok();
+        }
+        [HttpPut("ChangeDescription")]
+        public IActionResult ChangeDescription([FromBody]ChangeDescriptionDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.ChangeDescription(value.UserId, value.RequestId, value.Description);
+            return Ok();
+        }
+        [HttpPut("AddCallHistory")]
+        public IActionResult AddCallHistory([FromBody]AddCallHistoryDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.AddCallHistory( value.RequestId, value.CallUniqueId, value.UserId,value.CallId,value.MethodName);
+            return Ok();
+        }
+        [HttpPut("AddCallToRequest")]
+        public IActionResult AddCallToRequest([FromBody]AddCallToRequestDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.AddCallToRequest(value.UserId, value.RequestId, value.CallUniqueId);
+            return Ok();
+        }
         [HttpGet("getScheduleTaskByRequestId")]
         public IActionResult GetScheduleTaskByRequestId([FromQuery]int userId, [FromQuery]int requestId)
         {
@@ -257,6 +301,27 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             return Ok(RequestService.GetScheduleTaskByRequestId(userId, requestId));
+        }
+        [HttpGet("getScheduleTasks")]
+        public IActionResult GetScheduleTasks([FromQuery]int userId, [FromQuery]int workerId,[FromQuery]DateTime fromDate, [FromQuery]DateTime toDate)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+
+            return Ok(RequestService.GetScheduleTasks(userId, workerId, fromDate, toDate));
+        }
+        [HttpGet("GetAlerts")]
+        public IActionResult GetAlerts([FromQuery]int userId, [FromQuery] DateTime fromDate, [FromQuery] DateTime toDate, [FromQuery]int? houseId,[FromQuery]bool? onlyActive)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetAlerts(userId, fromDate, toDate, houseId, onlyActive??true));
         }
         [HttpGet("getFlats")]
         public IActionResult GetFlats([FromQuery]int userId,  [FromQuery]int houseId)
@@ -328,6 +393,26 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetCities(userId));
         }
+        [HttpGet("GetLastAddressByClientPhone")]
+        public IActionResult GetLastAddressByClientPhone([FromQuery]int userId, [FromQuery]string phone)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest(        "Authorization error!");
+            }
+            return Ok(RequestService.GetLastAddressByClientPhone(userId, phone));
+        }
+        [HttpGet("GetWorkersByHouseAndService")]
+        public IActionResult GetWorkersByHouseAndService([FromQuery]int userId, [FromQuery]int houseId, [FromQuery]int parentServiceTypeId, [FromQuery]bool showMasters)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest(        "Authorization error!");
+            }
+            return Ok(RequestService.GetWorkersByHouseAndService(userId, houseId,parentServiceTypeId,showMasters));
+        }
         [HttpGet("getStatuses")]
         public IActionResult GetStatuses([FromQuery]int userId)
         {
@@ -337,6 +422,26 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             return Ok(RequestService.GetStatuses(userId));
+        }
+        [HttpGet("GetPeriods")]
+        public IActionResult GetPeriods([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetPeriods(userId));
+        }
+        [HttpGet("GetEquipments")]
+        public IActionResult GetEquipments([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetEquipments(userId));
         }
         [HttpGet("getMasters")]
         public IActionResult GetMasters([FromQuery]int userId, [FromQuery]int? companyId, [FromQuery]bool? showOnlyExecutors)
@@ -483,6 +588,26 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             return Ok(RequestService.GetUniqueIdByCallId(userId, callId));
+        }
+        [HttpGet("GetAlertTimes")]
+        public IActionResult GetAlertTimes([FromQuery]int userId, [FromQuery]bool isImmediate)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetAlertTimes(userId, isImmediate));
+        }
+        [HttpGet("GetOnlyActiveCallUniqueIdByCallId")]
+        public IActionResult GetOnlyActiveCallUniqueIdByCallId([FromQuery]int userId, [FromQuery]string callId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetOnlyActiveCallUniqueIdByCallId(userId, callId));
         }
 
         [HttpGet("getTransferList")]

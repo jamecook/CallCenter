@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using CRMPhone.Annotations;
 using System.Windows;
+using ClientPhone.Services;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 using RudiGrobler.Calendar.Common;
@@ -12,7 +13,6 @@ namespace CRMPhone.ViewModel
 {
     public class RequestItemViewModel : INotifyPropertyChanged
     {
-        private readonly RequestServiceImpl.RequestService _requestService;
         private ObservableCollection<WorkerDto> _masterList;
         private ObservableCollection<WorkerDto> _executerList;
         private WorkerDto _selectedMaster;
@@ -51,17 +51,16 @@ namespace CRMPhone.ViewModel
 
         public RequestItemViewModel()
         {
-            _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             //CanAttach = true;
             ServiceList = new ObservableCollection<ServiceDto>();
-            MasterList = new ObservableCollection<WorkerDto>(_requestService.GetMasters(null));
-            ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
-            EquipmentList = new ObservableCollection<EquipmentDto>(_requestService.GetEquipments());
-            ParentServiceList = new ObservableCollection<ServiceDto>(_requestService.GetServices(null));
+            MasterList = new ObservableCollection<WorkerDto>(RestRequestService.GetMasters(AppSettings.CurrentUser.Id,null,true));
+            ExecuterList = new ObservableCollection<WorkerDto>(RestRequestService.GetExecutors(AppSettings.CurrentUser.Id,null,true));
+            EquipmentList = new ObservableCollection<EquipmentDto>(RestRequestService.GetEquipments(AppSettings.CurrentUser.Id));
+            ParentServiceList = new ObservableCollection<ServiceDto>(RestRequestService.GetServices(AppSettings.CurrentUser.Id,null,null));
             SelectedParentService = ParentServiceList.FirstOrDefault();
-            PeriodList = new ObservableCollection<PeriodDto>(_requestService.GetPeriods());
+            PeriodList = new ObservableCollection<PeriodDto>(RestRequestService.GetPeriods(AppSettings.CurrentUser.Id));
             SelectedPeriod = PeriodList.FirstOrDefault();
-            CompanyList = new ObservableCollection<ServiceCompanyDto>(_requestService.GetServiceCompanies());
+            CompanyList = new ObservableCollection<ServiceCompanyDto>(RestRequestService.GetFilterServiceCompanies(AppSettings.CurrentUser.Id));
             SelectedCompany = CompanyList.FirstOrDefault();
             Rating = new RequestRatingDto();
             GarantyList = new ObservableCollection<GarantyDto>(new GarantyDto[] {
@@ -137,7 +136,7 @@ namespace CRMPhone.ViewModel
         private void UpdateParrentServices(int? houseId)
         {
             ParentServiceList.Clear();
-            foreach (var source in _requestService.GetServices(null, houseId).OrderBy(s => s.Name))
+            foreach (var source in RestRequestService.GetServices(AppSettings.CurrentUser.Id,null, houseId).OrderBy(s => s.Name))
             {
                 ParentServiceList.Add(source);
             }
@@ -212,7 +211,7 @@ namespace CRMPhone.ViewModel
                 MasterList.Clear();
             if (_showAllMasters)
             {
-                foreach (var master in _requestService.GetMasters(null))
+                foreach (var master in RestRequestService.GetMasters(AppSettings.CurrentUser.Id,null,true))
                 {
                     MasterList.Add(master);
                 }
@@ -222,7 +221,7 @@ namespace CRMPhone.ViewModel
             {
                 if (_selectedHouseId.HasValue && SelectedParentService != null)
                 {
-                    foreach (var master in _requestService.GetWorkersByHouseAndService(_selectedHouseId.Value, SelectedParentService.Id))
+                    foreach (var master in RestRequestService.GetWorkersByHouseAndService(AppSettings.CurrentUser.Id, _selectedHouseId.Value, SelectedParentService.Id))
                     {
                         MasterList.Add(master);
                     }
@@ -304,11 +303,11 @@ namespace CRMPhone.ViewModel
         {
             var selectedExecuterId = SelectedExecuter?.Id;
             if (ShowAllExecuters || SelectedCompany == null || SelectedParentService == null)
-                ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
+                ExecuterList = new ObservableCollection<WorkerDto>(RestRequestService.GetExecutors(AppSettings.CurrentUser.Id,null,true));
             else if (_selectedHouseId.HasValue)
             {
                 ExecuterList = new ObservableCollection<WorkerDto>(
-                        _requestService.GetWorkersByHouseAndService(_selectedHouseId.Value, SelectedParentService.Id, false));
+                        RestRequestService.GetWorkersByHouseAndService(AppSettings.CurrentUser.Id, _selectedHouseId.Value, SelectedParentService.Id, false));
             }
             SelectedExecuter = ExecuterList.FirstOrDefault(m => m.Id == selectedExecuterId);
             if(SelectedExecuter == null)
@@ -438,7 +437,7 @@ namespace CRMPhone.ViewModel
             ServiceList.Clear();
             if (!parentServiceId.HasValue)
                 return;
-            foreach (var source in _requestService.GetServices(parentServiceId.Value).OrderBy(s => s.Name))
+            foreach (var source in RestRequestService.GetServices(AppSettings.CurrentUser.Id, parentServiceId.Value,null).OrderBy(s => s.Name))
             {
                 ServiceList.Add(source);
             }

@@ -202,7 +202,7 @@ namespace ClientPhone.Services
             return JsonConvert.DeserializeObject<DispatcherStatDto[]>(responce.Content);
         }
 
-        public static StreetDto[] GetStreets(int userId,int cityId,int? serviceCompanyId)
+        public static StreetDto[] GetStreets(int userId,int cityId,int? serviceCompanyId = null)
         {
             var restUrl = $"{ApiUrl}/getStreets?userId={userId}&cityId={cityId}";
             if(serviceCompanyId.HasValue)
@@ -215,7 +215,20 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<StreetDto[]>(responce.Content);
         }
-        public static HouseDto[] GetHouses(int userId,int streetId,int? serviceCompanyId)
+        public static AlertDto[] GetAlerts(int userId, DateTime fromDate, DateTime toDate, int? houseId, bool onlyActive = true)
+        {
+            var restUrl = $"{ApiUrl}/GetAlerts?userId={userId}&fromDate={fromDate.ToString("yyyy-MM-dd")}&toDate={toDate.ToString("yyyy-MM-dd")}&onlyActive={onlyActive}";
+            if(houseId.HasValue)
+                restUrl += $"&houseId={houseId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<AlertDto[]>(responce.Content);
+        }
+        public static HouseDto[] GetHouses(int userId,int streetId,int? serviceCompanyId = null)
         {
             var restUrl = $"{ApiUrl}/getHouses?userId={userId}&streetId={streetId}";
             if (serviceCompanyId.HasValue)
@@ -251,6 +264,20 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<string>(responce.Content);
         }
+        public static WorkerDto[] GetWorkerInfoWithParrents(int userId,int workerId)
+        {
+            var result = new List<WorkerDto>();
+            WorkerDto worker = null;
+            do
+            {
+                if (worker == null)
+                    worker = GetWorkerById(userId, workerId);
+                else if (worker.ParentWorkerId.HasValue)
+                    worker = GetWorkerById(userId, worker.ParentWorkerId.Value);
+                result.Add(worker);
+            } while (worker.ParentWorkerId != null);
+            return result.ToArray();
+        }
         public static StatusDto[] GetStatuses(int userId)
         {
             var restUrl = $"{ApiUrl}/getStatuses?userId={userId}";
@@ -283,6 +310,17 @@ namespace ClientPhone.Services
 
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<CityDto[]>(responce.Content);
+        }
+        public static ClientAddressInfoDto GetLastAddressByClientPhone(int userId, string phone)
+        {
+            var restUrl = $"{ApiUrl}/getCities?userId={userId}&phone={phone}";
+          var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<ClientAddressInfoDto>(responce.Content);
         }
         public static WorkerDto[] GetMasters(int userId, int? serviceCompanyId, bool showOnlyExecutors)
         {
@@ -334,7 +372,7 @@ namespace ClientPhone.Services
         }
         public static WorkerDto GetWorkerById(int userId, int workerId)
         {
-            var restUrl = $"{ApiUrl}/getExecutors?userId={userId}&workerId={workerId}";
+            var restUrl = $"{ApiUrl}/getWorkerById?userId={userId}&workerId={workerId}";
             var client = new RestClient(restUrl);
             var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
@@ -342,6 +380,58 @@ namespace ClientPhone.Services
 
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<WorkerDto>(responce.Content);
+        }
+        public static void AddCallHistory(int requestId, string callUniqueId, int userId, string callId, string methodName)
+        {
+            var value = new AddCallHistoryDto
+            {
+                UserId = userId,
+                CallUniqueId = callUniqueId,
+                RequestId = requestId,
+                CallId = callId,
+                MethodName = methodName
+            };
+            var restUrl = $"{ApiUrl}/RequestChangeAddress";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+
+        public static void ChangeDescription(int userId, int requestId, string description)
+        {
+            var value = new ChangeDescriptionDto
+            {
+                UserId = userId,
+                RequestId = requestId,
+                Description = description
+            };
+            var restUrl = $"{ApiUrl}/ChangeDescription";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+
+        public static void RequestChangeAddress(int userId, int requestId, int addressId)
+        {
+            var value = new ChangeAddressDto
+            {
+                UserId = userId,
+                AddressId = addressId,
+                RequestId = requestId
+            };
+            var restUrl = $"{ApiUrl}/RequestChangeAddress";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
         }
         public static ScheduleTaskDto GetScheduleTaskByRequestId(int userId, int requestId)
         {
@@ -353,6 +443,50 @@ namespace ClientPhone.Services
 
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<ScheduleTaskDto>(responce.Content);
+        }
+        public static ScheduleTaskDto[] GetScheduleTasks(int userId, int workerId, DateTime fromDate, DateTime toDate)
+        {
+            var restUrl = $"{ApiUrl}/getScheduleTasks?userId={userId}&workerId={workerId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<ScheduleTaskDto[]>(responce.Content);
+        }
+        public static PeriodDto[] GetPeriods(int userId)
+        {
+            var restUrl = $"{ApiUrl}/GetPeriods?userId={userId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<PeriodDto[]>(responce.Content);
+        }
+        public static EquipmentDto[] GetEquipments(int userId)
+        {
+            var restUrl = $"{ApiUrl}/GetPeriods?userId={userId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<EquipmentDto[]>(responce.Content);
+        }
+        public static WorkerDto[] GetWorkersByHouseAndService(int userId, int houseId, int parentServiceTypeId, bool showMasters = true)
+        {
+            var restUrl = $"{ApiUrl}/GetWorkersByHouseAndService?userId={userId}&houseId={houseId}&parentServiceTypeId={parentServiceTypeId}&showMasters={showMasters}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<WorkerDto[]>(responce.Content);
         }
 
         public static ServiceDto[] GetServices(int userId,int? parentId, int? houseId)
@@ -382,6 +516,18 @@ namespace ClientPhone.Services
 
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<FlatDto[]>(responce.Content);
+        }
+        public static AlertTimeDto[] GetAlertTimes(int userId, bool isImmediate)
+        {
+            var restUrl = $"{ApiUrl}/GetAlertTimes?userId={userId}&isImmediate={isImmediate}";
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<AlertTimeDto[]>(responce.Content);
         }
         public static int? GetServiceCompanyIdByHouseId(int userId, int houseId)
         {
@@ -519,6 +665,19 @@ namespace ClientPhone.Services
             return JsonConvert.DeserializeObject<string>(responce.Content);
 
         }
+        public static string GetOnlyActiveCallUniqueIdByCallId(int userId, string callId)
+        {
+            var restUrl = $"{ApiUrl}/getOnlyActiveCallUniqueIdByCallId?userId={userId}&callId={callId}";
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<string>(responce.Content);
+
+        }
 
         public static RequestForListDto[] GetRequestList(int userId, string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate,
             DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId,
@@ -532,27 +691,27 @@ namespace ClientPhone.Services
                 restUrl += $"&clientPhone={clientPhone}";
             if(!string.IsNullOrEmpty(requestId))
                 restUrl += $"&requestId={requestId}";
-            if (streetsId.Length > 0)
+            if (streetsId != null && streetsId.Length > 0)
                 restUrl += $"&streets={streetsId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)}";
             if(houseId.HasValue)
                 restUrl += $"&houseId={houseId}";
             if (addressId.HasValue)
                 restUrl += $"&addressId={addressId}";
-            if (parentServicesId.Length > 0)
+            if (streetsId != null && parentServicesId.Length > 0)
                 restUrl += $"&parentServices={parentServicesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)}";
             if (serviceId.HasValue)
                 restUrl += $"&serviceId={serviceId}";
-            if (statusesId.Length > 0)
+            if (statusesId != null && statusesId.Length > 0)
                 restUrl += $"&statuses={statusesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)}";
-            if (mastersId.Length > 0)
+            if (mastersId != null && mastersId.Length > 0)
                 restUrl += $"&workers={mastersId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)}";
-            if (executorsId.Length > 0)
+            if (executorsId != null && executorsId.Length > 0)
                 restUrl += $"&executors={executorsId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)}";
-            if (serviceCompaniesId.Length > 0)
+            if (serviceCompaniesId != null && serviceCompaniesId.Length > 0)
                 restUrl += $"&companies={serviceCompaniesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)}";
-            if (usersId.Length > 0)
+            if (usersId != null && usersId.Length > 0)
                 restUrl += $"&users={usersId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)}";
-            if (ratingsId.Length > 0)
+            if (ratingsId != null && ratingsId.Length > 0)
                 restUrl += $"&ratings={ratingsId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)}";
             if (payment.HasValue)
                 restUrl += $"&chargeable={payment}";
