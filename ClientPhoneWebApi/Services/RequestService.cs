@@ -801,6 +801,8 @@ where s.request_id = @RequestId and deleted = 0;";
         }
         public void RequestChangeAddress(int userId, int requestId, int addressId)
         {
+            if(requestId<=0 || addressId <= 0)
+                return;
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
@@ -1502,14 +1504,14 @@ where s.request_id = @RequestId and deleted = 0;";
                             }
 
                             AddCallHistory(newId, callUniqueId, userId, lastCallId,
-                                "CreateNewRequest");
+                                "CreateNewRequest", conn);
                         }
 
                         #endregion
 
                         #region Сохранение контактных номеров 
 
-                        SaveContacts(newId, contactList);
+                        SaveContacts(newId, contactList, conn);
 
                         #endregion
 
@@ -1541,90 +1543,96 @@ where s.request_id = @RequestId and deleted = 0;";
             return null;
         }
 
-        public void SaveContacts(int requestId, ContactDto[] contactList)
+        public void SaveContacts(int requestId, ContactDto[] contactList, MySqlConnection connection)
         {
-            using (var conn = new MySqlConnection(_connectionString))
+            MySqlConnection conn;
+            if (connection != null)
             {
+                conn = connection;
+            }
+            else
+            {
+                conn = new MySqlConnection(_connectionString);
                 conn.Open();
+            }
 
-                foreach (
-                    var contact in
-                    contactList.Where(c => !string.IsNullOrEmpty(c.PhoneNumber))
-                        .OrderByDescending(c => c.IsMain))
+            foreach (
+                var contact in
+                contactList.Where(c => !string.IsNullOrEmpty(c.PhoneNumber))
+                    .OrderByDescending(c => c.IsMain))
+            {
+                var clientPhoneId = 0;
+                ContactDto currentInfo = null;
+                using (
+                    var cmd = new MySqlCommand(
+                        "SELECT id,name,email,addition FROM CallCenter.ClientPhones C where Number = @Phone",
+                        conn))
                 {
-                    var clientPhoneId = 0;
-                    ContactDto currentInfo = null;
+                    cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            currentInfo = new ContactDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetNullableString("name"),
+                                Email = dataReader.GetNullableString("email"),
+                                AdditionInfo = dataReader.GetNullableString("addition"),
+                            };
+                            clientPhoneId = currentInfo.Id;
+                        }
+
+                        dataReader.Close();
+                    }
+                }
+
+                if (currentInfo == null)
+                {
                     using (
                         var cmd = new MySqlCommand(
-                            "SELECT id,name,email,addition FROM CallCenter.ClientPhones C where Number = @Phone",
-                            conn))
+                            @"insert into CallCenter.ClientPhones(Number,name,email,addition) values(@Phone,@Name,@Email,@AddInfo);
+    select LAST_INSERT_ID();", conn))
                     {
                         cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
-
-                        using (var dataReader = cmd.ExecuteReader())
-                        {
-                            if (dataReader.Read())
-                            {
-                                currentInfo = new ContactDto
-                                {
-                                    Id = dataReader.GetInt32("id"),
-                                    Name = dataReader.GetNullableString("name"),
-                                    Email = dataReader.GetNullableString("email"),
-                                    AdditionInfo = dataReader.GetNullableString("addition"),
-                                };
-                                clientPhoneId = currentInfo.Id;
-                            }
-
-                            dataReader.Close();
-                        }
+                        cmd.Parameters.AddWithValue("@Name", contact.Name);
+                        cmd.Parameters.AddWithValue("@Email", contact.Email);
+                        cmd.Parameters.AddWithValue("@AddInfo", contact.AdditionInfo);
+                        clientPhoneId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
-
-                    if (currentInfo == null)
-                    {
-                        using (
-                            var cmd = new MySqlCommand(
-                                @"insert into CallCenter.ClientPhones(Number,name,email,addition) values(@Phone,@Name,@Email,@AddInfo);
-    select LAST_INSERT_ID();", conn))
-                        {
-                            cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
-                            cmd.Parameters.AddWithValue("@Name", contact.Name);
-                            cmd.Parameters.AddWithValue("@Email", contact.Email);
-                            cmd.Parameters.AddWithValue("@AddInfo", contact.AdditionInfo);
-                            clientPhoneId = Convert.ToInt32(cmd.ExecuteScalar());
-                        }
-                    }
-                    else
-                    {
-                        using (
-                            var cmd = new MySqlCommand(
-                                @"update CallCenter.ClientPhones set name = @Name,email = @Email,addition = @AddInfo where id = @Id;",
-                                conn))
-                        {
-                            cmd.Parameters.AddWithValue("@Id", currentInfo.Id);
-                            cmd.Parameters.AddWithValue("@Name",
-                                string.IsNullOrEmpty(contact.Name) ? currentInfo.Name : contact.Name);
-                            cmd.Parameters.AddWithValue("@Email",
-                                string.IsNullOrEmpty(contact.Email) ? currentInfo.Email : contact.Email);
-                            cmd.Parameters.AddWithValue("@AddInfo",
-                                string.IsNullOrEmpty(contact.AdditionInfo)
-                                    ? currentInfo.AdditionInfo
-                                    : contact.AdditionInfo);
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-
+                }
+                else
+                {
                     using (
-                        var cmd =
-                            new MySqlCommand(
-                                @"insert into CallCenter.RequestContacts (request_id,IsMain,ClientPhone_id) 
+                        var cmd = new MySqlCommand(
+                            @"update CallCenter.ClientPhones set name = @Name,email = @Email,addition = @AddInfo where id = @Id;",
+                            conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", currentInfo.Id);
+                        cmd.Parameters.AddWithValue("@Name",
+                            string.IsNullOrEmpty(contact.Name) ? currentInfo.Name : contact.Name);
+                        cmd.Parameters.AddWithValue("@Email",
+                            string.IsNullOrEmpty(contact.Email) ? currentInfo.Email : contact.Email);
+                        cmd.Parameters.AddWithValue("@AddInfo",
+                            string.IsNullOrEmpty(contact.AdditionInfo)
+                                ? currentInfo.AdditionInfo
+                                : contact.AdditionInfo);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                using (
+                    var cmd =
+                        new MySqlCommand(
+                            @"insert into CallCenter.RequestContacts (request_id,IsMain,ClientPhone_id) 
     values(@RequestId,@IsMain,@PhoneId);
     select LAST_INSERT_ID();", conn))
-                    {
-                        cmd.Parameters.AddWithValue("@RequestId", requestId);
-                        cmd.Parameters.AddWithValue("@IsMain", contact.IsMain);
-                        cmd.Parameters.AddWithValue("@PhoneId", clientPhoneId);
-                        contact.Id = Convert.ToInt32(cmd.ExecuteScalar());
-                    }
+                {
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    cmd.Parameters.AddWithValue("@IsMain", contact.IsMain);
+                    cmd.Parameters.AddWithValue("@PhoneId", clientPhoneId);
+                    contact.Id = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
         }
@@ -1734,28 +1742,36 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
             }
         }
 
-        public void AddCallHistory(int requestId, string callUniqueId, int userId, string callId, string methodName)
+        public void AddCallHistory(int requestId, string callUniqueId, int userId, string callId, string methodName,
+            MySqlConnection connection = null)
         {
+            MySqlConnection conn;
             if (requestId <= 0 || string.IsNullOrEmpty(callUniqueId))
                 return;
-            using (var conn = new MySqlConnection(_connectionString))
+            if (connection != null)
             {
+                conn = connection;
+            }
+            else
+            {
+                conn = new MySqlConnection(_connectionString);
                 conn.Open();
-                using (var cmd =
-                    new MySqlCommand(
-                        @"insert into CallCenter.RequestCallsHistory (request_id, unique_Id, add_date, user_id, call_id,method_name)
- values(@Request, @UniqueId,sysdate(),@UserID,@CallId,@MethodName)", conn))
-                {
-                    cmd.Parameters.AddWithValue("@Request", requestId);
-                    cmd.Parameters.AddWithValue("@UniqueId", callUniqueId);
-                    cmd.Parameters.AddWithValue("@UserID", userId);
-                    cmd.Parameters.AddWithValue("@CallId", callId);
-                    cmd.Parameters.AddWithValue("@MethodName", methodName);
-                    cmd.ExecuteNonQuery();
-                }
             }
 
+            using (var cmd =
+                new MySqlCommand(
+                    @"insert into CallCenter.RequestCallsHistory (request_id, unique_Id, add_date, user_id, call_id,method_name)
+ values(@Request, @UniqueId,sysdate(),@UserID,@CallId,@MethodName)", conn))
+            {
+                cmd.Parameters.AddWithValue("@Request", requestId);
+                cmd.Parameters.AddWithValue("@UniqueId", callUniqueId);
+                cmd.Parameters.AddWithValue("@UserID", userId);
+                cmd.Parameters.AddWithValue("@CallId", callId);
+                cmd.Parameters.AddWithValue("@MethodName", methodName);
+                cmd.ExecuteNonQuery();
+            }
         }
+
         public WorkerDto GetWorkerById(int userId, int workerId)
         {
             WorkerDto worker = null;

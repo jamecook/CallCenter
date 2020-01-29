@@ -13,7 +13,7 @@ namespace ClientPhone.Services
     {
         private static readonly string ApiKey  = "qwertyuiop987654321";
         //private static readonly string ApiUrl  = "http://127.0.0.1:5000/Client";
-        private static readonly string ApiUrl  = "http://192.168.1.124:32180/Client";
+        private static readonly string ApiUrl = "http://192.168.1.124:32180/Client";
         public static ActiveChannelsDto[] GetActiveChannels(int userId)
         {
             var restUrl = $"{ApiUrl}/activeCalls?userId={userId}";
@@ -446,6 +446,7 @@ namespace ClientPhone.Services
             request.AddHeader("Authorization", $"{ApiKey}");
             request.AddJsonBody(value);
             var responce = client.Execute(request);
+
             return JsonConvert.DeserializeObject<int?>(responce.Content);
         }
 
