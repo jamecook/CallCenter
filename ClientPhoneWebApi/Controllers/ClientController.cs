@@ -270,6 +270,18 @@ namespace ClientPhoneWebApi.Controllers
             RequestService.ChangeDescription(value.UserId, value.RequestId, value.Description);
             return Ok();
         }
+        [HttpPost("SaveNewRequest")]
+        public IActionResult SaveNewRequest([FromBody]NewRequestDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            var result = RequestService.SaveNewRequest(value.UserId, value.LastCallId, value.AddressId, value.RequestTypeId, value.ContactList, value.RequestMessage,
+            value.Chargeable, value.Immediate, value.CallUniqueId, value.Entrance, value.Floor, value.AlertTime, value.IsRetry, value.IsBedWork, value.EquipmentId, value.Warranty);
+            return Ok(result);
+        }
         [HttpPut("AddCallHistory")]
         public IActionResult AddCallHistory([FromBody]AddCallHistoryDto value)
         {

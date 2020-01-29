@@ -818,8 +818,7 @@ namespace CRMPhone.ViewModel
             {
                 _callUniqueId = RestRequestService.GetOnlyActiveCallUniqueIdByCallId(AppSettings.CurrentUser.Id,AppSettings.LastCallId);
             }
-            //var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, null, Entrance, Floor, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id);
-            var request = _requestService.SaveNewRequest(SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id,0);
+            var request = RestRequestService.SaveNewRequest(AppSettings.CurrentUser.Id, AppSettings.LastCallId, SelectedFlat.Id, requestModel.SelectedService.Id, ContactList.ToArray(), requestModel.Description, requestModel.IsChargeable, requestModel.IsImmediate, _callUniqueId, Entrance, Floor, requestModel.AlertTime,requestModel.IsRetry,requestModel.IsBadWork, requestModel.SelectedEquipment?.Id,0);
             if (!request.HasValue)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");

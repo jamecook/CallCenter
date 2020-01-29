@@ -416,6 +416,38 @@ namespace ClientPhone.Services
             request.AddJsonBody(value);
             var responce = client.Execute(request);
         }
+        public static int? SaveNewRequest(int userId, string lastCallId, int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
+            bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, DateTime? alertTime, bool isRetry, bool isBedWork, int? equipmentId, int warranty)
+
+        {
+            var value = new NewRequestDto()
+            {
+                UserId = userId,
+                LastCallId= lastCallId,
+                AddressId = addressId,
+                RequestMessage = requestMessage,
+                RequestTypeId = requestTypeId,
+                IsRetry = isRetry,
+                CallUniqueId = callUniqueId,
+                Warranty =  warranty,
+                AlertTime = alertTime,
+                Chargeable = chargeable,
+                ContactList = contactList,
+                Entrance = entrance,
+                EquipmentId = equipmentId,
+                Floor = floor,
+                Immediate = immediate,
+                IsBedWork = isBedWork
+            };
+            var restUrl = $"{ApiUrl}/SaveNewRequest";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<int?>(responce.Content);
+        }
 
         public static void RequestChangeAddress(int userId, int requestId, int addressId)
         {

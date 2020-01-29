@@ -271,6 +271,7 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Services\ChangeAddressDto.cs" />
+    <Compile Include="Services\NewRequestDto.cs" />
     <Compile Include="Services\RestRequestService.cs" />
     <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
     <Compile Include="BooleanToVisibilityConverter.cs" />
