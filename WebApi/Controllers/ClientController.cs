@@ -159,6 +159,7 @@ namespace WebApi.Controllers
             int.TryParse(clientIdStr, out int clientId);
             if (clientId == 0 || string.IsNullOrEmpty(deviceId))
                 return BadRequest("1000:Error in JWT");
+            _logger.LogInformation($"\r\n---GetAddresses: DeviceId={deviceId}, ClientId={clientId}.");
             return RequestService.GetAddresses(clientId,deviceId);
         }
         [HttpPut("can_be_called/{addressId}")]

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using ClientPhone.Services;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 
@@ -11,17 +12,15 @@ namespace CRMPhone.ViewModel
     {
         private Window _view;
 
-        private RequestServiceImpl.RequestService _requestService;
         private int _requestId;
         private ObservableCollection<RequestRatingDto> _ratingList;
         private RequestRatingDto _selectedRating;
 
-        public AddRatingDialogViewModel(RequestServiceImpl.RequestService requestService, int requestId)
+        public AddRatingDialogViewModel( int requestId)
         {
-            _requestService = requestService;
             _requestId = requestId;
-            RatingList = new ObservableCollection<RequestRatingDto>(_requestService.GetRequestRating());
-            var request = _requestService.GetRequest(_requestId);
+            RatingList = new ObservableCollection<RequestRatingDto>(RestRequestService.GetRequestRating(AppSettings.CurrentUser.Id));
+            var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, _requestId);
             Refresh(null);
         }
 
@@ -35,7 +34,7 @@ namespace CRMPhone.ViewModel
 
         private void Save(object sender)
         {
-            _requestService.SetRating(_requestId, SelectedRating.Id, Description);
+            RestRequestService.SetRating(AppSettings.CurrentUser.Id, _requestId, SelectedRating.Id, Description);
             _view.DialogResult = true;
         }
 
@@ -53,7 +52,7 @@ namespace CRMPhone.ViewModel
 
         private void Refresh(object obj)
         {
-            RequestRatingHistory = new ObservableCollection<RequestRatingListDto>(_requestService.GetRequestRatings(_requestId));
+            RequestRatingHistory = new ObservableCollection<RequestRatingListDto>(RestRequestService.GetRequestRatings(AppSettings.CurrentUser.Id, _requestId));
         }
         private void DeleteRating(object obj)
         {
@@ -63,7 +62,7 @@ namespace CRMPhone.ViewModel
             if (MessageBox.Show(_view, "Удалить выбранную оценку?", "Удаление", MessageBoxButton.YesNo) ==
                 MessageBoxResult.Yes)
             {
-                _requestService.DeleteRequestRatingById(item.Id);
+                RestRequestService.DeleteRequestRatingById(AppSettings.CurrentUser.Id, item.Id);
                 Refresh(null);
             }
         }

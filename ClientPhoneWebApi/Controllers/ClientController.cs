@@ -248,6 +248,16 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetWorkerById(userId, workerId));
         }
+        [HttpGet("GetSmsSettingsForServiceCompany")]
+        public IActionResult GetSmsSettingsForServiceCompany([FromQuery]int userId, [FromQuery]int? serviceCompanyId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetSmsSettingsForServiceCompany(userId, serviceCompanyId));
+        }
         [HttpPut("RequestChangeAddress")]
         public IActionResult RequestChangeAddress([FromBody]ChangeAddressDto value)
         {
@@ -259,6 +269,117 @@ namespace ClientPhoneWebApi.Controllers
             RequestService.RequestChangeAddress(value.UserId, value.RequestId, value.AddressId);
             return Ok();
         }
+        [HttpPut("SendSms")]
+        public IActionResult SendSms([FromBody]SendSmsDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.SendSms(value.UserId, value.RequestId, value.Sender,value.Phone,value.Message,value.IsClient);
+            return Ok();
+        }
+        [HttpPut("AddNewMaster")]
+        public IActionResult AddNewMaster([FromBody]AddNewWorkerDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.AddNewMaster(value.UserId, value.RequestId, value.WorkerId);
+            return Ok();
+        }
+        [HttpPut("AddNewExecutor")]
+        public IActionResult AddNewExecutor([FromBody]AddNewWorkerDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.AddNewExecutor(value.UserId, value.RequestId, value.WorkerId);
+            return Ok();
+        }
+        [HttpPut("AddNewExecuteDate")]
+        public IActionResult AddNewExecuteDate([FromBody]NewExecuteDateDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.AddNewExecuteDate(value.UserId, value.RequestId, value.ExecuteDate,value.Period,value.Note);
+            return Ok();
+        }
+        [HttpPut("AddNewTermOfExecution")]
+        public IActionResult AddNewTermOfExecution([FromBody]NewTermOfExecutionDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.AddNewTermOfExecution(value.UserId, value.RequestId, value.TermOfExecution,value.Note);
+            return Ok();
+        }
+        [HttpPut("AddScheduleTask")]
+        public IActionResult AddScheduleTask([FromBody]AddScheduleTaskDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.AddScheduleTask(value.UserId, value.WorkerId,value.RequestId, value.FromDate,value.ToDate,value.EventDescription);
+            return Ok();
+        }
+        [HttpPut("SetRequestWorkingTimes")]
+        public IActionResult SetRequestWorkingTimes([FromBody]SetRequestWorkingTimesDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.SetRequestWorkingTimes(value.UserId, value.RequestId, value.FromDate,value.ToDate);
+            return Ok();
+        }
+        [HttpPut("EditRequest")]
+        public IActionResult EditRequest([FromBody]EditRequestDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.EditRequest(value.UserId, value.RequestId, value.RequestTypeId,value.RequestMessage,value.Immediate,value.Chargeable,value.IsBadWork,
+                value.Warranty,value.IsRetry,value.AlertTime,value.TermOfExecution);
+            return Ok();
+        }
+        [HttpDelete("DeleteScheduleTask")]
+        public IActionResult DeleteScheduleTask([FromQuery]int userId, [FromQuery]int taskId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.DeleteScheduleTask(userId, taskId);
+            return Ok();
+        }
+        [HttpDelete("DeleteRequestRatingById")]
+        public IActionResult DeleteRequestRatingById([FromQuery]int userId, [FromQuery]int itemId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.DeleteRequestRatingById(userId, itemId);
+            return Ok();
+        }
         [HttpPut("ChangeDescription")]
         public IActionResult ChangeDescription([FromBody]ChangeDescriptionDto value)
         {
@@ -268,6 +389,17 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             RequestService.ChangeDescription(value.UserId, value.RequestId, value.Description);
+            return Ok();
+        }
+        [HttpPut("SetRating")]
+        public IActionResult SetRating([FromBody]SetRatingDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.SetRating(value.UserId, value.RequestId, value.RatingId, value.Description);
             return Ok();
         }
         [HttpPost("SaveNewRequest")]
@@ -314,7 +446,37 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetScheduleTaskByRequestId(userId, requestId));
         }
-        [HttpGet("getScheduleTasks")]
+        [HttpGet("GetExecuteDateHistoryByRequest")]
+        public IActionResult GetExecuteDateHistoryByRequest([FromQuery]int userId, [FromQuery]int requestId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetExecuteDateHistoryByRequest(userId, requestId));
+        }
+        [HttpGet("GetRequestRatings")]
+        public IActionResult GetRequestRatings([FromQuery]int userId, [FromQuery]int requestId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {        
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetRequestRatings(userId, requestId));
+        }
+        [HttpGet("GetRequestRating")]
+        public IActionResult GetRequestRating([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {        
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetRequestRating(userId));
+        }
+[HttpGet("getScheduleTasks")]
         public IActionResult GetScheduleTasks([FromQuery]int userId, [FromQuery]int workerId,[FromQuery]DateTime fromDate, [FromQuery]DateTime toDate)
         {
             var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");

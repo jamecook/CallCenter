@@ -999,7 +999,8 @@ namespace CRMPhone.ViewModel
             }
             RequestList = new ObservableCollection<RequestItemViewModel> { new RequestItemViewModel() };
             //AppSettings.LastIncomingCall = "932";
-            CanEditAddress = AppSettings.CurrentUser.Roles.Select(r => r.Name).Contains("admin");
+            CanEditAddress = true;
+            //CanEditAddress = AppSettings.CurrentUser.Roles.Select(r => r.Name).Contains("admin");
             if (!string.IsNullOrEmpty(AppSettings.LastIncomingCall))
             {
                 var clientInfoDto = _requestService.GetLastAddressByClientPhone(AppSettings.LastIncomingCall);

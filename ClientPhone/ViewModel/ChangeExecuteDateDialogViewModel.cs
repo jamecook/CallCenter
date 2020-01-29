@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
+using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 
 namespace CRMPhone.ViewModel
@@ -13,7 +15,6 @@ namespace CRMPhone.ViewModel
     {
         private Window _view;
 
-        private RequestServiceImpl.RequestService _requestService;
         private int _requestId;
         private ObservableCollection<PeriodDto> _periodList;
         private PeriodDto _selectedPeriod;
@@ -21,12 +22,11 @@ namespace CRMPhone.ViewModel
         private DateTime? _selectedDateTime;
 
 
-        public ChangeExecuteDateDialogViewModel(RequestServiceImpl.RequestService requestService, int requestId)
+        public ChangeExecuteDateDialogViewModel(int requestId)
         {
-            _requestService = requestService;
             _requestId = requestId;
-            PeriodList = new ObservableCollection<PeriodDto>(_requestService.GetPeriods());
-            var request = _requestService.GetRequest(_requestId);
+            PeriodList = new ObservableCollection<PeriodDto>(RestRequestService.GetPeriods(AppSettings.CurrentUser.Id));
+            var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, _requestId);
             if (request.ExecuteDate.HasValue && request.ExecuteDate.Value.Date > DateTime.MinValue)
             {
                 SelectedDateTime = request.ExecuteDate.Value.Date;
@@ -86,7 +86,7 @@ namespace CRMPhone.ViewModel
         {
             if (SelectedPeriod != null && SelectedDateTime.HasValue && (SelectedPeriod?.Id != (OldPeriod?.Id ?? 0) || SelectedDateTime != OldDateTime))
             {
-                _requestService.AddNewExecuteDate(_requestId, SelectedDateTime.Value, SelectedPeriod, Description);
+                RestRequestService.AddNewExecuteDate(AppSettings.CurrentUser.Id, _requestId, SelectedDateTime.Value, SelectedPeriod, Description);
                 OldDateTime = SelectedDateTime;
                 OldPeriod = SelectedPeriod;
                 _view.DialogResult = true;
@@ -95,7 +95,7 @@ namespace CRMPhone.ViewModel
 
         private void Refresh(object sender)
         {
-            DateHistoryList = new ObservableCollection<ExecuteDateHistoryDto>(_requestService.GetExecuteDateHistoryByRequest(_requestId));
+            DateHistoryList = new ObservableCollection<ExecuteDateHistoryDto>(RestRequestService.GetExecuteDateHistoryByRequest(AppSettings.CurrentUser.Id, _requestId));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

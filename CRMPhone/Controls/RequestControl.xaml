@@ -143,11 +143,11 @@
                           DropDownClosed="CbOnDropDownStreetClosed"/>
 
                 <TextBlock Margin="3" VerticalAlignment="Center" Text="Дом:"/>
-                <StackPanel>
+                <StackPanel Visibility="Collapsed">
                     <ToggleButton Name="AddressBtn" Margin="5"  Width="120" VerticalAlignment="Center">
                         <ToggleButton.Template>
                             <ControlTemplate TargetType="ToggleButton">
-                                    <DockPanel >
+                                <DockPanel >
                                     <Border Background="Red"></Border>
                                     <TextBlock Text="Улица"></TextBlock>
                                     <Image Visibility ="{Binding StreetFilterImageVisibility}" Source="pack://application:,,,/Images/filter.png" Height="16"/>
@@ -155,7 +155,7 @@
                             </ControlTemplate>
                         </ToggleButton.Template>
                     </ToggleButton>
- 
+
                     <Popup
                         Placement="Bottom"
                                IsOpen="{Binding IsChecked, ElementName=AddressBtn}"

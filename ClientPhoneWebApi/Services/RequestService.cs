@@ -930,6 +930,502 @@ where s.request_id = @RequestId and deleted = 0;";
                 }
             }
         }
+        public SmsSettingDto GetSmsSettingsForServiceCompany(int userId, int? serviceCompanyId)
+        {
+            var result = new SmsSettingDto { SendToClient = false, SendToWorker = false };
+            if (serviceCompanyId.HasValue)
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+
+                    using (var cmd = new MySqlCommand(
+                        "SELECT S.sms_to_worker, S.sms_to_abonent, S.sms_sender FROM CallCenter.ServiceCompanies S where id = @ID",
+                        conn))
+                    {
+                        cmd.Parameters.AddWithValue("@ID", serviceCompanyId);
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            if (dataReader.Read())
+                            {
+                                return new SmsSettingDto
+                                {
+                                    SendToClient = dataReader.GetBoolean("sms_to_abonent"),
+                                    SendToWorker = dataReader.GetBoolean("sms_to_worker"),
+                                    Sender = dataReader.GetNullableString("sms_sender")
+                                };
+                            }
+
+                            dataReader.Close();
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        private void SendSmsToWorker(int userId, int requestId, int workerId)
+        {
+            var request = GetRequest(userId, requestId);
+            var worker = GetWorkerById(userId, workerId);
+            if (!worker.SendSms)
+                return;
+            var smsSettings = GetSmsSettingsForServiceCompany(userId, request.ServiceCompanyId);
+            var service = GetServiceById(userId, request.Type.Id);
+            var parrentService = request.Type.ParentId.HasValue ? GetServiceById(userId,request.Type.ParentId.Value) : null;
+            if (!((parrentService?.CanSendSms ?? true) && service.CanSendSms))
+            {
+                return;
+            }
+            string phones = "";
+            if (request.Contacts != null && request.Contacts.Length > 0)
+                phones = request.Contacts.OrderBy(c => c.IsMain).Select(c =>
+                {
+                    var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
+                    //if (!string.IsNullOrEmpty(c.Name))
+                    //{
+                    //    retVal += $" - {c.Name}";
+                    //}
+                    return retVal;
+                }
+                    ).FirstOrDefault();
+            //.Aggregate((i, j) => i + ";" + j);
+            //phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}").Aggregate((i, j) => i + ";" + j);
+
+            if (smsSettings.SendToWorker)
+            {
+                var immediateMessage = request.IsImmediate ? "АВАРИЙНАЯ №" : "";
+                var smsText = $"{immediateMessage}{request.Id} {phones ?? ""} {request.Address.FullAddress}.{request.Type.Name}({request.Description ?? ""})";
+                if ((!request.IsImmediate) && smsText.Length > 70)
+                {
+                    smsText = smsText.Substring(0, 70);
+                }
+                //var smsText = $"№ {request.Id}. {request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.";
+                SendSms(userId, requestId, smsSettings.Sender, worker.Phone, smsText, false);
+            }
+            //SendSms(requestId, smsSettings.Sender, worker.Phone,
+            //    $"№ {requestId}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
+            //    false);
+            //SendSms(requestId, smsSettings.Sender, worker.Phone, $"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
+        }
+        public void AddNewMaster(int userId, int requestId, int? workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                    using (var cmd = new MySqlCommand("CALL phone_client.add_new_master(@userId,@requestId,@workerId)", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@userId", userId);
+                        cmd.Parameters.AddWithValue("@requestId", requestId);
+                        cmd.Parameters.AddWithValue("@workerId", workerId);
+                        cmd.ExecuteNonQuery();
+                    }
+            }
+        }
+        public void AddNewExecutor(int userId, int requestId, int? workerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                    using (var cmd = new MySqlCommand("CALL phone_client.add_new_executor(@userId,@requestId,@workerId)", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@userId", userId);
+                        cmd.Parameters.AddWithValue("@requestId", requestId);
+                        cmd.Parameters.AddWithValue("@workerId", workerId);
+                        cmd.ExecuteNonQuery();
+                    }
+            }
+        }
+        public void AddNewExecuteDate(int userId, int requestId, DateTime executeDate, PeriodDto period, string note)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+
+                    using (var transaction = conn.BeginTransaction())
+                    {
+                        using (
+                            var cmd =
+                                new MySqlCommand(
+                                    @"insert into CallCenter.RequestExecuteDateHistory (request_id,operation_date,user_id,execute_date,period_time_id,note) 
+    values(@RequestId,sysdate(),@UserId,@ExecuteDate,@Period,@Note);", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@RequestId", requestId);
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            cmd.Parameters.AddWithValue("@ExecuteDate", executeDate);
+                            cmd.Parameters.AddWithValue("@Note", note);
+                            cmd.Parameters.AddWithValue("@Period", period.Id);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        using (
+                            var cmd =
+                                new MySqlCommand(
+                                    @"update CallCenter.Requests set execute_date = @ExecuteDate, period_time_id = @Period  where id = @RequestId",
+                                    conn))
+                        {
+                            cmd.Parameters.AddWithValue("@RequestId", requestId);
+                            cmd.Parameters.AddWithValue("@ExecuteDate", executeDate + period.SetTime.TimeOfDay);
+                            cmd.Parameters.AddWithValue("@Period", period.Id);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                Logger.LogError(exc.ToString());
+            }
+        }
+        public void EditRequest(int userId, int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, int garanty, bool isRetry, DateTime? alertTime, DateTime? termOfExecution)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(
+                    @"call CallCenter.UpdateRequest(@userId,@requestId,@requestTypeId,@requestMessage,@immediate,@chargeable,@badWork,@garanty,@retry,@alertTime,@termOfExecution);",
+                    conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@requestId", requestId);
+                    cmd.Parameters.AddWithValue("@requestTypeId", requestTypeId);
+                    cmd.Parameters.AddWithValue("@requestMessage", requestMessage);
+                    cmd.Parameters.AddWithValue("@immediate", immediate);
+                    cmd.Parameters.AddWithValue("@chargeable", chargeable);
+                    cmd.Parameters.AddWithValue("@badWork", isBadWork);
+                    cmd.Parameters.AddWithValue("@garanty", garanty);
+                    cmd.Parameters.AddWithValue("@retry", isRetry);
+                    cmd.Parameters.AddWithValue("@alertTime", alertTime);
+                    cmd.Parameters.AddWithValue("@termOfExecution", termOfExecution);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public void DeleteRequestRatingById(int userId, int itemId)
+        {
+            var query = "delete from CallCenter.RequestRating where id = @Id;";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", itemId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public void SetRating(int userId, int requestId, int ratingId, string description)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    using (var transaction = conn.BeginTransaction())
+                    {
+                        using (
+                            var cmd =
+                                new MySqlCommand(
+                                    @"insert into CallCenter.RequestRating(request_id,create_date,rating_id,Description,user_id)
+ values(@RequestId,sysdate(),@RatingId,@Desc,@UserId);", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@RequestId", requestId);
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            cmd.Parameters.AddWithValue("@RatingId", ratingId);
+                            cmd.Parameters.AddWithValue("@Desc", description);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                Logger.LogError(exc.ToString());
+                throw;
+            }
+
+        }
+
+        public List<RequestRatingDto> GetRequestRating(int userId)
+        {
+            var query = "SELECT id, name FROM CallCenter.RatingTypes R order by OrderNum";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var ratings = new List<RequestRatingDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            ratings.Add(new RequestRatingDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name")
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return ratings;
+                }
+            }
+        }
+        public List<RequestRatingListDto> GetRequestRatings(int userId, int requestId)
+        {
+            var result = new List<RequestRatingListDto>();
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd = new MySqlCommand(
+                    @"SELECT r.id,request_id,create_date,rating_id,Description,t.name rating_name,
+ u.Id user_id, u.SurName, u.FirstName,u.PatrName FROM CallCenter.RequestRating r
+ join CallCenter.Users u on u.id = r.user_id
+ join CallCenter.RatingTypes t on t.id = rating_id
+ where request_id = @RequestId;", conn))
+                {
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            result.Add(new RequestRatingListDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                CreateDate = dataReader.GetDateTime("create_date"),
+                                Description = dataReader.GetNullableString("Description"),
+                                Rating = dataReader.GetNullableString("rating_name"),
+                                CreateUser = new RequestUserDto()
+                                {
+                                    Id = dataReader.GetInt32("user_id"),
+                                    SurName = dataReader.GetNullableString("SurName"),
+                                    FirstName = dataReader.GetNullableString("FirstName"),
+                                    PatrName = dataReader.GetNullableString("PatrName"),
+                                }
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+                }
+
+                return result;
+            }
+        }
+        public List<ExecuteDateHistoryDto> GetExecuteDateHistoryByRequest(int userId, int requestId)
+        {
+            var query = @"SELECT R.operation_date,R.user_id,u.surname,u.firstname,u.patrname,R.note,R.execute_date,p.Name FROM CallCenter.RequestExecuteDateHistory R
+ join CallCenter.Users u on u.id = user_id
+ join CallCenter.PeriodTimes p on p.id = R.period_time_id
+ where request_id = @RequestId";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var executeDateHistoryDtos = new List<ExecuteDateHistoryDto>();
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            executeDateHistoryDtos.Add(new ExecuteDateHistoryDto
+                            {
+                                CreateTime = dataReader.GetDateTime("operation_date"),
+                                Note = dataReader.GetNullableString("note"),
+                                ExecuteTime = dataReader.GetDateTime("execute_date"),
+                                ExecutePeriod = dataReader.GetNullableString("name"),
+                                CreateUser = new RequestUserDto
+                                {
+                                    Id = dataReader.GetInt32("user_id"),
+                                    SurName = dataReader.GetNullableString("surname"),
+                                    FirstName = dataReader.GetNullableString("firstname"),
+                                    PatrName = dataReader.GetNullableString("patrname"),
+                                },
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return executeDateHistoryDtos.OrderByDescending(i => i.CreateTime).ToList();
+                }
+            }
+        }
+        public void DeleteScheduleTask(int userId, int sheduleId)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+
+                    using (var transaction = conn.BeginTransaction())
+                    {
+                        using (
+                            var cmd =
+                                new MySqlCommand(@"update CallCenter.ScheduleTasks set deleted = 1 where id = @Id;",
+                                    conn))
+                        {
+                            cmd.Parameters.AddWithValue("@Id", sheduleId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                Logger.LogError(exc.ToString());
+                throw;
+            }
+        }
+
+        public void SetRequestWorkingTimes(int userId,int requestId, DateTime fromTime, DateTime toTime)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(
+                    @"insert into CallCenter.RequestTimesHistory(from_time,to_time,user_id,request_id)
+ values(@fromTime,@toTime,@userId,@requestId);", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@requestId", requestId);
+                    cmd.Parameters.AddWithValue("@fromTime", fromTime);
+                    cmd.Parameters.AddWithValue("@toTime", toTime);
+                    cmd.ExecuteNonQuery();
+                }
+
+                using (var cmd =
+                    new MySqlCommand(
+                        @"update CallCenter.Requests set from_time = @fromTime, to_time = @toTime where id = @requestId;",
+                        conn))
+                {
+                    cmd.Parameters.AddWithValue("@requestId", requestId);
+                    cmd.Parameters.AddWithValue("@fromTime", fromTime);
+                    cmd.Parameters.AddWithValue("@toTime", toTime);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void AddScheduleTask(int userId, int workerId, int? requestId, DateTime fromDate, DateTime toDate, string eventDescription)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    using (var transaction = conn.BeginTransaction())
+                    {
+                        using (
+                            var cmd =
+                                new MySqlCommand(
+                                    @"insert into CallCenter.ScheduleTasks (create_date,worker_id,request_id,from_date,to_date,event_description)
+ values(sysdate(),@WorkerId,@RequestId,@FromDate,@ToDate,@Desc);", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@RequestId", requestId);
+                            cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                            cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                            cmd.Parameters.AddWithValue("@ToDate", toDate);
+                            cmd.Parameters.AddWithValue("@Desc", eventDescription);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                Logger.LogError(exc.ToString());
+                throw;
+            }
+        }
+        public void AddNewTermOfExecution(int userId, int requestId, DateTime termOfExecution, string note)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+
+                    using (var transaction = conn.BeginTransaction())
+                    {
+                        using (
+                            var cmd =
+                                new MySqlCommand(
+                                    @"update CallCenter.Requests set term_of_execution = @ExecuteDate where id = @RequestId",
+                                    conn))
+                        {
+                            cmd.Parameters.AddWithValue("@RequestId", requestId);
+                            cmd.Parameters.AddWithValue("@ExecuteDate", termOfExecution);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                Logger.LogError(exc.ToString());
+            }
+        }
+        public void SendSms(int userId, int requestId, string sender, string phone, string message, bool isClient)
+        {
+            if (requestId <= 0 || string.IsNullOrEmpty(phone) || phone.Length < 10 || string.IsNullOrEmpty(sender))
+                return;
+            var smsCount = 0;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (
+                var cmd =
+                    new MySqlCommand(
+                        "SELECT count(1) as count FROM CallCenter.SMSRequest S where request_id = @RequestId and phone = @Phone and create_date > sysdate() - interval 5 minute;",
+                        conn))
+            {
+                cmd.Parameters.AddWithValue("@RequestId", requestId);
+                cmd.Parameters.AddWithValue("@Phone", phone);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    dataReader.Read();
+                    smsCount = dataReader.GetInt32("count");
+                }
+            }
+
+            if (smsCount > 0)
+                return;
+
+            using (var cmd =
+                new MySqlCommand(
+                    "insert into CallCenter.SMSRequest(request_id,sender,phone,message,create_date, is_client) values(@Request, @Sender, @Phone,@Message,sysdate(),@IsClient)",
+                    conn))
+            {
+                cmd.Parameters.AddWithValue("@Request", requestId);
+                cmd.Parameters.AddWithValue("@Sender", sender);
+                cmd.Parameters.AddWithValue("@Phone", phone);
+                cmd.Parameters.AddWithValue("@Message", message);
+                cmd.Parameters.AddWithValue("@IsClient", isClient);
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
 
         public int? SaveNewRequest(int userId,string lastCallId, int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
     bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, DateTime? alertTime, bool isRetry, bool isBedWork, int? equipmentId, int warranty)
@@ -1040,7 +1536,7 @@ where s.request_id = @RequestId and deleted = 0;";
             }
             catch (Exception exc)
             {
-                Logger.LogError(exc.Message);
+                Logger.LogError(exc.ToString());
             }
             return null;
         }

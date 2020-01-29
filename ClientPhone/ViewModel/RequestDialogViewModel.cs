@@ -720,7 +720,7 @@ namespace CRMPhone.ViewModel
                 var toTime = DateTime.ParseExact($"01.01.0001 {model.ToHour}:{model.ToMinute}", "dd.MM.yyyy HH:mm", null);
                 if (toTime < fromTime)
                     toTime = toTime.AddDays(1);
-                _requestService.SetRequestWorkingTimes(requestModel.RequestId.Value,fromTime,toTime,AppSettings.CurrentUser.Id);
+                RestRequestService.SetRequestWorkingTimes(AppSettings.CurrentUser.Id, requestModel.RequestId.Value, fromTime, toTime);
             }
         }
         private void ChangeStatus(object sender)
@@ -748,7 +748,7 @@ namespace CRMPhone.ViewModel
             var requestModel = sender as RequestItemViewModel;
             if (!requestModel.RequestId.HasValue)
                 return;
-            var model = new AddRatingDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var model = new AddRatingDialogViewModel(requestModel.RequestId.Value);
             var view = new AddRatingDialog();
             model.SetView(view);
             view.Owner = _view;
@@ -769,7 +769,7 @@ namespace CRMPhone.ViewModel
             var requestModel = sender as RequestItemViewModel;
             if (!requestModel.RequestId.HasValue)
                 return;
-            var model = new ChangeExecuteDateDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var model = new ChangeExecuteDateDialogViewModel(requestModel.RequestId.Value);
             var view = new ChangeExecuteDateDialog();
             model.SetView(view);
             view.Owner = _view;
@@ -799,16 +799,16 @@ namespace CRMPhone.ViewModel
             }
             if (requestModel.RequestId.HasValue)
             {
-                _requestService.EditRequest(requestModel.RequestId.Value, requestModel.SelectedService.Id,
+                RestRequestService.EditRequest(AppSettings.CurrentUser.Id, requestModel.RequestId.Value, requestModel.SelectedService.Id,
                     requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork,requestModel.SelectedGaranty?.Id??0, requestModel.IsRetry, requestModel.AlertTime, requestModel.TermOfExecution);
                 //Делаем назначение в расписании
                 if (requestModel.SelectedExecuter != null && requestModel.SelectedAppointment != null && requestModel.SelectedAppointment.RequestId == null)
                 {
                     if (requestModel.OpenAppointment != null && requestModel.OpenAppointment.RequestId != null)
                     {
-                        _requestService.DeleteScheduleTask(requestModel.OpenAppointment.Id);
+                        RestRequestService.DeleteScheduleTask(AppSettings.CurrentUser.Id, requestModel.OpenAppointment.Id);
                     }
-                    _requestService.AddScheduleTask(requestModel.SelectedExecuter.Id, requestModel.RequestId.Value,
+                    RestRequestService.AddScheduleTask(AppSettings.CurrentUser.Id, requestModel.SelectedExecuter.Id, requestModel.RequestId.Value,
                         requestModel.SelectedAppointment.StartTime, requestModel.SelectedAppointment.EndTime, null);
                 }
                 MessageBox.Show($"Данные успешно сохранены!", "Заявка", MessageBoxButton.OK);
@@ -825,25 +825,25 @@ namespace CRMPhone.ViewModel
                 return;
             }
             //Надо УК брать из сохраненной заявки
-            var requestDto = RestRequestService.GetRequest(AppSettings.CurrentUser.Id,request.Value);
-            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(requestDto.ServiceCompanyId);
+            var requestDto = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, request.Value);
+            var smsSettings = RestRequestService.GetSmsSettingsForServiceCompany(AppSettings.CurrentUser.Id, requestDto.ServiceCompanyId);
             if (smsSettings.SendToClient && ContactList.Any(c => c.IsMain) && requestModel.SelectedParentService.CanSendSms && requestModel.SelectedService.CanSendSms)
             {
                 var mainClient = ContactList.FirstOrDefault(c => c.IsMain);
-                _requestService.SendSms(request.Value, smsSettings.Sender,
+                RestRequestService.SendSms(AppSettings.CurrentUser.Id, request.Value, smsSettings.Sender,
                     mainClient.PhoneNumber, $"Заявка № {request.Value}. {requestModel.SelectedParentService.Name} - {requestModel.SelectedService.Name}", true);
             }
             requestModel.RequestId = request;
             if (requestModel.SelectedMaster != null && requestModel.SelectedMaster.Id > 0)
-                _requestService.AddNewMaster(request.Value, requestModel.SelectedMaster.Id);
+                RestRequestService.AddNewMaster(AppSettings.CurrentUser.Id, request.Value, requestModel.SelectedMaster.Id);
             if (requestModel.SelectedExecuter!= null && requestModel.SelectedExecuter.Id > 0)
-                _requestService.AddNewExecuter(request.Value, requestModel.SelectedExecuter.Id);
+                RestRequestService.AddNewExecutor(AppSettings.CurrentUser.Id, request.Value, requestModel.SelectedExecuter.Id);
             if (requestModel.SelectedDateTime.HasValue)
-                _requestService.AddNewExecuteDate(request.Value, requestModel.SelectedDateTime.Value, requestModel.SelectedPeriod, "");
+                RestRequestService.AddNewExecuteDate(AppSettings.CurrentUser.Id, request.Value, requestModel.SelectedDateTime.Value, requestModel.SelectedPeriod, "");
             if (requestModel.TermOfExecution.HasValue)
-                _requestService.AddNewTermOfExecution(request.Value, requestModel.SelectedDateTime.Value, "");
+                RestRequestService.AddNewTermOfExecution(AppSettings.CurrentUser.Id, request.Value, requestModel.SelectedDateTime.Value, "");
             //Обновление информации о заявке
-            var newRequest = _requestService.GetRequest(request.Value);
+            var newRequest = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, request.Value);
             requestModel.RequestCreator = newRequest.CreateUser.ShortName;
             requestModel.RequestDate = newRequest.CreateTime;
             requestModel.RequestState = newRequest.State.Description;
@@ -852,7 +852,7 @@ namespace CRMPhone.ViewModel
             //Делаем назначение в расписании
             if (requestModel.SelectedExecuter != null && requestModel.SelectedAppointment != null)
             {
-                _requestService.AddScheduleTask(requestModel.SelectedExecuter.Id, request.Value,
+                RestRequestService.AddScheduleTask(AppSettings.CurrentUser.Id, requestModel.SelectedExecuter.Id, request.Value,
                     requestModel.SelectedAppointment.StartTime, requestModel.SelectedAppointment.EndTime, null);
             }
 
@@ -961,7 +961,8 @@ namespace CRMPhone.ViewModel
             }
             RequestList = new ObservableCollection<RequestItemViewModel> { new RequestItemViewModel() };
             //AppSettings.LastIncomingCall = "932";
-            CanEditAddress = AppSettings.CurrentUser.Roles.Select(r => r.Name).Contains("admin");
+            CanEditAddress = true;
+            //CanEditAddress = AppSettings.CurrentUser.Roles.Select(r => r.Name).Contains("admin");
             if (!string.IsNullOrEmpty(AppSettings.LastIncomingCall))
             {
                 var clientInfoDto = RestRequestService.GetLastAddressByClientPhone(AppSettings.CurrentUser.Id,AppSettings.LastIncomingCall);

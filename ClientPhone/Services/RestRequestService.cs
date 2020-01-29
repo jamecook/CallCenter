@@ -465,6 +465,189 @@ namespace ClientPhone.Services
             request.AddJsonBody(value);
             var responce = client.Execute(request);
         }
+        public static void SendSms(int userId, int requestId, string sender, string phone, string message, bool isClient)
+        {
+            var value = new SendSmsDto
+            {
+                UserId = userId,
+                RequestId = requestId,
+                Sender = sender,
+                IsClient = isClient,
+                Message = message,
+                Phone = phone
+            };
+            var restUrl = $"{ApiUrl}/RequestChangeAddress";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+        public static void AddNewMaster(int userId, int requestId, int? workerId)
+        {
+            var value = new AddNewMasterDto
+            {
+                UserId = userId,
+                RequestId = requestId,
+                MasterId = workerId
+            };
+            var restUrl = $"{ApiUrl}/AddNewMaster";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+        public static void AddNewExecutor(int userId, int requestId, int? workerId)
+        {
+            var value = new AddNewMasterDto
+            {
+                UserId = userId,
+                RequestId = requestId,
+                MasterId = workerId
+            };
+            var restUrl = $"{ApiUrl}/AddNewExecutor";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+        public static void AddNewExecuteDate(int userId, int requestId, DateTime executeDate, PeriodDto period, string note)
+        {
+            var value = new NewExecuteDateDto
+            {
+                UserId = userId,
+                RequestId = requestId,
+                Period = period,
+                Note = note,
+                ExecuteDate = executeDate
+            };
+            var restUrl = $"{ApiUrl}/AddNewExecuteDate";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+        public static void AddNewTermOfExecution(int userId, int requestId, DateTime termOfExecution, string note)
+        {
+            var value = new NewTermOfExecutionDto
+            {
+                UserId = userId,
+                RequestId = requestId,
+                Note = note,
+                TermOfExecution = termOfExecution
+            };
+            var restUrl = $"{ApiUrl}/AddNewExecuteDate";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+        public static void EditRequest(int userId, int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, int garanty, bool isRetry, DateTime? alertTime, DateTime? termOfExecution)
+        {
+            var value = new EditRequestDto
+            {
+                UserId = userId,
+                RequestId = requestId,
+                RequestTypeId = requestTypeId,
+                IsRetry = isRetry,
+                RequestMessage = requestMessage,
+                Chargeable = chargeable,
+                TermOfExecution = termOfExecution,
+                Warranty = garanty,
+                Immediate = immediate,
+                AlertTime = alertTime,
+                IsBadWork = isBadWork
+            };
+            var restUrl = $"{ApiUrl}/EditRequest";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+        public static void AddScheduleTask(int userId, int workerId, int? requestId, DateTime fromDate, DateTime toDate, string eventDescription)
+        {
+            var value = new AddScheduleTaskDto
+            {
+                UserId = userId,
+                RequestId = requestId,
+                WorkerId = workerId,
+                ToDate = toDate,
+                FromDate = fromDate,
+                EventDescription = eventDescription
+            };
+            var restUrl = $"{ApiUrl}/AddScheduleTask";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+        public static void SetRequestWorkingTimes(int userId, int requestId, DateTime fromTime, DateTime toTime)
+        {
+            var value = new SetRequestWorkingTimesDto
+            {
+                UserId = userId,
+                RequestId = requestId,
+                ToDate = toTime,
+                FromDate = fromTime,
+            };
+            var restUrl = $"{ApiUrl}/SetRequestWorkingTimes";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+        public static void SetRating(int userId, int requestId, int ratingId, string description)
+        {
+            var value = new SetRatingDto
+            {
+                UserId = userId,
+                RequestId = requestId,
+                Description = description,
+                RatingId = ratingId
+            };
+            var restUrl = $"{ApiUrl}/SetRating";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+        public static void DeleteScheduleTask(int userId, int taskId)
+        {
+
+            var restUrl = $"{ApiUrl}/DeleteScheduleTask?userId={userId}&taskId={taskId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.DELETE) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            var responce = client.Execute(request);
+        }
+        public static void DeleteRequestRatingById(int userId, int itemId)
+        {
+
+            var restUrl = $"{ApiUrl}/DeleteRequestRatingById?userId={userId}&itemId={itemId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.DELETE) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            var responce = client.Execute(request);
+        }
         public static ScheduleTaskDto GetScheduleTaskByRequestId(int userId, int requestId)
         {
             var restUrl = $"{ApiUrl}/getScheduleTaskByRequestId?userId={userId}&requestId={requestId}";
@@ -475,6 +658,52 @@ namespace ClientPhone.Services
 
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<ScheduleTaskDto>(responce.Content);
+        }
+        public static ExecuteDateHistoryDto[] GetExecuteDateHistoryByRequest(int userId, int requestId)
+        {
+            var restUrl = $"{ApiUrl}/GetExecuteDateHistoryByRequest?userId={userId}&requestId={requestId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<ExecuteDateHistoryDto[]>(responce.Content);
+        }
+          public static RequestRatingListDto[] GetRequestRatings(int userId, int requestId)
+        {
+            var restUrl = $"{ApiUrl}/GetRequestRatings?userId={userId}&requestId={requestId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<RequestRatingListDto[]>(responce.Content);
+        }
+          public static RequestRatingDto[] GetRequestRating(int userId)
+        {
+            var restUrl = $"{ApiUrl}/GetRequestRating?userId={userId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<RequestRatingDto[]>(responce.Content);
+        }
+        public static SmsSettingDto GetSmsSettingsForServiceCompany(int userId, int? serviceCompanyId)
+        {
+            var restUrl = $"{ApiUrl}/GetSmsSettingsForServiceCompany?userId={userId}";
+            if (serviceCompanyId.HasValue)
+                restUrl += $"&serviceCompanyId={serviceCompanyId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<SmsSettingDto>(responce.Content);
         }
         public static ScheduleTaskDto[] GetScheduleTasks(int userId, int workerId, DateTime fromDate, DateTime toDate)
         {
