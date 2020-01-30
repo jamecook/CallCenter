@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
+using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 
 namespace CRMPhone.ViewModel
@@ -13,16 +15,14 @@ namespace CRMPhone.ViewModel
     {
         private Window _view;
 
-        private RequestServiceImpl.RequestService _requestService;
         private int _requestId;
         private ObservableCollection<WorkerDto> _workerList;
         private WorkerDto _selectedWorker;
         private ObservableCollection<WorkerHistoryDto> _workerHistoryList;
         private int? _oldMasterId;
 
-        public ChangeWorkerDialogViewModel(RequestServiceImpl.RequestService requestService,int requestId)
+        public ChangeWorkerDialogViewModel(int requestId)
         {
-            _requestService = requestService;
             _requestId = requestId;
             WorkerList = new ObservableCollection<WorkerDto>();
             WorkerList.Add(new WorkerDto()
@@ -30,11 +30,11 @@ namespace CRMPhone.ViewModel
                 Id = -1,
                 SurName = "Нет мастера"
             });
-            foreach (var master in _requestService.GetMasters(null))
+            foreach (var master in RestRequestService.GetMasters(AppSettings.CurrentUser.Id,null, true))
             {
                 WorkerList.Add(master);
             }
-            var request = _requestService.GetRequest(_requestId);
+            var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, _requestId);
             _oldMasterId = request.MasterId;
             SelectedWorker = WorkerList.SingleOrDefault(w => w.Id == (request.MasterId??-1));
             Refresh(null);
@@ -57,7 +57,7 @@ namespace CRMPhone.ViewModel
             var t = FromTime;
             if (_oldMasterId == SelectedWorker.Id)
                 return;
-            _requestService.AddNewMaster(_requestId, (SelectedWorker.Id == -1) ? (int?)null : SelectedWorker.Id);
+            RestRequestService.AddNewMaster(AppSettings.CurrentUser.Id, _requestId, (SelectedWorker.Id == -1) ? (int?)null : SelectedWorker.Id);
             _oldMasterId = SelectedWorker.Id;
             _view.DialogResult = true;
         }
@@ -78,7 +78,7 @@ namespace CRMPhone.ViewModel
 
         public void Refresh(object sender)
         {
-            WorkerHistoryList = new ObservableCollection<WorkerHistoryDto>(_requestService.GetMasterHistoryByRequest(_requestId));
+            WorkerHistoryList = new ObservableCollection<WorkerHistoryDto>(RestRequestService.GetMasterHistoryByRequest(AppSettings.CurrentUser.Id, _requestId));
         }
 
         public WorkerDto SelectedWorker

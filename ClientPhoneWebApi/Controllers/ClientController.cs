@@ -92,6 +92,16 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetFilterDispatchers(userId));
         }
+        [HttpGet("GetRequestStatuses")]
+        public IActionResult GetRequestStatuses([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetRequestStatuses(userId));
+        }
 
         [HttpGet("getFilterCompanies")]
         public IActionResult GetFilterCompanies([FromQuery]int userId)
@@ -258,6 +268,56 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetSmsSettingsForServiceCompany(userId, serviceCompanyId));
         }
+        [HttpGet("GetStatusHistoryByRequest")]
+        public IActionResult GetStatusHistoryByRequest([FromQuery]int userId, [FromQuery]int requestId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetStatusHistoryByRequest(userId, requestId));
+        }
+        [HttpGet("GetExecutorHistoryByRequest")]
+        public IActionResult GetExecutorHistoryByRequest([FromQuery]int userId, [FromQuery]int requestId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetExecutorHistoryByRequest(userId, requestId));
+        }
+        [HttpGet("GetMasterHistoryByRequest")]
+        public IActionResult GetMasterHistoryByRequest([FromQuery]int userId, [FromQuery]int requestId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetMasterHistoryByRequest(userId, requestId));
+        }
+        [HttpGet("GetNotes")]
+        public IActionResult GetNotes([FromQuery]int userId, [FromQuery]int requestId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetNotes(userId, requestId));
+        }
+        [HttpGet("GetAttachments")]
+        public IActionResult GetAttachments([FromQuery]int userId, [FromQuery]int requestId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetAttachments(userId, requestId));
+        }
         [HttpPut("RequestChangeAddress")]
         public IActionResult RequestChangeAddress([FromBody]ChangeAddressDto value)
         {
@@ -267,6 +327,17 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             RequestService.RequestChangeAddress(value.UserId, value.RequestId, value.AddressId);
+            return Ok();
+        }
+        [HttpPut("AddNewState")]
+        public IActionResult AddNewState([FromBody]NewStateDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.AddNewState(value.UserId, value.RequestId, value.StateId);
             return Ok();
         }
         [HttpPut("SendSms")]
@@ -322,6 +393,17 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             RequestService.AddNewTermOfExecution(value.UserId, value.RequestId, value.TermOfExecution,value.Note);
+            return Ok();
+        }
+        [HttpPut("AddNewNote")]
+        public IActionResult AddNewNote([FromBody]NewNoteDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.AddNewNote(value.UserId, value.RequestId, value.Note);
             return Ok();
         }
         [HttpPut("AddScheduleTask")]

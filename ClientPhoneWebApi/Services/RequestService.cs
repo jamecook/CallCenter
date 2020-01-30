@@ -1356,6 +1356,100 @@ where s.request_id = @RequestId and deleted = 0;";
                 throw;
             }
         }
+        public List<AttachmentDto> GetAttachments(int userId, int requestId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd = new MySqlCommand(
+                        @"SELECT a.id,a.request_id,a.name,a.file_name,a.create_date,u.id user_id,u.SurName,u.FirstName,u.PatrName,
+a.worker_id, w.sur_name,w.first_name,w.patr_name
+FROM CallCenter.RequestAttachments a
+ join CallCenter.Users u on u.id = a.user_id
+ left join CallCenter.Workers w on w.id = a.worker_id
+where a.deleted = 0 and a.request_id = @requestId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@requestId", requestId);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var attachments = new List<AttachmentDto>();
+                        RequestUserDto user;
+
+                        while (dataReader.Read())
+                        {
+                            var workerId = dataReader.GetNullableInt("worker_id");
+                            if (workerId.HasValue)
+                            {
+                                user = new RequestUserDto()
+                                {
+                                    Id = workerId.Value,
+                                    SurName = dataReader.GetNullableString("sur_name"),
+                                    FirstName = dataReader.GetNullableString("first_name"),
+                                    PatrName = dataReader.GetNullableString("patr_name"),
+                                };
+                            }
+                            else
+                            {
+                                user = new RequestUserDto
+                                {
+                                    Id = dataReader.GetInt32("user_id"),
+                                    SurName = dataReader.GetNullableString("SurName"),
+                                    FirstName = dataReader.GetNullableString("FirstName"),
+                                    PatrName = dataReader.GetNullableString("PatrName"),
+                                };
+
+                            }
+
+                            attachments.Add(new AttachmentDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                FileName = dataReader.GetString("file_name"),
+                                CreateDate = dataReader.GetDateTime("create_date"),
+                                RequestId = dataReader.GetInt32("request_id"),
+                                User = user
+                            });
+                        }
+
+                        dataReader.Close();
+                        return attachments;
+                    }
+                }
+            }
+        }
+
+        public void AddNewNote(int userId, int requestId, string note)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    using (var transaction = conn.BeginTransaction())
+                    {
+                        using (
+                            var cmd =
+                                new MySqlCommand(@"insert into CallCenter.RequestNoteHistory (request_id,operation_date,user_id,note)
+ values(@RequestId,sysdate(),@UserId,@Note);", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@RequestId", requestId);
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            cmd.Parameters.AddWithValue("@Note", note);
+                            cmd.ExecuteNonQuery();
+                        }
+                        transaction.Commit();
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                Logger.LogError(exc.ToString());
+                throw;
+            }
+
+        }
         public void AddNewTermOfExecution(int userId, int requestId, DateTime termOfExecution, string note)
         {
             try
@@ -2843,6 +2937,303 @@ left join CallCenter.Users u on u.id = a.userId";
                 }
             }
         }
+
+        public List<StatusDto> GetRequestStatuses(int userId)
+        {
+            var query = "SELECT id, name, Description FROM CallCenter.RequestState R order by Description";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var types = new List<StatusDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            types.Add(new StatusDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                Description = dataReader.GetString("Description")
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return types;
+                }
+            }
+        }
+
+        public List<NoteDto> GetNotes(int userId, int requestId)
+        {
+            return GetNotesCore(requestId).OrderByDescending(n => n.Date).ToList();
+        }
+
+        public List<NoteDto> GetNotesCore(int requestId)
+        {
+            var sqlQuery = @"SELECT n.id,n.operation_date,n.request_id,n.user_id,n.note,n.worker_id,u.SurName,u.FirstName,u.PatrName,w.sur_name,w.first_name,w.patr_name
+    from CallCenter.RequestNoteHistory n
+    join CallCenter.Users u on u.id = n.user_id
+    left join CallCenter.Workers w on w.id = n.worker_id where request_id = @RequestId order by operation_date";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var noteList = new List<NoteDto>();
+                        RequestUserDto user;
+                        while (dataReader.Read())
+                        {
+                            var workerId = dataReader.GetNullableInt("worker_id");
+                            if (workerId.HasValue)
+                            {
+                                user = new RequestUserDto()
+                                {
+                                    Id = workerId.Value,
+                                    SurName = dataReader.GetNullableString("sur_name"),
+                                    FirstName = dataReader.GetNullableString("first_name"),
+                                    PatrName = dataReader.GetNullableString("patr_name"),
+                                };
+                            }
+                            else
+                            {
+                                user = new RequestUserDto
+                                {
+                                    Id = dataReader.GetInt32("user_id"),
+                                    SurName = dataReader.GetNullableString("SurName"),
+                                    FirstName = dataReader.GetNullableString("FirstName"),
+                                    PatrName = dataReader.GetNullableString("PatrName"),
+                                };
+
+                            }
+
+                            noteList.Add(new NoteDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Date = dataReader.GetDateTime("operation_date"),
+                                Note = dataReader.GetNullableString("note"),
+                                User = user
+                            });
+                        }
+
+                        dataReader.Close();
+                        return noteList;
+                    }
+                }
+            }
+
+        }
+
+        public List<WorkerHistoryDto> GetMasterHistoryByRequest(int userId, int requestId)
+        {
+            var query = @"SELECT operation_date, R.worker_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestWorkerHistory R
+ left join CallCenter.Workers w on w.id = R.worker_id
+ join CallCenter.Users u on u.id = user_id
+ where request_id = @RequestId";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var historyDtos = new List<WorkerHistoryDto>();
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var workerId = dataReader.GetNullableInt("worker_id");
+                            historyDtos.Add(new WorkerHistoryDto
+                            {
+                                CreateTime = dataReader.GetDateTime("operation_date"),
+                                Worker = workerId != null
+                                    ? new RequestUserDto
+                                    {
+                                        Id = dataReader.GetInt32("worker_id"),
+                                        SurName = dataReader.GetNullableString("sur_name"),
+                                        FirstName = dataReader.GetNullableString("first_name"),
+                                        PatrName = dataReader.GetNullableString("patr_name"),
+                                    }
+                                    : new RequestUserDto {Id = -1, SurName = "Нет мастера"},
+                                CreateUser = new RequestUserDto
+                                {
+                                    Id = dataReader.GetInt32("user_id"),
+                                    SurName = dataReader.GetNullableString("surname"),
+                                    FirstName = dataReader.GetNullableString("firstname"),
+                                    PatrName = dataReader.GetNullableString("patrname"),
+                                },
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return historyDtos.OrderByDescending(i => i.CreateTime).ToList();
+                }
+            }
+        }
+        public List<WorkerHistoryDto> GetExecutorHistoryByRequest(int userId, int requestId)
+        {
+            var query = @"SELECT operation_date, R.executer_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestExecuterHistory R
+ left join CallCenter.Workers w on w.id = R.executer_id
+ join CallCenter.Users u on u.id = user_id
+ where request_id = @RequestId";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var historyDtos = new List<WorkerHistoryDto>();
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var executerId = dataReader.GetNullableInt("executer_id");
+                            historyDtos.Add(new WorkerHistoryDto
+                            {
+                                CreateTime = dataReader.GetDateTime("operation_date"),
+                                Worker = executerId != null
+                                    ? new RequestUserDto
+                                    {
+                                        Id = dataReader.GetInt32("executer_id"),
+                                        SurName = dataReader.GetNullableString("sur_name"),
+                                        FirstName = dataReader.GetNullableString("first_name"),
+                                        PatrName = dataReader.GetNullableString("patr_name"),
+                                    }
+                                    : new RequestUserDto {Id = -1, SurName = "Нет исполнителя"},
+                                CreateUser = new RequestUserDto
+                                {
+                                    Id = dataReader.GetInt32("user_id"),
+                                    SurName = dataReader.GetNullableString("surname"),
+                                    FirstName = dataReader.GetNullableString("firstname"),
+                                    PatrName = dataReader.GetNullableString("patrname"),
+                                },
+                            });
+                        }
+                        dataReader.Close();
+                    }
+
+                    return historyDtos.OrderByDescending(i => i.CreateTime).ToList();
+                }
+            }
+        }
+
+        public List<StatusHistoryDto> GetStatusHistoryByRequest(int userId, int requestId)
+        {
+            var query = @"SELECT operation_date, R.state_id, s.name, s.description,
+    case when user_id = 0 then cw.id else user_id end user_id,
+    case when user_id = 0 then cw.sur_name else u.surname end surname,
+    case when user_id = 0 then cw.first_name else u.firstname end firstname,
+    case when user_id = 0 then cw.patr_name else u.patrname end patrname
+FROM CallCenter.RequestStateHistory R
+ join CallCenter.RequestState s on s.id = R.state_id
+ join CallCenter.Users u on u.id = user_id
+ left join CallCenter.Workers cw on cw.id = R.worker_id
+ where request_id = @RequestId";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var historyDtos = new List<StatusHistoryDto>();
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            historyDtos.Add(new StatusHistoryDto
+                            {
+                                CreateTime = dataReader.GetDateTime("operation_date"),
+                                Status = new StatusDto
+                                {
+                                    Id = dataReader.GetInt32("state_id"),
+                                    Name = dataReader.GetNullableString("name"),
+                                    Description = dataReader.GetNullableString("description"),
+                                },
+                                CreateUser = new RequestUserDto
+                                {
+                                    Id = dataReader.GetInt32("user_id"),
+                                    SurName = dataReader.GetNullableString("surname"),
+                                    FirstName = dataReader.GetNullableString("firstname"),
+                                    PatrName = dataReader.GetNullableString("patrname"),
+                                },
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return historyDtos.OrderByDescending(i => i.CreateTime).ToList();
+                }
+            }
+        }
+
+        public void AddNewState(int userId, int requestId, int stateId)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+
+                    using (var transaction = conn.BeginTransaction())
+                    {
+                        using (
+                            var cmd =
+                                new MySqlCommand(
+                                    @"insert into CallCenter.RequestStateHistory (request_id,operation_date,user_id,state_id) 
+    values(@RequestId,sysdate(),@UserId,@StatusId);", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@RequestId", requestId);
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            cmd.Parameters.AddWithValue("@StatusId", stateId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        using (
+                            var cmd =
+                                new MySqlCommand(
+                                    @"update CallCenter.Requests set state_id = @StatusId where id = @RequestId",
+                                    conn))
+                        {
+                            cmd.Parameters.AddWithValue("@RequestId", requestId);
+                            cmd.Parameters.AddWithValue("@StatusId", stateId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        if (stateId == 3)
+                        {
+                            using (
+                                var cmd =
+                                    new MySqlCommand(
+                                        @"update CallCenter.Requests set close_date = sysdate() where close_date is null and id = @RequestId",
+                                        conn))
+                            {
+                                cmd.Parameters.AddWithValue("@RequestId", requestId);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        transaction.Commit();
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                Logger.LogError(exc.ToString());
+                throw;
+            }
+
+        }
         public RequestUserDto[] GetFilterDispatchers(int userId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3049,6 +3440,75 @@ left join CallCenter.Users u on u.id = a.userId";
             }
         }
 
+        public void DeleteAttachment(int attachmentId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd =
+                    new MySqlCommand(@"update CallCenter.RequestAttachments set deleted = 1 where id = @attachId;",
+                        conn))
+                {
+                    cmd.Parameters.AddWithValue("@attachId", attachmentId);
+                    cmd.ExecuteNonQuery();
+                }
+
+            }
+        }
+
+        public void AddAttachmentToRequest(int userId, int requestId, string fileName, string name = "")
+        {
+            if (!File.Exists(fileName))
+                return;
+            if (string.IsNullOrEmpty(name))
+                name = Path.GetFileName(fileName);
+            var fileExtension = Path.GetExtension(fileName);
+            string newFile;
+            using (var fileStream = File.OpenRead(fileName))
+            {
+                newFile = SaveFile(requestId, fileExtension, fileStream);
+            }
+            AttachFileToRequest(userId, requestId, name, newFile);
+        }
+
+        public void AttachFileToRequest(int userId, int requestId, string fileName, string generatedFileName)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (
+                    var cmd =
+                        new MySqlCommand(
+                            @"insert into CallCenter.RequestAttachments(request_id,name,file_name,create_date,user_id)
+ values(@RequestId,@Name,@FileName,sysdate(),@userId);", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    cmd.Parameters.AddWithValue("@Name", fileName);
+                    cmd.Parameters.AddWithValue("@FileName", generatedFileName);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public string SaveFile(int requestId, string fileName, Stream fileStream)
+        {
+            //using (var saveService = new WcfSaveService.SaveServiceClient())
+            //{
+            //    return saveService.UploadFile(FileName: fileName, RequestId: requestId, FileStream: fileStream);
+            //}
+            return null;
+        }
+
+        public byte[] GetFile(int requestId, string fileName)
+        {
+            //using (var saveService = new WcfSaveService.SaveServiceClient())
+            //{
+            //    return saveService.DownloadFile(requestId, fileName);
+            //}
+            return null;
+        }
 
 
     }

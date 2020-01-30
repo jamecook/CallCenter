@@ -4,7 +4,9 @@ using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
+using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 
@@ -14,17 +16,15 @@ namespace CRMPhone.ViewModel
     {
         private Window _view;
 
-        private RequestServiceImpl.RequestService _requestService;
         private int _requestId;
         private ObservableCollection<AttachmentDto> _attachmentList;
         private AttachmentDto _selectedAttachmentItem;
 
 
-        public AttachmentDialogViewModel(RequestServiceImpl.RequestService requestService, int requestId)
+        public AttachmentDialogViewModel(int requestId)
         {
-            _requestService = requestService;
             _requestId = requestId;
-            AttachmentList = new ObservableCollection<AttachmentDto>(_requestService.GetAttachments(requestId));
+            AttachmentList = new ObservableCollection<AttachmentDto>(RestRequestService.GetAttachments(AppSettings.CurrentUser.Id, requestId));
         }
 
         public ObservableCollection<AttachmentDto> AttachmentList
@@ -34,7 +34,7 @@ namespace CRMPhone.ViewModel
         }
         public void Refresh()
         {
-            AttachmentList = new ObservableCollection<AttachmentDto>(_requestService.GetAttachments(_requestId));
+            AttachmentList = new ObservableCollection<AttachmentDto>(RestRequestService.GetAttachments(AppSettings.CurrentUser.Id, _requestId));
         }
 
 
@@ -59,7 +59,7 @@ namespace CRMPhone.ViewModel
             };
             if (saveDialog.ShowDialog() == DialogResult.OK)
             {
-                File.WriteAllBytes(saveDialog.FileName,_requestService.GetFile(SelectedAttachmentItem.RequestId,SelectedAttachmentItem.FileName));
+                //File.WriteAllBytes(saveDialog.FileName,_requestService.GetFile(SelectedAttachmentItem.RequestId,SelectedAttachmentItem.FileName));
             }
         }
 
@@ -72,7 +72,7 @@ namespace CRMPhone.ViewModel
             };
             if (openDialog.ShowDialog() == DialogResult.OK)
             {
-                _requestService.AddAttachmentToRequest(_requestId,openDialog.FileName);
+                //_requestService.AddAttachmentToRequest(_requestId,openDialog.FileName);
                 Refresh();
             }
 
@@ -81,7 +81,7 @@ namespace CRMPhone.ViewModel
         {
             if (SelectedAttachmentItem != null)
             {
-                _requestService.DeleteAttachment(SelectedAttachmentItem.Id);
+                //_requestService.DeleteAttachment(SelectedAttachmentItem.Id);
                 Refresh();
             }
         }

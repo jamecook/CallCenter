@@ -307,7 +307,7 @@ namespace CRMPhone.ViewModel
                 }
                 else
                 {
-                    AddressRequestList.Clear();
+                    AddressRequestList?.Clear();
                 }
                 OnPropertyChanged(nameof(SelectedFlat));}
         }
@@ -640,7 +640,7 @@ namespace CRMPhone.ViewModel
             var requestModel = sender as RequestItemViewModel;
             if (!requestModel.RequestId.HasValue)
                 return;
-            var model = new AttachmentDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var model = new AttachmentDialogViewModel(requestModel.RequestId.Value);
             var view = new AttachmentDialog();
             model.SetView(view);
             view.Owner = _view;
@@ -654,7 +654,7 @@ namespace CRMPhone.ViewModel
             var requestModel = sender as RequestItemViewModel;
             if (!requestModel.RequestId.HasValue)
                 return;
-            var model = new NoteDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var model = new NoteDialogViewModel(requestModel.RequestId.Value);
             var view = new NotesDialog();
             model.SetView(view);
             view.Owner = _view;
@@ -669,7 +669,7 @@ namespace CRMPhone.ViewModel
             var requestModel = sender as RequestItemViewModel;
             if(!requestModel.RequestId.HasValue)
                 return;
-            var model = new ChangeWorkerDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var model = new ChangeWorkerDialogViewModel(requestModel.RequestId.Value);
             model.WorkerTitle = "Мастер:";
             var view = new ChangeWorkerDialog();
             model.SetView(view);
@@ -691,7 +691,7 @@ namespace CRMPhone.ViewModel
             var requestModel = sender as RequestItemViewModel;
             if(!requestModel.RequestId.HasValue)
                 return;
-            var model = new ChangeExecuterDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var model = new ChangeExecuterDialogViewModel(requestModel.RequestId.Value);
             model.WorkerTitle = "Исполнитель:";
             var view = new ChangeWorkerDialog();
             model.SetView(view);
@@ -730,7 +730,7 @@ namespace CRMPhone.ViewModel
             var requestModel = sender as RequestItemViewModel;
             if (!requestModel.RequestId.HasValue)
                 return;
-            var model = new ChangeStatusDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var model = new ChangeStatusDialogViewModel(requestModel.RequestId.Value);
             var view = new ChangeStatusDialog();
             model.SetView(view);
             view.Owner = _view;

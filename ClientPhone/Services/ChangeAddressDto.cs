@@ -38,11 +38,11 @@ namespace ClientPhone.Services
         public string Message { get; set; }
         public bool IsClient { get; set; }
     }
-    public class AddNewMasterDto
+    public class AddNewWorkerDto
     {
         public int UserId { get; set; }
         public int RequestId { get; set; }
-        public int? MasterId { get; set; }
+        public int? WorkerId { get; set; }
     }
     public class NewExecuteDateDto
     {
@@ -95,5 +95,17 @@ namespace ClientPhone.Services
         public int RequestId { get; set; }
         public int RatingId { get; set; }
         public string Description { get; set; }
+    }
+    public class NewStateDto
+    {
+        public int UserId { get; set; }
+        public int RequestId { get; set; }
+        public int StateId { get; set; }
+    }
+    public class NewNoteDto
+    {
+        public int UserId { get; set; }
+        public int RequestId { get; set; }
+        public string Note { get; set; }
     }
 }
