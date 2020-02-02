@@ -174,8 +174,6 @@ namespace CRMPhone.ViewModel
         private void PlayRecord(object obj)
         {
             var record = obj as CallsListDto;
-            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
-
             var saveDialog = new SaveFileDialog();
             saveDialog.AddExtension = true;
             saveDialog.DefaultExt = ".wav";

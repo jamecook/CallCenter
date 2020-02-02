@@ -2851,6 +2851,31 @@ left join CallCenter.Users u on u.id = a.userId";
            }
 
        }
+       public string GetRecordFileNameByUniqueId(int userId, string uniqueId)
+       {
+           var sqlQuery = @"select MonitorFile FROM asterisk.ChannelHistory ch
+ join CallCenter.RequestCalls rc on ch.UniqueId = rc.UniqueId
+ where rc.uniqueID = @UniqueID";
+           var result = string.Empty;
+           using (var conn = new MySqlConnection(_connectionString))
+           {
+               conn.Open();
+               using (var cmd = new MySqlCommand(sqlQuery, conn))
+               {
+                   cmd.Parameters.AddWithValue("@UniqueID", uniqueId);
+                   using (var dataReader = cmd.ExecuteReader())
+                   {
+                       if (dataReader.Read())
+                       {
+                           result = dataReader.GetNullableString("MonitorFile");
+                       }
+
+                       dataReader.Close();
+                       return result;
+                   }
+               }
+           }
+       }
 
         public byte[] GetRecordById(int userId, string path)
        {

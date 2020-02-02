@@ -264,6 +264,17 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<string>(responce.Content);
         }
+        public static string GetRecordFileNameByUniqueId(int userId, string uniqueId)
+        {
+            var restUrl = $"{ApiUrl}/GetRecordFileNameByUniqueId?userId={userId}&uniqueId={uniqueId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<string>(responce.Content);
+        }
         public static WorkerDto[] GetWorkerInfoWithParrents(int userId,int workerId)
         {
             var result = new List<WorkerDto>();

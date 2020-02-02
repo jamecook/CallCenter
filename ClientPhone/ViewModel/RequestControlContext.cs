@@ -46,10 +46,17 @@ namespace CRMPhone.ViewModel
             var item = obj as RequestForListDto;
             if (item == null)
                 return;
-            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
-            var fileName = _requestService.GetRecordFileNameByUniqueId(item.RecordUniqueId);
-            _requestService.PlayRecord(serverIpAddress, fileName);
-
+            var fileName = RestRequestService.GetRecordFileNameByUniqueId(AppSettings.CurrentUser.Id, item.RecordUniqueId);
+            var saveDialog = new SaveFileDialog();
+            saveDialog.AddExtension = true;
+            saveDialog.DefaultExt = ".wav";
+            saveDialog.Filter = "Audio פאיכ|*.wav";
+            if (saveDialog.ShowDialog() == true)
+            {
+                var recordBuf = RestRequestService.GetRecordById(AppSettings.CurrentUser.Id, fileName);
+                File.WriteAllBytes(saveDialog.FileName, recordBuf);
+                Process.Start(saveDialog.FileName);
+            }
             /*
             var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/","\\");
             var localFileNameMp3 = localFileName.Replace(".wav",".mp3");

@@ -341,6 +341,16 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetAttachments(userId, requestId));
         }
+        [HttpGet("GetRecordFileNameByUniqueId")]
+        public IActionResult GetRecordFileNameByUniqueId([FromQuery]int userId, [FromQuery]string uniqueId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetRecordFileNameByUniqueId(userId, uniqueId));
+        }
         [HttpPut("RequestChangeAddress")]
         public IActionResult RequestChangeAddress([FromBody]ChangeAddressDto value)
         {
