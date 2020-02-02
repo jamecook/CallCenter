@@ -351,6 +351,26 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetRecordFileNameByUniqueId(userId, uniqueId));
         }
+       [HttpGet("GetMeterCodes")]
+        public IActionResult GetMeterCodes([FromQuery]int userId, [FromQuery]int addressId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetMeterCodes(userId, addressId));
+        }
+       [HttpGet("GetMetersByAddressId")]
+        public IActionResult GetMetersByAddressId([FromQuery]int userId, [FromQuery]int addressId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetMetersByAddressId(userId, addressId));
+        }
         [HttpPut("RequestChangeAddress")]
         public IActionResult RequestChangeAddress([FromBody]ChangeAddressDto value)
         {
@@ -361,6 +381,41 @@ namespace ClientPhoneWebApi.Controllers
             }
             RequestService.RequestChangeAddress(value.UserId, value.RequestId, value.AddressId);
             return Ok();
+        }
+        [HttpPut("AddCallToMeter")]
+        public IActionResult AddCallToMeter([FromBody]AddCallToMeterDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.AddCallToMeter(value.UserId, value.MeterId, value.CallUniqueId);
+            return Ok();
+        }
+        [HttpPut("SaveMeterCodes")]
+        public IActionResult SaveMeterCodes([FromBody]SaveMeterCodesDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }        
+            RequestService.SaveMeterCodes(value.UserId, value.SelectedFlatId, value.PersonalAccount, value.Electro1Code, value.Electro2Code, value.HotWater1Code, value.ColdWater1Code,
+            value.HotWater2Code, value.ColdWater2Code, value.HotWater3Code, value.ColdWater3Code, value.HeatingCode, value.Heating2Code, value.Heating3Code, value.Heating4Code);
+            return Ok();
+        }
+        [HttpPut("SaveMeterValues")]
+        public IActionResult SaveMeterValues([FromBody]SaveMeterValuesDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }        
+            var result = RequestService.SaveMeterValues(value.UserId, value.PhoneNumber, value.AddressId, value.Electro1, value.Electro2, value.HotWater1, value.ColdWater1,
+            value.HotWater2, value.ColdWater2, value.HotWater3, value.ColdWater3, value.Heating, value.MeterId, value.PersonalAccount, value.Heating2, value.Heating3, value.Heating4);
+            return Ok(result);
         }
         [HttpPut("AddNewState")]
         public IActionResult AddNewState([FromBody]NewStateDto value)

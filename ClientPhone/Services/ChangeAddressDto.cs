@@ -108,4 +108,48 @@ namespace ClientPhone.Services
         public int RequestId { get; set; }
         public string Note { get; set; }
     }
+    public class AddCallToMeterDto
+    {
+        public int UserId { get; set; }
+        public int? MeterId { get; set; }
+        public string CallUniqueId { get; set; }
+    }
+    public class SaveMeterCodesDto
+    {
+        public int UserId { get; set; }
+        public int SelectedFlatId { get; set; }
+        public string PersonalAccount { get; set; }
+        public string Electro1Code { get; set; }
+        public string Electro2Code { get; set; }
+        public string HotWater1Code { get; set; }
+        public string ColdWater1Code { get; set; }
+        public string HotWater2Code { get; set; }
+        public string ColdWater2Code { get; set; }
+        public string HotWater3Code { get; set; }
+        public string ColdWater3Code { get; set; }
+        public string HeatingCode { get; set; }
+        public string Heating2Code { get; set; }
+        public string Heating3Code { get; set; }
+        public string Heating4Code { get; set; }
+    }
+    public class SaveMeterValuesDto
+    {
+        public int UserId { get; set; }
+        public string PhoneNumber { get; set; }
+        public string PersonalAccount { get; set; }
+        public int? MeterId { get; set; }
+        public int AddressId { get; set; }
+        public double Electro1 { get; set; }
+        public double Electro2 { get; set; }
+        public double HotWater1 { get; set; }
+        public double ColdWater1 { get; set; }
+        public double HotWater2 { get; set; }
+        public double ColdWater2 { get; set; }
+        public double HotWater3 { get; set; }
+        public double ColdWater3 { get; set; }
+        public double Heating { get; set; }
+        public double Heating2 { get; set; }
+        public double Heating3 { get; set; }
+        public double Heating4 { get; set; }
+    }
 }

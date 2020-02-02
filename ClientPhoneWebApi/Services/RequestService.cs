@@ -19,7 +19,7 @@ namespace ClientPhoneWebApi.Services
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", "192.168.1.130",
                 "asterisk", "mysqlasterisk", "CallCenter");
-       }
+        }
 
 
         public WebUserDto WebLogin(string userName, string password)
@@ -73,7 +73,11 @@ namespace ClientPhoneWebApi.Services
             }
         }
 
-        public RequestForListDto[] GetRequestList(int userId, string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId, int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone, bool onlyGaranty, bool onlyImmediate, bool onlyByClient)
+        public RequestForListDto[] GetRequestList(int userId, string requestId, bool filterByCreateDate,
+            DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId,
+            int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId,
+            int[] executersId, int[] serviceCompaniesId, int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork,
+            bool onlyRetry, string clientPhone, bool onlyGaranty, bool onlyImmediate, bool onlyByClient)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -136,8 +140,10 @@ namespace ClientPhoneWebApi.Services
 
                     sqlQuery += " where R.execute_date between @FromDate and @ToDate";
                 }
+
                 if (streetsId != null && streetsId.Length > 0)
-                    sqlQuery += $" and s.id in ({streetsId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+                    sqlQuery +=
+                        $" and s.id in ({streetsId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
                 if (houseId.HasValue)
                     sqlQuery += $" and h.id = {houseId.Value}";
                 if (addressId.HasValue)
@@ -146,25 +152,32 @@ namespace ClientPhoneWebApi.Services
                     sqlQuery += $" and rt.id = {serviceId.Value}";
 
                 if (parentServicesId != null && parentServicesId.Length > 0)
-                    sqlQuery += $" and rt2.id in ({parentServicesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+                    sqlQuery +=
+                        $" and rt2.id in ({parentServicesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
 
                 if (statusesId != null && statusesId.Length > 0)
-                    sqlQuery += $" and R.state_id in ({statusesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+                    sqlQuery +=
+                        $" and R.state_id in ({statusesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
 
                 if (mastersId != null && mastersId.Length > 0)
-                    sqlQuery += $" and w.id in ({mastersId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+                    sqlQuery +=
+                        $" and w.id in ({mastersId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
 
                 if (executersId != null && executersId.Length > 0)
-                    sqlQuery += $" and R.executer_id in ({executersId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+                    sqlQuery +=
+                        $" and R.executer_id in ({executersId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
 
                 if (serviceCompaniesId != null && serviceCompaniesId.Length > 0)
-                    sqlQuery += $" and R.service_company_id in ({serviceCompaniesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+                    sqlQuery +=
+                        $" and R.service_company_id in ({serviceCompaniesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
 
                 if (usersId != null && usersId.Length > 0)
-                    sqlQuery += $" and R.create_user_id in ({usersId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+                    sqlQuery +=
+                        $" and R.create_user_id in ({usersId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
 
                 if (ratingsId != null && ratingsId.Length > 0)
-                    sqlQuery += $" and rtype.rating_id in ({ratingsId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+                    sqlQuery +=
+                        $" and rtype.rating_id in ({ratingsId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
 
                 if (payment.HasValue)
                     sqlQuery += $" and R.is_chargeable = {payment.Value}";
@@ -285,7 +298,8 @@ namespace ClientPhoneWebApi.Services
 
         public WorkerDto[] GetMasters(int userId, int? serviceCompanyId, bool showOnlyExecutors = true)
         {
-            var sqlQuery = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,send_sms,is_master,is_executer,is_dispetcher,w.send_notification FROM CallCenter.Workers w
+            var sqlQuery =
+                @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,send_sms,is_master,is_executer,is_dispetcher,w.send_notification FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
     where w.enabled = 1 and w.is_master = 1 and service_company_id in (17,88,48,142) ";
@@ -331,9 +345,11 @@ namespace ClientPhoneWebApi.Services
                 }
             }
         }
+
         public WorkerDto[] GetExecutors(int userId, int? serviceCompanyId, bool showOnlyExecutors = true)
         {
-            var sqlQuery = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher,send_notification FROM CallCenter.Workers w
+            var sqlQuery =
+                @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher,send_notification FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
     where w.enabled = 1 and w.is_executer = true and service_company_id in (17,88,48,142) ";
@@ -441,7 +457,8 @@ namespace ClientPhoneWebApi.Services
 
         public EquipmentDto[] GetEquipments(int userId)
         {
-            var query = "SELECT e.id,t.name type_name,e.name FROM CallCenter.Equipments e join CallCenter.EquipmentTypes t on t.id = e.type_id order by t.name,e.name";
+            var query =
+                "SELECT e.id,t.name type_name,e.name FROM CallCenter.Equipments e join CallCenter.EquipmentTypes t on t.id = e.type_id order by t.name,e.name";
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
@@ -497,7 +514,9 @@ namespace ClientPhoneWebApi.Services
                 }
             }
         }
-        public WorkerDto[] GetWorkersByHouseAndService(int userId, int houseId, int parentServiceTypeId, bool showMasters = true)
+
+        public WorkerDto[] GetWorkersByHouseAndService(int userId, int houseId, int parentServiceTypeId,
+            bool showMasters = true)
         {
             var query =
                 $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms, w.send_notification
@@ -511,7 +530,8 @@ namespace ClientPhoneWebApi.Services
                 query += "and w.is_master = 1";
             else
                 query += "and w.is_executer = 1";
-            query += @" group by s.id,s.name ,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name,w.can_assign,w.parent_worker_id
+            query +=
+                @" group by s.id,s.name ,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name,w.can_assign,w.parent_worker_id
     order by wh.master_weigth desc;";
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -548,10 +568,12 @@ namespace ClientPhoneWebApi.Services
                 }
             }
         }
+
         public ClientAddressInfoDto GetLastAddressByClientPhone(int userId, string phone)
         {
             ClientAddressInfoDto result = null;
-            var query = @"SELECT cp.id,h.street_id,h.building,h.corps,a.flat,name,email,addition FROM CallCenter.ClientPhones cp
+            var query =
+                @"SELECT cp.id,h.street_id,h.building,h.corps,a.flat,name,email,addition FROM CallCenter.ClientPhones cp
             join CallCenter.RequestContacts rc on rc.ClientPhone_id = cp.id
             join CallCenter.Requests r on r.id = rc.request_id
             join CallCenter.Addresses a on a.id = r.address_id
@@ -581,12 +603,15 @@ namespace ClientPhoneWebApi.Services
                                 AdditionInfo = dataReader.GetNullableString("addition"),
                             };
                         }
+
                         dataReader.Close();
                     }
+
                     return result;
                 }
             }
         }
+
         public CityDto[] GetCities(int userId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -704,8 +729,10 @@ namespace ClientPhoneWebApi.Services
                 }
 
             }
+
             return house;
         }
+
         public int? GetServiceCompanyIdByHouseId(int userId, int houseId)
         {
             int? retVal = null;
@@ -732,6 +759,7 @@ namespace ClientPhoneWebApi.Services
                 }
             }
         }
+
         public int AlertCountByHouseId(int userId, int houseId)
         {
             int result = 0;
@@ -758,13 +786,15 @@ namespace ClientPhoneWebApi.Services
                 }
             }
         }
+
         public ScheduleTaskDto GetScheduleTaskByRequestId(int userId, int requestId)
         {
             ScheduleTaskDto result = null;
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                var query = @"SELECT s.id,w.id worker_id,w.sur_name,w.first_name,w.patr_name,s.request_id,s.from_date,s.to_date,s.event_description FROM CallCenter.ScheduleTasks s
+                var query =
+                    @"SELECT s.id,w.id worker_id,w.sur_name,w.first_name,w.patr_name,s.request_id,s.from_date,s.to_date,s.event_description FROM CallCenter.ScheduleTasks s
 join CallCenter.Workers w on s.worker_id = w.id
 where s.request_id = @RequestId and deleted = 0;";
                 using (var cmd = new MySqlCommand(query, conn))
@@ -799,9 +829,10 @@ where s.request_id = @RequestId and deleted = 0;";
                 }
             }
         }
+
         public void RequestChangeAddress(int userId, int requestId, int addressId)
         {
-            if(requestId<=0 || addressId <= 0)
+            if (requestId <= 0 || addressId <= 0)
                 return;
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -816,9 +847,11 @@ where s.request_id = @RequestId and deleted = 0;";
                 }
             }
         }
+
         public AlertDto[] GetAlerts(int userId, DateTime fromDate, DateTime toDate, int? houseId, bool onlyActive)
         {
-            var sqlQuery = @"SELECT a.id alert_id,s.id street_id, s.name street_name,h.id house_id, h.building,h.corps,a.start_date,a.end_date,a.description,
+            var sqlQuery =
+                @"SELECT a.id alert_id,s.id street_id, s.name street_name,h.id house_id, h.building,h.corps,a.start_date,a.end_date,a.description,
  at.id alert_type_id, at.name alert_type_name, a.alert_service_type_id,ast.name alert_service_type_name,
  u.id user_id,u.SurName,u.FirstName,u.PatrName,a.create_date
  FROM CallCenter.Alerts a
@@ -835,64 +868,66 @@ where s.request_id = @RequestId and deleted = 0;";
                 sqlQuery += @" and (end_date is null or a.end_date between @FromDate and @ToDate)
  and (start_date between @FromDate and @ToDate)";
             }
+
             if (houseId.HasValue)
                 sqlQuery += " and h.id = @HauseId";
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 using (
-                var cmd = new MySqlCommand(sqlQuery, conn))
-            {
-                if (!onlyActive)
+                    var cmd = new MySqlCommand(sqlQuery, conn))
                 {
-                    cmd.Parameters.AddWithValue("@FromDate", fromDate);
-                    cmd.Parameters.AddWithValue("@ToDate", toDate);
-
-                }
-                if (houseId.HasValue)
-                    cmd.Parameters.AddWithValue("@HauseId", houseId.Value);
-
-                using (var dataReader = cmd.ExecuteReader())
-                {
-                    var alertDtos = new List<AlertDto>();
-                    while (dataReader.Read())
+                    if (!onlyActive)
                     {
-                        alertDtos.Add(new AlertDto
-                        {
-                            Id = dataReader.GetInt32("alert_id"),
-                            StreetId = dataReader.GetInt32("street_id"),
-                            HouseId = dataReader.GetInt32("house_id"),
-                            StreetName = dataReader.GetString("street_name"),
-                            Building = dataReader.GetString("building"),
-                            Corpus = dataReader.GetNullableString("corps"),
-                            StartDate = dataReader.GetDateTime("start_date"),
-                            EndDate = dataReader.GetNullableDateTime("end_date"),
-                            Description = dataReader.GetNullableString("description"),
-                            Type = new AlertTypeDto
-                            {
-                                Id = dataReader.GetInt32("alert_type_id"),
-                                Name = dataReader.GetString("alert_type_name")
-                            },
-                            ServiceType = new AlertServiceTypeDto
-                            {
-                                Id = dataReader.GetInt32("alert_service_type_id"),
-                                Name = dataReader.GetString("alert_service_type_name")
-                            },
-                            User = new RequestUserDto()
-                            {
-                                Id = dataReader.GetInt32("user_id"),
-                                SurName = dataReader.GetNullableString("SurName"),
-                                FirstName = dataReader.GetNullableString("FirstName"),
-                                PatrName = dataReader.GetNullableString("PatrName"),
-                            },
-                            CreateDate = dataReader.GetDateTime("create_date")
-                        });
+                        cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                        cmd.Parameters.AddWithValue("@ToDate", toDate);
+
                     }
 
-                    dataReader.Close();
-                    return alertDtos.ToArray();
+                    if (houseId.HasValue)
+                        cmd.Parameters.AddWithValue("@HauseId", houseId.Value);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var alertDtos = new List<AlertDto>();
+                        while (dataReader.Read())
+                        {
+                            alertDtos.Add(new AlertDto
+                            {
+                                Id = dataReader.GetInt32("alert_id"),
+                                StreetId = dataReader.GetInt32("street_id"),
+                                HouseId = dataReader.GetInt32("house_id"),
+                                StreetName = dataReader.GetString("street_name"),
+                                Building = dataReader.GetString("building"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                StartDate = dataReader.GetDateTime("start_date"),
+                                EndDate = dataReader.GetNullableDateTime("end_date"),
+                                Description = dataReader.GetNullableString("description"),
+                                Type = new AlertTypeDto
+                                {
+                                    Id = dataReader.GetInt32("alert_type_id"),
+                                    Name = dataReader.GetString("alert_type_name")
+                                },
+                                ServiceType = new AlertServiceTypeDto
+                                {
+                                    Id = dataReader.GetInt32("alert_service_type_id"),
+                                    Name = dataReader.GetString("alert_service_type_name")
+                                },
+                                User = new RequestUserDto()
+                                {
+                                    Id = dataReader.GetInt32("user_id"),
+                                    SurName = dataReader.GetNullableString("SurName"),
+                                    FirstName = dataReader.GetNullableString("FirstName"),
+                                    PatrName = dataReader.GetNullableString("PatrName"),
+                                },
+                                CreateDate = dataReader.GetDateTime("create_date")
+                            });
+                        }
+
+                        dataReader.Close();
+                        return alertDtos.ToArray();
+                    }
                 }
-            }
             }
         }
 
@@ -914,6 +949,7 @@ where s.request_id = @RequestId and deleted = 0;";
                 }
             }
         }
+
         public void ChangeDescription(int userId, int requestId, string description)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -921,7 +957,9 @@ where s.request_id = @RequestId and deleted = 0;";
                 conn.Open();
                 using (var transaction = conn.BeginTransaction())
                 {
-                    using (var cmd = new MySqlCommand(@"update CallCenter.Requests set description = @Desc where id = @RequestId", conn))
+                    using (var cmd =
+                        new MySqlCommand(@"update CallCenter.Requests set description = @Desc where id = @RequestId",
+                            conn))
                     {
                         cmd.Parameters.AddWithValue("@RequestId", requestId);
                         cmd.Parameters.AddWithValue("@Desc", description);
@@ -932,9 +970,10 @@ where s.request_id = @RequestId and deleted = 0;";
                 }
             }
         }
+
         public SmsSettingDto GetSmsSettingsForServiceCompany(int userId, int? serviceCompanyId)
         {
-            var result = new SmsSettingDto { SendToClient = false, SendToWorker = false };
+            var result = new SmsSettingDto {SendToClient = false, SendToWorker = false};
             if (serviceCompanyId.HasValue)
             {
                 using (var conn = new MySqlConnection(_connectionString))
@@ -963,6 +1002,7 @@ where s.request_id = @RequestId and deleted = 0;";
                     }
                 }
             }
+
             return result;
         }
 
@@ -974,70 +1014,81 @@ where s.request_id = @RequestId and deleted = 0;";
                 return;
             var smsSettings = GetSmsSettingsForServiceCompany(userId, request.ServiceCompanyId);
             var service = GetServiceById(userId, request.Type.Id);
-            var parrentService = request.Type.ParentId.HasValue ? GetServiceById(userId,request.Type.ParentId.Value) : null;
+            var parrentService = request.Type.ParentId.HasValue
+                ? GetServiceById(userId, request.Type.ParentId.Value)
+                : null;
             if (!((parrentService?.CanSendSms ?? true) && service.CanSendSms))
             {
                 return;
             }
+
             string phones = "";
             if (request.Contacts != null && request.Contacts.Length > 0)
                 phones = request.Contacts.OrderBy(c => c.IsMain).Select(c =>
-                {
-                    var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
-                    //if (!string.IsNullOrEmpty(c.Name))
-                    //{
-                    //    retVal += $" - {c.Name}";
-                    //}
-                    return retVal;
-                }
-                    ).FirstOrDefault();
+                    {
+                        var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
+                        //if (!string.IsNullOrEmpty(c.Name))
+                        //{
+                        //    retVal += $" - {c.Name}";
+                        //}
+                        return retVal;
+                    }
+                ).FirstOrDefault();
             //.Aggregate((i, j) => i + ";" + j);
             //phones = request.Contacts.Select(c => $"{c.PhoneNumber} - {c.SurName} {c.FirstName} {c.PatrName}").Aggregate((i, j) => i + ";" + j);
 
             if (smsSettings.SendToWorker)
             {
                 var immediateMessage = request.IsImmediate ? "АВАРИЙНАЯ №" : "";
-                var smsText = $"{immediateMessage}{request.Id} {phones ?? ""} {request.Address.FullAddress}.{request.Type.Name}({request.Description ?? ""})";
+                var smsText =
+                    $"{immediateMessage}{request.Id} {phones ?? ""} {request.Address.FullAddress}.{request.Type.Name}({request.Description ?? ""})";
                 if ((!request.IsImmediate) && smsText.Length > 70)
                 {
                     smsText = smsText.Substring(0, 70);
                 }
+
                 //var smsText = $"№ {request.Id}. {request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.";
                 SendSms(userId, requestId, smsSettings.Sender, worker.Phone, smsText, false);
             }
+
             //SendSms(requestId, smsSettings.Sender, worker.Phone,
             //    $"№ {requestId}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
             //    false);
             //SendSms(requestId, smsSettings.Sender, worker.Phone, $"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
         }
+
         public void AddNewMaster(int userId, int requestId, int? workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                    using (var cmd = new MySqlCommand("CALL phone_client.add_new_master(@userId,@requestId,@workerId)", conn))
-                    {
-                        cmd.Parameters.AddWithValue("@userId", userId);
-                        cmd.Parameters.AddWithValue("@requestId", requestId);
-                        cmd.Parameters.AddWithValue("@workerId", workerId);
-                        cmd.ExecuteNonQuery();
-                    }
+                using (var cmd = new MySqlCommand("CALL phone_client.add_new_master(@userId,@requestId,@workerId)",
+                    conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@requestId", requestId);
+                    cmd.Parameters.AddWithValue("@workerId", workerId);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
+
         public void AddNewExecutor(int userId, int requestId, int? workerId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                    using (var cmd = new MySqlCommand("CALL phone_client.add_new_executor(@userId,@requestId,@workerId)", conn))
-                    {
-                        cmd.Parameters.AddWithValue("@userId", userId);
-                        cmd.Parameters.AddWithValue("@requestId", requestId);
-                        cmd.Parameters.AddWithValue("@workerId", workerId);
-                        cmd.ExecuteNonQuery();
-                    }
+                using (var cmd = new MySqlCommand("CALL phone_client.add_new_executor(@userId,@requestId,@workerId)",
+                    conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@requestId", requestId);
+                    cmd.Parameters.AddWithValue("@workerId", workerId);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
+
         public void AddNewExecuteDate(int userId, int requestId, DateTime executeDate, PeriodDto period, string note)
         {
             try
@@ -1083,7 +1134,9 @@ where s.request_id = @RequestId and deleted = 0;";
                 Logger.LogError(exc.ToString());
             }
         }
-        public void EditRequest(int userId, int requestId, int requestTypeId, string requestMessage, bool immediate, bool chargeable, bool isBadWork, int garanty, bool isRetry, DateTime? alertTime, DateTime? termOfExecution)
+
+        public void EditRequest(int userId, int requestId, int requestTypeId, string requestMessage, bool immediate,
+            bool chargeable, bool isBadWork, int garanty, bool isRetry, DateTime? alertTime, DateTime? termOfExecution)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -1107,6 +1160,7 @@ where s.request_id = @RequestId and deleted = 0;";
                 }
             }
         }
+
         public void DeleteRequestRatingById(int userId, int itemId)
         {
             var query = "delete from CallCenter.RequestRating where id = @Id;";
@@ -1120,6 +1174,7 @@ where s.request_id = @RequestId and deleted = 0;";
                 }
             }
         }
+
         public void SetRating(int userId, int requestId, int ratingId, string description)
         {
             try
@@ -1181,6 +1236,7 @@ where s.request_id = @RequestId and deleted = 0;";
                 }
             }
         }
+
         public List<RequestRatingListDto> GetRequestRatings(int userId, int requestId)
         {
             var result = new List<RequestRatingListDto>();
@@ -1224,9 +1280,11 @@ where s.request_id = @RequestId and deleted = 0;";
                 return result;
             }
         }
+
         public List<ExecuteDateHistoryDto> GetExecuteDateHistoryByRequest(int userId, int requestId)
         {
-            var query = @"SELECT R.operation_date,R.user_id,u.surname,u.firstname,u.patrname,R.note,R.execute_date,p.Name FROM CallCenter.RequestExecuteDateHistory R
+            var query =
+                @"SELECT R.operation_date,R.user_id,u.surname,u.firstname,u.patrname,R.note,R.execute_date,p.Name FROM CallCenter.RequestExecuteDateHistory R
  join CallCenter.Users u on u.id = user_id
  join CallCenter.PeriodTimes p on p.id = R.period_time_id
  where request_id = @RequestId";
@@ -1264,6 +1322,7 @@ where s.request_id = @RequestId and deleted = 0;";
                 }
             }
         }
+
         public void DeleteScheduleTask(int userId, int sheduleId)
         {
             try
@@ -1294,7 +1353,7 @@ where s.request_id = @RequestId and deleted = 0;";
             }
         }
 
-        public void SetRequestWorkingTimes(int userId,int requestId, DateTime fromTime, DateTime toTime)
+        public void SetRequestWorkingTimes(int userId, int requestId, DateTime fromTime, DateTime toTime)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -1323,7 +1382,8 @@ where s.request_id = @RequestId and deleted = 0;";
             }
         }
 
-        public void AddScheduleTask(int userId, int workerId, int? requestId, DateTime fromDate, DateTime toDate, string eventDescription)
+        public void AddScheduleTask(int userId, int workerId, int? requestId, DateTime fromDate, DateTime toDate,
+            string eventDescription)
         {
             try
             {
@@ -1356,6 +1416,7 @@ where s.request_id = @RequestId and deleted = 0;";
                 throw;
             }
         }
+
         public List<AttachmentDto> GetAttachments(int userId, int requestId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -1431,7 +1492,8 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
                     {
                         using (
                             var cmd =
-                                new MySqlCommand(@"insert into CallCenter.RequestNoteHistory (request_id,operation_date,user_id,note)
+                                new MySqlCommand(
+                                    @"insert into CallCenter.RequestNoteHistory (request_id,operation_date,user_id,note)
  values(@RequestId,sysdate(),@UserId,@Note);", conn))
                         {
                             cmd.Parameters.AddWithValue("@RequestId", requestId);
@@ -1439,6 +1501,7 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
                             cmd.Parameters.AddWithValue("@Note", note);
                             cmd.ExecuteNonQuery();
                         }
+
                         transaction.Commit();
                     }
                 }
@@ -1450,6 +1513,7 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
             }
 
         }
+
         public void AddNewTermOfExecution(int userId, int requestId, DateTime termOfExecution, string note)
         {
             try
@@ -1480,6 +1544,7 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
                 Logger.LogError(exc.ToString());
             }
         }
+
         public void SendSms(int userId, int requestId, string sender, string phone, string message, bool isClient)
         {
             if (requestId <= 0 || string.IsNullOrEmpty(phone) || phone.Length < 10 || string.IsNullOrEmpty(sender))
@@ -1490,41 +1555,43 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
                 conn.Open();
 
                 using (
-                var cmd =
-                    new MySqlCommand(
-                        "SELECT count(1) as count FROM CallCenter.SMSRequest S where request_id = @RequestId and phone = @Phone and create_date > sysdate() - interval 5 minute;",
-                        conn))
-            {
-                cmd.Parameters.AddWithValue("@RequestId", requestId);
-                cmd.Parameters.AddWithValue("@Phone", phone);
-
-                using (var dataReader = cmd.ExecuteReader())
+                    var cmd =
+                        new MySqlCommand(
+                            "SELECT count(1) as count FROM CallCenter.SMSRequest S where request_id = @RequestId and phone = @Phone and create_date > sysdate() - interval 5 minute;",
+                            conn))
                 {
-                    dataReader.Read();
-                    smsCount = dataReader.GetInt32("count");
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+                    cmd.Parameters.AddWithValue("@Phone", phone);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        dataReader.Read();
+                        smsCount = dataReader.GetInt32("count");
+                    }
+                }
+
+                if (smsCount > 0)
+                    return;
+
+                using (var cmd =
+                    new MySqlCommand(
+                        "insert into CallCenter.SMSRequest(request_id,sender,phone,message,create_date, is_client) values(@Request, @Sender, @Phone,@Message,sysdate(),@IsClient)",
+                        conn))
+                {
+                    cmd.Parameters.AddWithValue("@Request", requestId);
+                    cmd.Parameters.AddWithValue("@Sender", sender);
+                    cmd.Parameters.AddWithValue("@Phone", phone);
+                    cmd.Parameters.AddWithValue("@Message", message);
+                    cmd.Parameters.AddWithValue("@IsClient", isClient);
+                    cmd.ExecuteNonQuery();
                 }
             }
-
-            if (smsCount > 0)
-                return;
-
-            using (var cmd =
-                new MySqlCommand(
-                    "insert into CallCenter.SMSRequest(request_id,sender,phone,message,create_date, is_client) values(@Request, @Sender, @Phone,@Message,sysdate(),@IsClient)",
-                    conn))
-            {
-                cmd.Parameters.AddWithValue("@Request", requestId);
-                cmd.Parameters.AddWithValue("@Sender", sender);
-                cmd.Parameters.AddWithValue("@Phone", phone);
-                cmd.Parameters.AddWithValue("@Message", message);
-                cmd.Parameters.AddWithValue("@IsClient", isClient);
-                cmd.ExecuteNonQuery();
-            }
         }
-    }
 
-        public int? SaveNewRequest(int userId,string lastCallId, int addressId, int requestTypeId, ContactDto[] contactList, string requestMessage,
-    bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, DateTime? alertTime, bool isRetry, bool isBedWork, int? equipmentId, int warranty)
+        public int? SaveNewRequest(int userId, string lastCallId, int addressId, int requestTypeId,
+            ContactDto[] contactList, string requestMessage,
+            bool chargeable, bool immediate, string callUniqueId, string entrance, string floor, DateTime? alertTime,
+            bool isRetry, bool isBedWork, int? equipmentId, int warranty)
         {
             int newId;
             //_logger.Debug($"RequestService.SaveNewRequest({addressId},{requestTypeId},[{contactList.Select(x => $"{x.PhoneNumber}").Aggregate((f1, f2) => f1 + ";" + f2)}],{requestMessage},{chargeable},{immediate},{callUniqueId})");
@@ -1634,6 +1701,7 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
             {
                 Logger.LogError(exc.ToString());
             }
+
             return null;
         }
 
@@ -1763,6 +1831,7 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
                 }
             }
         }
+
         public string GetOnlyActiveCallUniqueIdByCallId(int userId, string callId)
         {
             string retVal = null;
@@ -1791,11 +1860,14 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
                 }
 
             }
+
             return retVal;
         }
+
         public ScheduleTaskDto[] GetScheduleTasks(int userId, int workerId, DateTime fromDate, DateTime toDate)
         {
-            var query = @"SELECT s.id,w.id worker_id,w.sur_name,w.first_name,w.patr_name,s.request_id,s.from_date,s.to_date,s.event_description FROM CallCenter.ScheduleTasks s
+            var query =
+                @"SELECT s.id,w.id worker_id,w.sur_name,w.first_name,w.patr_name,s.request_id,s.from_date,s.to_date,s.event_description FROM CallCenter.ScheduleTasks s
 join CallCenter.Workers w on s.worker_id = w.id
 where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted = 0;";
             using (var conn = new MySqlConnection(_connectionString))
@@ -1831,6 +1903,7 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
 
                         dataReader.Close();
                     }
+
                     return items.ToArray();
                 }
             }
@@ -1882,52 +1955,52 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
             {
                 conn.Open();
                 using (var cmd = new MySqlCommand(query, conn))
-            {
-                cmd.Parameters.AddWithValue("@WorkerId", workerId);
-                using (var dataReader = cmd.ExecuteReader())
                 {
-                    if (dataReader.Read())
+                    cmd.Parameters.AddWithValue("@WorkerId", workerId);
+                    using (var dataReader = cmd.ExecuteReader())
                     {
-                        worker = new WorkerDto
+                        if (dataReader.Read())
                         {
-                            Id = dataReader.GetInt32("id"),
-                            ServiceCompanyId = dataReader.GetNullableInt("service_id"),
-                            ServiceCompanyName = dataReader.GetNullableString("service_name"),
-                            SurName = dataReader.GetString("sur_name"),
-                            FirstName = dataReader.GetNullableString("first_name"),
-                            PatrName = dataReader.GetNullableString("patr_name"),
-                            SpecialityName = dataReader.GetNullableString("speciality_name"),
-                            SpecialityId = dataReader.GetNullableInt("speciality_id"),
-                            Phone = dataReader.GetNullableString("phone"),
-                            Login = dataReader.GetNullableString("login"),
-                            Password = dataReader.GetNullableString("password"),
-                            CanAssign = dataReader.GetBoolean("can_assign"),
-                            IsMaster = dataReader.GetBoolean("is_master"),
-                            IsExecuter = dataReader.GetBoolean("is_executer"),
-                            IsDispetcher = dataReader.GetBoolean("is_dispetcher"),
-                            SendSms = dataReader.GetBoolean("send_sms"),
-                            AppNotification = dataReader.GetBoolean("send_notification"),
-                            ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
-                            CanSetRating = dataReader.GetBoolean("can_set_rating"),
-                            CanCloseRequest = dataReader.GetBoolean("can_close_request"),
-                            CanChangeExecutor = dataReader.GetBoolean("can_change_executors"),
-                            CanCreateRequest = dataReader.GetBoolean("can_create_in_web"),
-                            CanShowStatistic = dataReader.GetBoolean("allow_statistics"),
-                            FilterByHouses = dataReader.GetBoolean("filter_by_houses"),
-                            ShowOnlyMy = dataReader.GetBoolean("show_only_my"),
-                            ShowAllRequest = dataReader.GetBoolean("show_all_request"),
-                            ShowOnlyGaranty = dataReader.GetBoolean("show_only_garanty"),
-                            Enabled = dataReader.GetBoolean("enabled"),
-                        };
+                            worker = new WorkerDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                ServiceCompanyId = dataReader.GetNullableInt("service_id"),
+                                ServiceCompanyName = dataReader.GetNullableString("service_name"),
+                                SurName = dataReader.GetString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                                SpecialityName = dataReader.GetNullableString("speciality_name"),
+                                SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                                Phone = dataReader.GetNullableString("phone"),
+                                Login = dataReader.GetNullableString("login"),
+                                Password = dataReader.GetNullableString("password"),
+                                CanAssign = dataReader.GetBoolean("can_assign"),
+                                IsMaster = dataReader.GetBoolean("is_master"),
+                                IsExecuter = dataReader.GetBoolean("is_executer"),
+                                IsDispetcher = dataReader.GetBoolean("is_dispetcher"),
+                                SendSms = dataReader.GetBoolean("send_sms"),
+                                AppNotification = dataReader.GetBoolean("send_notification"),
+                                ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
+                                CanSetRating = dataReader.GetBoolean("can_set_rating"),
+                                CanCloseRequest = dataReader.GetBoolean("can_close_request"),
+                                CanChangeExecutor = dataReader.GetBoolean("can_change_executors"),
+                                CanCreateRequest = dataReader.GetBoolean("can_create_in_web"),
+                                CanShowStatistic = dataReader.GetBoolean("allow_statistics"),
+                                FilterByHouses = dataReader.GetBoolean("filter_by_houses"),
+                                ShowOnlyMy = dataReader.GetBoolean("show_only_my"),
+                                ShowAllRequest = dataReader.GetBoolean("show_all_request"),
+                                ShowOnlyGaranty = dataReader.GetBoolean("show_only_garanty"),
+                                Enabled = dataReader.GetBoolean("enabled"),
+                            };
+                        }
+
+                        dataReader.Close();
                     }
 
-                    dataReader.Close();
+                    return worker;
                 }
-
-                return worker;
             }
         }
-    }
 
         public RequestInfoDto GetRequest(int userId, int requestId)
         {
@@ -1939,7 +2012,8 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
                     conn.Open();
 
                     using (var cmd =
-                    new MySqlCommand(@"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_chargeable,R.is_immediate,R.period_time_id,R.state_id,R.worker_id,R.execute_date,R.service_company_id,
+                        new MySqlCommand(
+                            @"SELECT R.id req_id,R.Address_id,R.type_id,R.description, R.create_time,R.is_chargeable,R.is_immediate,R.period_time_id,R.state_id,R.worker_id,R.execute_date,R.service_company_id,
     RS.name state_name,RS.description state_descript,
     RT.parrent_id,RT.name as rt_name,RT2.name rt_parrent_name,
     A.type_id address_type_id,A.house_id,A.flat,
@@ -1974,85 +2048,91 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
     left join CallCenter.EquipmentTypes eqt on eqt.id = eq.type_id
     left join CallCenter.Workers cw on cw.id = R.create_worker_id
     where R.id = @reqId", conn))
-                {
-                    cmd.Parameters.AddWithValue("@reqId", requestId);
-                    using (var dataReader = cmd.ExecuteReader())
                     {
-                        if (dataReader.Read())
+                        cmd.Parameters.AddWithValue("@reqId", requestId);
+                        using (var dataReader = cmd.ExecuteReader())
                         {
-                            result = new RequestInfoDto
+                            if (dataReader.Read())
                             {
-                                Id = dataReader.GetInt32("req_id"),
-                                CreateTime = dataReader.GetDateTime("create_time"),
-                                PeriodId = dataReader.GetNullableInt("period_time_id"),
-                                MasterId = dataReader.GetNullableInt("worker_id"),
-                                ExecuterId = dataReader.GetNullableInt("executer_id"),
-                                ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
-                                IsChargeable = dataReader.GetBoolean("is_chargeable"),
-                                IsImmediate = dataReader.GetBoolean("is_immediate"),
-                                IsBadWork = dataReader.GetBoolean("bad_work"),
-                                IsRetry = dataReader.GetBoolean("retry"),
-                                GarantyId = dataReader.GetInt32("garanty"),
-                                Description = dataReader.GetNullableString("description"),
-                                Entrance = dataReader.GetNullableString("entrance"),
-                                Floor = dataReader.GetNullableString("floor"),
-                                ExecuteDate = dataReader.GetNullableDateTime("execute_date"),
-                                FromTime = dataReader.GetNullableDateTime("from_time"),
-                                ToTime = dataReader.GetNullableDateTime("to_time"),
-                                AlertTime = dataReader.GetNullableDateTime("alert_time"),
-                                TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
-                                Type = new RequestTypeDto
+                                result = new RequestInfoDto
                                 {
-                                    Id = dataReader.GetInt32("type_id"),
-                                    Name = dataReader.GetString("rt_name"),
-                                    ParentId = dataReader.GetNullableInt("parrent_id"),
-                                    ParentName = dataReader.GetString("rt_parrent_name"),
-                                },
-                                State = new RequestStateDto
-                                {
-                                    Id = dataReader.GetInt32("state_id"),
-                                    Name = dataReader.GetString("state_name"),
-                                    Description = dataReader.GetString("state_descript")
-                                },
-                                CreateUser = new RequestUserDto
-                                {
-                                    Id = dataReader.GetInt32("Create_user_id"),
-                                    SurName = dataReader.GetString("SurName"),
-                                    FirstName = dataReader.GetNullableString("FirstName"),
-                                    PatrName = dataReader.GetNullableString("PatrName")
-                                },
-                                Address = new AddressDto
-                                {
-                                    Id = dataReader.GetInt32("Address_id"),
-                                    Building = dataReader.GetString("building"),
-                                    Corpus = dataReader.GetNullableString("corps"),
-                                    City = dataReader.GetString("City_name"),
-                                    CityId = dataReader.GetInt32("city_id"),
-                                    HouseId = dataReader.GetInt32("house_id"),
-                                    StreetName = dataReader.GetString("street_name"),
-                                    Flat = dataReader.GetNullableString("flat"),
-                                    TypeId = dataReader.GetInt32("address_type_id"),
-                                    Type = dataReader.GetString("type_name"),
-                                    StreetId = dataReader.GetInt32("street_id"),
-                                    StreetPrefixId = dataReader.GetInt32("prefix_id"),
-                                    StreetPrefix = dataReader.GetString("prefix_name")
-                                },
-                                Rating = dataReader.GetNullableInt("rating_id").HasValue ? new RequestRatingDto
-                                {
-                                    Id = dataReader.GetInt32("rating_id"),
-                                    Name = dataReader.GetString("RatingName"),
-                                    Description = dataReader.GetNullableString("RatingDesc")
-                                } : new RequestRatingDto(),
-                                Equipment = dataReader.GetNullableInt("equipment_id").HasValue ? new EquipmentDto
-                                {
-                                    Id = dataReader.GetInt32("equipment_id"),
-                                    Name = $"{dataReader.GetString("eq_type_name")} - {dataReader.GetString("eq_name")}"
-                                } : new EquipmentDto { Id = null, Name = "Нет" }
-                            };
-                        }
-                        dataReader.Close();
-                        if (result != null)
-                        {
+                                    Id = dataReader.GetInt32("req_id"),
+                                    CreateTime = dataReader.GetDateTime("create_time"),
+                                    PeriodId = dataReader.GetNullableInt("period_time_id"),
+                                    MasterId = dataReader.GetNullableInt("worker_id"),
+                                    ExecuterId = dataReader.GetNullableInt("executer_id"),
+                                    ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
+                                    IsChargeable = dataReader.GetBoolean("is_chargeable"),
+                                    IsImmediate = dataReader.GetBoolean("is_immediate"),
+                                    IsBadWork = dataReader.GetBoolean("bad_work"),
+                                    IsRetry = dataReader.GetBoolean("retry"),
+                                    GarantyId = dataReader.GetInt32("garanty"),
+                                    Description = dataReader.GetNullableString("description"),
+                                    Entrance = dataReader.GetNullableString("entrance"),
+                                    Floor = dataReader.GetNullableString("floor"),
+                                    ExecuteDate = dataReader.GetNullableDateTime("execute_date"),
+                                    FromTime = dataReader.GetNullableDateTime("from_time"),
+                                    ToTime = dataReader.GetNullableDateTime("to_time"),
+                                    AlertTime = dataReader.GetNullableDateTime("alert_time"),
+                                    TermOfExecution = dataReader.GetNullableDateTime("term_of_execution"),
+                                    Type = new RequestTypeDto
+                                    {
+                                        Id = dataReader.GetInt32("type_id"),
+                                        Name = dataReader.GetString("rt_name"),
+                                        ParentId = dataReader.GetNullableInt("parrent_id"),
+                                        ParentName = dataReader.GetString("rt_parrent_name"),
+                                    },
+                                    State = new RequestStateDto
+                                    {
+                                        Id = dataReader.GetInt32("state_id"),
+                                        Name = dataReader.GetString("state_name"),
+                                        Description = dataReader.GetString("state_descript")
+                                    },
+                                    CreateUser = new RequestUserDto
+                                    {
+                                        Id = dataReader.GetInt32("Create_user_id"),
+                                        SurName = dataReader.GetString("SurName"),
+                                        FirstName = dataReader.GetNullableString("FirstName"),
+                                        PatrName = dataReader.GetNullableString("PatrName")
+                                    },
+                                    Address = new AddressDto
+                                    {
+                                        Id = dataReader.GetInt32("Address_id"),
+                                        Building = dataReader.GetString("building"),
+                                        Corpus = dataReader.GetNullableString("corps"),
+                                        City = dataReader.GetString("City_name"),
+                                        CityId = dataReader.GetInt32("city_id"),
+                                        HouseId = dataReader.GetInt32("house_id"),
+                                        StreetName = dataReader.GetString("street_name"),
+                                        Flat = dataReader.GetNullableString("flat"),
+                                        TypeId = dataReader.GetInt32("address_type_id"),
+                                        Type = dataReader.GetString("type_name"),
+                                        StreetId = dataReader.GetInt32("street_id"),
+                                        StreetPrefixId = dataReader.GetInt32("prefix_id"),
+                                        StreetPrefix = dataReader.GetString("prefix_name")
+                                    },
+                                    Rating = dataReader.GetNullableInt("rating_id").HasValue
+                                        ? new RequestRatingDto
+                                        {
+                                            Id = dataReader.GetInt32("rating_id"),
+                                            Name = dataReader.GetString("RatingName"),
+                                            Description = dataReader.GetNullableString("RatingDesc")
+                                        }
+                                        : new RequestRatingDto(),
+                                    Equipment = dataReader.GetNullableInt("equipment_id").HasValue
+                                        ? new EquipmentDto
+                                        {
+                                            Id = dataReader.GetInt32("equipment_id"),
+                                            Name =
+                                                $"{dataReader.GetString("eq_type_name")} - {dataReader.GetString("eq_name")}"
+                                        }
+                                        : new EquipmentDto {Id = null, Name = "Нет"}
+                                };
+                            }
+
+                            dataReader.Close();
+                            if (result != null)
+                            {
                                 var contactInfo = new List<ContactDto>();
                                 using (
                                     var contact =
@@ -2091,6 +2171,7 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
             {
                 Logger.LogError(exc.ToString());
             }
+
             return null;
         }
 
@@ -2126,6 +2207,7 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
                 }
             }
         }
+
         public StatusDto[] GetStatuses(int userId)
         {
             var sqlQuery = @"CALL phone_client.get_statuses(@userId);";
@@ -2150,10 +2232,12 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
 
                         dataReader.Close();
                     }
+
                     return types.ToArray();
                 }
             }
         }
+
         public ServiceDto[] GetServices(int userId, long? parentId, int? houseId)
         {
 
@@ -2180,14 +2264,16 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
                                 Immediate = dataReader.GetBoolean("immediate")
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return services.ToArray();
                 }
             }
         }
 
-        public StreetDto[] GetStreets(int userId,int cityId, int? serviceCompanyId = null)
+        public StreetDto[] GetStreets(int userId, int cityId, int? serviceCompanyId = null)
         {
             var sqlQuery = @"CALL phone_client.get_streets(@userId,@cityId,@serviceCompanyId);";
             using (var conn = new MySqlConnection(_connectionString))
@@ -2281,7 +2367,8 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand("CALL phone_client.get_meters(@userId,@ServiceCompanyId,@FromDate,@ToDate)", conn))
+                using (var cmd =
+                    new MySqlCommand("CALL phone_client.get_meters(@userId,@ServiceCompanyId,@FromDate,@ToDate)", conn))
                 {
                     cmd.Parameters.AddWithValue("@userId", userId);
                     cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
@@ -2319,6 +2406,7 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
                                 Heating4 = dataReader.GetNullableDouble("heating4"),
                             });
                         }
+
                         dataReader.Close();
                         return metersDtos.ToArray();
                     }
@@ -2358,6 +2446,7 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
 
                         dataReader.Close();
                     }
+
                     return requests.ToArray();
                 }
             }
@@ -2450,7 +2539,8 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
             return callList.ToArray();
         }
 
-        public CallsListDto[] GetCallList(DateTime fromDate, DateTime toDate, string requestId, int? operatorId, int? serviceCompanyId, string phoneNumber)
+        public CallsListDto[] GetCallList(DateTime fromDate, DateTime toDate, string requestId, int? operatorId,
+            int? serviceCompanyId, string phoneNumber)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -2495,6 +2585,7 @@ where C.Direction is not null and C.UniqueId < '1552128123.322928'";
                         sqlQuery += " and u.id = @UserNum";
 
                     }
+
                     //if (serviceCompanyId.HasValue)
                     //{
                     //    sqlQuery += " and sc.id = @ServiceCompanyId";
@@ -2505,6 +2596,7 @@ where C.Direction is not null and C.UniqueId < '1552128123.322928'";
                             " and (case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) like @PhoneNumber";
                     }
                 }
+
                 sqlQuery += " and sc.id in (17,88)";
 
                 sqlQuery += " group by C.UniqueID";
@@ -2561,6 +2653,7 @@ and C.Context not in ('autoring','ringupcalls')
                             " and (case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) like @PhoneNumber";
                     }
                 }
+
                 sqlQuery += " and sc.id in (17,88)";
                 sqlQuery += @" group by C.UniqueId
 ) a
@@ -2568,7 +2661,7 @@ left join CallCenter.Users u on u.id = a.userId";
 
 
                 using (
-                var cmd = new MySqlCommand(sqlQuery, conn))
+                    var cmd = new MySqlCommand(sqlQuery, conn))
                 {
                     if (!string.IsNullOrEmpty(requestId))
                     {
@@ -2583,6 +2676,7 @@ left join CallCenter.Users u on u.id = a.userId";
                         {
                             cmd.Parameters.AddWithValue("@UserNum", operatorId);
                         }
+
                         //if (serviceCompanyId.HasValue)
                         //{
                         //    cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
@@ -2593,6 +2687,7 @@ left join CallCenter.Users u on u.id = a.userId";
                         }
 
                     }
+
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         var callList = new List<CallsListDto>();
@@ -2612,10 +2707,11 @@ left join CallCenter.Users u on u.id = a.userId";
                                     }
                                 }
                             }
+
                             var ivrMenu = dataReader.GetNullableString("ivr_menu");
                             var ivrDial = dataReader.GetNullableString("ivr_dial");
                             var ivrUser = string.IsNullOrEmpty(ivrMenu) || ivrDial == "dispetcher"
-                                ? (RequestUserDto)null
+                                ? (RequestUserDto) null
                                 : new RequestUserDto
                                 {
                                     Id = -1,
@@ -2647,6 +2743,7 @@ left join CallCenter.Users u on u.id = a.userId";
                                     : ivrUser
                             });
                         }
+
                         dataReader.Close();
                         return callList.ToArray();
                     }
@@ -2721,6 +2818,7 @@ left join CallCenter.Users u on u.id = a.userId";
 
                         dataReader.Close();
                     }
+
                     return dispatcherStatistics.ToArray();
                 }
             }
@@ -2801,12 +2899,15 @@ left join CallCenter.Users u on u.id = a.userId";
                                 //LastNote = dataReader.GetNullableString("last_note"),
                             });
                         }
+
                         dataReader.Close();
                     }
+
                     return requests.ToArray();
                 }
             }
         }
+
         public void SendAlive(int userId, string sipUser)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2823,96 +2924,358 @@ left join CallCenter.Users u on u.id = a.userId";
             }
         }
 
-       public void IncreaseRingCount(int userId, string callerId)
-       {
-           using (var conn = new MySqlConnection(_connectionString))
-           {
-               conn.Open();
-                var query = "update asterisk.NotAnsweredQueue set call_count = call_count + 1 where CallerIDNum  = @CallerId;";
+        public void IncreaseRingCount(int userId, string callerId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query =
+                    "update asterisk.NotAnsweredQueue set call_count = call_count + 1 where CallerIDNum  = @CallerId;";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@CallerId", callerId);
                     cmd.ExecuteNonQuery();
                 }
-           }
+            }
 
-       }
-       public void DeleteCallListRecord(int userId, int recordId)
-       {
-           using (var conn = new MySqlConnection(_connectionString))
-           {
-               conn.Open();
+        }
 
-               using (var cmd = new MySqlCommand(@"delete from CallCenter.RequestCalls where id = @ID;", conn))
-               {
-                   cmd.Parameters.AddWithValue("@ID", recordId);
-                   cmd.ExecuteNonQuery();
-               }
-           }
+        public void DeleteCallListRecord(int userId, int recordId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
 
-       }
-       public string GetRecordFileNameByUniqueId(int userId, string uniqueId)
-       {
-           var sqlQuery = @"select MonitorFile FROM asterisk.ChannelHistory ch
+                using (var cmd = new MySqlCommand(@"delete from CallCenter.RequestCalls where id = @ID;", conn))
+                {
+                    cmd.Parameters.AddWithValue("@ID", recordId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+
+        public MeterCodeDto GetMeterCodes(int userId, int addressId)
+        {
+            var result = new MeterCodeDto();
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd = new MySqlCommand(
+                    "SELECT * FROM CallCenter.MeterDeviceCodes C where address_id = @AddressId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@AddressId", addressId);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            result.Id = dataReader.GetInt32("id");
+                            result.AddressId = dataReader.GetInt32("address_id");
+                            result.PersonalAccount = dataReader.GetNullableString("personal_account");
+                            result.Electro1Code = dataReader.GetNullableString("electro_t1_code");
+                            result.Electro2Code = dataReader.GetNullableString("electro_t2_code");
+                            result.ColdWater1Code = dataReader.GetNullableString("cool_water1_code");
+                            result.HotWater1Code = dataReader.GetNullableString("hot_water1_code");
+                            result.ColdWater2Code = dataReader.GetNullableString("cool_water2_code");
+                            result.HotWater2Code = dataReader.GetNullableString("hot_water2_code");
+                            result.ColdWater3Code = dataReader.GetNullableString("cool_water3_code");
+                            result.HotWater3Code = dataReader.GetNullableString("hot_water3_code");
+                            result.HeatingCode = dataReader.GetNullableString("heating_code");
+                            result.Heating2Code = dataReader.GetNullableString("heating2_code");
+                            result.Heating3Code = dataReader.GetNullableString("heating3_code");
+                            result.Heating4Code = dataReader.GetNullableString("heating4_code");
+                        }
+
+                        dataReader.Close();
+                    }
+                }
+
+                return result;
+            }
+        }
+        public List<MetersDto> GetMetersByAddressId(int userId, int addressId)
+        {
+            var sqlQuery = @"select id, meters_date, personal_account, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, cool_water3, hot_water3, user_id, heating,heating2,heating3,heating4, client_phone_id  from CallCenter.MeterDeviceValues
+ where address_id = @AddressId and meters_date > sysdate() - INTERVAL 3 month
+ order by meters_date desc";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (
+                    var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@AddressId", addressId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var metersDtos = new List<MetersDto>();
+                        while (dataReader.Read())
+                        {
+                            metersDtos.Add(new MetersDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                PersonalAccount = dataReader.GetNullableString("personal_account"),
+                                Date = dataReader.GetDateTime("meters_date"),
+                                Electro1 = dataReader.GetDouble("electro_t1"),
+                                Electro2 = dataReader.GetDouble("electro_t2"),
+                                ColdWater1 = dataReader.GetDouble("cool_water1"),
+                                HotWater1 = dataReader.GetDouble("hot_water1"),
+                                ColdWater2 = dataReader.GetDouble("cool_water2"),
+                                HotWater2 = dataReader.GetDouble("hot_water2"),
+                                ColdWater3 = dataReader.GetDouble("cool_water3"),
+                                HotWater3 = dataReader.GetDouble("hot_water3"),
+                                Heating = dataReader.GetDouble("heating"),
+                                Heating2 = dataReader.GetNullableDouble("heating2"),
+                                Heating3 = dataReader.GetNullableDouble("heating3"),
+                                Heating4 = dataReader.GetNullableDouble("heating4"),
+                            });
+                        }
+
+                        dataReader.Close();
+                        return metersDtos;
+                    }
+                }
+            }
+        }
+        public void AddCallToMeter(int userId, int? meterId, string callUniqueId)
+        {
+
+            if (!string.IsNullOrEmpty(callUniqueId))
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+
+                    using (var cmd =
+                        new MySqlCommand(
+                            "insert into CallCenter.MeterCalls(meter_id,uniqueID,insert_date) values(@MeterId, @UniqueId,sysdate())",
+                            conn))
+                    {
+                        cmd.Parameters.AddWithValue("@MeterId", meterId.Value);
+                        cmd.Parameters.AddWithValue("@UniqueId", callUniqueId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
+
+        public void SaveMeterCodes(int userId, int selectedFlatId, string personalAccount, string electro1Code, string electro2Code,
+            string hotWater1Code,
+            string coldWater1Code, string hotWater2Code, string coldWater2Code, string hotWater3Code,
+            string coldWater3Code, string heatingCode, string heating2Code, string heating3Code, string heating4Code)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd = new MySqlCommand(
+                    @"insert into CallCenter.MeterDeviceCodes(address_id,personal_account, electro_t1_code, electro_t2_code, cool_water1_code, hot_water1_code,
+cool_water2_code, hot_water2_code,cool_water3_code, hot_water3_code, heating_code, heating2_code, heating3_code, heating4_code)
+values(@addressId,@persCode,@el1code,@el2code,@cw1code,@hw1code,@cw2code,@hw2code,@cw3code,@hw3code,@h1code,@h2code,@h3code,@h4code) on duplicate KEY 
+UPDATE personal_account = @persCode, electro_t1_code = @el1code, electro_t2_code = @el2code,cool_water1_code = @cw1code, hot_water1_code = @hw1code,cool_water2_code = @cw2code,
+hot_water2_code = @hw2code,cool_water3_code = @cw3code,hot_water3_code = @hw3code, heating_code = @h1code, heating2_code = @h2code, heating3_code = @h3code, heating4_code = @h4code;",
+                    conn))
+                {
+                    cmd.Parameters.AddWithValue("@addressId", selectedFlatId);
+                    cmd.Parameters.AddWithValue("@persCode", personalAccount);
+                    cmd.Parameters.AddWithValue("@el1code", electro1Code);
+                    cmd.Parameters.AddWithValue("@el2code", electro2Code);
+                    cmd.Parameters.AddWithValue("@hw1code", hotWater1Code);
+                    cmd.Parameters.AddWithValue("@cw1code", coldWater1Code);
+                    cmd.Parameters.AddWithValue("@cw2code", coldWater2Code);
+                    cmd.Parameters.AddWithValue("@hw2code", hotWater2Code);
+                    cmd.Parameters.AddWithValue("@cw3code", coldWater3Code);
+                    cmd.Parameters.AddWithValue("@hw3code", hotWater3Code);
+                    cmd.Parameters.AddWithValue("@h1code", heatingCode);
+                    cmd.Parameters.AddWithValue("@h2code", heating2Code);
+                    cmd.Parameters.AddWithValue("@h3code", heating3Code);
+                    cmd.Parameters.AddWithValue("@h4code", heating4Code);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public int? SaveMeterValues(int userId, string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1, double hotWater2, double coldWater2, double hotWater3, double coldWater3, double heating, int? meterId, string personalAccount, double heating2, double heating3, double heating4)
+        {
+            var result = meterId;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var transaction = conn.BeginTransaction())
+                {
+                    var clientPhoneId = (int?) null;
+                    if (!string.IsNullOrEmpty(phoneNumber))
+                    {
+                        using (var cmd = new MySqlCommand(
+                            "SELECT id FROM CallCenter.ClientPhones C where Number = @Phone", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@Phone", phoneNumber);
+
+                            using (var dataReader = cmd.ExecuteReader())
+                            {
+                                if (dataReader.Read())
+                                {
+                                    clientPhoneId = dataReader.GetInt32("id");
+                                }
+
+                                dataReader.Close();
+                            }
+                        }
+
+                        if (clientPhoneId == 0)
+                        {
+                            using (
+                                var cmd = new MySqlCommand(@"insert into CallCenter.ClientPhones(Number) values(@Phone);
+    select LAST_INSERT_ID();", conn))
+                            {
+                                cmd.Parameters.AddWithValue("@Phone", phoneNumber);
+                                clientPhoneId = Convert.ToInt32(cmd.ExecuteScalar());
+                            }
+                        }
+                    }
+
+                    if (meterId.HasValue)
+                    {
+                        using (var cmd = new MySqlCommand(
+                            "update CallCenter.MeterDeviceValues" +
+                            " set electro_t1 = @Electro1, electro_t2 = @Electro2, cool_water1 = @Cool1," +
+                            " hot_water1 = @Hot1, cool_water2 = @Cool2, hot_water2 = @Hot2 , cool_water3 = @Cool3, hot_water3 = @Hot3, heating = @Heating," +
+                            " personal_account = @PersonalAccount, heating2 = @Heating2, heating3 = @Heating3, heating4 = @Heating4" +
+                            " where id = @MeterId",
+                            conn))
+                        {
+
+                            cmd.Parameters.AddWithValue("@PersonalAccount", personalAccount);
+                            cmd.Parameters.AddWithValue("@Electro1", electro1);
+                            cmd.Parameters.AddWithValue("@Electro2", electro2);
+                            cmd.Parameters.AddWithValue("@Cool1", coldWater1);
+                            cmd.Parameters.AddWithValue("@Cool2", coldWater2);
+                            cmd.Parameters.AddWithValue("@Cool3", coldWater3);
+                            cmd.Parameters.AddWithValue("@Hot1", hotWater1);
+                            cmd.Parameters.AddWithValue("@Hot2", hotWater2);
+                            cmd.Parameters.AddWithValue("@Hot3", hotWater3);
+                            cmd.Parameters.AddWithValue("@Heating", heating);
+                            cmd.Parameters.AddWithValue("@Heating2", heating2);
+                            cmd.Parameters.AddWithValue("@Heating3", heating3);
+                            cmd.Parameters.AddWithValue("@Heating4", heating4);
+                            cmd.Parameters.AddWithValue("@MeterId", meterId.Value);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    else
+                    {
+                        using (var cmd = new MySqlCommand(
+                            "insert into CallCenter.MeterDeviceValues(address_id, meters_date, electro_t1, electro_t2, cool_water1, hot_water1, cool_water2, hot_water2, cool_water3, hot_water3, user_id, heating, client_phone_id,personal_account , heating2, heating3, heating4 )" +
+                            " values(@AddressId,sysdate(),@Electro1,@Electrio2,@Cool1,@Hot1,@Cool2,@Hot2,@Cool3,@Hot3,@UserId,@Heating,@ClentPhoneId,@PersonalAccount,@Heating2,@Heating3,@Heating4)",
+                            conn))
+                        {
+
+                            cmd.Parameters.AddWithValue("@PersonalAccount", personalAccount);
+                            cmd.Parameters.AddWithValue("@AddressId", addressId);
+                            cmd.Parameters.AddWithValue("@Electro1", electro1);
+                            cmd.Parameters.AddWithValue("@Electrio2", electro2);
+                            cmd.Parameters.AddWithValue("@Cool1", coldWater1);
+                            cmd.Parameters.AddWithValue("@Cool2", coldWater2);
+                            cmd.Parameters.AddWithValue("@Cool3", coldWater3);
+                            cmd.Parameters.AddWithValue("@Hot1", hotWater1);
+                            cmd.Parameters.AddWithValue("@Hot2", hotWater2);
+                            cmd.Parameters.AddWithValue("@Hot3", hotWater3);
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            cmd.Parameters.AddWithValue("@Heating", heating);
+                            cmd.Parameters.AddWithValue("@Heating2", heating2);
+                            cmd.Parameters.AddWithValue("@Heating3", heating3);
+                            cmd.Parameters.AddWithValue("@Heating4", heating4);
+                            cmd.Parameters.AddWithValue("@ClentPhoneId", clientPhoneId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        using (var cmd = new MySqlCommand("SELECT LAST_INSERT_ID() as id", conn))
+                        {
+                            using (var dataReader = cmd.ExecuteReader())
+                            {
+                                if (dataReader.Read())
+                                {
+                                    result = dataReader.GetInt32("id");
+                                }
+
+                                dataReader.Close();
+                            }
+                        }
+                    }
+
+                    transaction.Commit();
+                }
+
+                return result;
+            }
+        }
+        public string GetRecordFileNameByUniqueId(int userId, string uniqueId)
+        {
+            var sqlQuery = @"select MonitorFile FROM asterisk.ChannelHistory ch
  join CallCenter.RequestCalls rc on ch.UniqueId = rc.UniqueId
  where rc.uniqueID = @UniqueID";
-           var result = string.Empty;
-           using (var conn = new MySqlConnection(_connectionString))
-           {
-               conn.Open();
-               using (var cmd = new MySqlCommand(sqlQuery, conn))
-               {
-                   cmd.Parameters.AddWithValue("@UniqueID", uniqueId);
-                   using (var dataReader = cmd.ExecuteReader())
-                   {
-                       if (dataReader.Read())
-                       {
-                           result = dataReader.GetNullableString("MonitorFile");
-                       }
+            var result = string.Empty;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UniqueID", uniqueId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            result = dataReader.GetNullableString("MonitorFile");
+                        }
 
-                       dataReader.Close();
-                       return result;
-                   }
-               }
-           }
-       }
+                        dataReader.Close();
+                        return result;
+                    }
+                }
+            }
+        }
 
         public byte[] GetRecordById(int userId, string path)
-       {
-           using (var conn = new MySqlConnection(_connectionString))
-           {
-                           var fileName = path;
-                           var serverIpAddress = conn.DataSource;
-                           var localFileName =
-                               fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\")
-                                   .Replace("/", "\\");
-                           if (File.Exists(localFileName))
-                           {
-                               return File.ReadAllBytes(localFileName);
-                           }
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                var fileName = path;
+                var serverIpAddress = conn.DataSource;
+                var localFileName =
+                    fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\")
+                        .Replace("/", "\\");
+                if (File.Exists(localFileName))
+                {
+                    return File.ReadAllBytes(localFileName);
+                }
 
-                           var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
-                           if (File.Exists(localFileNameMp3))
-                           {
-                               return File.ReadAllBytes(localFileNameMp3);
-                           }
-                           return null;
-           }
-       }
+                var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
+                if (File.Exists(localFileNameMp3))
+                {
+                    return File.ReadAllBytes(localFileNameMp3);
+                }
+
+                return null;
+            }
+        }
 
         public void DeleteCallFromNotAnsweredListByTryCount(int userId, string callerId)
-       {
-           using (var conn = new MySqlConnection(_connectionString))
-           {
-               conn.Open();
-               var query = "delete from asterisk.NotAnsweredQueue where CallerIDNum  = @CallerId and call_count >= 2;";
-               using (var cmd = new MySqlCommand(query, conn))
-               {
-                   cmd.Parameters.AddWithValue("@CallerId", callerId);
-                   cmd.ExecuteNonQuery();
-               }
-           }
-       }
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                var query = "delete from asterisk.NotAnsweredQueue where CallerIDNum  = @CallerId and call_count >= 2;";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CallerId", callerId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         public void Logout(int userId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2927,6 +3290,7 @@ left join CallCenter.Users u on u.id = a.userId";
                 }
             }
         }
+
         public SipDto GetSipInfoByIp(string localIp)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2949,6 +3313,7 @@ left join CallCenter.Users u on u.id = a.userId";
                     }
                 }
             }
+
             return null;
         }
 
@@ -2970,6 +3335,7 @@ left join CallCenter.Users u on u.id = a.userId";
                                 Login = dataReader.GetNullableString("Login")
                             });
                         }
+
                         dataReader.Close();
                         return users.ToArray();
                     }
@@ -3013,7 +3379,8 @@ left join CallCenter.Users u on u.id = a.userId";
 
         public List<NoteDto> GetNotesCore(int requestId)
         {
-            var sqlQuery = @"SELECT n.id,n.operation_date,n.request_id,n.user_id,n.note,n.worker_id,u.SurName,u.FirstName,u.PatrName,w.sur_name,w.first_name,w.patr_name
+            var sqlQuery =
+                @"SELECT n.id,n.operation_date,n.request_id,n.user_id,n.note,n.worker_id,u.SurName,u.FirstName,u.PatrName,w.sur_name,w.first_name,w.patr_name
     from CallCenter.RequestNoteHistory n
     join CallCenter.Users u on u.id = n.user_id
     left join CallCenter.Workers w on w.id = n.worker_id where request_id = @RequestId order by operation_date";
@@ -3072,7 +3439,8 @@ left join CallCenter.Users u on u.id = a.userId";
 
         public List<WorkerHistoryDto> GetMasterHistoryByRequest(int userId, int requestId)
         {
-            var query = @"SELECT operation_date, R.worker_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestWorkerHistory R
+            var query =
+                @"SELECT operation_date, R.worker_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestWorkerHistory R
  left join CallCenter.Workers w on w.id = R.worker_id
  join CallCenter.Users u on u.id = user_id
  where request_id = @RequestId";
@@ -3118,9 +3486,11 @@ left join CallCenter.Users u on u.id = a.userId";
                 }
             }
         }
+
         public List<WorkerHistoryDto> GetExecutorHistoryByRequest(int userId, int requestId)
         {
-            var query = @"SELECT operation_date, R.executer_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestExecuterHistory R
+            var query =
+                @"SELECT operation_date, R.executer_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestExecuterHistory R
  left join CallCenter.Workers w on w.id = R.executer_id
  join CallCenter.Users u on u.id = user_id
  where request_id = @RequestId";
@@ -3157,6 +3527,7 @@ left join CallCenter.Users u on u.id = a.userId";
                                 },
                             });
                         }
+
                         dataReader.Close();
                     }
 
@@ -3273,6 +3644,7 @@ FROM CallCenter.RequestStateHistory R
             }
 
         }
+
         public RequestUserDto[] GetFilterDispatchers(int userId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3294,6 +3666,7 @@ FROM CallCenter.RequestStateHistory R
                                 PatrName = dataReader.GetNullableString("PatrName")
                             });
                         }
+
                         dataReader.Close();
                         return usersList.ToArray();
                     }
@@ -3309,21 +3682,22 @@ FROM CallCenter.RequestStateHistory R
                 using (var cmd = new MySqlCommand("call phone_client.get_filtered_companies(@userId)", conn))
                 {
                     cmd.Parameters.AddWithValue("@userId", userId);
-                        var companies = new List<ServiceCompanyDto>();
-                        using (var dataReader = cmd.ExecuteReader())
+                    var companies = new List<ServiceCompanyDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
                         {
-                            while (dataReader.Read())
+                            companies.Add(new ServiceCompanyDto
                             {
-                                companies.Add(new ServiceCompanyDto
-                                {
-                                    Id = dataReader.GetInt32("id"),
-                                    Name = dataReader.GetString("name")
-                                });
-                            }
-
-                            dataReader.Close();
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name")
+                            });
                         }
-                        return companies.OrderBy(i => i.Name).ToArray();
+
+                        dataReader.Close();
+                    }
+
+                    return companies.OrderBy(i => i.Name).ToArray();
                 }
             }
         }
@@ -3336,26 +3710,29 @@ FROM CallCenter.RequestStateHistory R
                 using (var cmd = new MySqlCommand("call phone_client.get_companies_for_call(@userId)", conn))
                 {
                     cmd.Parameters.AddWithValue("@userId", userId);
-                        var companies = new List<ServiceCompanyDto>();
-                        using (var dataReader = cmd.ExecuteReader())
+                    var companies = new List<ServiceCompanyDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
                         {
-                            while (dataReader.Read())
+                            companies.Add(new ServiceCompanyDto
                             {
-                                companies.Add(new ServiceCompanyDto
-                                {
-                                    Id = dataReader.GetInt32("id"),
-                                    Name = dataReader.GetNullableString("name"),
-                                    Prefix = dataReader.GetNullableString("prefix"),
-                                    Phone = dataReader.GetNullableString("phone"),
-                                    ShortName = dataReader.GetNullableString("short_name")
-                                });
-                            }
-                            dataReader.Close();
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetNullableString("name"),
+                                Prefix = dataReader.GetNullableString("prefix"),
+                                Phone = dataReader.GetNullableString("phone"),
+                                ShortName = dataReader.GetNullableString("short_name")
+                            });
                         }
-                        return companies.OrderBy(i => i.Name).ToArray();
+
+                        dataReader.Close();
+                    }
+
+                    return companies.OrderBy(i => i.Name).ToArray();
                 }
             }
         }
+
         public DateTime GetCurrentDate()
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3371,7 +3748,8 @@ FROM CallCenter.RequestStateHistory R
                 }
             }
         }
-        public string GetUniqueIdByCallId(int userId,string callId)
+
+        public string GetUniqueIdByCallId(int userId, string callId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -3382,7 +3760,7 @@ FROM CallCenter.RequestStateHistory R
                     cmd.Parameters.AddWithValue("@callId", callId);
                     using (var dataReader = cmd.ExecuteReader())
                     {
-                        if(dataReader.Read())
+                        if (dataReader.Read())
                             return dataReader.GetNullableString("uniqueIdStr");
                     }
 
@@ -3391,6 +3769,7 @@ FROM CallCenter.RequestStateHistory R
                 return null;
             }
         }
+
         public UserDto Login(string login, string password, string sipUser)
         {
             UserDto currentUser = null;
@@ -3429,7 +3808,7 @@ FROM CallCenter.RequestStateHistory R
                     using (var cmd = new MySqlCommand($@"SELECT r.* FROM CallCenter.UserRoles u
                             join CallCenter.Roles r on r.id = u.role_id
                             where u.user_id = {
-                                userId}", conn)) 
+                        userId}", conn))
                     {
                         using (var dataReader = cmd.ExecuteReader())
                         {
@@ -3449,6 +3828,7 @@ FROM CallCenter.RequestStateHistory R
                     }
                 }
             }
+
             return currentUser;
         }
 
@@ -3474,13 +3854,16 @@ FROM CallCenter.RequestStateHistory R
 
                         });
                     }
+
                     dataReader.Close();
                 }
             }
         }
+
         public List<CallsListDto> GetCallListByRequestId(int userId, int requestId)
         {
-            var sqlQuery = @"SELECT rc.id,ch.UniqueID,Direction,PhoneNum CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime,
+            var sqlQuery =
+                @"SELECT rc.id,ch.UniqueID,Direction,PhoneNum CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime,
  MonitorFile, timestampdiff(SECOND,ch.BridgedTime,ch.EndTime) AS TalkTime,
 (timestampdiff(SECOND,ch.CreateTime,ch.EndTime) - ifnull(timestampdiff(SECOND,ch.BridgedTime,ch.EndTime),0)) AS WaitingTime,
  group_concat(rc.request_id order by rc.request_id separator ', ') AS RequestId
@@ -3525,6 +3908,7 @@ FROM CallCenter.RequestStateHistory R
                 }
             }
         }
+
         public List<SmsListDto> GetSmsByRequestId(int userId, int requestId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3563,6 +3947,7 @@ FROM CallCenter.RequestStateHistory R
             }
 
         }
+
         public void DeleteAttachment(int userId, int attachmentId)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -3592,6 +3977,7 @@ FROM CallCenter.RequestStateHistory R
             {
                 newFile = SaveFile(requestId, fileExtension, fileStream);
             }
+
             AttachFileToRequest(userId, requestId, name, newFile);
         }
 
@@ -3625,6 +4011,7 @@ FROM CallCenter.RequestStateHistory R
             //}
             return null;
         }
+
         public static byte[] DownloadFile(int requestId, string fileName, string rootDir)
         {
             if (!string.IsNullOrEmpty(rootDir) && Directory.Exists($"{rootDir}\\{requestId}"))
@@ -3634,6 +4021,7 @@ FROM CallCenter.RequestStateHistory R
 
             return null;
         }
+
         public byte[] GetFile(int requestId, string fileName)
         {
             //using (var saveService = new WcfSaveService.SaveServiceClient())

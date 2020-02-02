@@ -253,6 +253,28 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<HouseDto>(responce.Content);
         }
+        public static MeterCodeDto GetMeterCodes(int userId,int addressId)
+        {
+            var restUrl = $"{ApiUrl}/GetMeterCodes?userId={userId}&addressId={addressId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<MeterCodeDto>(responce.Content);
+        }
+        public static MetersDto[] GetMetersByAddressId(int userId,int addressId)
+        {
+            var restUrl = $"{ApiUrl}/GetMetersByAddressId?userId={userId}&addressId={addressId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<MetersDto[]>(responce.Content);
+        }
         public static string GetActiveCallUniqueIdByCallId(int userId, string callId)
         {
             var restUrl = $"{ApiUrl}/getActiveCallUniqueIdByCallId?userId={userId}&callId={callId}";
@@ -682,6 +704,86 @@ namespace ClientPhone.Services
             request.AddHeader("Authorization", $"{ApiKey}");
             request.AddJsonBody(value);
             var responce = client.Execute(request);
+        }
+       public static void AddCallToMeter(int userId, int? meterId, string callUniqueId)
+        {
+            var value = new AddCallToMeterDto
+            {
+                UserId = userId,
+                MeterId = meterId,
+                CallUniqueId = callUniqueId
+            };
+            var restUrl = $"{ApiUrl}/AddCallToMeter";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+       public static void SaveMeterCodes(int userId, int selectedFlatId, string personalAccount, string electro1Code, string electro2Code,
+           string hotWater1Code,
+           string coldWater1Code, string hotWater2Code, string coldWater2Code, string hotWater3Code,
+           string coldWater3Code, string heatingCode, string heating2Code, string heating3Code, string heating4Code)
+        {
+            var value = new SaveMeterCodesDto
+            {
+                UserId = userId,
+                ColdWater1Code = coldWater1Code,
+                Heating2Code = heating2Code,
+                Electro1Code = electro1Code,
+                HotWater1Code = hotWater1Code,
+                Heating4Code = heating4Code,
+                SelectedFlatId = selectedFlatId,
+                PersonalAccount = personalAccount,
+                HotWater2Code = hotWater2Code,
+                ColdWater2Code = coldWater2Code,
+                ColdWater3Code = coldWater3Code,
+                Electro2Code = electro2Code,
+                Heating3Code = heating3Code,
+                HeatingCode = heatingCode,
+                HotWater3Code = hotWater3Code
+            };
+            var restUrl = $"{ApiUrl}/SaveMeterCodes";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+       public static int? SaveMeterValues(int userId, string phoneNumber, int addressId, double electro1, double electro2, double hotWater1, double coldWater1,
+           double hotWater2, double coldWater2, double hotWater3, double coldWater3, double heating, int? meterId, string personalAccount, double heating2,
+           double heating3, double heating4)
+        {
+            var value = new SaveMeterValuesDto
+            {
+                UserId = userId,
+                ColdWater1 = coldWater1,
+                Heating2 = heating2,
+                Electro1 = electro1,
+                HotWater1 = hotWater1,
+                Heating4 = heating4,
+                PersonalAccount = personalAccount,
+                HotWater2 = hotWater2,
+                ColdWater2 = coldWater2,
+                ColdWater3 = coldWater3,
+                Electro2 = electro2,
+                Heating3 = heating3,
+                Heating = heating,
+                HotWater3 = hotWater3,
+                AddressId = addressId,
+                PhoneNumber = phoneNumber,
+                MeterId = meterId
+            };
+            var restUrl = $"{ApiUrl}/SaveMeterValues";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<int?>(responce.Content);
         }
 
         public static void DeleteScheduleTask(int userId, int taskId)

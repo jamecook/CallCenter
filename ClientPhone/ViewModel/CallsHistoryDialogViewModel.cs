@@ -22,7 +22,6 @@ namespace CRMPhone.ViewModel
         private int _requestId;
         private ObservableCollection<CallsListDto> _callsList;
         public event PropertyChangedEventHandler PropertyChanged;
-        private readonly RequestServiceImpl.RequestService _requestService;
 
         public CallsHistoryDialogViewModel( int requestId)
         {
@@ -207,7 +206,7 @@ namespace CRMPhone.ViewModel
             if (MessageBox.Show(_view, "Вы уверены что хотите удалить эту запись?", "Удалить",
                     MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                _requestService.DeleteCallListRecord(record.Id);
+                RestRequestService.DeleteCallListRecord(AppSettings.CurrentUser.Id,record.Id);
                 CallsList = new ObservableCollection<CallsListDto>(RestRequestService.GetCallListByRequestId(AppSettings.CurrentUser.Id, _requestId));
             }
         }

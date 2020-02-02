@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
 using CRMPhone.ViewModel;
 using RequestServiceImpl;
@@ -15,7 +16,6 @@ namespace CRMPhone
     {
         private Window _view;
 
-        private readonly RequestService _requestService;
         private ObservableCollection<CityDto> _cityList;
         private CityDto _selectedCity;
         private ObservableCollection<StreetDto> _streetList;
@@ -209,7 +209,7 @@ namespace CRMPhone
             StreetList.Clear();
             if (!cityId.HasValue)
                 return;
-            foreach (var street in _requestService.GetStreets(cityId.Value).OrderBy(s => s.Name))
+            foreach (var street in RestRequestService.GetStreets(AppSettings.CurrentUser.Id, cityId.Value).OrderBy(s => s.Name))
             {
                 StreetList.Add(street);
             }
@@ -221,7 +221,7 @@ namespace CRMPhone
             HouseList.Clear();
             if (!streetId.HasValue)
                 return;
-            foreach (var house in _requestService.GetHouses(streetId.Value).OrderBy(s => s.Building?.PadLeft(6, '0')).ThenBy(s => s.Corpus?.PadLeft(6, '0')))
+            foreach (var house in RestRequestService.GetHouses(AppSettings.CurrentUser.Id, streetId.Value).OrderBy(s => s.Building?.PadLeft(6, '0')).ThenBy(s => s.Corpus?.PadLeft(6, '0')))
             {
                 HouseList.Add(house);
             }
@@ -233,7 +233,7 @@ namespace CRMPhone
             FlatList.Clear();
             if (!houseId.HasValue)
                 return;
-            foreach (var flat in _requestService.GetFlats(houseId.Value).OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6, '0')))
+            foreach (var flat in RestRequestService.GetFlats(AppSettings.CurrentUser.Id, houseId.Value).OrderBy(s => s.TypeId).ThenBy(s => s.Flat?.PadLeft(6, '0')))
             {
                 FlatList.Add(flat);
             }
@@ -318,7 +318,7 @@ namespace CRMPhone
         }
         public void GetMeterCodes(int addressId)
         {
-            var codes = _requestService.GetMeterCodes(_selectedFlat.Id);
+            var codes = RestRequestService.GetMeterCodes(AppSettings.CurrentUser.Id, _selectedFlat.Id);
             Electro1Code = codes.Electro1Code;
             Electro2Code = codes.Electro2Code;
             PersonalAccount = codes.PersonalAccount;
@@ -336,7 +336,7 @@ namespace CRMPhone
 
         private void LoadRequestsBySelectedAddress(int addressId)
         {
-            MetersHistoryList = new ObservableCollection<MetersDto>(_requestService.GetMetersByAddressId(addressId));
+            MetersHistoryList = new ObservableCollection<MetersDto>(RestRequestService.GetMetersByAddressId(AppSettings.CurrentUser.Id, addressId));
             PersonalAccount = MetersHistoryList.LastOrDefault()?.PersonalAccount;
         }
 
@@ -352,13 +352,13 @@ namespace CRMPhone
                 MessageBox.Show("Необходимо выбрать правильный адрес!", "Ошибка");
                 return;
             }
-            _requestService.SaveMeterCodes(SelectedFlat.Id, PersonalAccount, Electro1Code, Electro2Code, HotWater1Code, ColdWater1Code,
+            RestRequestService.SaveMeterCodes(AppSettings.CurrentUser.Id, SelectedFlat.Id, PersonalAccount, Electro1Code, Electro2Code, HotWater1Code, ColdWater1Code,
                 HotWater2Code, ColdWater2Code, HotWater3Code, ColdWater3Code, HeatingCode, Heating2Code, Heating3Code, Heating4Code);
-            var meterId = _requestService.SaveMeterValues(PhoneNumber, SelectedFlat.Id, Electro1, Electro2, HotWater1, ColdWater1,
+            var meterId = RestRequestService.SaveMeterValues(AppSettings.CurrentUser.Id, PhoneNumber, SelectedFlat.Id, Electro1, Electro2, HotWater1, ColdWater1,
                 HotWater2, ColdWater2, HotWater3, ColdWater3, Heating, _meterId, PersonalAccount, Heating2, Heating3, Heating4);
             LoadRequestsBySelectedAddress(SelectedFlat.Id);
-            var callUniqueId = _requestService.GetOnlyActiveCallUniqueIdByCallId(AppSettings.LastCallId);
-            _requestService.AddCallToMeter(meterId, callUniqueId);
+            var callUniqueId = RestRequestService.GetOnlyActiveCallUniqueIdByCallId(AppSettings.CurrentUser.Id, AppSettings.LastCallId);
+            RestRequestService.AddCallToMeter(AppSettings.CurrentUser.Id, meterId, callUniqueId);
             MessageBox.Show("Данные успешно сохранены!", "Приборы учёта");
 
         }
@@ -415,11 +415,10 @@ namespace CRMPhone
         public MeterDeviceViewModel(MeterListDto meter = null)
         {
             _meterId = meter?.Id;
-            _requestService = new RequestService(AppSettings.DbConnection);
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
             FlatList = new ObservableCollection<FlatDto>();
-            CityList = new ObservableCollection<CityDto>(_requestService.GetCities());
+            CityList = new ObservableCollection<CityDto>(RestRequestService.GetCities(AppSettings.CurrentUser.Id));
             if (CityList.Count > 0)
             {
                 SelectedCity = CityList.FirstOrDefault();
@@ -428,7 +427,7 @@ namespace CRMPhone
             //AppSettings.LastIncomingCall = "9829388873";
             if (!string.IsNullOrEmpty(AppSettings.LastIncomingCall))
             {
-                var clientInfoDto = _requestService.GetLastAddressByClientPhone(AppSettings.LastIncomingCall);
+                var clientInfoDto = RestRequestService.GetLastAddressByClientPhone(AppSettings.CurrentUser.Id, AppSettings.LastIncomingCall);
                 if (clientInfoDto != null)
                 {
                     SelectedStreet = StreetList.FirstOrDefault(s => s.Id == clientInfoDto.StreetId);
