@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using ClientPhoneWebApi.Dto;
 using ClientPhoneWebApi.Repo;
@@ -15,6 +17,7 @@ namespace ClientPhoneWebApi.Controllers
     [Route("[controller]")]
     [ApiController]
     [Produces("application/json")]
+    [Consumes("application/json", "multipart/form-data")]
     public class ClientController : ControllerBase
     {
         ILogger Logger { get; }
@@ -298,6 +301,26 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetMasterHistoryByRequest(userId, requestId));
         }
+        [HttpGet("GetCallListByRequestId")]
+        public IActionResult GetCallListByRequestId([FromQuery]int userId, [FromQuery]int requestId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetCallListByRequestId(userId, requestId));
+        }
+        [HttpGet("GetSmsByRequestId")]
+        public IActionResult GetSmsByRequestId([FromQuery]int userId, [FromQuery]int requestId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetSmsByRequestId(userId, requestId));
+        }
         [HttpGet("GetNotes")]
         public IActionResult GetNotes([FromQuery]int userId, [FromQuery]int requestId)
         {
@@ -451,6 +474,17 @@ namespace ClientPhoneWebApi.Controllers
             RequestService.DeleteScheduleTask(userId, taskId);
             return Ok();
         }
+        [HttpDelete("DeleteAttachment")]
+        public IActionResult DeleteAttachment([FromQuery]int userId, [FromQuery]int attachmentId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.DeleteAttachment(userId, attachmentId);
+            return Ok();
+        }
         [HttpDelete("DeleteRequestRatingById")]
         public IActionResult DeleteRequestRatingById([FromQuery]int userId, [FromQuery]int itemId)
         {
@@ -460,6 +494,17 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             RequestService.DeleteRequestRatingById(userId, itemId);
+            return Ok();
+        }
+        [HttpDelete("DeleteCallListRecord")]
+        public IActionResult DeleteCallListRecord([FromQuery]int userId, [FromQuery]int itemId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.DeleteCallListRecord(userId, itemId);
             return Ok();
         }
         [HttpPut("ChangeDescription")]
@@ -886,7 +931,36 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.Login(login, password, sipUser));
         }
+        [HttpGet("GetFile")]
+        public byte[] GetFile([FromQuery]int userId, [FromQuery]int requestId, [FromQuery]string fileName)
+        {
+            var rootFolder = GetRootFolder();
+            return RequestService.DownloadFile(requestId, fileName, rootFolder);
+        }
 
+        [HttpPost("add_file")]
+        public async Task<IActionResult> AddFileToRequest([FromQuery]int userId, [FromQuery]int requestId, [FromForm] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest();
+            var uploadFolder = Path.Combine(GetRootFolder(), requestId.ToString());
+            if (!Directory.Exists(uploadFolder))
+            {
+                Directory.CreateDirectory(uploadFolder);
+            }
+            var fileExtension = Path.GetExtension(file.FileName);
+            var fileName = Guid.NewGuid() + fileExtension;
+            using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+            RequestService.AttachFileToRequest(userId, requestId, file.FileName, fileName);
+            return Ok();
+        }
+        private string GetRootFolder()
+        {
+            return "F:\\RequestAttachments\\";
+        }
 
         /*
         /// <summary>

@@ -19,7 +19,6 @@ namespace CRMPhone.ViewModel
     {
         private Window _view;
 
-        private readonly RequestServiceImpl.RequestService _requestService;
         private ObservableCollection<CityDto> _cityList;
         private CityDto _selectedCity;
         private ObservableCollection<StreetDto> _streetList;
@@ -520,7 +519,7 @@ namespace CRMPhone.ViewModel
             var requestModel = sender as RequestItemViewModel;
             if (!requestModel.RequestId.HasValue)
                 return;
-            var model = new CallsHistoryDialogViewModel(_requestService, requestModel.RequestId.Value);
+            var model = new CallsHistoryDialogViewModel(requestModel.RequestId.Value);
             var view = new CallsHistoryDialog();
             model.SetView(view);
             view.Owner = _view;

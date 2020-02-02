@@ -59,12 +59,17 @@ namespace CRMPhone.ViewModel
             };
             if (saveDialog.ShowDialog() == DialogResult.OK)
             {
-                //File.WriteAllBytes(saveDialog.FileName,_requestService.GetFile(SelectedAttachmentItem.RequestId,SelectedAttachmentItem.FileName));
+                var buffer = RestRequestService.GetFile(AppSettings.CurrentUser.Id, SelectedAttachmentItem.RequestId,
+                    SelectedAttachmentItem.FileName);
+                if(buffer == null || buffer.Length==0)
+                    return;
+                File.WriteAllBytes(saveDialog.FileName,buffer);
             }
         }
 
         private void Add()
         {
+            return;
             var openDialog = new OpenFileDialog
             {
                 Multiselect = false,
@@ -81,7 +86,7 @@ namespace CRMPhone.ViewModel
         {
             if (SelectedAttachmentItem != null)
             {
-                //_requestService.DeleteAttachment(SelectedAttachmentItem.Id);
+                RestRequestService.DeleteAttachment(AppSettings.CurrentUser.Id, SelectedAttachmentItem.Id);
                 Refresh();
             }
         }

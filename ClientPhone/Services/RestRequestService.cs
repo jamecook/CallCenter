@@ -693,6 +693,26 @@ namespace ClientPhone.Services
             request.AddHeader("Authorization", $"{ApiKey}");
             var responce = client.Execute(request);
         }
+        public static void DeleteAttachment(int userId, int attachmentId)
+        {
+
+            var restUrl = $"{ApiUrl}/DeleteAttachment?userId={userId}&attachmentId={attachmentId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.DELETE) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            var responce = client.Execute(request);
+        }
+       public static void DeleteCallListRecord(int userId, int itemId)
+        {
+
+            var restUrl = $"{ApiUrl}/DeleteCallListRecord?userId={userId}&itemId={itemId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.DELETE) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            var responce = client.Execute(request);
+        }
         public static ScheduleTaskDto GetScheduleTaskByRequestId(int userId, int requestId)
         {
             var restUrl = $"{ApiUrl}/getScheduleTaskByRequestId?userId={userId}&requestId={requestId}";
@@ -890,6 +910,31 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<AlertTimeDto[]>(responce.Content);
         }
+
+       public static CallsListDto[] GetCallListByRequestId(int userId, int requestId)
+        {
+            var restUrl = $"{ApiUrl}/GetCallListByRequestId?userId={userId}&requestId={requestId}";
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<CallsListDto[]>(responce.Content);
+        }
+       public static SmsListDto[] GetSmsByRequestId(int userId, int requestId)
+        {
+            var restUrl = $"{ApiUrl}/GetSmsByRequestId?userId={userId}&requestId={requestId}";
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<SmsListDto[]>(responce.Content);
+        }
         public static int? GetServiceCompanyIdByHouseId(int userId, int houseId)
         {
             var restUrl = $"{ApiUrl}/getServiceCompanyIdByHouseId?userId={userId}&houseId={houseId}";
@@ -1007,6 +1052,18 @@ namespace ClientPhone.Services
             var client = new RestClient(restUrl);
             var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<byte[]>(responce.Content);
+        }
+        public static byte[] GetFile(int userId,int requestId, string fileName)
+        {
+            var restUrl = $"{ApiUrl}/GetFile?userId={userId}&requestId={requestId}&fileName={fileName}";
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            //request.AddHeader("Content-Type", "application/json; charset=utf-8");
             request.AddHeader("Authorization", $"{ApiKey}");
 
             var responce = client.Execute(request);

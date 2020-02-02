@@ -17,7 +17,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <WrapPanel Grid.Row="0">
-            <Button Width="100" Margin ="5" Content="Добавить" Command="{Binding AddCommand}"/>
+            <!--<Button Width="100" Margin ="5" Content="Добавить" Command="{Binding AddCommand}"/>-->
             <Button Width="100" Margin ="5" Content="Удалить" Command="{Binding DeleteCommand}"/>
             <Button Width="100" Margin ="5" Content="Скачать" Command="{Binding DownloadCommand}"/>
         </WrapPanel>

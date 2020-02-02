@@ -2837,8 +2837,22 @@ left join CallCenter.Users u on u.id = a.userId";
            }
 
        }
+       public void DeleteCallListRecord(int userId, int recordId)
+       {
+           using (var conn = new MySqlConnection(_connectionString))
+           {
+               conn.Open();
 
-       public byte[] GetRecordById(int userId, string path)
+               using (var cmd = new MySqlCommand(@"delete from CallCenter.RequestCalls where id = @ID;", conn))
+               {
+                   cmd.Parameters.AddWithValue("@ID", recordId);
+                   cmd.ExecuteNonQuery();
+               }
+           }
+
+       }
+
+        public byte[] GetRecordById(int userId, string path)
        {
            using (var conn = new MySqlConnection(_connectionString))
            {
@@ -3439,8 +3453,92 @@ FROM CallCenter.RequestStateHistory R
                 }
             }
         }
+        public List<CallsListDto> GetCallListByRequestId(int userId, int requestId)
+        {
+            var sqlQuery = @"SELECT rc.id,ch.UniqueID,Direction,PhoneNum CallerIDNum,CreateTime,AnswerTime,EndTime,BridgedTime,
+ MonitorFile, timestampdiff(SECOND,ch.BridgedTime,ch.EndTime) AS TalkTime,
+(timestampdiff(SECOND,ch.CreateTime,ch.EndTime) - ifnull(timestampdiff(SECOND,ch.BridgedTime,ch.EndTime),0)) AS WaitingTime,
+ group_concat(rc.request_id order by rc.request_id separator ', ') AS RequestId
+ FROM asterisk.ChannelHistory ch
+ join CallCenter.RequestCalls rc on ch.UniqueId = rc.UniqueId
+ where rc.request_id = @RequestNum
+ group by UniqueId";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
 
-        public void DeleteAttachment(int attachmentId)
+                using (
+                    var cmd = new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@RequestNum", requestId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var callList = new List<CallsListDto>();
+                        while (dataReader.Read())
+                        {
+                            callList.Add(new CallsListDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                UniqueId = dataReader.GetNullableString("UniqueID"),
+                                CallerId = dataReader.GetNullableString("CallerIDNum"),
+                                Direction = dataReader.GetNullableString("Direction"),
+                                AnswerTime = dataReader.GetNullableDateTime("AnswerTime"),
+                                CreateTime = dataReader.GetNullableDateTime("CreateTime"),
+                                BridgedTime = dataReader.GetNullableDateTime("BridgedTime"),
+                                EndTime = dataReader.GetNullableDateTime("EndTime"),
+                                TalkTime = dataReader.GetNullableInt("TalkTime"),
+                                WaitingTime = dataReader.GetNullableInt("WaitingTime"),
+                                MonitorFileName = dataReader.GetNullableString("MonitorFile"),
+                                Requests = dataReader.GetNullableString("RequestId"),
+                                User = null
+                            });
+                        }
+
+                        dataReader.Close();
+                        return callList;
+                    }
+                }
+            }
+        }
+        public List<SmsListDto> GetSmsByRequestId(int userId, int requestId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd =
+                    new MySqlCommand(
+                        "select id,sender,phone,message,create_date,state_desc, is_client,price*sms_count price from CallCenter.SMSRequest where request_id = @RequestId order by id",
+                        conn))
+                {
+                    cmd.Parameters.AddWithValue("@RequestId", requestId);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var alertTypeDtos = new List<SmsListDto>();
+                        while (dataReader.Read())
+                        {
+                            alertTypeDtos.Add(new SmsListDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Sender = dataReader.GetNullableString("sender"),
+                                SendTime = dataReader.GetDateTime("create_date"),
+                                Phone = dataReader.GetNullableString("phone"),
+                                Message = dataReader.GetNullableString("message"),
+                                State = dataReader.GetNullableString("state_desc"),
+                                Price = dataReader.GetNullableDouble("price"),
+                                ClientOrWorker = dataReader.GetBoolean("is_client") ? "Жилец" : "Испол."
+                            });
+                        }
+
+                        dataReader.Close();
+                        return alertTypeDtos;
+                    }
+                }
+            }
+
+        }
+        public void DeleteAttachment(int userId, int attachmentId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -3494,13 +3592,23 @@ FROM CallCenter.RequestStateHistory R
 
         public string SaveFile(int requestId, string fileName, Stream fileStream)
         {
+
+
             //using (var saveService = new WcfSaveService.SaveServiceClient())
             //{
             //    return saveService.UploadFile(FileName: fileName, RequestId: requestId, FileStream: fileStream);
             //}
             return null;
         }
+        public static byte[] DownloadFile(int requestId, string fileName, string rootDir)
+        {
+            if (!string.IsNullOrEmpty(rootDir) && Directory.Exists($"{rootDir}\\{requestId}"))
+            {
+                return File.ReadAllBytes($"{rootDir}\\{requestId}\\{fileName}");
+            }
 
+            return null;
+        }
         public byte[] GetFile(int requestId, string fileName)
         {
             //using (var saveService = new WcfSaveService.SaveServiceClient())
@@ -3509,7 +3617,5 @@ FROM CallCenter.RequestStateHistory R
             //}
             return null;
         }
-
-
     }
 }

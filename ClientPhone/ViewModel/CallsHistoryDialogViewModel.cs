@@ -24,17 +24,16 @@ namespace CRMPhone.ViewModel
         public event PropertyChangedEventHandler PropertyChanged;
         private readonly RequestServiceImpl.RequestService _requestService;
 
-        public CallsHistoryDialogViewModel(RequestServiceImpl.RequestService requestService, int requestId)
+        public CallsHistoryDialogViewModel( int requestId)
         {
             _requestId = requestId;
-            _requestService = requestService;
             RefreshLists();
         }
 
         public void RefreshLists()
         {
-            CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallListByRequestId(_requestId));
-            SmsList = new ObservableCollection<SmsListDto>(_requestService.GetSmsByRequestId(_requestId));
+            CallsList = new ObservableCollection<CallsListDto>(RestRequestService.GetCallListByRequestId(AppSettings.CurrentUser.Id, _requestId));
+            SmsList = new ObservableCollection<SmsListDto>(RestRequestService.GetSmsByRequestId(AppSettings.CurrentUser.Id, _requestId));
         }
         public ObservableCollection<SmsListDto> SmsList
         {
@@ -67,10 +66,10 @@ namespace CRMPhone.ViewModel
         private void SendSmsToCitizen(object obj)
         {
             var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, _requestId);
-            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
+            var smsSettings = RestRequestService.GetSmsSettingsForServiceCompany(AppSettings.CurrentUser.Id, request.ServiceCompanyId);
             if (smsSettings.SendToClient && request.Contacts.Any(c => c.IsMain))
             {
-                _requestService.SendSms(request.Id, smsSettings.Sender,
+                RestRequestService.SendSms(AppSettings.CurrentUser.Id, request.Id, smsSettings.Sender,
                     request.Contacts.FirstOrDefault(c => c.IsMain)?.PhoneNumber,
                     $"Заявка № {request.Id}. {request.Type.ParentName} - {request.Type.Name}", true);
                 MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
@@ -86,7 +85,7 @@ namespace CRMPhone.ViewModel
         private void SendSmsToWorker(object obj)
         {
             var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, _requestId);
-            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
+            var smsSettings = RestRequestService.GetSmsSettingsForServiceCompany(AppSettings.CurrentUser.Id, request.ServiceCompanyId);
             var service = RestRequestService.GetServiceById(AppSettings.CurrentUser.Id, request.Type.Id);
             var parrentService = request.Type.ParentId.HasValue ? RestRequestService.GetServiceById(AppSettings.CurrentUser.Id, request.Type.ParentId.Value) : null;
             if (!((parrentService?.CanSendSms ?? true) && service.CanSendSms))
@@ -119,24 +118,24 @@ namespace CRMPhone.ViewModel
                 {
                     smsText = smsText.Substring(0, 70);
                 }
-                _requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone, smsText,false);
+                RestRequestService.SendSms(AppSettings.CurrentUser.Id, request.Id, smsSettings.Sender, worker.Phone, smsText,false);
                 MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
                 RefreshLists();
             }
         }
         private void SendSmsToExecutor(object obj)
         {
-            var request = _requestService.GetRequest(_requestId);
-            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
-            var service = _requestService.GetServiceById(request.Type.Id);
-            var parrentService = request.Type.ParentId.HasValue ? _requestService.GetServiceById(request.Type.ParentId.Value) : null;
+            var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, _requestId);
+            var smsSettings = RestRequestService.GetSmsSettingsForServiceCompany(AppSettings.CurrentUser.Id, request.ServiceCompanyId);
+            var service = RestRequestService.GetServiceById(AppSettings.CurrentUser.Id, request.Type.Id);
+            var parrentService = request.Type.ParentId.HasValue ? RestRequestService.GetServiceById(AppSettings.CurrentUser.Id, request.Type.ParentId.Value) : null;
             if (!((parrentService?.CanSendSms ?? true) && service.CanSendSms))
             {
                 return;
             }
             if (!request.ExecuterId.HasValue)
                 return;
-            var worker = _requestService.GetWorkerById(request.ExecuterId.Value);
+            var worker = RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id, request.ExecuterId.Value);
             if (!worker.SendSms)
                 return;
             string phones = "";
@@ -160,12 +159,8 @@ namespace CRMPhone.ViewModel
                     smsText = smsText.Substring(0, 70);
                 }
                 //var smsText = $"№ {request.Id}. {request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.";
-                _requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone, smsText, false);
+                RestRequestService.SendSms(AppSettings.CurrentUser.Id, request.Id, smsSettings.Sender, worker.Phone, smsText, false);
 
-
-                //_requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone,
-                //    $"№ {request.Id}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
-                //    false);
                 MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
                 RefreshLists();
             }
@@ -180,29 +175,30 @@ namespace CRMPhone.ViewModel
         {
             var record = obj as CallsListDto;
             var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
-            _requestService.PlayRecord(serverIpAddress, record.MonitorFileName);
 
-            /*
-            var localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\");
-            Process.Start(localFileName);
-            */
-        }
-        private void DownloadRecord(object obj)
-        {
-            var record = obj as CallsListDto;
-            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
             var saveDialog = new SaveFileDialog();
             saveDialog.AddExtension = true;
             saveDialog.DefaultExt = ".wav";
             saveDialog.Filter = "Audio файл|*.wav";
             if (saveDialog.ShowDialog() == true)
             {
-                var localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/", "\\");
-                var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
-                if (File.Exists(localFileNameMp3))
-                    File.Copy(localFileNameMp3,saveDialog.FileName);
-                else if (File.Exists(localFileName))
-                    File.Copy(localFileName, saveDialog.FileName);
+                var recordBuf = RestRequestService.GetRecordById(AppSettings.CurrentUser.Id, record.MonitorFileName);
+                File.WriteAllBytes(saveDialog.FileName, recordBuf);
+                Process.Start(saveDialog.FileName);
+            }
+
+        }
+        private void DownloadRecord(object obj)
+        {
+            var record = obj as CallsListDto;
+            var saveDialog = new SaveFileDialog();
+            saveDialog.AddExtension = true;
+            saveDialog.DefaultExt = ".wav";
+            saveDialog.Filter = "Audio файл|*.wav";
+            if (saveDialog.ShowDialog() == true)
+            {
+                var recordBuf = RestRequestService.GetRecordById(AppSettings.CurrentUser.Id, record.MonitorFileName);
+                File.WriteAllBytes(saveDialog.FileName, recordBuf);
             }
         }
         private void DeleteRecord(object obj)
@@ -214,7 +210,7 @@ namespace CRMPhone.ViewModel
                     MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 _requestService.DeleteCallListRecord(record.Id);
-                CallsList = new ObservableCollection<CallsListDto>(_requestService.GetCallListByRequestId(_requestId));
+                CallsList = new ObservableCollection<CallsListDto>(RestRequestService.GetCallListByRequestId(AppSettings.CurrentUser.Id, _requestId));
             }
         }
         public void SetView(Window view)
