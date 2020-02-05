@@ -5,7 +5,9 @@
         public int Id;
         public string WorkerGuid;
         public int? RequestId;
+        public int MessageType;
         public string Message;
+        public string Info;
     }
     public class Content
     {
@@ -30,4 +32,18 @@
         public Data data;
         public Filter[] filters;
     }
+    public class NewData
+    {
+        public string text;
+    }
+
+    public class NewMessageDto
+    {
+        public string pushId;
+        public string mode;
+        public int type;
+        public int Id;
+        public NewData data;
+    }
+
 }

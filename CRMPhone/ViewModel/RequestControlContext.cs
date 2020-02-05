@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -31,6 +28,16 @@ namespace CRMPhone.ViewModel
         public ICommand AddRequestCommand { get { return _addRequestCommand ?? (_addRequestCommand = new CommandHandler(AddRequest, true)); } }
         private ICommand _clearStreetFilterCommand;
         public ICommand ClearStreetFilterCommand { get { return _clearStreetFilterCommand ?? (_clearStreetFilterCommand = new CommandHandler(ClearStreetFilter, true)); } }
+        private ICommand _clearParentServiceFilterCommand;
+        public ICommand ClearParentServiceFilterCommand { get { return _clearParentServiceFilterCommand ?? (_clearParentServiceFilterCommand = new CommandHandler(ClearParentServiceFilter, true)); } }
+        private ICommand _clearMasterFilterCommand;
+        public ICommand ClearMasterFilterCommand { get { return _clearMasterFilterCommand ?? (_clearMasterFilterCommand = new CommandHandler(ClearMasterFilter, true)); } }
+        private ICommand _clearExecutorFilterCommand;
+        public ICommand ClearExecutorFilterCommand { get { return _clearExecutorFilterCommand ?? (_clearExecutorFilterCommand = new CommandHandler(ClearExecutorFilter, true)); } }
+        private ICommand _clearServiceCompanyFilterCommand;
+        public ICommand ClearServiceCompanyFilterCommand { get { return _clearServiceCompanyFilterCommand ?? (_clearServiceCompanyFilterCommand = new CommandHandler(ClearServiceCompanyFilter, true)); } }
+        private ICommand _clearDispatcherFilterCommand;
+        public ICommand ClearDispatcherFilterCommand { get { return _clearDispatcherFilterCommand ?? (_clearDispatcherFilterCommand = new CommandHandler(ClearDispatcherFilter, true)); } }
 
         private void ClearStreetFilter()
         {
@@ -40,6 +47,57 @@ namespace CRMPhone.ViewModel
             }
 
             StreetView.Refresh();
+            StreetFilterImageVisibility = Visibility.Collapsed;
+        }
+        private void ClearParentServiceFilter()
+        {
+            foreach (var fieldForFilterDto in FilterParentServiceList.Where(x=>x.Selected))
+            {
+                fieldForFilterDto.Selected = false;
+            }
+
+            ParentServiceView.Refresh();
+            ParentServiceFilterImageVisibility = Visibility.Collapsed;
+        }
+        private void ClearMasterFilter()
+        {
+            foreach (var fieldForFilterDto in FilterMasterList.Where(x=>x.Selected))
+            {
+                fieldForFilterDto.Selected = false;
+            }
+
+            MasterView.Refresh();
+            MasterFilterImageVisibility = Visibility.Collapsed;
+        }
+        private void ClearExecutorFilter()
+        {
+            foreach (var fieldForFilterDto in FilterExecutorList.Where(x=>x.Selected))
+            {
+                fieldForFilterDto.Selected = false;
+            }
+
+            ExecutorView.Refresh();
+            ExecutorFilterImageVisibility = Visibility.Collapsed;
+        }
+        private void ClearServiceCompanyFilter()
+        {
+            foreach (var fieldForFilterDto in FilterServiceCompanyList.Where(x=>x.Selected))
+            {
+                fieldForFilterDto.Selected = false;
+            }
+
+            ServiceCompanyView.Refresh();
+            ServiceCompanyFilterImageVisibility = Visibility.Collapsed;
+        }
+        private void ClearDispatcherFilter()
+        {
+            foreach (var fieldForFilterDto in FilterUserList.Where(x=>x.Selected))
+            {
+                fieldForFilterDto.Selected = false;
+            }
+
+            DispatcherView.Refresh();
+            DispatcherFilterImageVisibility = Visibility.Collapsed;
         }
         private ICommand _clearStreetSearchStringCommand;
         public ICommand ClearStreetSearchStringCommand { get { return _clearStreetSearchStringCommand ?? (_clearStreetSearchStringCommand = new CommandHandler(ClearStreetSearchString, true)); } }
@@ -47,6 +105,41 @@ namespace CRMPhone.ViewModel
         private void ClearStreetSearchString()
         {
             StreetSearch = "";
+        }
+        private ICommand _clearParentServiceSearchStringCommand;
+        public ICommand ClearParentServiceSearchStringCommand { get { return _clearParentServiceSearchStringCommand ?? (_clearParentServiceSearchStringCommand = new CommandHandler(ClearParentServiceSearchString, true)); } }
+
+        private void ClearParentServiceSearchString()
+        {
+            ParentServiceSearch = "";
+        }
+        private ICommand _clearExecutorSearchStringCommand;
+        public ICommand ClearExecutorSearchStringCommand { get { return _clearExecutorSearchStringCommand ?? (_clearExecutorSearchStringCommand = new CommandHandler(ClearExecutorSearchString, true)); } }
+
+        private void ClearExecutorSearchString()
+        {
+            ExecutorSearch = "";
+        }
+        private ICommand _clearServiceCompanySearchStringCommand;
+        public ICommand ClearServiceCompanySearchStringCommand { get { return _clearServiceCompanySearchStringCommand ?? (_clearServiceCompanySearchStringCommand = new CommandHandler(ClearServiceCompanySearchString, true)); } }
+
+        private void ClearServiceCompanySearchString()
+        {
+            ServiceCompanySearch = "";
+        }
+        private ICommand _clearDispatcherSearchStringCommand;
+        public ICommand ClearDispatcherSearchStringCommand { get { return _clearDispatcherSearchStringCommand ?? (_clearDispatcherSearchStringCommand = new CommandHandler(ClearDispatcherSearchString, true)); } }
+
+        private void ClearDispatcherSearchString()
+        {
+            DispatcherSearch = "";
+        }
+        private ICommand _clearMasterSearchStringCommand;
+        public ICommand ClearMasterSearchStringCommand { get { return _clearMasterSearchStringCommand ?? (_clearMasterSearchStringCommand = new CommandHandler(ClearMasterSearchString, true)); } }
+
+        private void ClearMasterSearchString()
+        {
+            MasterSearch = "";
         }
 
         private ICommand _refreshRequestCommand;
@@ -82,14 +175,40 @@ namespace CRMPhone.ViewModel
                 */
         }
 
+        public Visibility ExecutorFilterImageVisibility
+        {
+            get => _executorFilterImageVisibility;
+            set { _executorFilterImageVisibility = value; OnPropertyChanged(nameof(ExecutorFilterImageVisibility)); }
+        }
+
+        public Visibility ServiceCompanyFilterImageVisibility
+        {
+            get => _serviceCompanyFilterImageVisibility;
+            set { _serviceCompanyFilterImageVisibility = value; OnPropertyChanged(nameof(ServiceCompanyFilterImageVisibility)); }
+        }
+
+        public Visibility DispatcherFilterImageVisibility
+        {
+            get => _dispatcherFilterImageVisibility;
+            set { _dispatcherFilterImageVisibility = value; OnPropertyChanged(nameof(DispatcherFilterImageVisibility));}
+        }
+
+        public Visibility MasterFilterImageVisibility
+        {
+            get => _masterFilterImageVisibility;
+            set { _masterFilterImageVisibility = value; OnPropertyChanged(nameof(MasterFilterImageVisibility)); }
+        }
+
+        public Visibility ParentServiceFilterImageVisibility
+        {
+            get => _parentServiceFilterImageVisibility;
+            set { _parentServiceFilterImageVisibility = value; OnPropertyChanged(nameof(ParentServiceFilterImageVisibility));}
+        }
+
         public Visibility StreetFilterImageVisibility
         {
             get => _streetFilterImageVisibility;
-            set
-            {
-                _streetFilterImageVisibility = value;
-                OnPropertyChanged(nameof(StreetFilterImageVisibility));
-            }
+            set { _streetFilterImageVisibility = value; OnPropertyChanged(nameof(StreetFilterImageVisibility));}
         }
 
         private void ClearFilters()
@@ -106,57 +225,32 @@ namespace CRMPhone.ViewModel
             }
             StatusText = "";
 
-            foreach (var serviceCompany in FilterServiceCompanyList)
-            {
-                serviceCompany.Selected = false;
-            }
-            ServiceCompanyText = "";
-
-            foreach (var worker in FilterMasterList)
-            {
-                worker.Selected = false;
-            }
-            MasterText = "";
-
-            foreach (var worker in FilterExecuterList)
-            {
-                worker.Selected = false;
-            }
-            ExecuterText = "";
-            foreach (var user in FilterUserList)
-            {
-                user.Selected = false;
-            }
-            UserText = "";
             foreach (var rating in FilterRatingList)
             {
                 rating.Selected = false;
             }
             RatingText = "";
-            foreach (var street in FilterStreetList)
-            {
-                street.Selected = false;
-            }
-            StreetText = "";
-            foreach (var service in FilterParentServiceList)
-            {
-                service.Selected = false;
-            }
-            ParentServiceText = "";
+
+            ClearDispatcherFilter();
+            ClearExecutorFilter();
+            ClearServiceCompanyFilter();
+            ClearMasterFilter();
+            ClearStreetFilter();
+            ClearParentServiceFilter();
             RefreshRequest();
         }
 
-        public string ParentServiceText
-        {
-            get { return _parentServiceText; }
-            set { _parentServiceText = value; OnPropertyChanged(nameof(ParentServiceText));}
-        }
+        //public string ParentServiceText
+        //{
+        //    get { return _parentServiceText; }
+        //    set { _parentServiceText = value; OnPropertyChanged(nameof(ParentServiceText));}
+        //}
 
-        public string StreetText
-        {
-            get { return _streetText; }
-            set { _streetText = value; OnPropertyChanged(nameof(StreetText));}
-        }
+        //public string StreetText
+        //{
+        //    get { return _streetText; }
+        //    set { _streetText = value; OnPropertyChanged(nameof(StreetText));}
+        //}
 
         public string RatingText
         {
@@ -180,18 +274,6 @@ namespace CRMPhone.ViewModel
         {
             get { return _statusText; }
             set { _statusText = value; OnPropertyChanged(nameof(StatusText)); }
-        }
-
-        public string ExecuterText
-        {
-            get { return _executerText; }
-            set { _executerText = value; OnPropertyChanged(nameof(ExecuterText)); }
-        }
-
-        public string MasterText
-        {
-            get { return _masterText; }
-            set { _masterText = value; OnPropertyChanged(nameof(MasterText)); }
         }
 
         private void PrintActs()
@@ -497,15 +579,15 @@ namespace CRMPhone.ViewModel
         private ObservableCollection<FieldForFilterDto> _filterServiceCompanyList;
         private string _serviceCompanyText;
         private string _executerText;
-        private ObservableCollection<FieldForFilterDto> _filterExecuterList;
+        private ObservableCollection<FieldForFilterDto> _filterExecutorList;
         private ObservableCollection<FieldForFilterDto> _filterUserList;
         private string _userText;
         private ObservableCollection<FieldForFilterDto> _filterRatingList;
         private string _ratingText;
         private ObservableCollection<FieldForFilterDto> _filterStreetList;
-        private string _streetText;
+        //private string _streetText;
         private ObservableCollection<FieldForFilterDto> _filterParentServiceList;
-        private string _parentServiceText;
+        //private string _parentServiceText;
         private bool _onlyGaranty;
         private bool _onlyImmediate;
         private bool _onlyByClient;
@@ -584,10 +666,10 @@ namespace CRMPhone.ViewModel
             set { _selectedService = value; OnPropertyChanged(nameof(SelectedService)); }
         }
 
-        public ObservableCollection<FieldForFilterDto> FilterExecuterList
+        public ObservableCollection<FieldForFilterDto> FilterExecutorList
         {
-            get { return _filterExecuterList; }
-            set { _filterExecuterList = value; OnPropertyChanged(nameof(FilterExecuterList));}
+            get { return _filterExecutorList; }
+            set { _filterExecutorList = value; OnPropertyChanged(nameof(FilterExecutorList));}
         }
 
         public ObservableCollection<FieldForFilterDto> FilterMasterList
@@ -740,8 +822,105 @@ namespace CRMPhone.ViewModel
                 OnPropertyChanged(nameof(StreetView));
             }
         }
-        private ICollectionView _streetView;
+
+        public string ParentServiceSearch
+        {
+            get => _parentServiceSearch;
+            set
+            {
+                _parentServiceSearch = value; OnPropertyChanged(nameof(ParentServiceSearch));
+                ParentServiceView.Filter = String.IsNullOrEmpty(value) ? null : new Predicate<object>(o => ((FieldForFilterDto)o).Name.ToUpper().Contains(value.ToUpper()));
+
+            }
+        }
+       public ICollectionView ParentServiceView
+        {
+            get => _parentServiceView;
+            set { _parentServiceView = value; OnPropertyChanged(nameof(ParentServiceView)); }
+        }
+
+       public string MasterSearch
+       {
+           get => _masterSearch;
+           set
+           {
+               _masterSearch = value; OnPropertyChanged(nameof(MasterSearch));
+               MasterView.Filter = String.IsNullOrEmpty(value) ? null : new Predicate<object>(o => ((FieldForFilterDto)o).Name.ToUpper().Contains(value.ToUpper()));
+
+            }
+        }
+
+       public string ExecutorSearch
+       {
+           get => _executorSearch;
+           set
+           {
+               _executorSearch = value; OnPropertyChanged(nameof(ExecutorSearch));
+               ExecutorView.Filter = String.IsNullOrEmpty(value) ? null : new Predicate<object>(o => ((FieldForFilterDto)o).Name.ToUpper().Contains(value.ToUpper()));
+            }
+        }
+
+       public string ServiceCompanySearch
+       {
+           get => _serviceCompanySearch;
+           set
+           {
+               _serviceCompanySearch = value; OnPropertyChanged(nameof(ServiceCompanySearch));
+               ServiceCompanyView.Filter = String.IsNullOrEmpty(value) ? null : new Predicate<object>(o => ((FieldForFilterDto)o).Name.ToUpper().Contains(value.ToUpper()));
+            }
+        }
+
+       public string DispatcherSearch
+       {
+           get => _dispatcherSearch;
+           set
+           {
+               _dispatcherSearch = value; OnPropertyChanged(DispatcherSearch);
+               DispatcherView.Filter = String.IsNullOrEmpty(value) ? null : new Predicate<object>(o => ((FieldForFilterDto)o).Name.ToUpper().Contains(value.ToUpper()));
+            }
+        }
+
+       public ICollectionView ExecutorView
+       {
+           get => _executorView;
+           set { _executorView = value; OnPropertyChanged(nameof(ExecutorView));}
+       }
+
+       public ICollectionView ServiceCompanyView
+       {
+           get => _serviceCompanyView;
+           set { _serviceCompanyView = value; OnPropertyChanged(nameof(ServiceCompanyView));}
+       }
+
+       public ICollectionView DispatcherView
+       {
+           get => _dispatcherView;
+           set { _dispatcherView = value; OnPropertyChanged(nameof(DispatcherView));}
+       }
+
+       public ICollectionView MasterView
+       {
+           get => _masterView;
+           set { _masterView = value; OnPropertyChanged(nameof(MasterView));}
+       }
+
+       private ICollectionView _streetView;
         private Visibility _streetFilterImageVisibility;
+        private Visibility _parentServiceFilterImageVisibility;
+        private ICollectionView _parentServiceView;
+        private string _parentServiceSearch;
+        private string _masterSearch;
+        private ICollectionView _masterView;
+        private Visibility _masterFilterImageVisibility;
+        private Visibility _executorFilterImageVisibility;
+        private Visibility _serviceCompanyFilterImageVisibility;
+        private Visibility _dispatcherFilterImageVisibility;
+        private ICollectionView _dispatcherView;
+        private ICollectionView _serviceCompanyView;
+        private ICollectionView _executorView;
+        private string _executorSearch;
+        private string _serviceCompanySearch;
+        private string _dispatcherSearch;
 
         private void StreetOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
@@ -894,7 +1073,7 @@ namespace CRMPhone.ViewModel
                 SelectedService?.Id,
                 FilterStatusList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterMasterList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
-                FilterExecuterList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
+                FilterExecutorList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterServiceCompanyList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterUserList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterRatingList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
@@ -922,6 +1101,11 @@ namespace CRMPhone.ViewModel
             ExecuteFromDate = FromDate;
             ExecuteToDate = ToDate;
             StreetFilterImageVisibility = Visibility.Collapsed;
+            ParentServiceFilterImageVisibility = Visibility.Collapsed;
+            MasterFilterImageVisibility = Visibility.Collapsed;
+            ExecutorFilterImageVisibility = Visibility.Collapsed;
+            ServiceCompanyFilterImageVisibility = Visibility.Collapsed;
+            DispatcherFilterImageVisibility = Visibility.Collapsed;
         }
 
         public void InitCollections()
@@ -939,14 +1123,16 @@ namespace CRMPhone.ViewModel
                     Name = $"{w.SurName} {w.FirstName} {w.PatrName}",
                     Selected = false
                 }).OrderBy(s=>s.Name));
+            MasterView = new ListCollectionView(FilterMasterList);
 
-            FilterExecuterList = new ObservableCollection<FieldForFilterDto>(_requestService.GetExecuters(null).Select(
+            FilterExecutorList = new ObservableCollection<FieldForFilterDto>(_requestService.GetExecuters(null).Select(
                 w => new FieldForFilterDto()
                 {
                     Id = w.Id,
                     Name = $"{w.SurName} {w.FirstName} {w.PatrName}",
                     Selected = false
                 }).OrderBy(s=>s.Name));
+            ExecutorView = new ListCollectionView(FilterExecutorList);
 
             FilterServiceCompanyList = new ObservableCollection<FieldForFilterDto>(_requestService.GetServiceCompanies().Select(
                 w => new FieldForFilterDto()
@@ -955,6 +1141,7 @@ namespace CRMPhone.ViewModel
                     Name = w.Name,
                     Selected = false
                 }).OrderBy(s=>s.Name));
+            ServiceCompanyView = new ListCollectionView(FilterServiceCompanyList);
 
             FilterStatusList = new ObservableCollection<FieldForFilterDto>(_requestService.GetRequestStatuses().Select(
                 w => new FieldForFilterDto()
@@ -971,6 +1158,8 @@ namespace CRMPhone.ViewModel
                     Name = w.FullName,
                     Selected = false
                 }).OrderBy(s => s.Name));
+            DispatcherView = new ListCollectionView(FilterUserList);
+
             FilterRatingList = new ObservableCollection<FieldForFilterDto>(new []{1,2,3,4,5}.Select(
                 w => new FieldForFilterDto()
                 {
@@ -985,6 +1174,7 @@ namespace CRMPhone.ViewModel
                     Name = w.Name,
                     Selected = false
                 }).OrderBy(s => s.Name));
+               ParentServiceView = new ListCollectionView(FilterParentServiceList);
             foreach (var service in FilterParentServiceList)
             {
                 service.PropertyChanged += ServiceOnPropertyChanged;
@@ -1013,11 +1203,6 @@ namespace CRMPhone.ViewModel
                 }
             }
         }
-
-        //private void OnPropertyChanged(object sender, PropertyChangedEventArgs arg)
-        //{
-        //    var t = arg;
-        //}
 
         public ObservableCollection<RequestForListDto> RequestList
         {

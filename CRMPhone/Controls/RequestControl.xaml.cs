@@ -86,6 +86,71 @@ namespace CRMPhone.Controls
             else
                 model.StreetFilterImageVisibility = Visibility.Collapsed;
         }
+        private void CbOnDropDownParentServiceClosed(object sender, EventArgs e)
+        {
+            var count = ((ComboBox)sender).ItemsSource.Cast<FieldForFilterDto>().Count(w => w.Selected);
+            var model = ((ComboBox)sender).DataContext as RequestControlContext;
+            if (model == null)
+                return;
+            if (count >= 1)
+            {
+                model.ParentServiceFilterImageVisibility = Visibility.Visible;
+            }
+            else
+                model.ParentServiceFilterImageVisibility = Visibility.Collapsed;
+        }
+        private void CbOnDropDownExecutorClosed(object sender, EventArgs e)
+        {
+            var count = ((ComboBox)sender).ItemsSource.Cast<FieldForFilterDto>().Count(w => w.Selected);
+            var model = ((ComboBox)sender).DataContext as RequestControlContext;
+            if (model == null)
+                return;
+            if (count >= 1)
+            {
+                model.ExecutorFilterImageVisibility = Visibility.Visible;
+            }
+            else
+                model.ExecutorFilterImageVisibility = Visibility.Collapsed;
+        }
+        private void CbOnDropDownServiceCompanyClosed(object sender, EventArgs e)
+        {
+            var count = ((ComboBox)sender).ItemsSource.Cast<FieldForFilterDto>().Count(w => w.Selected);
+            var model = ((ComboBox)sender).DataContext as RequestControlContext;
+            if (model == null)
+                return;
+            if (count >= 1)
+            {
+                model.ServiceCompanyFilterImageVisibility = Visibility.Visible;
+            }
+            else
+                model.ServiceCompanyFilterImageVisibility = Visibility.Collapsed;
+        }
+        private void CbOnDropDownDispatcherClosed(object sender, EventArgs e)
+        {
+            var count = ((ComboBox)sender).ItemsSource.Cast<FieldForFilterDto>().Count(w => w.Selected);
+            var model = ((ComboBox)sender).DataContext as RequestControlContext;
+            if (model == null)
+                return;
+            if (count >= 1)
+            {
+                model.DispatcherFilterImageVisibility = Visibility.Visible;
+            }
+            else
+                model.DispatcherFilterImageVisibility = Visibility.Collapsed;
+        }
+        private void CbOnDropDownMasterClosed(object sender, EventArgs e)
+        {
+            var count = ((ComboBox)sender).ItemsSource.Cast<FieldForFilterDto>().Count(w => w.Selected);
+            var model = ((ComboBox)sender).DataContext as RequestControlContext;
+            if (model == null)
+                return;
+            if (count >= 1)
+            {
+                model.MasterFilterImageVisibility = Visibility.Visible;
+            }
+            else
+                model.MasterFilterImageVisibility = Visibility.Collapsed;
+        }
 
 
         private void RequestsGrid_OnLoadingRow(object sender, DataGridRowEventArgs e)
@@ -157,18 +222,18 @@ namespace CRMPhone.Controls
             }
         }
 
-        private void Popup_OnClosed(object sender, EventArgs e)
-        {
-            var count = StreetBox.ItemsSource.Cast<FieldForFilterDto>().Count(w => w.Selected);
-            var model = ((Popup)sender).DataContext as RequestControlContext;
-            if (model == null)
-                return;
-            if (count >= 1)
-            {
-                model.StreetFilterImageVisibility = Visibility.Visible;
-            }
-            else
-                model.StreetFilterImageVisibility = Visibility.Collapsed;
-        }
+        //private void Popup_OnClosed(object sender, EventArgs e)
+        //{
+        //    var count = StreetBox.ItemsSource.Cast<FieldForFilterDto>().Count(w => w.Selected);
+        //    var model = ((Popup)sender).DataContext as RequestControlContext;
+        //    if (model == null)
+        //        return;
+        //    if (count >= 1)
+        //    {
+        //        model.StreetFilterImageVisibility = Visibility.Visible;
+        //    }
+        //    else
+        //        model.StreetFilterImageVisibility = Visibility.Collapsed;
+        //}
     }
 }

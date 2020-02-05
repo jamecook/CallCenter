@@ -650,7 +650,7 @@ namespace ClientPhoneWebApi.Services
                 conn.Open();
 
                 var query =
-                    $@"SELECT case when (A.UniqueID < A2.UniqueID) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ActiveChannels A
+                    $@"SELECT case when (A.UniqueID <= ifnull(A2.UniqueID,A.UniqueID)) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ActiveChannels A
  left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
  where A.call_id like '{callId}%'";
                 using (var cmd = new MySqlCommand(query, conn))
@@ -669,7 +669,7 @@ namespace ClientPhoneWebApi.Services
                 if (!string.IsNullOrEmpty(retVal))
                     return retVal;
                 query =
-                    $@"SELECT case when (A.UniqueID < A2.UniqueID) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ChannelHistory A
+                    $@"SELECT case when (A.UniqueID <= ifnull(A2.UniqueID,A.UniqueID)) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ChannelHistory A
  left join asterisk.ChannelHistory A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
  where A.call_id like '{callId}%'";
                 using (var cmd = new MySqlCommand(query, conn))
@@ -1838,7 +1838,7 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
             if (!string.IsNullOrEmpty(callId))
             {
                 var query =
-                    $@"SELECT case when (A.UniqueID < A2.UniqueID) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ActiveChannels A
+                    $@"SELECT case when (A.UniqueID <= ifnull(A2.UniqueID,A.UniqueID)) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ActiveChannels A
  left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
  where A.call_id like '{callId}%'";
                 using (var conn = new MySqlConnection(_connectionString))
@@ -3060,6 +3060,99 @@ left join CallCenter.Users u on u.id = a.userId";
                 }
             }
         }
+        public List<AlertTypeDto> GetAlertTypes(int userId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (
+                    var cmd = new MySqlCommand("select id,name from CallCenter.AlertType where enabled = 1",
+                        conn))
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var alertTypeDtos = new List<AlertTypeDto>();
+                        while (dataReader.Read())
+                        {
+                            alertTypeDtos.Add(new AlertTypeDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                            });
+                        }
+
+                        dataReader.Close();
+                        return alertTypeDtos;
+                    }
+                }
+            }
+        }
+
+        public List<AlertServiceTypeDto> GetAlertServiceTypes(int userId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (
+                    var cmd = new MySqlCommand(
+                        "select id,name from CallCenter.AlertServiceType where enabled = 1 order by order_num",
+                        conn))
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var serviceTypeDtos = new List<AlertServiceTypeDto>();
+                        while (dataReader.Read())
+                        {
+                            serviceTypeDtos.Add(new AlertServiceTypeDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                            });
+                        }
+
+                        dataReader.Close();
+                        return serviceTypeDtos;
+                    }
+                }
+            }
+        }
+        public void SaveAlert(SaveAlertDto alert)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+            if (alert.Id == 0)
+            {
+ 
+                    using (var cmd = new MySqlCommand(@"insert into CallCenter.Alerts(house_id, alert_type_id, alert_service_type_id, create_date, create_user_id, start_date, end_date, description)
+ values(@HouseId,@TypeId,@ServiceId,sysdate(),@UserId,@StartDate,@EndDate,@Desc);", conn))
+                {
+                    cmd.Parameters.AddWithValue("@HouseId", alert.HouseId);
+                    cmd.Parameters.AddWithValue("@TypeId", alert.Type.Id);
+                    cmd.Parameters.AddWithValue("@ServiceId", alert.ServiceType.Id);
+                    cmd.Parameters.AddWithValue("@UserId", alert.UserId);
+                    cmd.Parameters.AddWithValue("@StartDate", alert.StartDate);
+                    cmd.Parameters.AddWithValue("@EndDate", alert.EndDate);
+                    cmd.Parameters.AddWithValue("@Desc", alert.Description);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            else
+            {
+                using (var cmd = new MySqlCommand(@"update CallCenter.Alerts set start_date = @StartDate, end_date = @EndDate, description = @Desc where id = @alertId;", conn))
+                {
+                    cmd.Parameters.AddWithValue("@alertId", alert.Id);
+                    cmd.Parameters.AddWithValue("@StartDate", alert.StartDate);
+                    cmd.Parameters.AddWithValue("@EndDate", alert.EndDate);
+                    cmd.Parameters.AddWithValue("@Desc", alert.Description);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            }
+        }
+
 
         public void SaveMeterCodes(int userId, int selectedFlatId, string personalAccount, string electro1Code, string electro2Code,
             string hotWater1Code,

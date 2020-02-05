@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
 using CRMPhone.Dialogs;
 using RequestServiceImpl;
@@ -14,8 +15,6 @@ namespace CRMPhone.ViewModel
     public class AlertAndWorkControlContext : INotifyPropertyChanged
     {
         private ObservableCollection<AlertDto> _alertList;
-        private RequestService _requestService;
-
         private ICommand _refreshRequestCommand;
         public ICommand RefreshRequestCommand { get { return _refreshRequestCommand ?? (_refreshRequestCommand = new CommandHandler(RefreshAlerts, true)); } }
         private ICommand _newCommand;
@@ -63,7 +62,7 @@ namespace CRMPhone.ViewModel
         private void RefreshAlerts()
         {
             AlertList.Clear();
-            var alerts = _requestService.GetAlerts(FromDate,ToDate,null,OnlyActive);
+            var alerts = RestRequestService.GetAlerts(AppSettings.CurrentUser.Id, FromDate,ToDate,null,OnlyActive);
             foreach (var alert in alerts)
             {
                 AlertList.Add(alert);
@@ -111,8 +110,7 @@ namespace CRMPhone.ViewModel
 
         public void InitCollections()
         {
-            _requestService = new RequestService(AppSettings.DbConnection);
-            var currentDate = _requestService.GetCurrentDate().Date;
+            var currentDate = RestRequestService.GetCurrentDate().Date;
             FromDate = currentDate.AddDays(-10);
             ToDate = currentDate.AddDays(1).AddSeconds(-1);
             RefreshAlerts();

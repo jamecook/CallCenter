@@ -723,7 +723,7 @@ namespace RequestServiceImpl
             string retVal = null;
             if (string.IsNullOrEmpty(callId))
                 return null;
-            var query = $@"SELECT case when (A.UniqueID < A2.UniqueID) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ActiveChannels A
+            var query = $@"SELECT case when (A.UniqueID <= ifnull(A2.UniqueID,A.UniqueID)) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ActiveChannels A
  left join asterisk.ActiveChannels A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
  where A.call_id like '{callId}%'";
             using (var cmd = new MySqlCommand(query, _dbConnection))
@@ -739,7 +739,7 @@ namespace RequestServiceImpl
             }
             if(!string.IsNullOrEmpty(retVal))
                     return retVal;
-                query = $@"SELECT case when (A.UniqueID < A2.UniqueID) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ChannelHistory A
+                query = $@"SELECT case when (A.UniqueID <= ifnull(A2.UniqueID,A.UniqueID)) then A.UniqueID else A2.UniqueID end uniqueId FROM asterisk.ChannelHistory A
  left join asterisk.ChannelHistory A2 on A2.BridgeId = A.BridgeId and A2.UniqueID <> A.UniqueID
  where A.call_id like '{callId}%'";
                 using (var cmd = new MySqlCommand(query, _dbConnection))

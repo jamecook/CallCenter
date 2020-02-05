@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
@@ -14,7 +15,6 @@ namespace CRMPhone.ViewModel
     {
         private Window _view;
 
-        private readonly RequestService _requestService;
         private ObservableCollection<CityDto> _cityList;
         private CityDto _selectedCity;
         private ObservableCollection<StreetDto> _streetList;
@@ -59,7 +59,7 @@ namespace CRMPhone.ViewModel
             StreetList.Clear();
             if (!cityId.HasValue)
                 return;
-            foreach (var street in _requestService.GetStreets(cityId.Value).OrderBy(s => s.Name))
+            foreach (var street in RestRequestService.GetStreets(AppSettings.CurrentUser.Id,cityId.Value).OrderBy(s => s.Name))
             {
                 StreetList.Add(street);
             }
@@ -71,7 +71,7 @@ namespace CRMPhone.ViewModel
             HouseList.Clear();
             if (!streetId.HasValue)
                 return;
-            foreach (var house in _requestService.GetHouses(streetId.Value).OrderBy(s => s.Building?.PadLeft(6,'0')).ThenBy(s=>s.Corpus?.PadLeft(6, '0')))
+            foreach (var house in RestRequestService.GetHouses(AppSettings.CurrentUser.Id, streetId.Value).OrderBy(s => s.Building?.PadLeft(6,'0')).ThenBy(s=>s.Corpus?.PadLeft(6, '0')))
             {
                 HouseList.Add(house);
             }
@@ -177,7 +177,7 @@ namespace CRMPhone.ViewModel
             alert.EndDate = ToDate;
             alert.Description = Description;
 
-            _requestService.SaveAlert(alert);
+            RestRequestService.SaveAlert(AppSettings.CurrentUser.Id, alert);
             _view.DialogResult = true;
         }
 
@@ -207,14 +207,13 @@ namespace CRMPhone.ViewModel
         public AlertAndWorkDialogViewModel(AlertDto alert)
         {
             Alert = alert;
-            _requestService = new RequestService(AppSettings.DbConnection);
 
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
-            CityList = new ObservableCollection<CityDto>(_requestService.GetCities());
-            TypeList = new ObservableCollection<AlertTypeDto>(_requestService.GetAlertTypes());
-            ServiceList = new ObservableCollection<AlertServiceTypeDto>(_requestService.GetAlertServiceTypes());
-            FromDate = _requestService.GetCurrentDate().Date;
+            CityList = new ObservableCollection<CityDto>(RestRequestService.GetCities(AppSettings.CurrentUser.Id));
+            TypeList = new ObservableCollection<AlertTypeDto>(RestRequestService.GetAlertTypes(AppSettings.CurrentUser.Id));
+            ServiceList = new ObservableCollection<AlertServiceTypeDto>(RestRequestService.GetAlertServiceTypes(AppSettings.CurrentUser.Id));
+            FromDate = RestRequestService.GetCurrentDate().Date;
 
             SelectedType = TypeList.FirstOrDefault();
             SelectedService = ServiceList.FirstOrDefault();

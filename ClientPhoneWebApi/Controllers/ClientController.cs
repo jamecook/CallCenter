@@ -371,6 +371,26 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetMetersByAddressId(userId, addressId));
         }
+       [HttpGet("GetAlertServiceTypes")]
+        public IActionResult GetAlertServiceTypes([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetAlertServiceTypes(userId));
+        }
+       [HttpGet("GetAlertTypes")]
+        public IActionResult GetAlertTypes([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetAlertTypes(userId));
+        }
         [HttpPut("RequestChangeAddress")]
         public IActionResult RequestChangeAddress([FromBody]ChangeAddressDto value)
         {
@@ -605,6 +625,17 @@ namespace ClientPhoneWebApi.Controllers
             var result = RequestService.SaveNewRequest(value.UserId, value.LastCallId, value.AddressId, value.RequestTypeId, value.ContactList, value.RequestMessage,
             value.Chargeable, value.Immediate, value.CallUniqueId, value.Entrance, value.Floor, value.AlertTime, value.IsRetry, value.IsBedWork, value.EquipmentId, value.Warranty);
             return Ok(result);
+        }
+        [HttpPost("SaveAlert")]
+        public IActionResult SaveAlert([FromBody]SaveAlertDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.SaveAlert(value);
+            return Ok();
         }
         [HttpPut("AddCallHistory")]
         public IActionResult AddCallHistory([FromBody]AddCallHistoryDto value)

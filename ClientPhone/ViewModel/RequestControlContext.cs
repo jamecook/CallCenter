@@ -46,17 +46,12 @@ namespace CRMPhone.ViewModel
             var item = obj as RequestForListDto;
             if (item == null)
                 return;
-            var fileName = RestRequestService.GetRecordFileNameByUniqueId(AppSettings.CurrentUser.Id, item.RecordUniqueId);
-            var saveDialog = new SaveFileDialog();
-            saveDialog.AddExtension = true;
-            saveDialog.DefaultExt = ".wav";
-            saveDialog.Filter = "Audio פאיכ|*.wav";
-            if (saveDialog.ShowDialog() == true)
-            {
-                var recordBuf = RestRequestService.GetRecordById(AppSettings.CurrentUser.Id, fileName);
-                File.WriteAllBytes(saveDialog.FileName, recordBuf);
-                Process.Start(saveDialog.FileName);
-            }
+            var fileName =
+                RestRequestService.GetRecordFileNameByUniqueId(AppSettings.CurrentUser.Id, item.RecordUniqueId);
+            var tempFileName = $"{Path.GetTempPath()}{Guid.NewGuid().ToString()}.wav";
+            var recordBuf = RestRequestService.GetRecordById(AppSettings.CurrentUser.Id, fileName);
+            File.WriteAllBytes(tempFileName, recordBuf);
+            Process.Start(tempFileName);
             /*
             var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/","\\");
             var localFileNameMp3 = localFileName.Replace(".wav",".mp3");

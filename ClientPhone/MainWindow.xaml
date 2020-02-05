@@ -797,8 +797,8 @@
                     </DockPanel>
                 </Grid>
             </TabItem>
-            <!--<TabItem Visibility="{Binding IsAdminRoleExist}">-->
-            <TabItem>
+            <TabItem Visibility="{Binding IsAdminRoleExist}">
+            <!--<TabItem>-->
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image  Source="pack://application:,,,/Images/settings_small.png" Stretch="UniformToFill" Height="28" />

@@ -414,6 +414,28 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<WorkerDto[]>(responce.Content);
         }
+        public static AlertTypeDto[] GetAlertTypes(int userId)
+        {
+            var restUrl = $"{ApiUrl}/GetAlertTypes?userId={userId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<AlertTypeDto[]>(responce.Content);
+        }
+        public static AlertServiceTypeDto[] GetAlertServiceTypes(int userId)
+        {
+            var restUrl = $"{ApiUrl}/GetAlertServiceTypes?userId={userId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<AlertServiceTypeDto[]>(responce.Content);
+        }
         public static WorkerDto GetWorkerById(int userId, int workerId)
         {
             var restUrl = $"{ApiUrl}/getWorkerById?userId={userId}&workerId={workerId}";
@@ -492,6 +514,35 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
 
             return JsonConvert.DeserializeObject<int?>(responce.Content);
+        }
+
+        public static void SaveAlert(int userId, AlertDto alert)
+        {
+            var value = new SaveAlertDto()
+            {
+                UserId = userId,
+                Id = alert.Id,
+                Description = alert.Description,
+                StreetName = alert.StreetName,
+                Corpus = alert.Corpus,
+                Building = alert.Building,
+                CreateDate = alert.CreateDate,
+                EndDate = alert.EndDate,
+                HouseId = alert.HouseId,
+                ServiceType = alert.ServiceType,
+                StartDate = alert.StartDate,
+                StreetId = alert.StreetId,
+                Type = alert.Type,
+                User = alert.User
+            };
+            var restUrl = $"{ApiUrl}/SaveAlert";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+
         }
 
         public static void RequestChangeAddress(int userId, int requestId, int addressId)

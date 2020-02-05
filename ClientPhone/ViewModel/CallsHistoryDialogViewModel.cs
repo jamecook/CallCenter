@@ -173,16 +173,12 @@ namespace CRMPhone.ViewModel
         private void PlayRecord(object obj)
         {
             var record = obj as CallsListDto;
-            var saveDialog = new SaveFileDialog();
-            saveDialog.AddExtension = true;
-            saveDialog.DefaultExt = ".wav";
-            saveDialog.Filter = "Audio פאיכ|*.wav";
-            if (saveDialog.ShowDialog() == true)
-            {
-                var recordBuf = RestRequestService.GetRecordById(AppSettings.CurrentUser.Id, record.MonitorFileName);
-                File.WriteAllBytes(saveDialog.FileName, recordBuf);
-                Process.Start(saveDialog.FileName);
-            }
+            var tempFileName = $"{Path.GetTempPath()}{Guid.NewGuid().ToString()}.wav";
+
+            var recordBuf = RestRequestService.GetRecordById(AppSettings.CurrentUser.Id, record.MonitorFileName);
+                File.WriteAllBytes(tempFileName, recordBuf);
+                Process.Start(tempFileName);
+            
 
         }
         private void DownloadRecord(object obj)

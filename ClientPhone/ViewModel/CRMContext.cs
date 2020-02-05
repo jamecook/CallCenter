@@ -118,8 +118,8 @@ namespace CRMPhone.ViewModel
             RedirectAdminContext = new RedirectAdminControlContext();
             RingUpAdminContext = new RingUpAdminControlContext();
             BlackListContext = new BlackListControlContext();
-            AlertAndWorkContext = new AlertAndWorkControlContext();
             /**/
+            AlertAndWorkContext = new AlertAndWorkControlContext();
             RequestDataContext = new RequestControlContext();
             AlertRequestDataContext = new AlertRequestControlContext();
             DispatcherContext = new DispatcherControlContext();
@@ -172,8 +172,8 @@ namespace CRMPhone.ViewModel
             RingUpAdminContext.Refresh();
             BlackListContext.RefreshList();
             CallsNotificationContext.Init();
-            AlertAndWorkContext.InitCollections();
             /**/
+            AlertAndWorkContext.InitCollections();
             RequestDataContext.InitCollections();
             AlertRequestDataContext.InitCollections();
             DispatcherContext.InitCollections();
