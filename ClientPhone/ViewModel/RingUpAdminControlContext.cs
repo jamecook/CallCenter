@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml.Linq;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
 using CRMPhone.Dialogs.Admins;
 using CRMPhone.ViewModel.Admins;
@@ -21,12 +22,7 @@ namespace CRMPhone.ViewModel
         {
             FromDate = DateTime.Today.AddDays(-30);
         }
-        private RequestService _requestService;
-        private RequestService RequestService => _requestService ?? (_requestService = new RequestService(AppSettings.DbConnection));
-
         private ObservableCollection<RingUpHistoryDto> _ringUpList;
-        private ICommand _ediCommand;
-        public ICommand EditCommand { get { return _ediCommand ?? (_ediCommand = new CommandHandler(EditPhone, true)); } }
         private ICommand _refreshCommand;
         private RingUpHistoryDto _currentRingUp;
         public ICommand RefreshCommand { get { return _refreshCommand ?? (_refreshCommand = new CommandHandler(Refresh, true)); } }
@@ -60,7 +56,7 @@ namespace CRMPhone.ViewModel
             if (MessageBox.Show($"Вы уверены что хотите прервать обзвон № {CurrentRingUp.Id}", "Автообзвон",
                     MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                RequestService.AbortRingUp(CurrentRingUp.Id);
+                RestRequestService.AbortRingUp(AppSettings.CurrentUser.Id, CurrentRingUp.Id);
                 Refresh();
             }
         }
@@ -74,7 +70,7 @@ namespace CRMPhone.ViewModel
             if (MessageBox.Show($"Вы уверены что хотите продолжить обзвон № {CurrentRingUp.Id}", "Автообзвон",
                     MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                RequestService.ContinueRingUp(CurrentRingUp.Id);
+                RestRequestService.ContinueRingUp(AppSettings.CurrentUser.Id, CurrentRingUp.Id);
                 Refresh();
             }
         }
@@ -177,7 +173,7 @@ namespace CRMPhone.ViewModel
         }
         private void NewRingUp()
         {
-            var model = new RingUpNewDialogViewModel(RequestService);
+            var model = new RingUpNewDialogViewModel();
             var view = new RingUpNewDialog();
             model.SetView(view);
             view.Owner = Application.Current.MainWindow;
@@ -200,7 +196,7 @@ namespace CRMPhone.ViewModel
         {
             if(value == null)
                 return;
-            RingUpInfoList = new ObservableCollection<RingUpInfoDto>(_requestService.GetRingUpInfo(value.Id));
+            RingUpInfoList = new ObservableCollection<RingUpInfoDto>(RestRequestService.GetRingUpInfo(AppSettings.CurrentUser.Id,value.Id));
         }
 
         public ObservableCollection<RingUpHistoryDto> RingUpList
@@ -215,20 +211,6 @@ namespace CRMPhone.ViewModel
             set { _ringUpInfoList = value; OnPropertyChanged(nameof(RingUpInfoList));}
         }
 
-        private void EditPhone()
-        {
-
-            var model = new PhoneDialogViewModel(RequestService);
-            var view = new PhoneAddOrUpdateDialog();
-            model.SetView(view);
-            view.Owner = Application.Current.MainWindow;
-            view.DataContext = model;
-            if (view.ShowDialog() == true)
-            {
-                Refresh();
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
@@ -240,7 +222,7 @@ namespace CRMPhone.ViewModel
         public void Refresh()
         {
             RingUpInfoList = new ObservableCollection<RingUpInfoDto>();
-            RingUpList = new ObservableCollection<RingUpHistoryDto>(RequestService.GetRingUpHistory(FromDate));
+            RingUpList = new ObservableCollection<RingUpHistoryDto>(RestRequestService.GetRingUpHistory(AppSettings.CurrentUser.Id, FromDate));
         }
     }
 }

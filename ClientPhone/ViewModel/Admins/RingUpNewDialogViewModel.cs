@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -19,7 +20,6 @@ namespace CRMPhone.ViewModel.Admins
     {
         private Window _view;
 
-        private RequestService _requestService;
         private ObservableCollection<RingUpConfigDto> _configList;
         private RingUpConfigDto _selectedConfig;
         private List<RingUpImportDto> _importedRecords;
@@ -37,12 +37,11 @@ namespace CRMPhone.ViewModel.Admins
         }
 
 
-        public RingUpNewDialogViewModel(RequestService requestService)
+        public RingUpNewDialogViewModel()
         {
-            _requestService = requestService;
             _importedRecords = new List<RingUpImportDto>();
             _errorRecords = new List<RingUpImportDto>();
-            ConfigList = new ObservableCollection<RingUpConfigDto>(_requestService.GetRingUpConfigs());
+            ConfigList = new ObservableCollection<RingUpConfigDto>(RestRequestService.GetRingUpConfigs(AppSettings.CurrentUser.Id));
             SelectedConfig = ConfigList.FirstOrDefault();
             RecordCount = 0;
         }
@@ -161,7 +160,7 @@ namespace CRMPhone.ViewModel.Admins
                 MessageBox.Show("Загрузка невозможна!");
                 return;
             }
-            _requestService.SaveRingUpList(SelectedConfig.Id,_importedRecords);
+            RestRequestService.SaveRingUpList(AppSettings.CurrentUser.Id,SelectedConfig.Id,_importedRecords.ToArray());
             _view.DialogResult = true;
         }
 

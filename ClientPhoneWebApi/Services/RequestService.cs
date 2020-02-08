@@ -1587,6 +1587,76 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
                 }
             }
         }
+        public IList<RequestForListDto> GetAlertedRequests(int userId)
+        {
+            var sqlQuery = "call phone_client.get_alert_requests(@userId);";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd =
+                    new MySqlCommand(sqlQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    var requests = new List<RequestForListDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var recordUniqueId = dataReader.GetNullableString("recordId");
+                            requests.Add(new RequestForListDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                HasAttachment = dataReader.GetBoolean("has_attach"),
+                                IsBadWork = dataReader.GetBoolean("bad_work"),
+                                HasRecord = !string.IsNullOrEmpty(recordUniqueId),
+                                RecordUniqueId = recordUniqueId,
+                                StreetPrefix = dataReader.GetString("prefix_name"),
+                                StreetName = dataReader.GetString("street_name"),
+                                AddressType = dataReader.GetString("address_type"),
+                                Flat = dataReader.GetString("flat"),
+                                Building = dataReader.GetString("building"),
+                                Corpus = dataReader.GetNullableString("corps"),
+                                CreateTime = dataReader.GetDateTime("create_time"),
+                                Description = dataReader.GetNullableString("description"),
+                                ContactPhones = dataReader.GetNullableString("client_phones"),
+                                ParentService = dataReader.GetNullableString("parent_name"),
+                                Service = dataReader.GetNullableString("service_name"),
+                                Master = dataReader.GetNullableInt("worker_id") != null
+                                    ? new RequestUserDto
+                                    {
+                                        Id = dataReader.GetInt32("worker_id"),
+                                        SurName = dataReader.GetNullableString("sur_name"),
+                                        FirstName = dataReader.GetNullableString("first_name"),
+                                        PatrName = dataReader.GetNullableString("patr_name"),
+                                    }
+                                    : null,
+                                CreateUser = new RequestUserDto
+                                {
+                                    Id = dataReader.GetInt32("create_user_id"),
+                                    SurName = dataReader.GetNullableString("surname"),
+                                    FirstName = dataReader.GetNullableString("firstname"),
+                                    PatrName = dataReader.GetNullableString("patrname"),
+                                },
+                                ExecuteTime = dataReader.GetNullableDateTime("execute_date"),
+                                ExecutePeriod = dataReader.GetNullableString("Period_Name"),
+                                Rating = dataReader.GetNullableString("Rating"),
+                                RatingDescription = dataReader.GetNullableString("RatingDesc"),
+                                Status = dataReader.GetNullableString("Req_Status"),
+                                SpendTime = dataReader.GetNullableString("spend_time"),
+                                FromTime = dataReader.GetNullableDateTime("from_time"),
+                                ToTime = dataReader.GetNullableDateTime("to_time"),
+                                AlertTime = dataReader.GetNullableDateTime("alert_time"),
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return requests;
+                }
+            }
+        }
 
         public int? SaveNewRequest(int userId, string lastCallId, int addressId, int requestTypeId,
             ContactDto[] contactList, string requestMessage,
@@ -2750,7 +2820,173 @@ left join CallCenter.Users u on u.id = a.userId";
                 }
             }
         }
+        public List<RingUpInfoDto> GetRingUpInfo(int userId, int ringUpId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand("CALL phone_client.get_ring_up_info(@userId,@ringUpId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@ringUpId", ringUpId);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var ringUpHistoryDtos = new List<RingUpInfoDto>();
+                        while (dataReader.Read())
+                        {
+                            ringUpHistoryDtos.Add(new RingUpInfoDto
+                            {
 
+                                Phone = dataReader.GetNullableString("phone"),
+                                LastCallLength = dataReader.GetNullableInt("last_call_length"),
+                                LastCallTime = dataReader.GetNullableDateTime("last_call_time"),
+                                CalledCount = dataReader.GetNullableInt("called_count"),
+                                DoneCalls = dataReader.GetNullableString("done_calls")
+                            });
+                        }
+
+                        dataReader.Close();
+                        return ringUpHistoryDtos;
+                    }
+                }
+            }
+
+        }
+        public List<RingUpHistoryDto> GetRingUpHistory(int userId, DateTime fromDate)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd = new MySqlCommand("CALL phone_client.get_ring_up_history(@userId,@fromDate)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.Parameters.AddWithValue("@fromDate", fromDate);
+
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var ringUpHistoryDtos = new List<RingUpHistoryDto>();
+                        while (dataReader.Read())
+                        {
+                            ringUpHistoryDtos.Add(new RingUpHistoryDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetNullableString("name"),
+                                FromPhone = dataReader.GetNullableString("phone"),
+                                CallTime = dataReader.GetDateTime("call_time"),
+                                StateId = dataReader.GetInt32("state"),
+                                PhoneCount = dataReader.GetInt32("record_count"),
+                                DoneCalls = dataReader.GetInt32("done_calls"),
+                                NotDoneCalls = dataReader.GetInt32("not_done_calls"),
+                                StartTime = dataReader.GetNullableDateTime("start_time"),
+                                EndTime = dataReader.GetNullableDateTime("end_time"),
+                            });
+                        }
+
+                        dataReader.Close();
+                        return ringUpHistoryDtos;
+                    }
+                }
+            }
+
+        }
+        public void AbortRingUp(int userId, int ringUpId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd = new MySqlCommand(@"update asterisk.RingUpList set state = 3 where id = @ListId;",
+                    conn))
+                {
+                    cmd.Parameters.AddWithValue("@ListId", ringUpId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+        public void ContinueRingUp(int userId, int ringUpId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd = new MySqlCommand(@"update asterisk.RingUpList set state = 1 where id = @ListId;",
+                    conn))
+                {
+                    cmd.Parameters.AddWithValue("@ListId", ringUpId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+        public List<RingUpConfigDto> GetRingUpConfigs(int userId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                var query =
+                    "SELECT id,name,phone FROM asterisk.RingUpConfigs where service_company_id in (17,48,88,142)";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var configDtos = new List<RingUpConfigDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            configDtos.Add(new RingUpConfigDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Name = dataReader.GetString("name"),
+                                Phone = dataReader.GetString("phone")
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return configDtos.OrderBy(i => i.Name).ToList();
+                }
+            }
+        }
+        public void SaveRingUpList(int configId, RingUpImportDto[] records)
+        {
+            int newId;
+            if (records.Length == 0)
+                return;
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd = new MySqlCommand(
+                    @"insert into asterisk.RingUpList(config_id,call_time,state,exten) select id,sysdate(),2,exten from asterisk.RingUpConfigs a where a.id = @Config;
+    select LAST_INSERT_ID();", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Config", configId);
+                    newId = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+
+                foreach (var item in records)
+                {
+                    using (var cmd = new MySqlCommand(@"call asterisk.InsertDolgRingPhone(@ListId, @Phone, @Dolg);",
+                        conn))
+                    {
+                        cmd.Parameters.AddWithValue("@ListId", newId);
+                        cmd.Parameters.AddWithValue("@Phone", item.Phone);
+                        cmd.Parameters.AddWithValue("@Dolg", item.Dolg);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                using (var cmd = new MySqlCommand(@"update asterisk.RingUpList set state = 0 where id = @ListId;",
+                    conn))
+                {
+                    cmd.Parameters.AddWithValue("@ListId", newId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
         public TransferIntoDto[] GetTransferList(int userId)
         {
             var query = "call phone_client.get_transfer_list(@userId);";

@@ -111,21 +111,21 @@ namespace CRMPhone.ViewModel
 
             ServiceCompanyFondContext = new ServiceCompanyFondControlContext();
             ServiceCompanyDataContext = new ServiceCompanyControlContext();
-            WorkerAdminDataContext = new WorkerAdminControlContext();
             SpecialityAdminContext = new SpecialityControlContext();
             ServiceAdminContext = new ServiceAdminControlContext();
             HouseAdminContext = new HouseAdminControlContext();
             RedirectAdminContext = new RedirectAdminControlContext();
-            RingUpAdminContext = new RingUpAdminControlContext();
             BlackListContext = new BlackListControlContext();
             /**/
+            RingUpAdminContext = new RingUpAdminControlContext();
+            WorkerAdminDataContext = new WorkerAdminControlContext();
             AlertAndWorkContext = new AlertAndWorkControlContext();
             RequestDataContext = new RequestControlContext();
             AlertRequestDataContext = new AlertRequestControlContext();
             DispatcherContext = new DispatcherControlContext();
-
-            /*
             AlertRequestControlModel = new AlertRequestControlModel();
+            /*
+
             DispexRequestControlModel = new DispexRequestControlModel();
             ReportControlModel = new ReportControlModel();
             CallsNotificationContext = new CallsNotificationContext();
@@ -164,12 +164,10 @@ namespace CRMPhone.ViewModel
             /*
             ServiceCompanyFondContext.InitCollections();
             ServiceCompanyDataContext.RefreshList();
-            WorkerAdminDataContext.RefreshList();
             SpecialityAdminContext.RefreshList();
             ServiceAdminContext.RefreshParentServiceList();
             HouseAdminContext.RefreshCities();
             RedirectAdminContext.Refresh();
-            RingUpAdminContext.Refresh();
             BlackListContext.RefreshList();
             CallsNotificationContext.Init();
             /**/
@@ -177,6 +175,11 @@ namespace CRMPhone.ViewModel
             RequestDataContext.InitCollections();
             AlertRequestDataContext.InitCollections();
             DispatcherContext.InitCollections();
+                //todo Доделать
+            //WorkerAdminDataContext.RefreshList();
+            RingUpAdminContext.Refresh();
+
+
             OnPropertyChanged(nameof(IsAdminRoleExist));
             if (!string.IsNullOrEmpty(AppSettings.SipInfo?.SipUser))
             {
@@ -1966,7 +1969,7 @@ namespace CRMPhone.ViewModel
                 if (t.TotalSeconds > 30)
                 {
                     SendAlive();
-                    //RefreshAlertRequest();
+                    RefreshAlertRequest();
                     _lastAliveTime = DateTime.Now;
                 }
             }
@@ -1975,7 +1978,21 @@ namespace CRMPhone.ViewModel
                 // ignored
             }
         }
+        private void RefreshAlertRequest()
+        {
+            var alertedRequests = RestRequestService.GetAlertedRequests(AppSettings.CurrentUser.Id);
+            if (alertedRequests.Length > 0 && !_sipCallActive)
+            {
+                AlertRequestControlModel.RequestList.Clear();
+                foreach (var request in alertedRequests)
+                {
+                    AlertRequestControlModel.RequestList.Add(request);
+                }
+                AlertRequestControlModel.RequestCount = alertedRequests.Length;
+                mainWindow.ShowNotify("Напоминалка!", "Обнаружены заявки требующие контроля");
+            }
 
+        }
         private void RefreshCallTimeLines()
         {
             foreach (var sipLine in SipLines)

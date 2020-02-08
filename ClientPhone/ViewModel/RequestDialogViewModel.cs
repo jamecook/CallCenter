@@ -615,8 +615,9 @@ namespace CRMPhone.ViewModel
             view.DataContext = model;
             if(view.ShowDialog() ?? false)
             {
-                var currentTime = model.ByTime ? RestRequestService.GetCurrentDate().AddMinutes(model.SelectedTime.AddMinutes)
-                        :(model.SelectedDate ?? RestRequestService.GetCurrentDate()).Date.AddMinutes(model.SelectedDateTime.AddMinutes);
+                var currentTime = model.ClearAlert ? (DateTime?)null :
+                        model.ByTime ? RestRequestService.GetCurrentDate().AddMinutes(model.SelectedTime.AddMinutes) :
+                        (model.SelectedDate ?? RestRequestService.GetCurrentDate()).Date.AddMinutes(model.SelectedDateTime.AddMinutes);
                 requestModel.AlertTime = currentTime;
             }
 

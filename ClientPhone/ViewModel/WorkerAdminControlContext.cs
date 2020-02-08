@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using ClientPhone.Services;
 using CRMPhone.Dialogs;
 using CRMPhone.Dialogs.Admins;
 using CRMPhone.ViewModel.Admins;
@@ -117,12 +118,12 @@ namespace CRMPhone.ViewModel
         }
 
         public void RefreshList()
-        {
+        {return;
             if (_requestService == null)
                 _requestService = new RequestService(AppSettings.DbConnection);
             WorkersList.Clear();
-
-            _requestService.GetAllWorkers(null).ToList().ForEach(w => WorkersList.Add(w));
+            //todo Продолжить
+            //RestRequestService.GetAllWorkers(null).ToList().ForEach(w => WorkersList.Add(w));
             var filter = _view?.Filter;
             _view = new ListCollectionView(WorkersList);
             _view.Filter = filter;

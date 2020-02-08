@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml.Linq;
+using ClientPhone.Services;
 using CRMPhone.Annotations;
 using Microsoft.Win32;
 using RequestServiceImpl;
@@ -18,7 +19,6 @@ namespace CRMPhone.ViewModel
     public class AlertRequestControlModel : INotifyPropertyChanged
     {
         private ObservableCollection<RequestForListDto> _requestList;
-        private RequestServiceImpl.RequestService _requestService;
 
         private ICommand _playCommand;
         public ICommand PlayCommand { get { return _playCommand ?? (_playCommand = new RelayCommand(RecordPlay)); } }
@@ -31,20 +31,17 @@ namespace CRMPhone.ViewModel
             if (item == null)
                 return;
             var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
-            var fileName = _requestService.GetRecordFileNameByUniqueId(item.RecordUniqueId);
-            _requestService.PlayRecord(serverIpAddress, fileName);
-            /*
-            var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/","\\");
-            Process.Start(localFileName);
-            */
+            var fileName = RestRequestService.GetRecordFileNameByUniqueId(AppSettings.CurrentUser.Id, item.RecordUniqueId);
+            var tempFileName = $"{Path.GetTempPath()}{Guid.NewGuid().ToString()}.wav";
+            var recordBuf = RestRequestService.GetRecordById(AppSettings.CurrentUser.Id, fileName);
+            File.WriteAllBytes(tempFileName, recordBuf);
+            Process.Start(tempFileName);
         }
 
         private void RefreshRequest()
         {
-            if (_requestService == null)
-                _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             RequestList.Clear();
-            var requests = _requestService.GetAlertedRequests();
+            var requests = RestRequestService.GetAlertedRequests(AppSettings.CurrentUser.Id);
             foreach (var request in requests)
             {
                 RequestList.Add(request);
@@ -69,10 +66,8 @@ namespace CRMPhone.ViewModel
             var selectedItem = sender as RequestForListDto;
             if (selectedItem == null)
                 return;
-            if (_requestService == null)
-                _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
 
-            var request = _requestService.GetRequest(selectedItem.Id);
+            var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, selectedItem.Id);
             if (request == null)
             {
                 MessageBox.Show("Произошла непредвиденная ошибка!");
@@ -115,8 +110,8 @@ namespace CRMPhone.ViewModel
             requestModel.RequestCreator = request.CreateUser.ShortName;
             requestModel.RequestDate = request.CreateTime;
             requestModel.RequestState = request.State.Description;
-            requestModel.SelectedMaster = request.MasterId.HasValue ? _requestService.GetWorkerById(request.MasterId.Value) : null;
-            requestModel.SelectedExecuter = request.ExecuterId.HasValue ? _requestService.GetWorkerById(request.ExecuterId.Value) : null;
+            requestModel.SelectedMaster = request.MasterId.HasValue ? RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id,request.MasterId.Value) : null;
+            requestModel.SelectedExecuter = request.ExecuterId.HasValue ? RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id, request.ExecuterId.Value) : null;
             requestModel.RequestId = request.Id;
             requestModel.Rating = request.Rating;
             requestModel.AlertTime = request.AlertTime;
@@ -146,10 +141,6 @@ namespace CRMPhone.ViewModel
             RequestList = new ObservableCollection<RequestForListDto>();
         }
 
-        public void InitCollections()
-        {
-            _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
-        }
         public ObservableCollection<RequestForListDto> RequestList
         {
             get { return _requestList; }

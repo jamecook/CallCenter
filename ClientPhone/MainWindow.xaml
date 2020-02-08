@@ -599,7 +599,7 @@
                     </DataGrid>
                 </Grid>
             </TabItem>
-            <TabItem Name="NotifyRequest" Visibility="Collapsed">
+            <TabItem Name="NotifyRequest">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />
@@ -807,7 +807,7 @@
                 </TabItem.Header>
                 <Grid>
                     <TabControl TabStripPlacement="Left">
-                        <TabItem Name="UsersTab">
+                        <TabItem Name="UsersTab" Visibility="Collapsed">
                             <TabItem.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
@@ -816,7 +816,7 @@
                             </TabItem.Header>
                             <controls:UsersControl/>
                         </TabItem>
-                        <TabItem Name="ServiceCompanyTab">
+                        <TabItem Name="ServiceCompanyTab" Visibility="Collapsed">
                             <TabItem.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
@@ -825,7 +825,7 @@
                             </TabItem.Header>
                             <admins:ServiceCompanyControl DataContext="{Binding ServiceCompanyDataContext}"/>
                         </TabItem>
-                        <TabItem Name="SpecialitiesTab">
+                        <TabItem Name="SpecialitiesTab" Visibility="Collapsed">
                             <TabItem.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
@@ -843,7 +843,7 @@
                             </TabItem.Header>
                             <admins:WorkerAdminControl DataContext="{Binding WorkerAdminDataContext}"/>
                         </TabItem>
-                        <TabItem Name="ServicesTab">
+                        <TabItem Name="ServicesTab" Visibility="Collapsed">
                             <TabItem.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
@@ -852,7 +852,7 @@
                             </TabItem.Header>
                             <admins:ServiceAdminControl DataContext="{Binding ServiceAdminContext}"/>
                         </TabItem>
-                        <TabItem Name="HousesTab">
+                        <TabItem Name="HousesTab" Visibility="Collapsed">
                             <TabItem.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
@@ -870,7 +870,7 @@
                             </TabItem.Header>
                             <admins:RingUpAdminControl DataContext="{Binding RingUpAdminContext}"/>
                         </TabItem>
-                        <TabItem Name="BlackListTaab">
+                        <TabItem Name="BlackListTaab" Visibility="Collapsed">
                             <TabItem.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
@@ -879,7 +879,7 @@
                             </TabItem.Header>
                             <admins:BlackListControl DataContext="{Binding BlackListContext}"/>
                         </TabItem>
-                        <TabItem Name="CallsNotificationTab">
+                        <TabItem Name="CallsNotificationTab" Visibility="Collapsed">
                             <TabItem.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->

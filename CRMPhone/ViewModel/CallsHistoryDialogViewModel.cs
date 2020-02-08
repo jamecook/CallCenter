@@ -64,16 +64,9 @@ namespace CRMPhone.ViewModel
 
         private void SendSmsToCitizen(object obj)
         {
-            var request = _requestService.GetRequest(_requestId);
-            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
-            if (smsSettings.SendToClient && request.Contacts.Any(c => c.IsMain))
-            {
-                _requestService.SendSms(request.Id, smsSettings.Sender,
-                    request.Contacts.FirstOrDefault(c => c.IsMain)?.PhoneNumber,
-                    $"Заявка № {request.Id}. {request.Type.ParentName} - {request.Type.Name}", true);
-                MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
-                RefreshLists();
-            }
+            _requestService.SendSmsToClient(_requestId);
+            MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
+            RefreshLists();
         }
 
         private ICommand _sendSmsToWorkerCommand;
@@ -83,93 +76,17 @@ namespace CRMPhone.ViewModel
 
         private void SendSmsToWorker(object obj)
         {
-            var request = _requestService.GetRequest(_requestId);
-            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
-            var service = _requestService.GetServiceById(request.Type.Id);
-            var parrentService = request.Type.ParentId.HasValue ? _requestService.GetServiceById(request.Type.ParentId.Value) : null;
-            if (!((parrentService?.CanSendSms ?? true) && service.CanSendSms))
-            {
-                return;
-            }
-
-            if (!request.MasterId.HasValue)
-                return;
-            var worker = _requestService.GetWorkerById(request.MasterId.Value);
-            if(!worker.SendSms)
-                return;
-            string phones = "";
-            if (request.Contacts != null && request.Contacts.Length > 0)
-                phones = request.Contacts.OrderBy(c=>c.IsMain).Select(c =>
-                        {
-                            var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
-                            //if (!string.IsNullOrEmpty(c.Name))
-                            //{
-                            //    retVal += $" - {c.Name}";
-                            //}
-                            return retVal;
-                        }
-                ).FirstOrDefault();
-                        //.Aggregate((i, j) => i + ";" + j);
-            if (smsSettings.SendToWorker)
-            {
-                var immediateMessage = request.IsImmediate ? "АВАРИЙНАЯ " : "";
-                var smsText = $"{immediateMessage}{request.Id} {phones ?? ""} {request.Address.FullAddress}.{request.Type.Name}({request.Description ?? ""})";
-                if (!request.IsImmediate && smsText.Length > 70)
-                {
-                    smsText = smsText.Substring(0, 70);
-                }
-                _requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone, smsText,false);
-                MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
-                RefreshLists();
-            }
+            _requestService.SendSmsToWorker(_requestId, true, false);
+            MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
+            RefreshLists();
         }
         private void SendSmsToExecutor(object obj)
         {
-            var request = _requestService.GetRequest(_requestId);
-            var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
-            var service = _requestService.GetServiceById(request.Type.Id);
-            var parrentService = request.Type.ParentId.HasValue ? _requestService.GetServiceById(request.Type.ParentId.Value) : null;
-            if (!((parrentService?.CanSendSms ?? true) && service.CanSendSms))
-            {
-                return;
-            }
-            if (!request.ExecuterId.HasValue)
-                return;
-            var worker = _requestService.GetWorkerById(request.ExecuterId.Value);
-            if (!worker.SendSms)
-                return;
-            string phones = "";
-            if (request.Contacts != null && request.Contacts.Length > 0)
-                phones = request.Contacts.OrderBy(c=>c.IsMain).Select(c =>
-                        {
-                            var retVal = c.PhoneNumber.Length == 10 ? "8" + c.PhoneNumber : c.PhoneNumber;
-                            if (!string.IsNullOrEmpty(c.Name))
-                            {
-                                retVal += $" - {c.Name}";
-                            }
-                            return retVal;
-                        }
-                )
-                        .Aggregate((i, j) => i + ";" + j);
-            if (smsSettings.SendToWorker)
-            {
-                var smsText = $"{request.Id} {phones ?? ""} {request.Address.FullAddress}.{request.Type.Name}({request.Description ?? ""})";
-                if (smsText.Length > 70)
-                {
-                    smsText = smsText.Substring(0, 70);
-                }
-                //var smsText = $"№ {request.Id}. {request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.";
-                _requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone, smsText, false);
+            _requestService.SendSmsToWorker(_requestId, false, true);
+            MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
+            RefreshLists();
 
-
-                //_requestService.SendSms(request.Id, smsSettings.Sender, worker.Phone,
-                //    $"№ {request.Id}. {request.Type.ParentName}/{request.Type.Name}({request.Description}) {request.Address.FullAddress}. {phones}.",
-                //    false);
-                MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
-                RefreshLists();
-            }
         }
-
         private void Close(object sender)
         {
             _view.DialogResult = true;

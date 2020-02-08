@@ -391,6 +391,16 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetAlertTypes(userId));
         }
+       [HttpGet("GetAlertedRequests")]
+        public IActionResult GetAlertedRequests([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetAlertedRequests(userId));
+        }
         [HttpPut("RequestChangeAddress")]
         public IActionResult RequestChangeAddress([FromBody]ChangeAddressDto value)
         {
@@ -637,6 +647,39 @@ namespace ClientPhoneWebApi.Controllers
             RequestService.SaveAlert(value);
             return Ok();
         }
+        [HttpPost("SaveRingUpList")]
+        public IActionResult SaveRingUpList([FromBody]RingUpListDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.SaveRingUpList(value.ConfigId,value.Records);
+            return Ok();
+        }
+        [HttpPut("AbortRingUp")]
+        public IActionResult AbortRingUp([FromBody]RingUpOperDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.AbortRingUp(value.UserId,value.RingUpId);
+            return Ok();
+        }
+        [HttpPut("ContinueRingUp")]
+        public IActionResult ContinueRingUp([FromBody]RingUpOperDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.ContinueRingUp(value.UserId,value.RingUpId);
+            return Ok();
+        }
         [HttpPut("AddCallHistory")]
         public IActionResult AddCallHistory([FromBody]AddCallHistoryDto value)
         {
@@ -678,6 +721,16 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             return Ok(RequestService.GetExecuteDateHistoryByRequest(userId, requestId));
+        }
+        [HttpGet("GetRingUpConfigs")]
+        public IActionResult GetRingUpConfigs([FromQuery]int userId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetRingUpConfigs(userId));
         }
         [HttpGet("GetRequestRatings")]
         public IActionResult GetRequestRatings([FromQuery]int userId, [FromQuery]int requestId)
@@ -1016,6 +1069,26 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             return Ok(RequestService.GetTransferList(userId));
+        }
+        [HttpGet("GetRingUpHistory")]
+        public IActionResult GetRingUpHistory([FromQuery] int userId, [FromQuery] DateTime fromDate)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetRingUpHistory(userId, fromDate));
+        }
+        [HttpGet("GetRingUpInfo")]
+        public IActionResult GetRingUpInfo([FromQuery] int userId, [FromQuery] int ringUpId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetRingUpInfo(userId, ringUpId));
         }
         [HttpGet("login")]
         public IActionResult Login([FromQuery]string login,string password, string sipUser)

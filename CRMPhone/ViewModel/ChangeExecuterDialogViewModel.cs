@@ -57,7 +57,7 @@ namespace CRMPhone.ViewModel
             var t = FromTime;
             if (_oldMasterId == SelectedWorker.Id)
                 return;
-            _requestService.AddNewExecuter(_requestId,SelectedWorker.Id==-1 ? (int?) null : SelectedWorker.Id);
+            _requestService.AddNewExecutor(_requestId,SelectedWorker.Id==-1 ? (int?) null : SelectedWorker.Id);
             _oldMasterId = SelectedWorker.Id;
             _view.DialogResult = true;
         }

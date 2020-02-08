@@ -71,6 +71,12 @@ namespace CRMPhone.ViewModel
             set { _byDate = value; OnPropertyChanged(nameof(ByDate));}
         }
 
+        public bool ClearAlert
+        {
+            get => _clearAlert;
+            set { _clearAlert = value; OnPropertyChanged(nameof(ClearAlert));}
+        }
+
         public DateTime? SelectedDate
         {
             get { return _selectedDate; }
@@ -93,6 +99,7 @@ namespace CRMPhone.ViewModel
         private DateTime? _selectedDate;
         private ObservableCollection<AlertTimeDto> _alertDateTimes;
         private AlertTimeDto _selectedDateTime;
+        private bool _clearAlert;
         public ICommand CancelCommand { get { return _cancelCommand ?? (_cancelCommand = new RelayCommand(Cancel)); } }
 
 

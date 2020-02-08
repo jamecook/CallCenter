@@ -436,6 +436,17 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<AlertServiceTypeDto[]>(responce.Content);
         }
+        public static RingUpConfigDto[] GetRingUpConfigs(int userId)
+        {
+            var restUrl = $"{ApiUrl}/GetRingUpConfigs?userId={userId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<RingUpConfigDto[]>(responce.Content);
+        }
         public static WorkerDto GetWorkerById(int userId, int workerId)
         {
             var restUrl = $"{ApiUrl}/getWorkerById?userId={userId}&workerId={workerId}";
@@ -458,6 +469,36 @@ namespace ClientPhone.Services
                 MethodName = methodName
             };
             var restUrl = $"{ApiUrl}/RequestChangeAddress";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+        public static void AbortRingUp(int userId,int ringUpId)
+        {
+            var value = new RingUpOperDto
+            {
+                UserId = userId,
+                RingUpId = ringUpId
+            };
+            var restUrl = $"{ApiUrl}/AbortRingUp";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+        public static void ContinueRingUp(int userId,int ringUpId)
+        {
+            var value = new RingUpOperDto
+            {
+                UserId = userId,
+                RingUpId = ringUpId
+            };
+            var restUrl = $"{ApiUrl}/ContinueRingUp";
             var client = new RestClient(restUrl);
             var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
@@ -544,6 +585,23 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
 
         }
+        public static void SaveRingUpList(int userId, int configId, RingUpImportDto[] records)
+        {
+            var value = new RingUpListDto()
+            {
+                UserId = userId,
+                ConfigId = configId,
+                Records = records
+            };
+            var restUrl = $"{ApiUrl}/SaveRingUpList";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+
+        }
 
         public static void RequestChangeAddress(int userId, int requestId, int addressId)
         {
@@ -572,7 +630,7 @@ namespace ClientPhone.Services
                 Message = message,
                 Phone = phone
             };
-            var restUrl = $"{ApiUrl}/RequestChangeAddress";
+            var restUrl = $"{ApiUrl}/SendSms";
             var client = new RestClient(restUrl);
             var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
@@ -898,6 +956,39 @@ namespace ClientPhone.Services
 
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<StatusHistoryDto[]>(responce.Content);
+        }
+       public static RequestForListDto[] GetAlertedRequests(int userId)
+        {
+            var restUrl = $"{ApiUrl}/GetAlertedRequests?userId={userId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<RequestForListDto[]>(responce.Content);
+        }
+       public static RingUpHistoryDto[] GetRingUpHistory(int userId, DateTime fromDate)
+        {
+            var restUrl = $"{ApiUrl}/GetRingUpHistory?userId={userId}&fromDate={fromDate.ToString("yyyy-MM-dd")}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<RingUpHistoryDto[]>(responce.Content);
+        }
+       public static RingUpInfoDto[] GetRingUpInfo(int userId, int ringUpId)
+        {
+            var restUrl = $"{ApiUrl}/GetRingUpInfo?userId={userId}&ringUpId={ringUpId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<RingUpInfoDto[]>(responce.Content);
         }
        public static WorkerHistoryDto[] GetExecutorHistoryByRequest(int userId, int requestId)
         {

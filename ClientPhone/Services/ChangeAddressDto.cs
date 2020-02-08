@@ -152,4 +152,9 @@ namespace ClientPhone.Services
         public double Heating3 { get; set; }
         public double Heating4 { get; set; }
     }
+    public class RingUpOperDto
+    {
+        public int UserId { get; set; }
+        public int RingUpId { get; set; }
+    }
 }

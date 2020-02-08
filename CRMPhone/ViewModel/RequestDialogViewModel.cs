@@ -632,8 +632,9 @@ namespace CRMPhone.ViewModel
             view.DataContext = model;
             if(view.ShowDialog() ?? false)
             {
-                var currentTime = model.ByTime?_requestService.GetCurrentDate().AddMinutes(model.SelectedTime.AddMinutes)
-                        :(model.SelectedDate ?? _requestService.GetCurrentDate()).Date.AddMinutes(model.SelectedDateTime.AddMinutes);
+                var currentTime = model.ClearAlert ? (DateTime?)null : 
+                            model.ByTime?_requestService.GetCurrentDate().AddMinutes(model.SelectedTime.AddMinutes) :
+                            (model.SelectedDate ?? _requestService.GetCurrentDate()).Date.AddMinutes(model.SelectedDateTime.AddMinutes);
                 requestModel.AlertTime = currentTime;
             }
 
@@ -862,7 +863,9 @@ namespace CRMPhone.ViewModel
                 return;
             }
             //Надо УК брать из сохраненной заявки
-            var requestDto = _requestService.GetRequest(request.Value);
+            /*
+             var requestDto = _requestService.GetRequest(request.Value);
+
             var smsSettings = _requestService.GetSmsSettingsForServiceCompany(requestDto.ServiceCompanyId);
             if (smsSettings.SendToClient && ContactList.Any(c => c.IsMain) && requestModel.SelectedParentService.CanSendSms && requestModel.SelectedService.CanSendSms)
             {
@@ -870,11 +873,14 @@ namespace CRMPhone.ViewModel
                 _requestService.SendSms(request.Value, smsSettings.Sender,
                     mainClient.PhoneNumber, $"Заявка № {request.Value}. {requestModel.SelectedParentService.Name} - {requestModel.SelectedService.Name}", true);
             }
+            */
+            _requestService.SendSmsToClient(request.Value);
+
             requestModel.RequestId = request;
             if (requestModel.SelectedMaster != null && requestModel.SelectedMaster.Id > 0)
                 _requestService.AddNewMaster(request.Value, requestModel.SelectedMaster.Id);
             if (requestModel.SelectedExecuter!= null && requestModel.SelectedExecuter.Id > 0)
-                _requestService.AddNewExecuter(request.Value, requestModel.SelectedExecuter.Id);
+                _requestService.AddNewExecutor(request.Value, requestModel.SelectedExecuter.Id);
             if (requestModel.SelectedDateTime.HasValue)
                 _requestService.AddNewExecuteDate(request.Value, requestModel.SelectedDateTime.Value, requestModel.SelectedPeriod, "");
             if (requestModel.TermOfExecution.HasValue)

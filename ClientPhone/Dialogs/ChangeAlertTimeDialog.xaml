@@ -45,6 +45,11 @@
                                 </ComboBox>
                             </DockPanel>
                         </RadioButton>
+                        <RadioButton GroupName="SelectType" Margin="5" IsChecked="{Binding ClearAlert}">
+                            <DockPanel IsEnabled="{Binding ByDate}">
+                                    <TextBlock VerticalAlignment="Center" Text="Убрать напоминание"/>
+                            </DockPanel>
+                        </RadioButton>
 
                     </StackPanel>
                     <DockPanel Grid.Row="1" HorizontalAlignment="Right">

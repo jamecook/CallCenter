@@ -423,11 +423,6 @@ namespace RequestServiceImpl
         {
             
             _logger.Debug($"RequestService.AddNewMaster({requestId},{workerId})");
-            if (workerId.HasValue)
-            {
-                SendSmsToWorker(requestId, workerId.Value);
-            }
-
             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())
@@ -462,9 +457,36 @@ namespace RequestServiceImpl
                 throw;
             }
 
+            if (workerId.HasValue)
+                SendSmsToWorker(requestId, true,false);
         }
 
-        private void SendSmsToWorker(int requestId, int workerId)
+        public void SendSmsToWorker(int requestId, bool sendToMaster, bool sendToExecutor)
+        {
+            using (
+                var cmd =
+                    new MySqlCommand(@"call CallCenter.DesktopSendSms(@userId,@requestId,@sendToMaster,@sendToExecutor)", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@userId", AppSettings.CurrentUser.Id);
+                cmd.Parameters.AddWithValue("@requestId", requestId);
+                cmd.Parameters.AddWithValue("@sendToMaster", sendToMaster);
+                cmd.Parameters.AddWithValue("@sendToExecutor", sendToExecutor);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public void SendSmsToClient(int requestId)
+        {
+            using (
+                var cmd =
+                    new MySqlCommand(@"call CallCenter.DesktopSendClientSms(@userId,@requestId)", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@userId", AppSettings.CurrentUser.Id);
+                cmd.Parameters.AddWithValue("@requestId", requestId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        //todo Удалить
+        private void SendSmsToWorkerOld(int requestId, int workerId)
         {
             var request = GetRequest(requestId);
             var worker = GetWorkerById(workerId);
@@ -509,14 +531,10 @@ namespace RequestServiceImpl
             //SendSms(requestId, smsSettings.Sender, worker.Phone, $"Заявка № {requestId}. Услуга {request.Type.ParentName}. Причина {request.Type.Name}. Примечание: {request.Description}. Адрес: {request.Address.FullAddress}. Телефоны {phones}.");
         }
 
-        public void AddNewExecuter(int requestId, int? workerId)
+        public void AddNewExecutor(int requestId, int? workerId)
         {
-            _logger.Debug($"RequestService.AddNewExecuter({requestId},{workerId})");
-            if (workerId.HasValue)
-            {
-                SendSmsToWorker(requestId, workerId.Value);
-            }
-            try
+            _logger.Debug($"RequestService.AddNewExecutor({requestId},{workerId})");
+             try
             {
                 using (var transaction = _dbConnection.BeginTransaction())
                 {
@@ -542,6 +560,7 @@ namespace RequestServiceImpl
                     }
 
                     transaction.Commit();
+
                 }
             }
             catch (Exception exc)
@@ -550,6 +569,8 @@ namespace RequestServiceImpl
                 throw;
             }
 
+             if (workerId.HasValue)
+                 SendSmsToWorker(requestId, false, true);
         }
 
         public void AddNewState(int requestId, int stateId,int userId = 0)
@@ -4301,7 +4322,8 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
                 }
             }
 
-        }public List<RingUpInfoDto> GetRingUpInfo(int id)
+        }
+        public List<RingUpInfoDto> GetRingUpInfo(int id)
         {
             using (var cmd = new MySqlCommand("CALL CallCenter.GetRingUpInfo(@RingUpId)", _dbConnection))
             {
