@@ -2926,10 +2926,11 @@ left join CallCenter.Users u on u.id = a.userId";
             {
                 conn.Open();
 
-                var query =
-                    "SELECT id,name,phone FROM asterisk.RingUpConfigs where service_company_id in (17,48,88,142)";
+                var query = "call phone_client.get_ring_up_configs(@userId);";
                 using (var cmd = new MySqlCommand(query, conn))
                 {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+
                     var configDtos = new List<RingUpConfigDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
