@@ -663,6 +663,8 @@
     <Resource Include="Images\screen32.png" />
     <Resource Include="Images\filter.png" />
     <Resource Include="Images\audio_settings_48.png" />
+    <Resource Include="Images\add.png" />
+    <Resource Include="Images\refresh.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

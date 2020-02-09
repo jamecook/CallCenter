@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using CRMPhone.Annotations;
 using System.Windows;
+using System.Windows.Input;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
 using RudiGrobler.Calendar.Common;
@@ -71,12 +72,46 @@ namespace CRMPhone.ViewModel
             });
             SelectedGaranty = GarantyList.FirstOrDefault();
         }
+        private ICommand _addNoteCommand;
+        public ICommand AddNoteCommand { get { return _addNoteCommand ?? (_addNoteCommand = new CommandHandler(AddNote, true)); } }
+        private ICommand _refreshNoteCommand;
+        public ICommand RefreshNoteCommand { get { return _refreshNoteCommand ?? (_refreshNoteCommand = new CommandHandler(RefreshNote, true)); } }
+
+        public ObservableCollection<NoteDto> NoteList
+        {
+            get { return _noteList; }
+            set { _noteList = value; OnPropertyChanged(nameof(NoteList));}
+        }
+
+        private void RefreshNote()
+        {
+            if (!_requestId.HasValue)
+                return;
+            NoteList = new ObservableCollection<NoteDto>(_requestService.GetNotes(_requestId.Value));
+        }
+
+        private void AddNote()
+        {
+            if(!_requestId.HasValue)
+                return;
+            _requestService.AddNewNote(_requestId.Value, Note, null);
+            Note = "";
+            RefreshNote();
+        }
+
+        public AttachmentDto SelectedNoteItem
+        {
+            get { return _selectedNoteItem; }
+            set { _selectedNoteItem = value; OnPropertyChanged(nameof(SelectedNoteItem));}
+        }
 
         private Appointment _selectedAppointment;
         private string _phoneNumber;
         //private bool _canAttach;
         private string _selectedServiceText;
         private string _selectedParentText;
+        private ObservableCollection<NoteDto> _noteList;
+        private AttachmentDto _selectedNoteItem;
         public Appointment OpenAppointment { get; set; }
 
         public Appointment SelectedAppointment
@@ -91,6 +126,7 @@ namespace CRMPhone.ViewModel
                 OnPropertyChanged(nameof(CanSave));
                 OnPropertyChanged(nameof(CanEdit));
                 OnPropertyChanged(nameof(RequestId));
+                RefreshNote();
                 //OnPropertyChanged(nameof(CanAttachRecord));
             }
         }
@@ -247,7 +283,7 @@ namespace CRMPhone.ViewModel
             get { return _description; }
             set { _description = value; OnPropertyChanged(nameof(Description)); }
         }
-
+        public string Note { get; set; }
         public DateTime? AlertTime
         {
             get { return _alertTime; }
