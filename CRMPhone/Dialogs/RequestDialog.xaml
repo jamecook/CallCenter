@@ -7,7 +7,7 @@
         xmlns:controls="clr-namespace:CRMPhone.Controls"
         xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         mc:Ignorable="d"
-        Title="Заявка" MinHeight="750" MaxHeight="750" MinWidth ="980" MaxWidth="980" Height="750" Width="980"
+        Title="Заявка" MinHeight="780" MinWidth ="980" MaxWidth="980" Height="800" Width="980"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         FontSize="12"
@@ -231,7 +231,7 @@
                     <Button Margin ="3" Content="Информация по УК" Width="120" Command="{Binding GetScInfoCommand}"
                             HorizontalAlignment="Left"/>
                 </DockPanel>
-                <ListBox Name ="RequestList" Height="340"
+                <ListBox Name ="RequestList" Height="370"
                      ScrollViewer.CanContentScroll="False"
                      ItemsSource="{Binding Path=RequestList}" 
                      SelectedItem ="{Binding Path=SelectedRequest}"
