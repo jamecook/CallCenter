@@ -159,6 +159,9 @@
       <DependentUpon>ServiceCompanyFondControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomComboBox.cs" />
+    <Compile Include="Dialogs\Admins\BindWorkerToWorkerDialog.xaml.cs">
+      <DependentUpon>BindWorkerToWorkerDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\AudioSettingsDialog.xaml.cs">
       <DependentUpon>AudioSettingsDialog.xaml</DependentUpon>
     </Compile>
@@ -275,6 +278,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="ViewModel\Admins\BindWorkerToWorkerDialogViewModel.cs" />
     <Compile Include="ViewModel\AudioSettingsDialogViewModel.cs" />
     <Compile Include="ViewModel\EditFondDialogViewModel.cs" />
     <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
@@ -430,6 +434,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\ServiceCompanyFondControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\Admins\BindWorkerToWorkerDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

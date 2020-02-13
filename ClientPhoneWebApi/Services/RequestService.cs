@@ -1933,6 +1933,31 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
 
             return retVal;
         }
+        public string GetSipServer()
+        {
+            string retVal = null;
+            var query =
+                    $@"call phone_client.get_sip_server()";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        if (dataReader.Read())
+                        {
+                            retVal = dataReader.GetNullableString("sip_ip");
+                        }
+
+                        dataReader.Close();
+                    }
+                }
+            }
+
+            return retVal;
+        }
 
         public ScheduleTaskDto[] GetScheduleTasks(int userId, int workerId, DateTime fromDate, DateTime toDate)
         {

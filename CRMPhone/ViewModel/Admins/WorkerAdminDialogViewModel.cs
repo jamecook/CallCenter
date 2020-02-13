@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace CRMPhone.ViewModel.Admins
         private ICommand _saveCommand;
         private ICommand _bindCompanyCommand;
         private ICommand _addressesCommand;
+        private ICommand _attachWorkerCommand;
         private string _surName;
         private string _firstName;
         private string _patrName;
@@ -221,6 +223,22 @@ namespace CRMPhone.ViewModel.Admins
         public ICommand SaveCommand { get { return _saveCommand ?? (_saveCommand = new RelayCommand(Save)); } }
         public ICommand BindCompanyCommand { get { return _bindCompanyCommand ?? (_bindCompanyCommand = new RelayCommand(BindCompany)); } }
         public ICommand AddressesCommand { get { return _addressesCommand ?? (_addressesCommand = new RelayCommand(AddressesBinding)); } }
+        public ICommand AttachWorkerCommand { get { return _attachWorkerCommand ?? (_attachWorkerCommand = new RelayCommand(AttachWorkerBinding)); } }
+
+        private void AttachWorkerBinding(object obj)
+        {
+            if (!_workerId.HasValue)
+            {
+                MessageBox.Show(_view, "Можно привязывать только предварительно сохранив исполнителя!(Сохраните, закройте и войдите повторно в это окно)");
+                return;
+            }
+            var model = new BindWorkerToWorkerDialogViewModel(_requestService, _workerId.Value);
+            var view = new BindWorkerToWorkerDialog();
+            view.DataContext = model;
+            view.Owner = _view;
+            model.SetView(view);
+            view.ShowDialog();
+        }
 
         private void BindCompany(object obj)
         {

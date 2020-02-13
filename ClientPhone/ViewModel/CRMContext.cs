@@ -91,7 +91,8 @@ namespace CRMPhone.ViewModel
         {
             ContextSaver.CrmContext = this;
             IsMuted = false;
-            _serverIP = ConfigurationManager.AppSettings["CallCenterIP"];
+
+            _serverIP = RestRequestService.GetSipServer();//ConfigurationManager.AppSettings["CallCenterIP"];
             LineNum = 0;
             _canRegistration = true;
             _canExecute = true;
@@ -356,7 +357,6 @@ namespace CRMPhone.ViewModel
         private void DownloadRecord(object obj)
         {
             var record = obj as CallsListDto;
-            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
             var saveDialog = new SaveFileDialog();
             saveDialog.AddExtension = true;
             saveDialog.DefaultExt = ".wav";
@@ -372,7 +372,6 @@ namespace CRMPhone.ViewModel
         private void PlayRecord(object obj)
         {
             var record = obj as CallsListDto;
-            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
 
             //_requestService.PlayRecord(serverIpAddress,record.MonitorFileName);
 /*

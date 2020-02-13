@@ -98,7 +98,7 @@
                         <CheckBox Margin="5" IsChecked="{Binding Path=CanChangeExecutor}">Смена исполнителя</CheckBox>
                         <CheckBox Margin="5" IsChecked="{Binding Path=ShowOnlyGaranty}">Только гарантия</CheckBox>
                         <CheckBox Margin="5" IsChecked="{Binding Path=FilterByHouses}">Список домов</CheckBox>
-                        <CheckBox Margin="5" IsChecked="{Binding ShowOnlyMy}" Content="Только мои заявки"/>
+                        <CheckBox Margin="5" IsChecked="{Binding ShowOnlyMy}" Content="Только мои заявки (+прикрепленных)"/>
                     </WrapPanel>
                 </Border>
                 <Border BorderThickness="1" BorderBrush="Black">
@@ -119,8 +119,9 @@
             </Button>
         </StackPanel>
             <DockPanel Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
-            <Button Margin="5" Width="120" Height="24" Command="{Binding Path=SaveCommand}">Сохранить</Button>
-            <Button Margin="5" Width="180" Height="24" Command="{Binding Path=AddressesCommand}">Адреса для доступа в Вебе</Button>
+            <Button Margin="5" Width="100" Height="24" Command="{Binding Path=SaveCommand}">Сохранить</Button>
+            <Button Margin="5" Width="160" Height="24" Command="{Binding Path=AddressesCommand}">Адреса для доступа в Вебе</Button>
+            <Button Margin="5" Width="100" Height="24" Command="{Binding Path=AttachWorkerCommand}">Прикрепленные</Button>
         </DockPanel>
     </Grid>
 </Window>

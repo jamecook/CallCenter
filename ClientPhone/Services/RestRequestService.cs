@@ -51,6 +51,18 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<SipDto>(responce.Content);
         }
+        public static string GetSipServer()
+        {
+            var restUrl = $"{ApiUrl}/GetSipServer";
+
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            var responce = client.Execute(request);
+            return JsonConvert.DeserializeObject<string>(responce.Content);
+        }
 
         public static UserDto[] GetDispatchers(int companyId)
         {

@@ -118,14 +118,14 @@
                             </ComboBox.Resources>
                         </ComboBox>
                     </DockPanel>
-                    <TextBlock Margin="3" VerticalAlignment="Center" Text="Срок исполнения:"/>
-                    <DatePicker  Margin="3"  VerticalAlignment="Center" Width="100" SelectedDate="{Binding TermOfExecution}">
+                    <TextBlock Visibility="Collapsed" Margin="3" VerticalAlignment="Center" Text="Срок исполнения:"/>
+                    <DatePicker Visibility="Collapsed" Margin="3"  VerticalAlignment="Center" Width="100" SelectedDate="{Binding TermOfExecution}">
                     </DatePicker>
-                    <Button Margin="5" Width="32" Height="32" Command="{Binding ElementName=RequestGrid, Path=DataContext.OpenCalendarCommand}"
+                    <Button Visibility="Collapsed" Margin="5" Width="32" Height="32" Command="{Binding ElementName=RequestGrid, Path=DataContext.OpenCalendarCommand}"
                             CommandParameter="{Binding ElementName=RequestList, Path=SelectedItem}">
                         <Image Source="pack://application:,,,/Images/Calendar_small.png"/>
                     </Button>
-                    <TextBlock Margin="3" VerticalAlignment="Center" Text="{Binding SelectedAppointment}"/>
+                    <TextBlock Visibility="Collapsed" Margin="3" VerticalAlignment="Center" Text="{Binding SelectedAppointment}"/>
                 </WrapPanel>
                 <WrapPanel Grid.Row="4" Grid.Column="0">
                     <TextBlock Margin="3" VerticalAlignment="Center" Text="Примечание:"/>

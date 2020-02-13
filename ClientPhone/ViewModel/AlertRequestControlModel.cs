@@ -30,7 +30,6 @@ namespace CRMPhone.ViewModel
             var item = obj as RequestForListDto;
             if (item == null)
                 return;
-            var serverIpAddress = ConfigurationManager.AppSettings["CallCenterIP"];
             var fileName = RestRequestService.GetRecordFileNameByUniqueId(AppSettings.CurrentUser.Id, item.RecordUniqueId);
             var tempFileName = $"{Path.GetTempPath()}{Guid.NewGuid().ToString()}.wav";
             var recordBuf = RestRequestService.GetRecordById(AppSettings.CurrentUser.Id, fileName);

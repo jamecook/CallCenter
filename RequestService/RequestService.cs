@@ -1757,7 +1757,8 @@ order by t.weigth, w.sur_name, w.first_name, w.patr_name";
         {
             var query = @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher,w.login,w.send_notification,w.enabled FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
-    left join CallCenter.Speciality sp on sp.id = w.speciality_id";
+    left join CallCenter.Speciality sp on sp.id = w.speciality_id
+    where 1=1";
             query += serviceCompanyId.HasValue ? " and service_company_id = " + serviceCompanyId : "";
             query += " order by sur_name,first_name,patr_name";
             using (var cmd = new MySqlCommand(query, _dbConnection))
@@ -1795,6 +1796,63 @@ order by t.weigth, w.sur_name, w.first_name, w.patr_name";
             }
         }
 
+
+        public void BindWorkerToWorker(int workerId, int bindedWorkerId)
+        {
+                 using (var cmd = new MySqlCommand(@"insert into CallCenter.WorkersRelations(parent_worker_id,dependent_worker_id) 
+    values(@workerId,@bindedWorkerId);", _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@workerId", workerId);
+                    cmd.Parameters.AddWithValue("@bindedWorkerId", bindedWorkerId);
+                    cmd.ExecuteNonQuery();
+                }
+        }
+
+        public IList<WorkerDto> GetBindedWorkers(int workerId)
+        {
+            var query = @"SELECT w.* FROM CallCenter.WorkersRelations r
+join CallCenter.Workers w on w.id = r.dependent_worker_id and w.enabled = 1
+where r.parent_worker_id = @workerId";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@workerId", workerId);
+                var workers = new List<WorkerDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        workers.Add(new WorkerDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            ServiceCompanyId = dataReader.GetNullableInt("service_company_id"),
+                            SurName = dataReader.GetString("sur_name"),
+                            FirstName = dataReader.GetNullableString("first_name"),
+                            PatrName = dataReader.GetNullableString("patr_name"),
+                            SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            Phone = dataReader.GetNullableString("phone"),
+                            CanAssign = dataReader.GetBoolean("can_assign"),
+                            SendSms = dataReader.GetBoolean("send_sms"),
+                            AppNotification = dataReader.GetBoolean("send_notification"),
+                            IsMaster = dataReader.GetBoolean("is_master"),
+                            IsExecuter = dataReader.GetBoolean("is_executer"),
+                            IsDispetcher = dataReader.GetBoolean("is_dispetcher"),
+                            ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return workers;
+            }
+        }
+        public void DeleteBindedWorker(int workerId, int dropWorkerId)
+        {
+            using (var cmd = new MySqlCommand(@"delete from CallCenter.WorkersRelations where parent_worker_id = @workerId and dependent_worker_id = @dropWorkerId;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@workerId", workerId);
+                cmd.Parameters.AddWithValue("@dropWorkerId", dropWorkerId);
+                cmd.ExecuteNonQuery();
+            }
+        }
 
         public IList<WorkerDto> GetMasters(int? serviceCompanyId, bool showOnlyExecutors = true)
         {

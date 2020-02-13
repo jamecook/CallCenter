@@ -1059,6 +1059,16 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetOnlyActiveCallUniqueIdByCallId(userId, callId));
         }
+        [HttpGet("GetSipServer")]
+        public IActionResult GetSipServer()
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetSipServer());
+        }
 
         [HttpGet("getTransferList")]
         public IActionResult GetTransferList([FromQuery] int userId)
