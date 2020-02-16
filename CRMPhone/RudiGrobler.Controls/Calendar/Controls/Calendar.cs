@@ -192,8 +192,63 @@ namespace RudiGrobler.Controls
             {
                 _day.PopulateDay();
             }
-
+            CurrentDateText = RussianDayOfWeek(CurrentDate) +" "+ CurrentDate.ToString("dd.MM.yyyy");
             FilterAppointments(CurrentDate);
+        }
+
+        public string RussianDayOfWeek(DateTime date)
+        {
+            var result = string.Empty;
+            switch (date.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    result = "Понедельник";
+                    break;
+                case DayOfWeek.Tuesday:
+                    result = "Вторник";
+                    break;
+                case DayOfWeek.Wednesday:
+                    result = "Среда";
+                    break;
+                case DayOfWeek.Thursday:
+                    result = "Четверг";
+                    break;
+                case DayOfWeek.Friday:
+                    result = "Пятница";
+                    break;
+                case DayOfWeek.Saturday:
+                    result = "Суббота";
+                    break;
+                case DayOfWeek.Sunday:
+                    result = "Воскресенье";
+                    break;
+            }
+            return result;
+        }
+
+        #endregion           
+        #region CurrentDateText
+
+        public static readonly DependencyProperty CurrentDateTextProperty =
+            DependencyProperty.Register("CurrentDateText", typeof(string), typeof(Calendar),
+                new FrameworkPropertyMetadata((string)string.Empty, FrameworkPropertyMetadataOptions.AffectsRender,
+                    new PropertyChangedCallback(OnCurrentDateTextChanged)));
+
+        [Category("Calendar")]
+        [EditorBrowsable(EditorBrowsableState.Always)]
+        public string CurrentDateText
+        {
+            get { return (string)GetValue(CurrentDateTextProperty); }
+            set { SetValue(CurrentDateTextProperty, value); }
+        }
+
+        private static void OnCurrentDateTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((Calendar)d).OnCurrentDateTextChanged(e);
+        }
+
+        protected virtual void OnCurrentDateTextChanged(DependencyPropertyChangedEventArgs e)
+        {
         }
 
         #endregion             

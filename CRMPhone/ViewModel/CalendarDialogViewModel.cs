@@ -25,6 +25,7 @@ namespace CRMPhone.ViewModel
             _requestService = requestService;
             _requestId = requestId;
             ScheduleTaskList = new ObservableCollection<Appointment>(GetList());
+            CurrentDate = DateTime.Now.Date;
         }
 
         public ObservableCollection<Appointment> ScheduleTaskList
@@ -36,7 +37,7 @@ namespace CRMPhone.ViewModel
         {
             ScheduleTaskList = new ObservableCollection<Appointment>(GetList());
         }
-
+        public DateTime CurrentDate { get; set; }
         private IList<Appointment> GetList()
         {
             var retVal = new List<Appointment>();

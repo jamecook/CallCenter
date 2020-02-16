@@ -45,8 +45,8 @@ namespace RudiGrobler.Controls
 
         void PopulateHeader()
         {
-            BindingBase binding = GetOwnerBinding("CurrentDate");
-            binding.StringFormat = "{0:D}";
+            BindingBase binding = GetOwnerBinding("CurrentDateText");
+            //binding.StringFormat = "{0:yyyy-MM-dd}";
             _dayHeaderLabel.SetBinding(TextBlock.TextProperty, binding);
         }
     }
