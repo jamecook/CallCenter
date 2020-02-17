@@ -342,6 +342,22 @@ namespace CRMPhone.ViewModel
         private ICommand _addMeterCommand;
         public ICommand AddMeterCommand { get { return _addMeterCommand ?? (_addMeterCommand = new CommandHandler(AddMeters, _canExecute)); } }
 
+        private ICommand _openMetersCommand;
+        public ICommand OpenMetersCommand { get { return _openMetersCommand ?? (_openMetersCommand = new RelayCommand(OpenMeters)); } }
+
+        private void OpenMeters(object sender)
+        {
+            var selectedItem = sender as MeterListDto;
+            if (selectedItem == null)
+                return;
+            var model = new MeterDeviceViewModel(selectedItem);
+            var view = new MeterDeviceDialog();
+            model.SetView(view);
+            model.PhoneNumber = LastAnsweredPhoneNumber;
+            view.DataContext = model;
+            view.Owner = mainWindow;
+            view.ShowDialog();
+        }
         private void AddMeters()
         {
             var model = new MeterDeviceViewModel();
