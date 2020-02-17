@@ -36,6 +36,7 @@ namespace CRMPhone.ViewModel
         private readonly DispatcherTimer _refreshTimer;
         //private UserAgent _sipAgent;
         private SIPClientCtl _sipClient;
+        private string _version;
 
 
         private SipLine[] _sipLinesArray = {new SipLine { Id = 0, Name = "Линия 1:"}, new SipLine { Id = 1, Name = "Линия 2:" } };
@@ -108,6 +109,7 @@ namespace CRMPhone.ViewModel
             _ringPlayer = new SoundPlayer(Application.GetResourceStream(uri).Stream);
             _lastAliveTime = DateTime.Today;
             EnablePhone = false;
+            _version = Assembly.GetEntryAssembly().GetName().Version.ToString();
             /*
 
             ServiceCompanyFondContext = new ServiceCompanyFondControlContext();
@@ -2030,7 +2032,7 @@ namespace CRMPhone.ViewModel
 
         private void SendAlive()
         {
-            RestRequestService.SendAlive(AppSettings.CurrentUser.Id, AppSettings.SipInfo.SipUser);
+            RestRequestService.SendAlive(AppSettings.CurrentUser.Id, AppSettings.SipInfo.SipUser, _version);
         }
 
         private void RefreshActiveChannels()

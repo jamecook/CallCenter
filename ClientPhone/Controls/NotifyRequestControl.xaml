@@ -95,7 +95,7 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Время напоминания" Width="150"
-                             Binding="{Binding Path=CreateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}">
+                             Binding="{Binding Path=AlertTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextWrapping" Value="Wrap"/>

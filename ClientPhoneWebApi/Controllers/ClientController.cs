@@ -945,14 +945,14 @@ namespace ClientPhoneWebApi.Controllers
             return Ok(RequestService.GetDispatcherStatistics(userId));
         }
         [HttpGet("sendAlive")]
-        public IActionResult SendAlive([FromQuery]int userId, [FromQuery]string sipUser)
+        public IActionResult SendAlive([FromQuery]int userId, [FromQuery]string sipUser, [FromQuery]string version)
         {
             var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
             if (auth.Value != ApiKey)
             {
                 return BadRequest("Authorization error!");
             }
-            RequestService.SendAlive(userId, sipUser);
+            RequestService.SendAlive(userId, sipUser, version);
             return Ok();
         }
         [HttpGet("logout")]

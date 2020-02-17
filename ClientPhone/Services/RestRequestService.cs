@@ -404,7 +404,7 @@ namespace ClientPhone.Services
         }
         public static ServiceDto GetServiceById(int userId, int serviceId)
         {
-            var restUrl = $"{ApiUrl}/getRequest?userId={userId}&serviceId={serviceId}";
+            var restUrl = $"{ApiUrl}/GetServiceById?userId={userId}&serviceId={serviceId}";
             var client = new RestClient(restUrl);
             var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
@@ -1227,9 +1227,9 @@ namespace ClientPhone.Services
             return JsonConvert.DeserializeObject<int>(responce.Content);
         }
 
-        public static void SendAlive(int userId,string sipUser)
+        public static void SendAlive(int userId, string sipUser, string version)
         {
-            var restUrl = $"{ApiUrl}/sendAlive?userId={userId}&sipUser={sipUser}";
+            var restUrl = $"{ApiUrl}/sendAlive?userId={userId}&sipUser={sipUser}&version={version}";
 
             var client = new RestClient(restUrl);
             var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };

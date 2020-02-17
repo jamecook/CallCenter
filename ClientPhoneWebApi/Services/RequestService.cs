@@ -3170,17 +3170,18 @@ left join CallCenter.Users u on u.id = a.userId";
             }
         }
 
-        public void SendAlive(int userId, string sipUser)
+        public void SendAlive(int userId, string sipUser, string version)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 using (
                     var cmd =
-                        new MySqlCommand(@"call CallCenter.SendAliveAndSip(@UserId,@Sip)", conn))
+                        new MySqlCommand(@"call phone_client.send_alive(@UserId,@Sip,@version)", conn))
                 {
                     cmd.Parameters.AddWithValue("@UserId", userId);
                     cmd.Parameters.AddWithValue("@Sip", sipUser);
+                    cmd.Parameters.AddWithValue("@version", version);
                     cmd.ExecuteNonQuery();
                 }
             }

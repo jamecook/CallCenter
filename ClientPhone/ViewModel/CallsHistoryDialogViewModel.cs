@@ -80,7 +80,7 @@ namespace CRMPhone.ViewModel
         public ICommand SendSmsToWorkerCommand { get { return _sendSmsToWorkerCommand ?? (_sendSmsToWorkerCommand = new RelayCommand(SendSmsToWorker)); } }
         private ICommand _sendSmsToExecutorCommand;
         public ICommand SendSmsToExecutorCommand { get { return _sendSmsToExecutorCommand ?? (_sendSmsToExecutorCommand = new RelayCommand(SendSmsToExecutor)); } }
-
+        //todo Переделать на версию в базе
         private void SendSmsToWorker(object obj)
         {
             var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, _requestId);
@@ -122,6 +122,7 @@ namespace CRMPhone.ViewModel
                 RefreshLists();
             }
         }
+        //todo Переделать на версию в базе
         private void SendSmsToExecutor(object obj)
         {
             var request = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, _requestId);

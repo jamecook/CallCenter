@@ -395,7 +395,7 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image  Source="pack://application:,,,/Images/phones.png" Stretch="UniformToFill" Height="28" />
-                        <TextBlock Margin="3" Text="Диспетчера"/>
+                        <TextBlock Margin="3" Text="Диспетчеры"/>
                     </StackPanel>
                 </TabItem.Header>
                 <controls:DispatcherControl DataContext="{Binding DispatcherContext}"/>

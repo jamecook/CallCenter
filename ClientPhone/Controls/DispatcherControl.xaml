@@ -64,7 +64,7 @@
                             <Setter Property="Foreground" Value="{Binding Color}"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
+                </DataGridTextColumn>-->
                 <DataGridTextColumn Header="Версия" Width="60"
                                     Binding="{Binding Path=Version}">
                     <DataGridTextColumn.ElementStyle>
@@ -73,7 +73,7 @@
                             <Setter Property="Margin" Value="3"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>-->
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="Direction" Width="65"
                                     Binding="{Binding Path=Direction}">
                     <DataGridTextColumn.ElementStyle>
