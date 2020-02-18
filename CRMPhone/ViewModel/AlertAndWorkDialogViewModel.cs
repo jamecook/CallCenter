@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace CRMPhone.ViewModel
         private StreetDto _selectedStreet;
         private ObservableCollection<HouseDto> _houseList;
         private HouseDto _selectedHouse;
+        private ObservableCollection<AlertTimeDto> _alertDateTimes;
 
         private AlertDto _alert;
 
@@ -116,7 +118,11 @@ namespace CRMPhone.ViewModel
             get { return _fromDate; }
             set { _fromDate = value; OnPropertyChanged(nameof(FromDate));}
         }
-
+        public ObservableCollection<AlertTimeDto> AlertDateTimes
+        {
+            get { return _alertDateTimes; }
+            set { _alertDateTimes = value; OnPropertyChanged(nameof(AlertDateTimes)); }
+        }
         public DateTime? ToDate
         {
             get { return _toDate; }
@@ -173,8 +179,8 @@ namespace CRMPhone.ViewModel
                     ServiceType = new AlertServiceTypeDto() { Id = SelectedService.Id},
                 };
             }
-            alert.StartDate = FromDate;
-            alert.EndDate = ToDate;
+            alert.StartDate = FromDate.Date.AddMinutes(SelectedFromTime.AddMinutes);
+            alert.EndDate = ToDate?.Date.AddMinutes(SelectedToTime.AddMinutes);
             alert.Description = Description;
 
             _requestService.SaveAlert(alert);
@@ -203,6 +209,19 @@ namespace CRMPhone.ViewModel
         public DateTime FromTime { get; set; }
         public DateTime? ToTime { get; set; }
 
+        private AlertTimeDto _selectedFromTime;
+        public AlertTimeDto SelectedFromTime
+        {
+            get { return _selectedFromTime; }
+            set { _selectedFromTime = value; OnPropertyChanged(nameof(SelectedFromTime)); }
+        }
+        private AlertTimeDto _selectedToTime;
+        public AlertTimeDto SelectedToTime
+        {
+            get { return _selectedToTime; }
+            set { _selectedToTime = value; OnPropertyChanged(nameof(SelectedToTime)); }
+        }
+
 
         public AlertAndWorkDialogViewModel(AlertDto alert)
         {
@@ -215,6 +234,15 @@ namespace CRMPhone.ViewModel
             TypeList = new ObservableCollection<AlertTypeDto>(_requestService.GetAlertTypes());
             ServiceList = new ObservableCollection<AlertServiceTypeDto>(_requestService.GetAlertServiceTypes());
             FromDate = _requestService.GetCurrentDate().Date;
+
+            var times = new List<AlertTimeDto>();
+            for (int i = 0; i < 24; i++)
+            {
+                times.Add(new AlertTimeDto { Id = i, Name = string.Format("{0}:00", i), AddMinutes = i * 60 });
+            }
+            AlertDateTimes = new ObservableCollection<AlertTimeDto>(times);
+            SelectedFromTime = AlertDateTimes.FirstOrDefault();
+            SelectedToTime = AlertDateTimes.FirstOrDefault();
 
             SelectedType = TypeList.FirstOrDefault();
             SelectedService = ServiceList.FirstOrDefault();

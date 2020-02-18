@@ -23,7 +23,7 @@
                 <TextBlock Margin="3" VerticalAlignment="Center" Text="УК:"/>
                 <ComboBox Margin="3" Width="180" TabIndex ="1" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCompany}" ItemsSource="{Binding CompanyList}" IsEditable="True" />
                 <TextBlock Margin="3" VerticalAlignment="Center" Text="Специальность:"/>
-                <ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="Name" SelectedItem="{Binding SelectedSpeciality}" ItemsSource="{Binding WorkerList}" IsEditable="True" />
+                <ComboBox Margin="3" Width ="150" TabIndex ="2" DisplayMemberPath="Name" SelectedItem="{Binding SelectedSpeciality}" ItemsSource="{Binding SpecialityList}" IsEditable="True" />
             </DockPanel>
             <DockPanel>
                 <Button Width="100" Margin ="5" Content="Добавить" HorizontalAlignment="Right" Command="{Binding AddCommand}"/>
@@ -31,10 +31,10 @@
         </StackPanel>
         <DataGrid Name="BindedCompanyGrid" Grid.Row ="1" 
                   AutoGenerateColumns="False"
-                  ItemsSource="{Binding Path=BindedWorkerList}"
+                  ItemsSource="{Binding Path=BindedCompanyList}"
                   SelectionMode="Single"
                   SelectionUnit="FullRow"
-                  SelectedItem="{Binding Path=SelectedBindedWorker}"
+                  SelectedItem="{Binding Path=SelectedBindedCompany}"
                   IsReadOnly="True"
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">

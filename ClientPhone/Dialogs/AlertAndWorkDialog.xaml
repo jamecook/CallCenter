@@ -32,8 +32,18 @@
         <WrapPanel Grid.Row="1">
             <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата начала работ с:"/>
             <DatePicker Height="24" Width="100" SelectedDate="{Binding FromDate}"/>
+            <ComboBox Margin ="5,0" HorizontalAlignment="Right" Width="80" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFromTime}" ItemsSource="{Binding AlertDateTimes}" IsEditable="True">
+                <ComboBox.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
+                </ComboBox.Resources>
+            </ComboBox>
             <TextBlock Margin="10,5" VerticalAlignment="Center" Text="по:"/>
             <DatePicker Height="24" Width="100" SelectedDate="{Binding ToDate}"/>
+            <ComboBox Margin ="5,0" HorizontalAlignment="Right" Width="80" DisplayMemberPath="Name" SelectedItem="{Binding SelectedToTime}" ItemsSource="{Binding AlertDateTimes}" IsEditable="True">
+                <ComboBox.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
+                </ComboBox.Resources>
+            </ComboBox>
         </WrapPanel>
         <WrapPanel Grid.Row="2" IsEnabled ="{Binding CanEdit}">
             <TextBlock Margin="3" VerticalAlignment="Center" Text="Тип:"/>

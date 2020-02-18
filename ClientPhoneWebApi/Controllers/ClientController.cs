@@ -644,6 +644,9 @@ namespace ClientPhoneWebApi.Controllers
             {
                 return BadRequest("Authorization error!");
             }
+
+            value.StartDate = value.StartDate.AddHours(5);
+            value.EndDate = value.EndDate?.AddHours(5);
             RequestService.SaveAlert(value);
             return Ok();
         }
