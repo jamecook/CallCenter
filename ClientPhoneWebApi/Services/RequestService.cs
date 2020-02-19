@@ -17,7 +17,7 @@ namespace ClientPhoneWebApi.Services
         public RequestService(ILogger<RequestService> logger)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", "192.168.1.130",
+            _connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", "192.168.0.130",
                 "asterisk", "mysqlasterisk", "CallCenter");
         }
 

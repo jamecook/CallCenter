@@ -499,6 +499,8 @@ namespace ClientPhoneWebApi.Controllers
             {
                 return BadRequest("Authorization error!");
             }
+
+            value.ExecuteDate = value.ExecuteDate.AddHours(5);
             RequestService.AddNewExecuteDate(value.UserId, value.RequestId, value.ExecuteDate,value.Period,value.Note);
             return Ok();
         }
@@ -510,6 +512,8 @@ namespace ClientPhoneWebApi.Controllers
             {
                 return BadRequest("Authorization error!");
             }
+
+            value.TermOfExecution = value.TermOfExecution.AddHours(5);
             RequestService.AddNewTermOfExecution(value.UserId, value.RequestId, value.TermOfExecution,value.Note);
             return Ok();
         }
@@ -532,6 +536,9 @@ namespace ClientPhoneWebApi.Controllers
             {
                 return BadRequest("Authorization error!");
             }
+
+            value.FromDate = value.FromDate.AddHours(5);
+            value.ToDate = value.ToDate.AddHours(5);
             RequestService.AddScheduleTask(value.UserId, value.WorkerId,value.RequestId, value.FromDate,value.ToDate,value.EventDescription);
             return Ok();
         }
@@ -543,6 +550,9 @@ namespace ClientPhoneWebApi.Controllers
             {
                 return BadRequest("Authorization error!");
             }
+
+            value.FromDate = value.FromDate.AddHours(5);
+            value.ToDate = value.ToDate.AddHours(5);
             RequestService.SetRequestWorkingTimes(value.UserId, value.RequestId, value.FromDate,value.ToDate);
             return Ok();
         }
@@ -554,6 +564,9 @@ namespace ClientPhoneWebApi.Controllers
             {
                 return BadRequest("Authorization error!");
             }
+
+            value.AlertTime = value.AlertTime?.AddHours(5);
+            value.TermOfExecution = value.TermOfExecution?.AddHours(5);
             RequestService.EditRequest(value.UserId, value.RequestId, value.RequestTypeId,value.RequestMessage,value.Immediate,value.Chargeable,value.IsBadWork,
                 value.Warranty,value.IsRetry,value.AlertTime,value.TermOfExecution);
             return Ok();
@@ -632,6 +645,8 @@ namespace ClientPhoneWebApi.Controllers
             {
                 return BadRequest("Authorization error!");
             }
+
+            value.AlertTime = value.AlertTime?.AddHours(5);
             var result = RequestService.SaveNewRequest(value.UserId, value.LastCallId, value.AddressId, value.RequestTypeId, value.ContactList, value.RequestMessage,
             value.Chargeable, value.Immediate, value.CallUniqueId, value.Entrance, value.Floor, value.AlertTime, value.IsRetry, value.IsBedWork, value.EquipmentId, value.Warranty);
             return Ok(result);
