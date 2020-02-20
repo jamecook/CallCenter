@@ -19,7 +19,7 @@ namespace RequestSync
     {
         static void Main(string[] args)
         {
-            var server = "192.168.1.130";                                                                                                                              
+            var server = "192.168.0.130";                                                                                                                              
             var connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", server,
                 "asterisk", "mysqlasterisk", "asterisk");
 

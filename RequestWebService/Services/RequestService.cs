@@ -12,7 +12,7 @@ namespace RequestWebService.Services
         private static string _connectionString;
         static RequestService()
         {
-            _connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", "192.168.1.130", "dispex", "mysqldispex", "Dispex");
+            _connectionString = string.Format("server={0};uid={1};pwd={2};database={3};charset=utf8", "192.168.0.130", "dispex", "mysqldispex", "Dispex");
         }
 
         public static void LogOperation(string ipAddress, string function, string jsonOperation)
