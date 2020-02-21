@@ -761,6 +761,14 @@ body = {
                             {
                                 return File.ReadAllBytes(localFileName);
                             }
+                            //todo убрать когда переедут записи на новый сервер
+                            localFileName =
+                                fileName.Replace("/raid/monitor/", $"\\\\192.168.1.130\\mixmonitor\\")
+                                    .Replace("/", "\\");
+                            if (File.Exists(localFileName))
+                            {
+                                return File.ReadAllBytes(localFileName);
+                            }
 
                             var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
                             if (File.Exists(localFileNameMp3))
