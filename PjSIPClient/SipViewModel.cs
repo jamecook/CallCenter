@@ -15,7 +15,7 @@ namespace PjSIPClient
         private MyCall _call;
         private MyAccount _acc;
         //private string _sipIp = "sipnet.ru";
-        private string _sipIp = "192.168.1.130";
+        private string _sipIp = "192.168.0.130";
 
         public string Messages
         {
@@ -143,7 +143,7 @@ namespace PjSIPClient
         }
         private void TransferToZerg()
         {
-            Transfer("89323232199");
+            Transfer("9323232177");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
