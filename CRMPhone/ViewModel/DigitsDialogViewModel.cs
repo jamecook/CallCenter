@@ -33,7 +33,8 @@ namespace CRMPhone.ViewModel
             var activeLine = lines?.FirstOrDefault(l => l.State == "Connect");
             if(activeLine == null)
                 return;
-            AppSettings.SipAgent.CallMaker.SendDtmf(activeLine.Id, digit);
+//todo Надо вернуть номеронабиратель
+            //AppSettings.SipAgent.CallMaker.SendDtmf(activeLine.Id, digit);
         }
 
         public void SetView(Window view)

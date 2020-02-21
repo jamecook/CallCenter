@@ -162,9 +162,6 @@
     <Compile Include="Dialogs\Admins\BindWorkerToWorkerDialog.xaml.cs">
       <DependentUpon>BindWorkerToWorkerDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\AudioSettingsDialog.xaml.cs">
-      <DependentUpon>AudioSettingsDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Dialogs\EditFondDialog.xaml.cs">
       <DependentUpon>EditFondDialog.xaml</DependentUpon>
     </Compile>
@@ -279,7 +276,6 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="ViewModel\Admins\BindWorkerToWorkerDialogViewModel.cs" />
-    <Compile Include="ViewModel\AudioSettingsDialogViewModel.cs" />
     <Compile Include="ViewModel\EditFondDialogViewModel.cs" />
     <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
     <Compile Include="BooleanToVisibilityConverter.cs" />
@@ -438,10 +434,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\Admins\BindWorkerToWorkerDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Dialogs\AudioSettingsDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -806,8 +798,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="conaito">
-      <Guid>{C925F211-6A67-4E38-93AB-8B2F30ABE8FD}</Guid>
+    <COMReference Include="SIPEVOActiveXLib">
+      <Guid>{21785C9C-E97E-4723-A1FE-0B362DA953B0}</Guid>
       <VersionMajor>1</VersionMajor>
       <VersionMinor>0</VersionMinor>
       <Lcid>0</Lcid>

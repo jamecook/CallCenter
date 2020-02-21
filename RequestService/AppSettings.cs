@@ -1,4 +1,3 @@
-using conaito;
 using MySql.Data.MySqlClient;
 using RequestServiceImpl.Dto;
 
@@ -20,7 +19,7 @@ namespace RequestServiceImpl
             _dbConnection = connection;
         }
         public static string ConnectionString { get; set; }
-        public static UserAgent SipAgent { get; set; }
+        //public static UserAgent SipAgent { get; set; }
         public static object NewSipAgent { get; set; }
         public static SipDto SipInfo
         {
