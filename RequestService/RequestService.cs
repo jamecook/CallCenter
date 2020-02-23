@@ -1599,12 +1599,21 @@ namespace RequestServiceImpl
 
         public void PlayRecord(string serverIpAddress, string fileName)
         {
+            //todo Можно убрать после перетаскивая записей
+            var oldFileName = fileName.Replace("/raid/monitor/", $"\\\\192.168.1.130\\mixmonitor\\").Replace("/", "\\");
+            var oldFileNameMp3 = oldFileName.Replace(".wav", ".mp3");
+
             var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/", "\\");
             var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
             if (File.Exists(localFileNameMp3))
                 Process.Start(localFileNameMp3);
             else if (File.Exists(localFileName))
                 Process.Start(localFileName);
+
+            else if (File.Exists(oldFileName))
+                Process.Start(oldFileName);
+            else if (File.Exists(oldFileNameMp3))
+                Process.Start(oldFileNameMp3);
             else
                 MessageBox.Show($"Файл с записью недоступен!\r\n{localFileNameMp3}", "Ошибка");
 
