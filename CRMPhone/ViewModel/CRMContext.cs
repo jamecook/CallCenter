@@ -22,8 +22,8 @@ using System.Security.RightsManagement;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using conaito;
 using CRMPhone.Dialogs;
+using CRMPhone.Sip;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -44,8 +44,8 @@ namespace CRMPhone.ViewModel
         private readonly DispatcherTimer _refreshTimer;
         private MySqlConnection _dbRefreshConnection;
         private MySqlConnection _dbMainConnection;
-        private UserAgent _sipAgent;
-
+        //private UserAgent _sipAgent;
+        private SipAgent _sipAgent;
         private string _version;
         //public MainWindow mainWindow;
 
@@ -549,10 +549,10 @@ namespace CRMPhone.ViewModel
 
         private void AudioSettings()
         {
-            var settingsContext = new AudioSettingsDialogViewModel(_sipAgent);
-            var settingsDialog = new AudioSettingsDialog(settingsContext);
-            settingsDialog.Owner = Application.Current.MainWindow;
-            if (settingsDialog.ShowDialog() == true)
+            //var settingsContext = new AudioSettingsDialogViewModel(_sipAgent);
+            //var settingsDialog = new AudioSettingsDialog(settingsContext);
+            //settingsDialog.Owner = Application.Current.MainWindow;
+            //if (settingsDialog.ShowDialog() == true)
             {
                 //Save settings to local storage
             }
@@ -1296,7 +1296,7 @@ namespace CRMPhone.ViewModel
             }
         }
 
-
+        /*
         public void InitSip()
         {
             #region Создаем и настраиваем SIP-агента
@@ -1318,25 +1318,27 @@ namespace CRMPhone.ViewModel
                 _sipAgent.AddTransport(1, 5060);
                 var mediaPort = _sipAgent.FindPort(60000, 64000, 2, 1);
                 _sipAgent.Startup(mediaPort, 1, "", "");
-                AppSettings.SipAgent = _sipAgent;
+
+//todo Надо для номеронабирателя
+                //AppSettings.SipAgent = _sipAgent;
 
             }
             try
             {
 
                 _sipAgent.Registrator.Register(_serverIP, _sipUser, _sipSecret, _sipUser);
-                /*
-                object names = null;
-                object ids = null;
-                _sipAgent.VoiceSettings.GetPlayers(out names, out ids);
-                var playersId = ids as int[];
-                var playId = 0;
-                _sipAgent.VoiceSettings.PlayerDevice = playersId[playId];
-                _sipAgent.VoiceSettings.GetRecorders(out names, out ids);
-                var recordsId = ids as int[];
+                
+                //object names = null;
+                //object ids = null;
+                //_sipAgent.VoiceSettings.GetPlayers(out names, out ids);
+                //var playersId = ids as int[];
+                //var playId = 0;
+                //_sipAgent.VoiceSettings.PlayerDevice = playersId[playId];
+                //_sipAgent.VoiceSettings.GetRecorders(out names, out ids);
+                //var recordsId = ids as int[];
 
-                _sipAgent.VoiceSettings.RecorderDevice = recordsId[0];
-                /**/
+                //_sipAgent.VoiceSettings.RecorderDevice = recordsId[0];
+
             }
             catch (Exception ex)
             {
@@ -1489,6 +1491,8 @@ namespace CRMPhone.ViewModel
 
         }
 
+        */
+
         private void DeleteCallFromList(object currentCall)
         {
             var call = currentCall as NotAnsweredDto;
@@ -1503,7 +1507,10 @@ namespace CRMPhone.ViewModel
             var item = currentChannel as ActiveChannelsDto;
             if (item == null || string.IsNullOrEmpty(item.Channel))
                 return;
-            if (_sipAgent.CallMaker.callStatus[0] > 0)
+            var newPhone = item.CallerIdNum.Replace("+", "");
+            IncomingCallFrom = newPhone;
+
+            if (!string.IsNullOrEmpty(SipLines[0].CallId))
             {
                 MessageBox.Show("Невозможно взять из очереди если занята первай линия!");
                 return;
@@ -1515,73 +1522,93 @@ namespace CRMPhone.ViewModel
             var phone = item.CallerIdNum.Replace("+", "");
             IncomingCallFrom = phone;
             CallFromServiceCompany = _requestService?.ServiceCompanyByIncommingPhoneNumber(phone);
-            string callId = string.Format("sip:#{0}@{1}", phone, _serverIP);
-            _sipAgent.CallMaker.Invite(callId);
+            string newCallId = string.Format("#{0}", newPhone);
+            _sipAgent.Call(newCallId);
+            //todo
+            //_sipAgent.CallMaker.Invite(callId);
 
-/*
-            string callId = string.Format("sip:{0}@{1}", "123123321", _serverIP);
-            _sipAgent.CallMaker.Invite(callId);
+            /*
+                        string callId = string.Format("sip:{0}@{1}", "123123321", _serverIP);
+                        _sipAgent.CallMaker.Invite(callId);
 
-            var bridgeThread = new Thread(BridgeFunc); //Создаем новый объект потока (Thread)
+                        var bridgeThread = new Thread(BridgeFunc); //Создаем новый объект потока (Thread)
 
-            bridgeThread.Start(item); //запускаем поток
-*/
+                        bridgeThread.Start(item); //запускаем поток
+            */
         }
         private void SendDtmf()
         {
-                _sipAgent.CallMaker.SendDtmf(SelectedLine.Id, _sipPhone);
+            //todo
+            //_sipAgent.CallMaker.SendDtmf(SelectedLine.Id, _sipPhone);
         }
 
+
+        //public void CallOld()
+        //{
+        //    //todo
+        //    //if (_sipAgent.CallMaker.callStatus[SelectedLine.Id] == 180)
+        //    {
+        //        //if (DisableIncomingCalls)
+        //        //{
+        //        //    _sipAgent.CallMaker.HangupAll();
+        //        //    string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
+        //        //    SipState = $"Исходящий вызов на номер {_sipPhone}";
+        //        //    _sipAgent.CallMaker.Invite(callId);
+        //        //    return;
+        //        //}
+        //        _ringPlayer.Stop();
+        //        LastAnsweredPhoneNumber = IncomingCallFrom;
+        //        //todo
+        //        //_sipAgent.CallMaker.Accept(SelectedLine.Id);
+        //        return;
+        //    }
+        //    if (string.IsNullOrEmpty(_sipPhone))
+        //        return;
+        //    //todo
+        //    //if (_sipAgent.CallMaker.callStatus[SelectedLine.Id] < 0)
+        //    if(true)
+        //    {
+        //        string callId = string.Format("sip:{2}{0}@{1}", _sipPhone, _serverIP, SelectedOutgoingCompany.Prefix);
+        //        //string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
+        //        IncomingCallFrom = _sipPhone;
+        //        SipState = $"Исходящий вызов на номер {_sipPhone}";
+        //        //todo
+        //        //_sipAgent.CallMaker.Invite(callId);
+        //        var bridgeThread = new Thread(HungUpThread); //Создаем новый объект потока (Thread)
+
+        //        bridgeThread.Start(15); //запускаем поток
+        //    }
+
+        //    else
+        //    {
+        //        MessageBox.Show("Линия занята, выберите другую линию!",
+        //            "Предупреждение");
+        //    }
+        //}
 
         public void Call()
         {
-            if (_sipAgent.CallMaker.callStatus[SelectedLine.Id] == 180)
-            {
-                //if (DisableIncomingCalls)
-                //{
-                //    _sipAgent.CallMaker.HangupAll();
-                //    string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
-                //    SipState = $"Исходящий вызов на номер {_sipPhone}";
-                //    _sipAgent.CallMaker.Invite(callId);
-                //    return;
-                //}
-                _ringPlayer.Stop();
-                LastAnsweredPhoneNumber = IncomingCallFrom;
-                _sipAgent.CallMaker.Accept(SelectedLine.Id);
+            //todo Только исходящий
+            if(string.IsNullOrEmpty(_sipPhone))
                 return;
-            }
-            if (string.IsNullOrEmpty(_sipPhone))
-                return;
-            if (_sipAgent.CallMaker.callStatus[SelectedLine.Id] < 0)
-            {
-                string callId = string.Format("sip:{2}{0}@{1}", _sipPhone, _serverIP, SelectedOutgoingCompany.Prefix);
-                //string callId = string.Format("sip:{0}@{1}", _sipPhone, _serverIP);
-                IncomingCallFrom = _sipPhone;
-                SipState = $"Исходящий вызов на номер {_sipPhone}";
-                _sipAgent.CallMaker.Invite(callId);
-                var bridgeThread = new Thread(HungUpThread); //Создаем новый объект потока (Thread)
-
-                bridgeThread.Start(15); //запускаем поток
-            }
-
-            else
-            {
-                MessageBox.Show("Линия занята, выберите другую линию!",
-                    "Предупреждение");
-            }
+            _sipAgent.Call(_sipPhone);
+            IncomingCallFrom = _sipPhone;
+            SipState = $"Исходящий вызов на номер {_sipPhone}";
         }
 
-        private void HungUpThread(object waitTime)
-        {
-            int i = 0;
-            var intTimes = 2 * (waitTime as int?);
-            while (i < intTimes.Value)
-            {
-                i++;
-                Thread.Sleep(500);
-                var state = _sipAgent.CallMaker.callStatus[SelectedLine.Id];
-            }
-        }
+
+        //private void HungUpThread(object waitTime)
+        //{
+        //    int i = 0;
+        //    var intTimes = 2 * (waitTime as int?);
+        //    while (i < intTimes.Value)
+        //    {
+        //        i++;
+        //        Thread.Sleep(500);
+        //        //todo
+        //        //var state = _sipAgent.CallMaker.callStatus[SelectedLine.Id];
+        //    }
+        //}
         public bool Disconnected { get; set; }
 
         public void CallFromList()
@@ -1592,26 +1619,35 @@ namespace CRMPhone.ViewModel
             SipPhone = phone;
             IncomingCallFrom = phone;
             _requestService.IncreaseBackRingCount(SelectedCall.CallerId);
-            string callId = string.Format("sip:{2}{0}@{1}", phone, _serverIP,SelectedCall.Prefix);
-            _sipAgent.CallMaker.Invite(callId);
+            var callId = string.Format("{1}{0}", phone, SelectedCall.Prefix);
+            _sipAgent.Call(callId);
             _requestService.DeleteCallFromNotAnsweredListByTryCount(SelectedCall.CallerId);
         }
 
         public void Mute()
         {
+            MessageBox.Show("Временно не работает!!!",
+                "Предупреждение");
+            return;
             IsMuted = !IsMuted;
             foreach (var sipLine in SipLines)
             {
-                _sipAgent.VoiceSettings.MuteLineMic(sipLine.Id, IsMuted);
+                //todo
+                //_sipAgent.VoiceSettings.MuteLineMic(sipLine.Id, IsMuted);
             }
         }
 
         private void Conference()
         {
-            var conference = _sipAgent.CallMaker.CreateConference();
+            MessageBox.Show("Временно не работает!!!",
+                "Предупреждение");
+
+            //todo
+            //var conference = _sipAgent.CallMaker.CreateConference();
             foreach (var sipLine in SipLines)
             {
-                conference.Add(sipLine.Id);
+                //todo
+                //conference.Add(sipLine.Id);
             }
         }
 
@@ -1628,16 +1664,18 @@ namespace CRMPhone.ViewModel
                     : transferContext.TransferPhone;
                 if (string.IsNullOrEmpty(phone))
                     return;
-                string callId = string.Format("sip:{0}@{1}", phone, _serverIP);
-                _sipAgent.CallMaker.Transfer(SelectedLine.Id, callId);
+                _sipAgent.Transfer(phone);
             }
 
         }
 
         public void Hold()
         {
-            var t = _sipAgent.CallMaker.callStatus[SelectedLine.Id];
-            if (_sipAgent.CallMaker.callStatus[SelectedLine.Id] == 200)
+            MessageBox.Show("Временно не работает!!!",
+                "Предупреждение");
+            return;
+            //todo
+            /*if (_sipAgent.CallMaker.callStatus[SelectedLine.Id] == 200)
             {
                 if (SipLines[SelectedLine.Id].State != "Hold")
                 {
@@ -1649,10 +1687,17 @@ namespace CRMPhone.ViewModel
                     SipLines[SelectedLine.Id].State = "Connect";
                 }
             }
+            */
         }
- 
+
         public void HangUp()
         {
+            if (SelectedLine != null && !string.IsNullOrEmpty(SelectedLine.CallId))
+            {
+                _sipAgent.HangUp(SelectedLine.CallId);
+            }
+            //todo
+            /*
             if (_sipAgent.CallMaker.callStatus[SelectedLine.Id] == 200)
             {
                 _sipAgent.CallMaker.Hangup(SelectedLine.Id);
@@ -1661,6 +1706,7 @@ namespace CRMPhone.ViewModel
             {
                 _sipAgent.CallMaker.Decline(SelectedLine.Id, 486); //486 "Busy Here"
             }
+            */
             IncomingCallFrom = "";
             CallFromServiceCompany = null;
         }
@@ -1670,8 +1716,9 @@ namespace CRMPhone.ViewModel
             {
                 cmd.ExecuteNonQuery();
             }
-            _sipAgent?.Registrator.Unregister();
-            //_sipAgent?.Shutdown();
+            //todo
+            //_sipAgent?.Registrator.Unregister();
+
         }
 
         public void RefreshList()
@@ -1849,7 +1896,131 @@ namespace CRMPhone.ViewModel
 
         public void SipRegister()
         {
-            InitSip();
+            //InitSip();
+            InitPjSip();
+        }
+
+        private void InitPjSip()
+        {
+            _sipAgent = new SipAgent();
+            _sipAgent.Init( _sipUser, _sipSecret, _serverIP);
+            _sipAgent.OnCallState += OnCallState;
+            _sipAgent.OnIncomingCall += OnIncomingCall;
+            _sipAgent.OnRegisterState += OnRegisterState;
+        }
+
+        private void OnRegisterState(object sender, AccountInfo ai, OnRegStateParam prm)
+        {
+            if (prm.reason == "OK")
+            {
+                foreach (SipLine line in _sipLines)
+                {
+                    line.State = "Free";
+                    line.Phone = "";
+                    line.Uri = "";
+                    line.LastAnswerTime = null;
+                }
+                SipState = "Успешная регистрация!";
+                _canRegistration = false;
+                _sipCallActive = false;
+            }
+            else
+            {
+                SipState = $"Ошибка регистрации! {prm.reason}";
+                _canRegistration = true;
+
+            }
+
+            OnPropertyChanged(nameof(EnableRegistration));
+        }
+
+        private void OnIncomingCall(object sender, CallInfo info, OnIncomingCallParam iprm)
+        {
+            var phoneNumber = GetPhoneNumberFromUri(info.remoteUri);
+            SelectedLine = SipLines.FirstOrDefault(s => string.IsNullOrEmpty(s.CallId));
+            if (SelectedLine != null)
+            {
+                SelectedLine.State = "Incoming";
+                SelectedLine.Uri = info.remoteUri;
+                SelectedLine.Phone = phoneNumber;
+                SelectedLine.LastAnswerTime = DateTime.Now;
+                SelectedLine.CallId = info.callIdString;
+            }
+            AppSettings.LastCallId = info.callIdString;
+
+            CallFromServiceCompany = _requestService?.ServiceCompanyByIncommingPhoneNumber(phoneNumber);
+            SipState = $"Входящий вызов от {phoneNumber}";
+            IncomingCallFrom = phoneNumber;
+
+            _ringPlayer.PlayLooping();
+            //Bring To Front
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                if (!mainWindow.IsVisible)
+                {
+                    mainWindow.Show();
+                }
+
+                if (mainWindow.WindowState == WindowState.Minimized)
+                {
+                    mainWindow.WindowState = WindowState.Normal;
+                }
+                mainWindow.Activate();
+                mainWindow.Topmost = true; // important
+                mainWindow.Topmost = false; // important
+                mainWindow.Focus(); // important
+            }));
+        }
+
+        private void OnCallState(object sender, CallInfo info, OnCallStateParam prm, SipAccount account)
+        {
+            var lineState = info.state;
+
+            var phoneNumber = GetPhoneNumberFromUri(info.remoteUri);
+            SelectedLine = SipLines.FirstOrDefault(s => s.CallId == info.callIdString);
+            if (SelectedLine == null)
+            {
+                SelectedLine = SipLines.FirstOrDefault(s => string.IsNullOrEmpty(s.CallId));
+                if (SelectedLine != null)
+                {
+                    SelectedLine.State = "Try Connecting";
+                    SelectedLine.Uri = info.remoteUri;
+                    SelectedLine.Phone = phoneNumber;
+                    SelectedLine.LastAnswerTime = DateTime.Now;
+                    SelectedLine.CallId = info.callIdString;
+                }
+                AppSettings.LastCallId = info.callIdString;
+            }
+            if (lineState == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED) //TerminateCall
+            {
+                Disconnected = true;
+                if (SelectedLine != null)
+                {
+                    SelectedLine.State = "Free";
+                    SelectedLine.Uri = info.remoteUri;
+                    SelectedLine.Phone = phoneNumber;
+                    SelectedLine.LastAnswerTime = null;
+                    SelectedLine.CallId = null;
+                }
+                AppSettings.LastCallId = info.callIdString;
+                SipState = $"Звонок завершен {phoneNumber}";
+                _ringPlayer.Stop();
+                IsMuted = false;
+                _sipCallActive = false;
+            }
+            else if (lineState == pjsip_inv_state.PJSIP_INV_STATE_CONFIRMED) //OnConnected
+            {
+                _ringPlayer.Stop();
+                if (SelectedLine != null)
+                {
+                    SelectedLine.State = "Connect";
+                    SelectedLine.Uri = info.remoteUri;
+                    SelectedLine.Phone = phoneNumber;
+                    SelectedLine.LastAnswerTime = DateTime.Now;
+                }
+                _sipCallActive = true;
+                SipState = $"Связь установлена: {phoneNumber}";
+            }
         }
 
         public void DeleteNumberFromList()

@@ -32,6 +32,7 @@ namespace RequestServiceImpl
             get { return _uri; }
             set { _uri = value; OnPropertyChanged(nameof(Uri));}
         }
+        public string CallId { get; set; }
         public DateTime? LastAnswerTime { get; set; }
 
         public string CallTime

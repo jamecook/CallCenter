@@ -12,10 +12,8 @@ namespace PjSIPClient
     public class SipViewModel : INotifyPropertyChanged,IDisposable
     {
         private Endpoint _endpoint;
-        private MyCall _call;
         private MyAccount _acc;
-        //private string _sipIp = "sipnet.ru";
-        private string _sipIp = "192.168.1.130";
+        private string _sipIp = "192.168.0.130";
 
         public string Messages
         {
@@ -44,6 +42,7 @@ namespace PjSIPClient
             _endpoint.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_UDP, sipTpConfig);
             // Start the library
             _endpoint.libStart();
+            var ver = _endpoint.libVersion();
 
             var acfg = new AccountConfig();
             acfg.idUri = $"sip:{sipUser}@{_sipIp}";
@@ -51,25 +50,44 @@ namespace PjSIPClient
             var cred = new AuthCredInfo("DispexPhone", "*", sipUser, 0, sipSecret);
             acfg.sipConfig.authCreds.Add(cred);
             // Create the account
-            _acc = new MyAccount();
+            _acc = new MyAccount(_sipIp, 2);
             _acc.OnAccountRegState += OnAccountRegState;
+            _acc.OnIncomingCall += OnIncomingCall;
+            _acc.OnCallState += OnCallState;
             //_acc.onRegStarted(new OnRegStartedParam());
             _acc.create(acfg);
             
 
             var t = _endpoint.audDevManager().getDevCount();
-            _endpoint.audDevManager().setPlaybackDev(0);
-            _endpoint.audDevManager().setCaptureDev(1);
-            _call = new MyCall(_acc);
-            _call.OnCallState += OnCallState;
+
+            _endpoint.audDevManager().setPlaybackDev(-1);
+            _endpoint.audDevManager().setCaptureDev(-1);
+            //Первая линия для обзвона
+            //_call = new MyCall(_acc);
+            //_call.OnCallState += OnCallState;
 
         }
 
         private void OnCallState(object sender, CallInfo info, OnCallStateParam prm, MyAccount account)
         {
-            Messages += $"---------------------{DateTime.Now.ToString("T")}---------------------\r";
-            Messages += "CallStateParam:\r" + JsonConvert.SerializeObject(prm) + "\r";
-            Messages += "CallInfo:\r" + JsonConvert.SerializeObject(info) + "\r";
+
+        }
+
+        private void OnIncomingCall(object sender, CallInfo info, OnIncomingCallParam iprm)
+        {
+            Messages += $"---------------------{DateTime.Now.ToString("T")}---------------------\r" +
+                        $"OnIncomingCall CallInfo: {info.callIdString} - {info.stateText}\r" +
+                        $"From: {info.remoteUri}\r";
+
+        }
+
+
+        private void On1LineCallState(object sender, CallInfo info, OnCallStateParam prm, MyAccount account)
+        {
+            Messages += $"---------------------{DateTime.Now.ToString("T")}---------------------\r" +
+                        $"OnCallState CallInfo: {info.callIdString} - {info.stateText}. Code: {info.state}\r";
+            //Messages += "CallStateParam:\r" + JsonConvert.SerializeObject(prm) + "\r";
+            //Messages += "CallInfo:\r" + JsonConvert.SerializeObject(info) + "\r";
             var call = (MyCall) sender;
             CallInfo ci = call.getInfo();
             if (ci.state == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED)
@@ -82,23 +100,26 @@ namespace PjSIPClient
 
         private void OnAccountRegState(object sender, AccountInfo ai, OnRegStateParam prm)
         {
-            Messages += $"---------------------{DateTime.Now.ToString("T")}---------------------\r";
-            Messages += "prm:\r" + JsonConvert.SerializeObject(prm)+"\r";
-            Messages += "ai:\r" + JsonConvert.SerializeObject(ai) + "\r";
+            Messages += $"---------------------{DateTime.Now.ToString("T")}---------------------\r" +
+                        $"RegState: {prm.reason},{prm.status}\r" +
+                        $"AccountInfo: RegStatus = {ai.regStatusText}, OnlineStatus = {ai.onlineStatusText}";
+            //Messages += "prm:\r" + JsonConvert.SerializeObject(prm)+"\r";
+            //Messages += "ai:\r" + JsonConvert.SerializeObject(ai) + "\r";
         }
 
         public void Call(string phone)
         {
-            var prm = new CallOpParam(true);
-            //prm.opt.audioCount = 1;
-            //prm.opt.videoCount = 0;
-            _call.makeCall($"sip:{phone}@{_sipIp}", prm);
+            _acc.Call(phone);
+            //var prm = new CallOpParam(true);
+            ////prm.opt.audioCount = 1;
+            ////prm.opt.videoCount = 0;
+            //_call.makeCall($"sip:{phone}@{_sipIp}", prm);
         }
 
         public void Transfer(string phone)
         {
             var prm = new CallOpParam(true);
-            _call.xfer($"sip:{phone}@{_sipIp}", prm);
+            //_call.xfer($"sip:{phone}@{_sipIp}", prm);
         }
         public void HangUp()
         {
@@ -139,11 +160,11 @@ namespace PjSIPClient
 
         private void CallToZerg()
         {
-            Call("12345");
+            Call("9323232177");
         }
         private void TransferToZerg()
         {
-            Transfer("89323232199");
+            Transfer("9323232177");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -156,7 +177,7 @@ namespace PjSIPClient
 
         public void Dispose()
         {
-            _call?.Dispose();
+            //_call?.Dispose();
             _acc?.Dispose();
 
             if (_endpoint != null)

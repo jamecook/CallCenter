@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrizTest", "TrizTest\TrizTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YandexSpeech", "YandexSpeech\YandexSpeech.csproj", "{DED6EDDB-CF21-46F6-8104-9151FC242BCF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwigPjSip", "SwigPjSip\SwigPjSip.csproj", "{CDC4A1E9-A0F4-481F-A254-CC67CF62D16D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,6 +149,10 @@ Global
 		{DED6EDDB-CF21-46F6-8104-9151FC242BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DED6EDDB-CF21-46F6-8104-9151FC242BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DED6EDDB-CF21-46F6-8104-9151FC242BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDC4A1E9-A0F4-481F-A254-CC67CF62D16D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDC4A1E9-A0F4-481F-A254-CC67CF62D16D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDC4A1E9-A0F4-481F-A254-CC67CF62D16D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDC4A1E9-A0F4-481F-A254-CC67CF62D16D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" Height="750" Width="525" Closing="MainWindow_OnClosing">
+        Title="MainWindow" Height="860" Width="525" Closing="MainWindow_OnClosing">
     <Grid>
         <StackPanel>
             <Button  Margin="5" Command="{Binding InitCommand}">

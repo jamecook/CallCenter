@@ -259,7 +259,6 @@ namespace RequestWebService.Services
                     cmd.Parameters.AddWithValue("@hashVal", hashValue);
                     return Convert.ToInt32(cmd.ExecuteScalar());
                 }
-                conn.Close();
             }
         }
         public static UserDto GetUser(string bitrixId)

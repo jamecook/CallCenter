@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CRMPhone</RootNamespace>
     <AssemblyName>CRMPhone</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -31,6 +31,8 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -41,6 +43,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -50,6 +53,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>PhoneIco.ico</ApplicationIcon>
@@ -161,9 +165,6 @@
     <Compile Include="CustomComboBox.cs" />
     <Compile Include="Dialogs\Admins\BindWorkerToWorkerDialog.xaml.cs">
       <DependentUpon>BindWorkerToWorkerDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\AudioSettingsDialog.xaml.cs">
-      <DependentUpon>AudioSettingsDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\EditFondDialog.xaml.cs">
       <DependentUpon>EditFondDialog.xaml</DependentUpon>
@@ -278,8 +279,10 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="Sip\SipAccount.cs" />
+    <Compile Include="Sip\SipCall.cs" />
+    <Compile Include="Sip\SipAgent.cs" />
     <Compile Include="ViewModel\Admins\BindWorkerToWorkerDialogViewModel.cs" />
-    <Compile Include="ViewModel\AudioSettingsDialogViewModel.cs" />
     <Compile Include="ViewModel\EditFondDialogViewModel.cs" />
     <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
     <Compile Include="BooleanToVisibilityConverter.cs" />
@@ -438,10 +441,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\Admins\BindWorkerToWorkerDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Dialogs\AudioSettingsDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -787,6 +786,10 @@
       <Project>{f8832d54-a8e8-44ea-a64b-26202d7b64c9}</Project>
       <Name>RequestServiceImpl</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SwigPjSip\SwigPjSip.csproj">
+      <Project>{cdc4a1e9-a0f4-481f-a254-cc67cf62d16d}</Project>
+      <Name>SwigPjSip</Name>
+    </ProjectReference>
     <ProjectReference Include="RudiGrobler.Controls\RudiGrobler.Controls.csproj">
       <Project>{73ca44ce-7dc1-4edd-8f32-303d51e09911}</Project>
       <Name>RudiGrobler.Controls</Name>
@@ -805,18 +808,15 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="conaito">
-      <Guid>{C925F211-6A67-4E38-93AB-8B2F30ABE8FD}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\PJSip.Interop.0.7.4\build\PJSip.Interop.targets" Condition="Exists('..\packages\PJSip.Interop.0.7.4\build\PJSip.Interop.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\PJSip.Interop.0.7.4\build\PJSip.Interop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PJSip.Interop.0.7.4\build\PJSip.Interop.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
