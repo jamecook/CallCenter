@@ -83,10 +83,19 @@ namespace CRMPhone.Sip
             _acc.Call(phone);
         }
 
-        public void Transfer(string phone)
+        public void Transfer(string callId, string phone)
         {
-            //var prm = new CallOpParam(true);
-            //_call.xfer($"sip:{phone}@{_sipIp}", prm);
+            foreach (var call in _acc.Calls)
+            {
+                var callInfo = call.getInfo();
+                if (callInfo.callIdString == callId)
+                {
+                    var prm = new CallOpParam(true);
+                    call.xfer($"sip:{phone}@{_sipIp}", prm);
+                    break;
+                }
+            }
+
         }
         public void HangUpAll()
         {
@@ -102,6 +111,33 @@ namespace CRMPhone.Sip
                     var prm = new CallOpParam { statusCode = pjsip_status_code.PJSIP_SC_BUSY_HERE };//(pjsip_status_code)200 };
                     //var prm = new CallOpParam { statusCode = pjsip_status_code.PJSIP_SC_OK };//(pjsip_status_code)200 };
                     call.hangup(prm);
+                    break;
+                }
+            }
+        }
+        public void Hold(string callId)
+        {
+            foreach (var call in _acc.Calls)
+            {
+                var callInfo = call.getInfo();
+                if (callInfo.callIdString == callId)
+                {
+                    var prm = new CallOpParam { options = (uint) pjsua_call_flag.PJSUA_CALL_UPDATE_CONTACT};
+                    call.setHold(prm);
+                    break;
+                }
+            }
+        }
+        public void UnHold(string callId)
+        {
+            foreach (var call in _acc.Calls)
+            {
+                var callInfo = call.getInfo();
+                if (callInfo.callIdString == callId)
+                {
+                    var prm = new CallOpParam();// { options = (uint)pjsua_call_flag.PJSUA_CALL_UNHOLD };
+                    prm.opt = new CallSetting(){flag = (uint)pjsua_call_flag.PJSUA_CALL_UNHOLD };
+                    call.reinvite(prm);
                     break;
                 }
             }
@@ -123,9 +159,11 @@ namespace CRMPhone.Sip
             //Messages += "CallInfo:\r" + JsonConvert.SerializeObject(ci) + "\r";
         }
 
-        private void TransferToZerg()
+        public void Mute(bool isMuted)
         {
-            Transfer("89323232199");
+            var aud_mgr = Endpoint.instance().audDevManager();
+            var captureDev = aud_mgr.getCaptureDevMedia();
+            captureDev.adjustTxLevel(isMuted?0:1);
         }
 
         public void Dispose()

@@ -200,7 +200,7 @@ namespace CRMPhone.ViewModel
             {
                 using (var bridgeService = new AmiService(_serverIP, 5038))
                 {
-                    bridgeService.LoginAndQueuePause("zerg", "asteriskzerg", AppSettings.SipInfo.SipUser, false);
+                    bridgeService.LoginAndQueuePause("zerg", "asteriskzerg", AppSettings.SipInfo.SipUser, true);
                 }
 
             }
@@ -1626,15 +1626,11 @@ namespace CRMPhone.ViewModel
 
         public void Mute()
         {
-            MessageBox.Show("Временно не работает!!!",
-                "Предупреждение");
-            return;
+            //MessageBox.Show("Временно не работает!!!",
+            //    "Предупреждение");
+            //return;
             IsMuted = !IsMuted;
-            foreach (var sipLine in SipLines)
-            {
-                //todo
-                //_sipAgent.VoiceSettings.MuteLineMic(sipLine.Id, IsMuted);
-            }
+            _sipAgent.Mute(IsMuted);
         }
 
         private void Conference()
@@ -1664,16 +1660,28 @@ namespace CRMPhone.ViewModel
                     : transferContext.TransferPhone;
                 if (string.IsNullOrEmpty(phone))
                     return;
-                _sipAgent.Transfer(phone);
+                _sipAgent.Transfer(SelectedLine.CallId, phone);
             }
 
         }
 
         public void Hold()
         {
-            MessageBox.Show("Временно не работает!!!",
-                "Предупреждение");
-            return;
+            if(string.IsNullOrEmpty(SelectedLine.CallId))
+                return;
+
+            if (SipLines[SelectedLine.Id].State != "Hold")
+            {
+                _sipAgent.Hold(SelectedLine.CallId);
+                SipLines[SelectedLine.Id].State = "Hold";
+            }
+            else
+            {
+                _sipAgent.UnHold(SelectedLine.CallId);
+                SipLines[SelectedLine.Id].State = "Connect";
+
+            }
+
             //todo
             /*if (_sipAgent.CallMaker.callStatus[SelectedLine.Id] == 200)
             {

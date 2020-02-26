@@ -77,7 +77,7 @@
                     <Button  Margin="5" Width="36" Height="36" Command="{Binding MuteCommand}" ToolTip="Микрофон" Background="{Binding MuteButtonBackground}">
                         <Image Source="pack://application:,,,/Images/mic-mute.png" Width="24" Height="24" />
                     </Button>
-                    <Button  Margin="5" Width="36" Height="36" Command="{Binding HoldCommand}" ToolTip="Hold/UnHold">
+                    <Button Visibility="Collapsed" Margin="5" Width="36" Height="36" Command="{Binding HoldCommand}" ToolTip="Hold/UnHold">
                         <Image Source="pack://application:,,,/Images/hold.png" Width="24" Height="24" />
                     </Button>
                     <Button  Margin="5" Width="36" Height="36" Command="{Binding BridgeCommand}" Visibility="Collapsed" ToolTip="Соединить линии">
@@ -95,7 +95,7 @@
                     <Button  Margin="5" Width="36" Height="36" Command="{Binding QueueUnPauseCommand}" ToolTip="Принимать звонки">
                         <Image Source="pack://application:,,,/Images/CanAnswer.png" Width="32" Height="32" />
                     </Button>
-                    <Button  Margin="5" Width="36" Height="36" Command="{Binding SettingCommand}" ToolTip="Настройки звука">
+                    <Button Visibility="Collapsed" Margin="5" Width="36" Height="36" Command="{Binding SettingCommand}" ToolTip="Настройки звука">
                         <Image Source="pack://application:,,,/Images/audio_settings_48.png" Width="32" Height="32" />
                     </Button>
                 </WrapPanel>

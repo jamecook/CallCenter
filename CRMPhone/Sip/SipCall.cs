@@ -43,7 +43,6 @@ namespace CRMPhone.Sip
 
                     aud_mgr.getCaptureDevMedia().startTransmit(am);
                     am.startTransmit(aud_mgr.getPlaybackDevMedia());
-
                 }
             }
         }
