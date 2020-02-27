@@ -2915,10 +2915,17 @@ where worker_id = @WorkerId";
 
         public List<WorkerHistoryDto> GetMasterHistoryByRequest(int requestId)
         {
-            var query = @"SELECT operation_date, R.worker_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestWorkerHistory R
+            var query = @"SELECT operation_date, R.worker_id, w.sur_name,w.first_name,w.patr_name,
+            case when user_id = 0 then cw.id else user_id end user_id,
+            case when user_id = 0 then cw.sur_name else u.surname end surname,
+            case when user_id = 0 then cw.first_name else u.firstname end firstname,
+            case when user_id = 0 then cw.patr_name else u.patrname end patrname
+ FROM CallCenter.RequestWorkerHistory R
  left join CallCenter.Workers w on w.id = R.worker_id
  join CallCenter.Users u on u.id = user_id
+ left join CallCenter.Workers cw on cw.id = R.worker_id
  where request_id = @RequestId";
+
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 var historyDtos = new List<WorkerHistoryDto>();
@@ -2954,10 +2961,17 @@ where worker_id = @WorkerId";
         }
         public List<WorkerHistoryDto> GetExecuterHistoryByRequest(int requestId)
         {
-            var query = @"SELECT operation_date, R.executer_id, w.sur_name,w.first_name,w.patr_name, user_id,u.surname,u.firstname,u.patrname FROM CallCenter.RequestExecuterHistory R
+            var query = @"SELECT operation_date, R.executer_id, w.sur_name,w.first_name,w.patr_name,
+            case when user_id = 0 then cw.id else user_id end user_id,
+            case when user_id = 0 then cw.sur_name else u.surname end surname,
+            case when user_id = 0 then cw.first_name else u.firstname end firstname,
+            case when user_id = 0 then cw.patr_name else u.patrname end patrname
+FROM CallCenter.RequestExecuterHistory R
  left join CallCenter.Workers w on w.id = R.executer_id
  join CallCenter.Users u on u.id = user_id
+left join CallCenter.Workers cw on cw.id = R.worker_id
  where request_id = @RequestId";
+
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 var historyDtos = new List<WorkerHistoryDto>();

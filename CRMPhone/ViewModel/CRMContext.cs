@@ -49,14 +49,18 @@ namespace CRMPhone.ViewModel
         private string _version;
         //public MainWindow mainWindow;
 
-        private SipLine[] _sipLinesArray = {new SipLine { Id = 0, Name = "Линия 1:"}, new SipLine { Id = 1, Name = "Линия 2:" } };
+        private SipLine[] _sipLinesArray = {new SipLine { Id = 0, Name = "Линия 1:"}};
+        private int _maxLineNumber = 1;
+
+        //private SipLine[] _sipLinesArray = {new SipLine { Id = 0, Name = "Линия 1:"}, new SipLine { Id = 1, Name = "Линия 2:" } };
+        //private int _maxLineNumber = 2;
+
         private DateTime _lastAliveTime;
         private string _sipUser;
         private string _sipSecret;
         private string _serverIP;
         private string _incomingCallFrom = "";
         private bool _sipCallActive = true;
-        private int _maxLineNumber = 2;
 
         public string serverIp => _serverIP;
 
@@ -1591,7 +1595,8 @@ namespace CRMPhone.ViewModel
             //todo Только исходящий
             if(string.IsNullOrEmpty(_sipPhone))
                 return;
-            _sipAgent.Call(_sipPhone);
+            string callId = string.Format("{1}{0}", _sipPhone, SelectedOutgoingCompany.Prefix);
+            _sipAgent.Call(callId);
             IncomingCallFrom = _sipPhone;
             SipState = $"Исходящий вызов на номер {_sipPhone}";
         }
@@ -1910,6 +1915,13 @@ namespace CRMPhone.ViewModel
 
         private void InitPjSip()
         {
+            foreach (SipLine line in _sipLines)
+            {
+                line.State = "Free";
+                line.Phone = "";
+                line.Uri = "";
+                line.LastAnswerTime = null;
+            }
             _sipAgent = new SipAgent();
             _sipAgent.Init( _sipUser, _sipSecret, _serverIP);
             _sipAgent.OnCallState += OnCallState;
@@ -1921,13 +1933,7 @@ namespace CRMPhone.ViewModel
         {
             if (prm.reason == "OK")
             {
-                foreach (SipLine line in _sipLines)
-                {
-                    line.State = "Free";
-                    line.Phone = "";
-                    line.Uri = "";
-                    line.LastAnswerTime = null;
-                }
+
                 SipState = "Успешная регистрация!";
                 _canRegistration = false;
                 _sipCallActive = false;

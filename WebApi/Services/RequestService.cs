@@ -769,6 +769,9 @@ body = {
                             {
                                 return File.ReadAllBytes(localFileName);
                             }
+                            localFileName =
+                                fileName.Replace("/raid/monitor/", $"\\\\192.168.1.130\\mixmonitor\\mp3\\")
+                                    .Replace("/", "\\");
 
                             var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
                             if (File.Exists(localFileNameMp3))

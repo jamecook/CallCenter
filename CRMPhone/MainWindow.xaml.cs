@@ -38,6 +38,7 @@ namespace CRMPhone
             var t = login.ShowDialog();
             if (t != true)
             {
+                _notify.Visible = false;
                 Environment.Exit(0);
             }
             mainContext.SipUser = AppSettings.SipInfo?.SipUser;
@@ -51,6 +52,7 @@ namespace CRMPhone
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            _notify.Visible = false;
             (DataContext as CRMContext)?.Unregister();
         }
 
