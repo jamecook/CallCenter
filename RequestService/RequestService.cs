@@ -1601,7 +1601,7 @@ namespace RequestServiceImpl
         {
             //todo Можно убрать после перетаскивая записей
             var oldFileName = fileName.Replace("/raid/monitor/", $"\\\\192.168.1.130\\mixmonitor\\").Replace("/", "\\");
-            var oldFileNameMp3 = oldFileName.Replace(".wav", ".mp3");
+            var oldFileNameMp3 = fileName.Replace("/raid/monitor/", $"\\\\192.168.1.130\\mixmonitor\\mp3\\").Replace("/", "\\").Replace(".wav", ".mp3");
 
             var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/", "\\");
             var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");

@@ -357,7 +357,8 @@ namespace CRMPhone.ViewModel
                     File.Copy(localFileName, saveDialog.FileName);
                 //todo Можно убрать после перетаскивая записей
                 localFileName = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\192.168.1.130\\mixmonitor\\").Replace("/", "\\");
-                localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
+                localFileNameMp3 = record.MonitorFileName.Replace("/raid/monitor/", $"\\\\192.168.1.130\\mixmonitor\\mp3\\").Replace("/", "\\").Replace(".wav", ".mp3");
+
                 if (File.Exists(localFileNameMp3))
                     File.Copy(localFileNameMp3, saveDialog.FileName);
                 else if (File.Exists(localFileName))
