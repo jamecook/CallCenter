@@ -13,6 +13,7 @@ namespace WebApi.Models
         public string IntercomId { get; set; }
         public string SipId { get; set; }
         public bool? CanBeCalled { get; set; }
+        public CameraDto[] Cameras { get; set; }
         public string FullAddress
         {
             get

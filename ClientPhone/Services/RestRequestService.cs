@@ -13,8 +13,8 @@ namespace ClientPhone.Services
     {
         private static readonly string ApiKey  = "qwertyuiop987654321";
         //private static readonly string ApiUrl = "http://127.0.0.1:5000/Client";
-        private static readonly string ApiUrl = "http://192.168.1.124:32180/Client";
-        //private static readonly string ApiUrl = "http://192.168.1.124:32181/Client";
+        //private static readonly string ApiUrl = "http://192.168.1.124:32180/Client";
+        private static readonly string ApiUrl = "http://192.168.1.124:32181/Client";
         public static ActiveChannelsDto[] GetActiveChannels(int userId)
         {
             var restUrl = $"{ApiUrl}/activeCalls?userId={userId}";
@@ -67,7 +67,7 @@ namespace ClientPhone.Services
 
         public static UserDto[] GetDispatchers(int companyId)
         {
-            var restUrl = $"{ApiUrl}/getDispatchers?companyId={companyId}";
+            var restUrl = $"{ApiUrl}/getDispatchers2?companyId={companyId}";
 
             var client = new RestClient(restUrl);
             var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };

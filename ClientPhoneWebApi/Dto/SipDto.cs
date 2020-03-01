@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace ClientPhoneWebApi.Dto
 {
     public class SipDto

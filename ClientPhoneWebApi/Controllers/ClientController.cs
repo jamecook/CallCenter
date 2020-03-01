@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using ClientPhoneWebApi.Dto;
-using ClientPhoneWebApi.Repo;
 using ClientPhoneWebApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
 
 namespace ClientPhoneWebApi.Controllers
 {
@@ -84,6 +80,16 @@ namespace ClientPhoneWebApi.Controllers
             }
             return Ok(RequestService.GetDispatchers(companyId));
         }
+        [HttpGet("getDispatchers2")]
+        public IActionResult GetDispatchers2([FromQuery]int companyId)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            return Ok(RequestService.GetDispatchers2(companyId));
+        }
 
         [HttpGet("getFilterDispatchers")]
         public IActionResult GetFilterDispatchers([FromQuery]int userId)
@@ -146,7 +152,7 @@ namespace ClientPhoneWebApi.Controllers
             {
                 return BadRequest("Authorization error!");
             }
-            return Ok(RequestService.GetCallList(fromDate, toDate, requestId, operatorId, serviceCompanyId, phoneNumber));
+            return Ok(RequestService.GetCallList(userId, fromDate, toDate, requestId, operatorId, serviceCompanyId, phoneNumber));
         }
         [HttpGet("getRequestByPhone")]
         public IActionResult GetRequestByPhone([FromQuery]int userId, [FromQuery]string phoneNumber)

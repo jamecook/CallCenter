@@ -5,7 +5,6 @@ using System.Linq;
 using ClientPhoneWebApi.Dto;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
-using Newtonsoft.Json;
 
 namespace ClientPhoneWebApi.Services
 {
@@ -199,7 +198,7 @@ namespace ClientPhoneWebApi.Services
                 sqlQuery += " where R.id = @RequestId";
             }
 
-            sqlQuery += " and R.service_company_id in (17,88,48,142)";
+            sqlQuery += " and R.service_company_id in (SELECT service_company_id FROM UserServiceCompanies where user_id = @userId)";
             sqlQuery += " group by R.id order by id desc";
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -207,6 +206,8 @@ namespace ClientPhoneWebApi.Services
                 using (var cmd =
                     new MySqlCommand(sqlQuery, conn))
                 {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+
                     if (string.IsNullOrEmpty(requestId))
                     {
 
@@ -302,7 +303,7 @@ namespace ClientPhoneWebApi.Services
                 @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,send_sms,is_master,is_executer,is_dispetcher,w.send_notification FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
-    where w.enabled = 1 and w.is_master = 1 and service_company_id in (17,88,48,142) ";
+    where w.enabled = 1 and w.is_master = 1 and service_company_id in (SELECT service_company_id FROM UserServiceCompanies where user_id = @userId) ";
             if (showOnlyExecutors)
                 sqlQuery += " and can_assign = true";
             sqlQuery += serviceCompanyId.HasValue ? " and service_company_id = " + serviceCompanyId : "";
@@ -312,6 +313,8 @@ namespace ClientPhoneWebApi.Services
                 conn.Open();
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+
                     var workers = new List<WorkerDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -352,7 +355,7 @@ namespace ClientPhoneWebApi.Services
                 @"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms,is_master,is_executer,is_dispetcher,send_notification FROM CallCenter.Workers w
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
-    where w.enabled = 1 and w.is_executer = true and service_company_id in (17,88,48,142) ";
+    where w.enabled = 1 and w.is_executer = true and service_company_id in (SELECT service_company_id FROM UserServiceCompanies where user_id = @userId) ";
             if (showOnlyExecutors)
                 sqlQuery += " and can_assign = true";
             sqlQuery += serviceCompanyId.HasValue ? " and service_company_id = " + serviceCompanyId : "";
@@ -362,6 +365,8 @@ namespace ClientPhoneWebApi.Services
                 conn.Open();
                 using (var cmd = new MySqlCommand(sqlQuery, conn))
                 {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+
                     var workers = new List<WorkerDto>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -860,7 +865,7 @@ where s.request_id = @RequestId and deleted = 0;";
  join CallCenter.AlertType at on at.id = a.alert_type_id
  join CallCenter.AlertServiceType ast on ast.id = a.alert_service_type_id
  join CallCenter.Users u on u.id = a.create_user_id
- where 1 = 1 and h.service_company_id in (17,48,88,142)";
+ where 1 = 1 and h.service_company_id in (SELECT service_company_id FROM UserServiceCompanies where user_id = @userId)";
             if (onlyActive)
                 sqlQuery += " and (end_date is null or a.end_date > sysdate())";
             else
@@ -877,6 +882,8 @@ where s.request_id = @RequestId and deleted = 0;";
                 using (
                     var cmd = new MySqlCommand(sqlQuery, conn))
                 {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+
                     if (!onlyActive)
                     {
                         cmd.Parameters.AddWithValue("@FromDate", fromDate);
@@ -2634,7 +2641,7 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
             return callList.ToArray();
         }
 
-        public CallsListDto[] GetCallList(DateTime fromDate, DateTime toDate, string requestId, int? operatorId,
+        public CallsListDto[] GetCallList(int userId, DateTime fromDate, DateTime toDate, string requestId, int? operatorId,
             int? serviceCompanyId, string phoneNumber)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -2692,7 +2699,7 @@ where C.Direction is not null and C.UniqueId < '1552128123.322928'";
                     }
                 }
 
-                sqlQuery += " and sc.id in (17,88)";
+                sqlQuery += " and sc.id in (SELECT service_company_id FROM UserServiceCompanies where user_id = @userId)";
 
                 sqlQuery += " group by C.UniqueID";
 
@@ -2749,7 +2756,7 @@ and C.Context not in ('autoring','ringupcalls')
                     }
                 }
 
-                sqlQuery += " and sc.id in (17,88)";
+                sqlQuery += " and sc.id in (SELECT service_company_id FROM UserServiceCompanies where user_id = @userId)";
                 sqlQuery += @" group by C.UniqueId
 ) a
 left join CallCenter.Users u on u.id = a.userId";
@@ -2758,6 +2765,8 @@ left join CallCenter.Users u on u.id = a.userId";
                 using (
                     var cmd = new MySqlCommand(sqlQuery, conn))
                 {
+                    cmd.Parameters.AddWithValue("@userId", userId);
+
                     if (!string.IsNullOrEmpty(requestId))
                     {
                         cmd.Parameters.AddWithValue("@RequestNum", requestId.Trim());
@@ -3680,6 +3689,31 @@ hot_water2_code = @hw2code,cool_water3_code = @cw3code,hot_water3_code = @hw3cod
                 conn.Open();
                 using (var cmd = new MySqlCommand(@"call phone_client.get_dispatchers()", conn))
                 {
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        var users = new List<UserDto>();
+                        while (dataReader.Read())
+                        {
+                            users.Add(new UserDto()
+                            {
+                                Id = dataReader.GetInt32("Id"),
+                                Login = dataReader.GetNullableString("Login")
+                            });
+                        }
+
+                        dataReader.Close();
+                        return users.ToArray();
+                    }
+                }
+            }
+        }        public UserDto[] GetDispatchers2(int companyId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(@"call phone_client.get_dispatchers2(@companyId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@companyId", companyId);
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         var users = new List<UserDto>();

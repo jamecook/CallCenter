@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows;
@@ -45,7 +46,12 @@ namespace CRMPhone.ViewModel
             {
                 var localIp = GetLocalIpAddress();
                 AppSettings.SetSipInfo(RestRequestService.GetSipInfoByIp(localIp));
-                Users = new List<UserDto>(RestRequestService.GetDispatchers(1));
+                var companyIdStr = ConfigurationManager.AppSettings["CompanyId"];
+                if (!int.TryParse(companyIdStr, out int companyId))
+                {
+                    companyId = 1;
+                }
+                Users = new List<UserDto>(RestRequestService.GetDispatchers(companyId));
             }
             catch (Exception ex)
             {

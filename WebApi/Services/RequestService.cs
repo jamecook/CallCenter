@@ -2977,7 +2977,7 @@ body = {
                     {
                         while (dataReader.Read())
                         {
-                            addresses.Add(new AddressDto()
+                            var address = new AddressDto()
                             {
                                 Id = dataReader.GetInt32("id"),
                                 HouseId = dataReader.GetInt32("house_id"),
@@ -2990,13 +2990,48 @@ body = {
                                 IntercomId = dataReader.GetNullableString("intercomId"),
                                 SipId = dataReader.GetNullableString("sip_id"),
                                 CanBeCalled = dataReader.GetNullableBoolean("can_be_called"),
-                            });
+                            };
+                            var cameras = GetCameras(clientId, deviceId);
+                            address.Cameras = cameras;
+                            addresses.Add(address);
                         }
 
                         dataReader.Close();
                     }
 
                     return addresses.ToArray();
+                }
+            }
+        }
+
+        public static CameraDto[] GetCameras(int clientId, string deviceId)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetCameras(@ClientId,@DeviceId)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@DeviceId", deviceId);
+                    var cameras = new List<CameraDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            cameras.Add(new CameraDto()
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                Url = dataReader.GetNullableString("video_url"),
+                                Preview = dataReader.GetNullableString("preview_url"),
+                                Name = dataReader.GetNullableString("name"),
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return cameras.ToArray();
                 }
             }
         }
