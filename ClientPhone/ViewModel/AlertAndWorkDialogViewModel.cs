@@ -22,7 +22,6 @@ namespace CRMPhone.ViewModel
         private StreetDto _selectedStreet;
         private ObservableCollection<HouseDto> _houseList;
         private HouseDto _selectedHouse;
-        private ObservableCollection<AlertTimeDto> _alertDateTimes;
 
         private AlertDto _alert;
 
@@ -118,11 +117,7 @@ namespace CRMPhone.ViewModel
             get { return _fromDate; }
             set { _fromDate = value; OnPropertyChanged(nameof(FromDate));}
         }
-        public ObservableCollection<AlertTimeDto> AlertDateTimes
-        {
-            get { return _alertDateTimes; }
-            set { _alertDateTimes = value; OnPropertyChanged(nameof(AlertDateTimes)); }
-        }
+
         public DateTime? ToDate
         {
             get { return _toDate; }
@@ -179,8 +174,9 @@ namespace CRMPhone.ViewModel
                     ServiceType = new AlertServiceTypeDto() { Id = SelectedService.Id},
                 };
             }
-            alert.StartDate = FromDate.Date.AddMinutes(SelectedFromTime.AddMinutes); 
-            alert.EndDate = ToDate?.Date.AddMinutes(SelectedToTime.AddMinutes); 
+
+            alert.StartDate = StartTime.HasValue ? FromDate.Date.Add(StartTime.Value) : FromDate.Date;
+            alert.EndDate = EndTime.HasValue ? ToDate?.Date.Add(EndTime.Value) : ToDate?.Date; 
             alert.Description = Description;
 
             RestRequestService.SaveAlert(AppSettings.CurrentUser.Id, alert);
@@ -206,21 +202,22 @@ namespace CRMPhone.ViewModel
         {
             _view = view;
         }
-        public DateTime FromTime { get; set; }
-        public DateTime? ToTime { get; set; }
 
-        private AlertTimeDto _selectedFromTime;
-        public AlertTimeDto SelectedFromTime
+        public TimeSpan? EndTime
         {
-            get { return _selectedFromTime; }
-            set { _selectedFromTime = value; OnPropertyChanged(nameof(SelectedFromTime)); }
+            get => _endTime;
+            set { _endTime = value; OnPropertyChanged(nameof(EndTime));}
         }
-        private AlertTimeDto _selectedToTime;
-        public AlertTimeDto SelectedToTime
+
+        public TimeSpan? StartTime
         {
-            get { return _selectedToTime; }
-            set { _selectedToTime = value; OnPropertyChanged(nameof(SelectedToTime)); }
+            get => _startTime;
+            set { _startTime = value; OnPropertyChanged(nameof(StartTime));}
         }
+
+        private TimeSpan? _endTime;
+        private TimeSpan? _startTime;
+
 
         public AlertAndWorkDialogViewModel(AlertDto alert)
         {
@@ -232,15 +229,8 @@ namespace CRMPhone.ViewModel
             TypeList = new ObservableCollection<AlertTypeDto>(RestRequestService.GetAlertTypes(AppSettings.CurrentUser.Id));
             ServiceList = new ObservableCollection<AlertServiceTypeDto>(RestRequestService.GetAlertServiceTypes(AppSettings.CurrentUser.Id));
             FromDate = RestRequestService.GetCurrentDate().Date;
-
-            var times = new List<AlertTimeDto>();
-            for (int i = 0; i < 24; i++)
-            {
-                times.Add(new AlertTimeDto { Id = i, Name = string.Format("{0}:00", i), AddMinutes = i * 60 });
-            }
-            AlertDateTimes = new ObservableCollection<AlertTimeDto>(times);
-            SelectedFromTime = AlertDateTimes.FirstOrDefault();
-            SelectedToTime = AlertDateTimes.FirstOrDefault();
+            StartTime = Alert?.StartDate.TimeOfDay;
+            EndTime = Alert?.EndDate?.TimeOfDay;
 
             SelectedType = TypeList.FirstOrDefault();
             SelectedService = ServiceList.FirstOrDefault();

@@ -1145,7 +1145,13 @@ namespace ClientPhoneWebApi.Controllers
         public async Task<IActionResult> AddFileToRequest([FromQuery]int userId, [FromQuery]int requestId, [FromForm] IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return BadRequest();
+            {
+                var files = this.Request.Form.Files;
+                file = files.Count > 0 ? files[0] : null;
+                if (file == null || file.Length == 0)
+                    return BadRequest();
+            }
+
             var uploadFolder = Path.Combine(GetRootFolder(), requestId.ToString());
             if (!Directory.Exists(uploadFolder))
             {

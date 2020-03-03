@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:CRMPhone.Dialogs"
         xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         mc:Ignorable="d"
-        Title="Исполнитель заявки" Height="320" Width="420" MinWidth ="420" MinHeight="320"
+        Title="Документы прикрепленные к заявке" Height="320" Width="420" MinWidth ="420" MinHeight="320"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         d:DataContext="{d:DesignInstance viewModel:AttachmentDialogViewModel}">

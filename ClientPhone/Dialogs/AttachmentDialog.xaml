@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:CRMPhone.Dialogs"
         xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         mc:Ignorable="d"
-        Title="Исполнитель заявки" Height="320" Width="420" MinWidth ="420" MinHeight="320"
+        Title="Документы прикрепленные к заявке" Height="320" Width="420" MinWidth ="420" MinHeight="320"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         d:DataContext="{d:DesignInstance viewModel:AttachmentDialogViewModel}">
@@ -17,11 +17,11 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <WrapPanel Grid.Row="0">
-            <!--<Button Width="100" Margin ="5" Content="Добавить" Command="{Binding AddCommand}"/>-->
+            <Button Width="100" Margin ="5" Content="Добавить" Command="{Binding AddCommand}"/>
             <Button Width="100" Margin ="5" Content="Удалить" Command="{Binding DeleteCommand}"/>
             <Button Width="100" Margin ="5" Content="Скачать" Command="{Binding DownloadCommand}"/>
         </WrapPanel>
-        <DataGrid Name="SpecialityGrid" Grid.Row ="1" 
+        <DataGrid Name="AttachmentGrid" Grid.Row ="1" 
                   AutoGenerateColumns="False"
                   ItemsSource="{Binding Path=AttachmentList}"
                   SelectionMode="Single"
@@ -30,6 +30,11 @@
                   IsReadOnly="True"
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
+            <DataGrid.InputBindings>
+                <MouseBinding MouseAction="LeftDoubleClick"
+                              Command="{Binding Path=OpenAttachmentCommand}"
+                              CommandParameter="{Binding ElementName=AttachmentGrid, Path=SelectedItem}" />
+            </DataGrid.InputBindings>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Дата прикрепления" Width="*"
                                     Binding="{Binding Path=CreateDate}">

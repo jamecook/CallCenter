@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
+        xmlns:controls="clr-namespace:CRMPhone.Controls"
         mc:Ignorable="d"
         Title="Плановые и аварийные работы" MinHeight="240" MinWidth ="600" Height="240" Width="600"
         WindowStartupLocation="CenterOwner"
@@ -32,18 +33,10 @@
         <WrapPanel Grid.Row="1">
             <TextBlock Margin="3" VerticalAlignment="Center" Text="Дата начала работ с:"/>
             <DatePicker Height="24" Width="100" SelectedDate="{Binding FromDate}"/>
-            <ComboBox Margin ="5,0" HorizontalAlignment="Right" Width="80" DisplayMemberPath="Name" SelectedItem="{Binding SelectedFromTime}" ItemsSource="{Binding AlertDateTimes}" IsEditable="True">
-                <ComboBox.Resources>
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
-                </ComboBox.Resources>
-            </ComboBox>
+            <controls:TimeControl Value="{Binding StartTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
             <TextBlock Margin="10,5" VerticalAlignment="Center" Text="по:"/>
             <DatePicker Height="24" Width="100" SelectedDate="{Binding ToDate}"/>
-            <ComboBox Margin ="5,0" HorizontalAlignment="Right" Width="80" DisplayMemberPath="Name" SelectedItem="{Binding SelectedToTime}" ItemsSource="{Binding AlertDateTimes}" IsEditable="True">
-                <ComboBox.Resources>
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
-                </ComboBox.Resources>
-            </ComboBox>
+            <controls:TimeControl Value="{Binding EndTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
         </WrapPanel>
         <WrapPanel Grid.Row="2" IsEnabled ="{Binding CanEdit}">
             <TextBlock Margin="3" VerticalAlignment="Center" Text="Тип:"/>

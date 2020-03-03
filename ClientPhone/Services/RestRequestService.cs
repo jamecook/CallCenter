@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
@@ -13,8 +14,8 @@ namespace ClientPhone.Services
     {
         private static readonly string ApiKey  = "qwertyuiop987654321";
         //private static readonly string ApiUrl = "http://127.0.0.1:5000/Client";
-        //private static readonly string ApiUrl = "http://192.168.1.124:32180/Client";
-        private static readonly string ApiUrl = "http://192.168.1.124:32181/Client";
+        private static readonly string ApiUrl = "http://192.168.1.124:32180/Client";
+        //private static readonly string ApiUrl = "http://192.168.1.124:32181/Client";
         public static ActiveChannelsDto[] GetActiveChannels(int userId)
         {
             var restUrl = $"{ApiUrl}/activeCalls?userId={userId}";
@@ -63,6 +64,23 @@ namespace ClientPhone.Services
 
             var responce = client.Execute(request);
             return JsonConvert.DeserializeObject<string>(responce.Content);
+        }
+
+        internal static void AddAttachmentToRequest(int userId, int requestId, string fileName)
+        {
+            var restUrl = $"{ApiUrl}/add_file?userId={userId}&requestId={requestId}";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.POST);// { RequestFormat = RestSharp.DataFormat.Json };
+            request.AlwaysMultipartFormData = true;
+
+            request.AddHeader("Content-Type", "multipart/form-data");
+            request.AddHeader("Authorization", $"{ApiKey}");
+
+            request.AddFile(Path.GetFileNameWithoutExtension(fileName), fileName);
+            //request.AddParameter("userId", userId.ToString());
+            //request.AddParameter("requestId", requestId.ToString());
+
+            var responce = client.Execute(request);
         }
 
         public static UserDto[] GetDispatchers(int companyId)

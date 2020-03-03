@@ -283,6 +283,7 @@ values
                 sqlQuery += " group by R.id order by R.id";
                 using (var cmd = new MySqlCommand(sqlQuery, dbConnection))
                 {
+                    cmd.CommandTimeout = 600;
                     if (serviceCompany != null && serviceCompany != "ЭНКО")
                     {
                         cmd.Parameters.AddWithValue("@ServiceCompany", serviceCompany);

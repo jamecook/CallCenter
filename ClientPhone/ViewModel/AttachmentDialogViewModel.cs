@@ -1,5 +1,7 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Forms;
@@ -41,6 +43,24 @@ namespace CRMPhone.ViewModel
         private ICommand _addCommand;
         public ICommand AddCommand { get { return _addCommand ?? (_addCommand = new CommandHandler(Add, true)); } }
 
+        private ICommand _openAttachmentCommand;
+        public ICommand OpenAttachmentCommand { get { return _openAttachmentCommand ?? (_openAttachmentCommand = new RelayCommand(OpenAttachment)); } }
+
+        private void OpenAttachment(object obj)
+        {
+            var item = obj as AttachmentDto;
+            if (item == null)
+                return;
+            var extention = Path.GetExtension(item.FileName);
+            var tempFileName = $"{Path.GetTempPath()}{Guid.NewGuid().ToString()}.{extention}";
+            var buffer = RestRequestService.GetFile(AppSettings.CurrentUser.Id, item.RequestId,
+                item.FileName);
+            if (buffer == null || buffer.Length == 0)
+                return;
+            File.WriteAllBytes(tempFileName, buffer);
+            Process.Start(tempFileName);
+        }
+
         private ICommand _deleteCommand;
         public ICommand DeleteCommand { get { return _deleteCommand ?? (_deleteCommand = new CommandHandler(Delete, true)); } }
 
@@ -69,7 +89,6 @@ namespace CRMPhone.ViewModel
 
         private void Add()
         {
-            return;
             var openDialog = new OpenFileDialog
             {
                 Multiselect = false,
@@ -77,7 +96,7 @@ namespace CRMPhone.ViewModel
             };
             if (openDialog.ShowDialog() == DialogResult.OK)
             {
-                //_requestService.AddAttachmentToRequest(_requestId,openDialog.FileName);
+                RestRequestService.AddAttachmentToRequest(AppSettings.CurrentUser.Id, _requestId, openDialog.FileName);
                 Refresh();
             }
 

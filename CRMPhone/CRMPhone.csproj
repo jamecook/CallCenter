@@ -162,6 +162,9 @@
     <Compile Include="Controls\ServiceCompanyFondControl.xaml.cs">
       <DependentUpon>ServiceCompanyFondControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TimeControl.xaml.cs">
+      <DependentUpon>TimeControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomComboBox.cs" />
     <Compile Include="Dialogs\Admins\BindWorkerToWorkerDialog.xaml.cs">
       <DependentUpon>BindWorkerToWorkerDialog.xaml</DependentUpon>
@@ -437,6 +440,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\ServiceCompanyFondControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\TimeControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
