@@ -143,6 +143,7 @@ namespace CRMPhone.ViewModel
             SpecialityAdminContext = new SpecialityControlContext();
             ServiceAdminContext = new ServiceAdminControlContext();
             HouseAdminContext = new HouseAdminControlContext();
+            HouseTypeAdminContext = new HouseTypeAdminControlContext();
             RedirectAdminContext = new RedirectAdminControlContext();
             RingUpAdminContext = new RingUpAdminControlContext();
             BlackListContext = new BlackListControlContext();
@@ -193,6 +194,7 @@ namespace CRMPhone.ViewModel
             SpecialityAdminContext.RefreshList();
             ServiceAdminContext.RefreshParentServiceList();
             HouseAdminContext.RefreshCities();
+            HouseTypeAdminContext.RefreshCities();
             RedirectAdminContext.Refresh();
             RingUpAdminContext.Refresh();
             BlackListContext.RefreshList();
@@ -1101,6 +1103,7 @@ namespace CRMPhone.ViewModel
         private ServiceCompanyFondControlContext _serviceCompanyFondContext;
         private DispatcherControlContext _dispatcherContext;
         private bool _queuePaused;
+        private HouseTypeAdminControlContext _houseTypeAdminContext;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 
@@ -1189,6 +1192,16 @@ namespace CRMPhone.ViewModel
         {
             get { return _houseAdminContext; }
             set { _houseAdminContext = value; OnPropertyChanged(nameof(HouseAdminContext)); }
+        }
+
+        public HouseTypeAdminControlContext HouseTypeAdminContext
+        {
+            get => _houseTypeAdminContext;
+            set
+            {
+                _houseTypeAdminContext = value; 
+                OnPropertyChanged(nameof(HouseTypeAdminContext));
+            }
         }
 
         public RingUpAdminControlContext RingUpAdminContext

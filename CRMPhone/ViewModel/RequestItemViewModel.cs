@@ -48,10 +48,12 @@ namespace CRMPhone.ViewModel
         private DateTime? _termOfExecution;
         private ObservableCollection<GarantyDto> _garantyList;
         private GarantyDto _selectedGaranty;
+        private RequestDialogViewModel _dialogModel;
 
 
-        public RequestItemViewModel()
+        public RequestItemViewModel(RequestDialogViewModel dialogModel)
         {
+            _dialogModel = dialogModel;
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             //CanAttach = true;
             ServiceList = new ObservableCollection<ServiceDto>();
@@ -333,6 +335,7 @@ namespace CRMPhone.ViewModel
                 }
                 OnPropertyChanged(nameof(IsImmediate));
                 OnPropertyChanged(nameof(SelectedService));
+                _dialogModel.GetInfoByHouseAndType(_selectedHouseId,value?.Id);
             }
         }
 

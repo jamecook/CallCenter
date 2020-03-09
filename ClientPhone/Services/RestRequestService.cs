@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using RequestServiceImpl;
@@ -14,12 +15,13 @@ namespace ClientPhone.Services
     {
         private static readonly string ApiKey  = "qwertyuiop987654321";
         //private static readonly string ApiUrl = "http://127.0.0.1:5000/Client";
-        private static readonly string ApiUrl = "http://192.168.1.124:32180/Client";
+        private static readonly string ApiUrl = "http://192.168.0.130:5000/Client";
+        //private static readonly string ApiUrl = "http://192.168.1.124:32180/Client";
         //private static readonly string ApiUrl = "http://192.168.1.124:32181/Client";
         public static ActiveChannelsDto[] GetActiveChannels(int userId)
         {
             var restUrl = $"{ApiUrl}/activeCalls?userId={userId}";
-
+            ServicePointManager.UseNagleAlgorithm = false;
             var client = new RestClient(restUrl);
             var request = new RestRequest(Method.GET) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddHeader("Content-Type", "application/json; charset=utf-8");

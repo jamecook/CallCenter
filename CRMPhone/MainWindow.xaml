@@ -910,6 +910,15 @@
                             </TabItem.Header>
                             <admins:CallsNotificationControl DataContext="{Binding CallsNotificationContext}"/>
                         </TabItem>
+                        <TabItem Name="HouseTypeInfoTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Информация по услугам"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:HouseTypeAdminControl DataContext="{Binding HouseTypeAdminContext}"/>
+                        </TabItem>
                     </TabControl>
                 </Grid>
             </TabItem>

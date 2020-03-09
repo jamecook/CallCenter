@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 using CRMPhone.Annotations;
 using CRMPhone.Dialogs;
@@ -18,6 +21,7 @@ namespace CRMPhone.ViewModel
     public class RequestDialogViewModel : INotifyPropertyChanged
     {
         private Window _view;
+        private double _defaultWidth = 1020;
 
         private readonly RequestServiceImpl.RequestService _requestService;
         private ObservableCollection<CityDto> _cityList;
@@ -142,6 +146,23 @@ namespace CRMPhone.ViewModel
                 OnPropertyChanged(nameof(ReadOnlyPhone));
                 OnPropertyChanged(nameof(ReadOnly));
             }
+        }
+
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set { _isExpanded = value;
+                if (value) WindowWidth = 1400;
+                else WindowWidth = _defaultWidth;
+                OnPropertyChanged(nameof(IsExpanded));
+            }
+        }
+
+
+        public double WindowWidth
+        {
+            get => _windowWidth;
+            set { _windowWidth = value; OnPropertyChanged(nameof(WindowWidth));}
         }
 
         public bool CanEdit => RequestId == 0;
@@ -386,7 +407,7 @@ namespace CRMPhone.ViewModel
 
         private void AddRequest()
         {
-            RequestList.Add(new RequestItemViewModel());
+            RequestList.Add(new RequestItemViewModel(this));
         }
 
         private ICommand _deleteCommand;
@@ -917,6 +938,8 @@ namespace CRMPhone.ViewModel
         private string _serviceCompany;
         private string _cityRegion;
         private string _streetName;
+        private bool _isExpanded;
+        private double _windowWidth;
 
         public bool CanEditAddress
         {
@@ -986,6 +1009,7 @@ namespace CRMPhone.ViewModel
 
         public RequestDialogViewModel()
         {
+            WindowWidth = _defaultWidth;
             AlertExists = false;
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             var contactInfo = new ContactDto {Id = 0, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall};
@@ -1003,7 +1027,7 @@ namespace CRMPhone.ViewModel
             {
                 SelectedCity = CityList.FirstOrDefault();
             }
-            RequestList = new ObservableCollection<RequestItemViewModel> { new RequestItemViewModel() };
+            RequestList = new ObservableCollection<RequestItemViewModel> { new RequestItemViewModel(this) };
             //AppSettings.LastIncomingCall = "932";
             CanEditAddress = true;
             //CanEditAddress = AppSettings.CurrentUser.Roles.Select(r => r.Name).Contains("admin");
@@ -1029,6 +1053,39 @@ namespace CRMPhone.ViewModel
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void GetInfoByHouseAndType(int? selectedHouseId, int? typeId)
+        {
+            LoadServiceCompanyInfo(selectedHouseId, typeId);
+        }
+        private void LoadServiceCompanyInfo(int? houseId, int? typeId)
+        {
+            if (_view == null)
+                return;
+
+            var flowDoc = ((RequestDialog)_view).FlowInfo.Document;
+
+            var flowDocument = houseId.HasValue && typeId.HasValue ? _requestService.GetHouseTypeInfo(houseId.Value, typeId.Value): "";
+            var content = new TextRange(flowDoc.ContentStart, flowDoc.ContentEnd);
+            if (content.CanLoad(System.Windows.DataFormats.Xaml))
+            {
+                using (var stream = new MemoryStream())
+                {
+                    var buffer = Encoding.Default.GetBytes(flowDocument);
+                    stream.Write(buffer, 0, buffer.Length);
+                    if (stream.Length > 0)
+                    {
+                        content.Load(stream, System.Windows.DataFormats.Xaml);
+                        IsExpanded = true;
+                    }
+                    else
+                    {
+                        content.Text = "";
+                        IsExpanded = false;
+                    }
+                }
+            }
         }
     }
 }

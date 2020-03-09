@@ -7,8 +7,8 @@
         xmlns:controls="clr-namespace:CRMPhone.Controls"
         xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         mc:Ignorable="d"
-        Title="Заявка" MinHeight="780" MinWidth ="980" MaxWidth="980" Height="800" Width="980"
-        WindowStartupLocation="CenterOwner"
+        Title="Заявка" MinHeight="780" MinWidth ="980" MaxWidth="1920" Height="800" Width="{Binding WindowWidth, Mode=TwoWay}" Left="120" Top="40"
+        WindowStartupLocation="Manual"
         WindowStyle="ToolWindow"
         FontSize="12"
         d:DataContext="{d:DesignInstance viewModel:RequestDialogViewModel}">
@@ -19,13 +19,22 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="964"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Expander Grid.Row="0" Grid.Column="1" Grid.RowSpan="4" IsExpanded="{Binding IsExpanded}">
+            <Grid>
+                <DockPanel>
+                    <RichTextBox Name="FlowInfo" Margin="1" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+                    </RichTextBox>
+                </DockPanel>
+            </Grid>
+        </Expander>
+        <StackPanel Grid.Row="0" Grid.Column="0">
             <WrapPanel>
                 <WrapPanel Margin="5"  >
                     <WrapPanel IsEnabled ="{Binding CanEdit}">
@@ -169,7 +178,7 @@
 
             </StackPanel>
         </StackPanel>
-        <StackPanel Grid.Row="1">
+        <StackPanel Grid.Row="1" Grid.Column="0">
             <TextBlock Margin ="3" Text="Контактные телефоны:"/>
             <Button Margin ="3" Content="Добавить" Width="120" IsEnabled ="{Binding CanEditPhone}" Command="{Binding AddContactCommand}" HorizontalAlignment="Left"/>
             <ListBox x:Name="ContactListBox"
@@ -223,7 +232,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </StackPanel>
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="2" Grid.Column="0">
             <StackPanel>
                 <TextBlock Margin="3" Text="Заявки:"/>
                 <DockPanel>
@@ -263,7 +272,7 @@
             </ListBox>
             </StackPanel>
         </Grid>
-        <DockPanel Grid.Row="3">
+        <DockPanel Grid.Row="3" Grid.Column="0">
         </DockPanel>
     </Grid>
 </Window>

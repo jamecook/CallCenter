@@ -122,6 +122,9 @@
     <Compile Include="Controls\Admins\HouseAdminControl.xaml.cs">
       <DependentUpon>HouseAdminControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Admins\HouseTypeAdminControl.xaml.cs">
+      <DependentUpon>HouseTypeAdminControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Admins\RingUpAdminControl.xaml.cs">
       <DependentUpon>RingUpAdminControl.xaml</DependentUpon>
     </Compile>
@@ -312,6 +315,7 @@
     <Compile Include="ViewModel\DigitsDialogViewModel.cs" />
     <Compile Include="ViewModel\EditExecuterBindDialogViewModel.cs" />
     <Compile Include="ViewModel\ExecuterBindDialogViewModel.cs" />
+    <Compile Include="ViewModel\HouseTypeAdminControlContext.cs" />
     <Compile Include="ViewModel\InputBindingsManager.cs" />
     <Compile Include="ViewModel\NotificationYesNo.cs" />
     <Compile Include="ViewModel\SelectPeriodDialogViewModel.cs" />
@@ -390,6 +394,10 @@
     <Page Include="Controls\Admins\HouseAdminControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Admins\HouseTypeAdminControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
     <Page Include="Controls\Admins\RingUpAdminControl.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -4839,6 +4839,28 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
                 return result;
             }
         }
+        public string GetHouseTypeInfo(int houseId, int typeId)
+        {
+            string result = string.Empty;
+            using (var cmd = new MySqlCommand(@"SELECT i.id, i.info FROM CallCenter.HouseTypeInfo h
+    join CallCenter.Informations i on i.id = h.info_id
+    where house_id = @houseId and type_id = @typeId and deleted = 0; ",_dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@houseId", houseId);
+                cmd.Parameters.AddWithValue("@typeId", typeId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    dataReader.Read();
+                    if (dataReader.HasRows)
+                    {
+                        var ret_id = dataReader.GetInt32("id");
+                        result = dataReader.GetNullableString("info");
+                    }
+                }
+                return result;
+            }
+        }
 
         public void DeleteCallListRecord(int recordId)
         {

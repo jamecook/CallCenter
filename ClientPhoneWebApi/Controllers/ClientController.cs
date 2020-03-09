@@ -43,6 +43,7 @@ namespace ClientPhoneWebApi.Controllers
         [HttpGet("activeCalls")]
         public IActionResult GetActiveCalls([FromQuery]int userId)
         {
+            Logger.LogInformation($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!{userId}");
             if (userId == 0)
                 return BadRequest();
             var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");

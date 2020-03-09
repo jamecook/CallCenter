@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using ClientPhoneWebApi.Dto;
@@ -2558,6 +2559,8 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
         public ActiveChannelsDto[] GetActiveChannels(int userId)
         {
             var readedChannels = new List<ActiveChannelsDto>();
+            var timer = new Stopwatch();
+            timer.Start();
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
@@ -2604,7 +2607,8 @@ where w.id = @WorkerId and s.from_date between @FromDate and @ToDate and deleted
 
                 }
             }
-
+            timer.Stop();
+            Logger.LogInformation($"GetActiveChannels Stopwatch elapsed = {timer.ElapsedMilliseconds} ms");
             return readedChannels.ToArray();
         }
 
