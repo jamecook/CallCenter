@@ -4861,6 +4861,28 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
                 return result;
             }
         }
+        public string GetServiceCompanyTypeInfo(int companyId,int typeId)
+        {
+            string result = string.Empty;
+            using (var cmd = new MySqlCommand(@"SELECT i.id, i.info FROM CallCenter.ServiceCompanyTypeInfo s
+    join CallCenter.Informations i on i.id = s.info_id
+    where service_company_id = @companyId and type_id = @typeId and deleted = 0;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@companyId", companyId);
+                cmd.Parameters.AddWithValue("@typeId", typeId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    dataReader.Read();
+                    if (dataReader.HasRows)
+                    {
+                        var ret_id = dataReader.GetInt32("id");
+                        result = dataReader.GetNullableString("info");
+                    }
+                }
+                return result;
+            }
+        }
 
         public void DeleteCallListRecord(int recordId)
         {

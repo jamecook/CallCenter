@@ -7,7 +7,7 @@
         xmlns:controls="clr-namespace:CRMPhone.Controls"
         xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
         mc:Ignorable="d"
-        Title="Заявка" MinHeight="780" MinWidth ="980" MaxWidth="1920" Height="800" Width="{Binding WindowWidth, Mode=TwoWay}" Left="120" Top="40"
+        Title="Заявка" MinHeight="780" MinWidth ="980" MaxWidth="1920" Height="800" Width="{Binding WindowWidth, Mode=TwoWay}" Left="200" Top="40"
         WindowStartupLocation="Manual"
         WindowStyle="ToolWindow"
         FontSize="12"

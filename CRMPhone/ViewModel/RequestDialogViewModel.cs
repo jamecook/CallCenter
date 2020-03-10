@@ -407,7 +407,9 @@ namespace CRMPhone.ViewModel
 
         private void AddRequest()
         {
-            RequestList.Add(new RequestItemViewModel(this));
+            var newRequest = new RequestItemViewModel(this);
+            newRequest.SelectedHouseId = SelectedHouse.Id;
+            RequestList.Add(newRequest);
         }
 
         private ICommand _deleteCommand;
@@ -984,7 +986,11 @@ namespace CRMPhone.ViewModel
         public RequestItemViewModel SelectedRequest
         {
             get { return _selectedRequest; }
-            set { _selectedRequest = value; OnPropertyChanged(nameof(SelectedRequest)); }
+            set {
+                _selectedRequest = value;
+                GetInfoByHouseAndType(value.SelectedHouseId, value.SelectedService?.Id);
+                OnPropertyChanged(nameof(SelectedRequest));
+            }
         }
 
         private void Delete()
@@ -1067,6 +1073,10 @@ namespace CRMPhone.ViewModel
             var flowDoc = ((RequestDialog)_view).FlowInfo.Document;
 
             var flowDocument = houseId.HasValue && typeId.HasValue ? _requestService.GetHouseTypeInfo(houseId.Value, typeId.Value): "";
+            if (string.IsNullOrEmpty(flowDocument))
+            {
+                flowDocument = _selectedServiceCompanyId.HasValue && typeId.HasValue ? _requestService.GetServiceCompanyTypeInfo(_selectedServiceCompanyId.Value, typeId.Value) : "";
+            }
             var content = new TextRange(flowDoc.ContentStart, flowDoc.ContentEnd);
             if (content.CanLoad(System.Windows.DataFormats.Xaml))
             {
