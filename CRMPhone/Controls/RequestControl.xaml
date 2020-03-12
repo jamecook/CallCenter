@@ -765,8 +765,11 @@
                               DropDownClosed="CbOnDropDownMasterClosed"/>
                     <ComboBox Style="{StaticResource ExecutorComboBoxStyle}" Margin="3" Width="120" VerticalAlignment="Center" ItemsSource="{Binding ExecutorView}" Text=""
                               DropDownClosed="CbOnDropDownExecutorClosed"/>
+                    <DockPanel>
+                        <CheckBox Margin="5" VerticalAlignment="Center" IsChecked="{Binding IsExcludeServiceCompany}" Content="Все кроме:" />
                     <ComboBox Style="{StaticResource ServiceCompanyComboBoxStyle}" Margin="3" Width="120" VerticalAlignment="Center" ItemsSource="{Binding ServiceCompanyView}" Text=""
                               DropDownClosed="CbOnDropDownServiceCompanyClosed"/>
+                    </DockPanel>
                     <ComboBox Style="{StaticResource DispatcherComboBoxStyle}" Margin="3" Width="120" VerticalAlignment="Center" ItemsSource="{Binding DispatcherView}" Text=""
                               DropDownClosed="CbOnDropDownDispatcherClosed"/>
 

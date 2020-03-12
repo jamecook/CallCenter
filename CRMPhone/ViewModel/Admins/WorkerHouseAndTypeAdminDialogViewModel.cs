@@ -16,6 +16,7 @@ namespace CRMPhone.ViewModel.Admins
         private int _workerId;
         private ICommand _addCommand;
         private ICommand _deleteCommand;
+        private ICommand _deleteAllCommand;
         private ObservableCollection<CityDto> _cityList;
         private CityDto _selectedCity;
         private ObservableCollection<StreetDto> _streetList;
@@ -27,7 +28,7 @@ namespace CRMPhone.ViewModel.Admins
         private int _weigth;
         private ObservableCollection<WorketHouseAndTypeListDto> _houseAndTypeList;
         private ObservableCollection<FieldForFilterDto> _filterHouseList;
-        private ObservableCollection<FieldForFilterDto> _filterServiceList;
+        private ObservableCollection<FieldForFilterDto> _filterParentServiceList;
 
         public ObservableCollection<ServiceDto> ParentServiceList
         {
@@ -46,14 +47,16 @@ namespace CRMPhone.ViewModel.Admins
         {
             _requestService = requestService;
             _workerId = workerId;
+            Weigth = 100;
             var services = new[] {new ServiceDto {Id = 0, Name = "Все"}}.Concat(_requestService.GetServices(null));
-            FilterServiceList = new ObservableCollection<FieldForFilterDto>(services.Select(w => new FieldForFilterDto()
+            FilterParentServiceList = new ObservableCollection<FieldForFilterDto>(services.Select(w => new FieldForFilterDto()
             {
                 Id = w.Id,
                 Name = w.Name,
                 Selected = false
             }));
-            foreach (var service in FilterServiceList)
+            ServiceList = new ObservableCollection<ServiceDto>();
+            foreach (var service in FilterParentServiceList)
             {
                 service.PropertyChanged += ServiceOnPropertyChanged;
             }
@@ -75,7 +78,7 @@ namespace CRMPhone.ViewModel.Admins
             {
                 if (item.Id == 0)
                 {
-                    foreach (var service in FilterServiceList.Where(s=>s.Id > 0))
+                    foreach (var service in FilterParentServiceList.Where(s => s.Id > 0))
                     {
                         service.Selected = false;
                     }
@@ -83,11 +86,20 @@ namespace CRMPhone.ViewModel.Admins
                 }
                 else
                 {
-                    var service = FilterServiceList.FirstOrDefault(s => s.Id == 0);
+                    var service = FilterParentServiceList.FirstOrDefault(s => s.Id == 0);
                     if (service != null)
                         service.Selected = false;
                 }
 
+
+            }
+            if (FilterParentServiceList.Count(f => f.Selected) == 1)
+            {
+                ChangeParentService(FilterParentServiceList.FirstOrDefault(f => f.Selected)?.Id);
+            }
+            else
+            {
+                ChangeParentService(null);
             }
         }
 
@@ -154,10 +166,33 @@ namespace CRMPhone.ViewModel.Admins
             }
         }
 
-        public ObservableCollection<FieldForFilterDto> FilterServiceList
+        public ObservableCollection<FieldForFilterDto> FilterParentServiceList
         {
-            get { return _filterServiceList; }
-            set { _filterServiceList = value; OnPropertyChanged(nameof(FilterServiceList));}
+            get { return _filterParentServiceList; }
+            set { _filterParentServiceList = value; OnPropertyChanged(nameof(FilterParentServiceList));}
+        }
+        private ServiceDto _selectedService;
+        private ObservableCollection<ServiceDto> _serviceList;
+        public ServiceDto SelectedService
+        {
+            get { return _selectedService; }
+            set { _selectedService = value; OnPropertyChanged(nameof(SelectedService)); }
+        }
+        public ObservableCollection<ServiceDto> ServiceList
+        {
+            get { return _serviceList; }
+            set { _serviceList = value; OnPropertyChanged(nameof(ServiceList)); }
+        }
+        private void ChangeParentService(int? parentServiceId)
+        {
+            ServiceList.Clear();
+            if (!parentServiceId.HasValue)
+                return;
+            foreach (var source in _requestService.GetServices(parentServiceId.Value).OrderBy(s => s.Name))
+            {
+                ServiceList.Add(source);
+            }
+            OnPropertyChanged(nameof(ServiceList));
         }
 
         public ObservableCollection<FieldForFilterDto> FilterHouseList
@@ -178,6 +213,20 @@ namespace CRMPhone.ViewModel.Admins
         }
         public ICommand AddCommand { get { return _addCommand ?? (_addCommand = new RelayCommand(Add)); } }
         public ICommand DeleteCommand { get { return _deleteCommand ?? (_deleteCommand = new RelayCommand(Delete)); } }
+        public ICommand DeleteAllCommand { get { return _deleteAllCommand ?? (_deleteAllCommand = new RelayCommand(DeleteAll)); } }
+
+        private void DeleteAll(object obj)
+        {
+            if (MessageBox.Show(Application.Current.MainWindow, $"Вы уверены что хотите удалить ВСЕ привязки?",
+                    "Адреса и Услуги", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                foreach (var item in HouseAndTypeList)
+                {
+                    _requestService.DeleteHouseAndTypesByWorkerId(item.Id);
+                }
+                RefreshList();
+            }
+        }
 
         public ObservableCollection<WorketHouseAndTypeListDto> HouseAndTypeList
         {
@@ -187,13 +236,20 @@ namespace CRMPhone.ViewModel.Admins
 
         private void Add(object sender)
         {
-            if(!FilterServiceList.Any(s => s.Selected) || !FilterHouseList.Any(s => s.Selected))
+            if(!FilterParentServiceList.Any(s => s.Selected) || !FilterHouseList.Any(s => s.Selected))
                 return;
             foreach (var houseId in FilterHouseList.Where(h => h.Selected).Select(h => h.Id))
             {
-                foreach (var serviceId in FilterServiceList.Where(h => h.Selected).Select(h => h.Id))
+                if (SelectedService != null)
                 {
-                    _requestService.AddHouseAndTypesForWorker(_workerId, houseId, serviceId == 0 ? (int?) null : serviceId, Weigth);
+                    _requestService.AddHouseAndTypesForWorker(_workerId, houseId, SelectedService.Id, Weigth);
+                }
+                else
+                {
+                    foreach (var serviceId in FilterParentServiceList.Where(h => h.Selected).Select(h => h.Id))
+                    {
+                        _requestService.AddHouseAndTypesForWorker(_workerId, houseId, serviceId == 0 ? (int?)null : serviceId, Weigth);
+                    }
                 }
             }
             RefreshList();

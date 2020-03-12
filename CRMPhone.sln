@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CRMPhone", "CRMPhone\CRMPho
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestServiceImpl", "RequestService\RequestServiceImpl.csproj", "{F8832D54-A8E8-44EA-A64B-26202D7B64C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestWcfService", "RequestWcfService\RequestWcfService.csproj", "{FEA43223-0544-4A6F-9A29-6196267E73AC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestWcfService - NotInUse", "RequestWcfService\RequestWcfService - NotInUse.csproj", "{FEA43223-0544-4A6F-9A29-6196267E73AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveWcfService", "SaveWcfService\SaveWcfService.csproj", "{4FF1EFDF-FC04-47B3-AC88-5C6F6F8F905F}"
 EndProject
@@ -23,15 +23,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChangeStateToInWork", "Chan
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppWebService", "AppWebService\AppWebService.csproj", "{5876CBBC-69A6-446A-B99F-78C88FE3E7E9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequestWebService", "RequestWebService\RequestWebService.csproj", "{CF5DB6DF-75CB-47CF-AC83-977100069CB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequestWebService - NotInUse", "RequestWebService\RequestWebService - NotInUse.csproj", "{CF5DB6DF-75CB-47CF-AC83-977100069CB4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "WebApi\WebApi.csproj", "{B504F339-C08D-456B-817E-B502F873A550}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RudiGrobler.Controls", "CRMPhone\RudiGrobler.Controls\RudiGrobler.Controls.csproj", "{73CA44CE-7DC1-4EDD-8F32-303D51E09911}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppNotification", "AppNotification\AppNotification.csproj", "{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComboBoxControl", "ComboBoxControl\ComboBoxControl.csproj", "{ADB22031-71A5-4228-A872-3602324E39F7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppNotificationForClient", "AppNotificationForClient\AppNotificationForClient.csproj", "{6AD2D5F5-F4B2-45EA-823A-5303263315D3}"
 EndProject
@@ -113,10 +111,6 @@ Global
 		{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4ECC9BBA-6F59-4722-8C69-66AA98102C8F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ADB22031-71A5-4228-A872-3602324E39F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ADB22031-71A5-4228-A872-3602324E39F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ADB22031-71A5-4228-A872-3602324E39F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ADB22031-71A5-4228-A872-3602324E39F7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6AD2D5F5-F4B2-45EA-823A-5303263315D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6AD2D5F5-F4B2-45EA-823A-5303263315D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6AD2D5F5-F4B2-45EA-823A-5303263315D3}.Release|Any CPU.ActiveCfg = Release|Any CPU

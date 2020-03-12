@@ -165,7 +165,7 @@ namespace CRMPhone.ViewModel
             set
             {
                 _selectedHouseId = value;
-                UpdateMasters();
+                RefreshMasters();
                 RefreshExecuters();
                 UpdateParrentServices(_selectedHouseId);
                 OnPropertyChanged(nameof(SelectedHouseId));
@@ -239,36 +239,11 @@ namespace CRMPhone.ViewModel
             {
 
                 _showAllMasters = value;
-                UpdateMasters();
+                RefreshMasters();
                 OnPropertyChanged(nameof(ShowAllMasters));
             }
         }
 
-        private void UpdateMasters()
-        {
-            var selectedMaster = SelectedMaster?.Id;
-                MasterList.Clear();
-            if (_showAllMasters)
-            {
-                foreach (var master in _requestService.GetMasters(null))
-                {
-                    MasterList.Add(master);
-                }
-                SelectedMaster = MasterList.FirstOrDefault(m => m.Id == selectedMaster);
-            }
-            else
-            {
-                if (_selectedHouseId.HasValue && SelectedParentService != null)
-                {
-                    foreach (var master in _requestService.GetWorkersByHouseAndService(_selectedHouseId.Value, SelectedParentService.Id))
-                    {
-                        MasterList.Add(master);
-                    }
-                    SelectedMaster = MasterList.FirstOrDefault();
-                }
-            }
-
-        }
 
         public bool ShowAllExecuters
         {
@@ -301,7 +276,6 @@ namespace CRMPhone.ViewModel
                     return;
                 _selectedParentService = value;
                 ChangeParentService(value?.Id);
-                UpdateMasters();
                 OnPropertyChanged(nameof(SelectedParentService));
             }
         }
@@ -333,6 +307,9 @@ namespace CRMPhone.ViewModel
                 {
                     IsImmediate = value?.Immediate ?? false;
                 }
+                RefreshMasters();
+                RefreshExecuters();
+
                 OnPropertyChanged(nameof(IsImmediate));
                 OnPropertyChanged(nameof(SelectedService));
                 _dialogModel.GetInfoByHouseAndType(_selectedHouseId,value?.Id);
@@ -342,17 +319,43 @@ namespace CRMPhone.ViewModel
         public void RefreshExecuters()
         {
             var selectedExecuterId = SelectedExecuter?.Id;
-            if (ShowAllExecuters || SelectedCompany == null || SelectedParentService == null)
+            if (ShowAllExecuters || SelectedCompany == null || SelectedService == null)
                 ExecuterList = new ObservableCollection<WorkerDto>(_requestService.GetExecuters(null));
             else if (_selectedHouseId.HasValue)
             {
                 ExecuterList = new ObservableCollection<WorkerDto>(
-                        _requestService.GetWorkersByHouseAndService(_selectedHouseId.Value, SelectedParentService.Id, false));
+                        _requestService.GetWorkersByHouseAndService(_selectedHouseId.Value, SelectedService.Id, false));
             }
             SelectedExecuter = ExecuterList.FirstOrDefault(m => m.Id == selectedExecuterId);
             if(SelectedExecuter == null)
                 SelectedExecuter = ExecuterList.FirstOrDefault();
             OnPropertyChanged(nameof(ExecuterList));
+        }
+
+        private void RefreshMasters()
+        {
+            var selectedMaster = SelectedMaster?.Id;
+            MasterList.Clear();
+            if (_showAllMasters)
+            {
+                foreach (var master in _requestService.GetMasters(null))
+                {
+                    MasterList.Add(master);
+                }
+                SelectedMaster = MasterList.FirstOrDefault(m => m.Id == selectedMaster);
+            }
+            else
+            {
+                if (_selectedHouseId.HasValue && SelectedService != null)
+                {
+                    foreach (var master in _requestService.GetWorkersByHouseAndService(_selectedHouseId.Value, SelectedService.Id))
+                    {
+                        MasterList.Add(master);
+                    }
+                    SelectedMaster = MasterList.FirstOrDefault();
+                }
+            }
+
         }
 
         public ObservableCollection<WorkerDto> MasterList
@@ -473,7 +476,6 @@ namespace CRMPhone.ViewModel
 
         private void ChangeParentService(int? parentServiceId)
         {
-            RefreshExecuters();
             ServiceList.Clear();
             if (!parentServiceId.HasValue)
                 return;

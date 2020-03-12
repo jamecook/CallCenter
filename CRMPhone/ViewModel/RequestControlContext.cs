@@ -216,6 +216,7 @@ namespace CRMPhone.ViewModel
             RequestNum = string.Empty;
             SelectedPayment = null;
             ServiceCompanyBadWork = false;
+            IsExcludeServiceCompany = false;
             OnlyRetry = false;
             OnlyGaranty = false;
             ClientPhone = "";
@@ -742,6 +743,12 @@ namespace CRMPhone.ViewModel
             set { _serviceCompanyBadWork = value; OnPropertyChanged(nameof(ServiceCompanyBadWork));}
         }
 
+        public bool IsExcludeServiceCompany
+        {
+            get => _isExcludeServiceCompany;
+            set { _isExcludeServiceCompany = value; OnPropertyChanged(nameof(IsExcludeServiceCompany));}
+        }
+
         public PaymentDto SelectedPayment
         {
             get { return _selectedPayment; }
@@ -921,6 +928,7 @@ namespace CRMPhone.ViewModel
         private string _executorSearch;
         private string _serviceCompanySearch;
         private string _dispatcherSearch;
+        private bool _isExcludeServiceCompany;
 
         private void StreetOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
@@ -1077,7 +1085,7 @@ namespace CRMPhone.ViewModel
                 FilterServiceCompanyList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterUserList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterRatingList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
-                SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone, OnlyGaranty, OnlyImmediate, OnlyByClient);
+                SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone, OnlyGaranty, OnlyImmediate, OnlyByClient, IsExcludeServiceCompany);
             foreach (var request in requests)
             {
                 RequestList.Add(request);

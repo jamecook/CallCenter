@@ -1140,7 +1140,7 @@ namespace RequestServiceImpl
             }
         }
 
-        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone, bool onlyGaranty, bool onlyImmediate, bool onlyByClient)
+        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone, bool onlyGaranty, bool onlyImmediate, bool onlyByClient, bool isExcludeServiceCompany)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -1224,8 +1224,12 @@ namespace RequestServiceImpl
                 if (executersId != null && executersId.Length>0)
                     sqlQuery += $" and R.executer_id in ({executersId.Select(x=>x.ToString()).Aggregate((x,y)=>x+","+y)})";
 
-                if (serviceCompaniesId != null && serviceCompaniesId.Length>0)
-                    sqlQuery += $" and R.service_company_id in ({serviceCompaniesId.Select(x=>x.ToString()).Aggregate((x,y)=>x+","+y)})";
+                if (serviceCompaniesId != null && serviceCompaniesId.Length > 0)
+                {
+                    var findAttr = isExcludeServiceCompany ? "not in" : "in";
+                    sqlQuery +=
+                        $" and R.service_company_id {findAttr} ({serviceCompaniesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
+                }
 
                 if (usersId != null && usersId.Length>0)
                     sqlQuery += $" and R.create_user_id in ({usersId.Select(x=>x.ToString()).Aggregate((x,y)=>x+","+y)})";
@@ -2028,7 +2032,7 @@ where s.request_id = @RequestId and deleted = 0;";
             }
         }
         
-        public IList<WorkerDto> GetWorkersByHouseAndService(int houseId, int parentServiceTypeId, bool showMasters = true)
+        public List<WorkerDto> GetWorkersByHouseAndParentService(int houseId, int serviceTypeId, bool showMasters = true)
         {
             var query =
                 $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms, w.send_notification
@@ -2037,7 +2041,64 @@ where s.request_id = @RequestId and deleted = 0;";
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
     where w.enabled = 1 and wh.master_weigth is not null and wh.house_id = {houseId}
-    and (wh.type_id is null or wh.type_id = {parentServiceTypeId})";
+    and (wh.type_id is null or wh.type_id in(SELECT parrent_id FROM CallCenter.RequestTypes where id = {serviceTypeId}))";
+            if (showMasters)
+                query += "and w.is_master = 1";
+            else
+                query += "and w.is_executer = 1";
+    query += @" group by s.id,s.name ,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name,w.can_assign,w.parent_worker_id
+    order by wh.master_weigth desc;";
+            using (var cmd = new MySqlCommand(query, _dbConnection))
+            {
+                var workers = new List<WorkerDto>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        workers.Add(new WorkerDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            ServiceCompanyId = dataReader.GetNullableInt("service_id"),
+                            ServiceCompanyName = dataReader.GetNullableString("service_name"),
+                            SurName = dataReader.GetString("sur_name"),
+                            FirstName = dataReader.GetNullableString("first_name"),
+                            PatrName = dataReader.GetNullableString("patr_name"),
+                            SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            SpecialityName = dataReader.GetNullableString("speciality_name"),
+                            Phone = dataReader.GetNullableString("phone"),
+                            CanAssign = dataReader.GetBoolean("can_assign"),
+                            SendSms = dataReader.GetBoolean("send_sms"),
+                            AppNotification = dataReader.GetBoolean("send_notification"),
+                            ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
+                        });
+                    }
+                    dataReader.Close();
+                }
+                return workers;
+            }
+        }
+
+        public List<WorkerDto> GetWorkersByHouseAndService(int houseId, int serviceTypeId, bool showMasters = true)
+        {
+            var workers = GetWorkersByHouseAndServiceType(houseId, serviceTypeId, showMasters);
+            if (workers.Count == 0)
+            {
+                workers.AddRange(GetWorkersByHouseAndParentService(houseId, serviceTypeId, showMasters));
+            }
+
+            return workers;
+        }
+
+        public List<WorkerDto> GetWorkersByHouseAndServiceType(int houseId, int serviceTypeId, bool showMasters = true)
+        {
+            var query =
+                $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms, w.send_notification
+    FROM CallCenter.WorkerHouseAndType wh
+    join CallCenter.Workers w on wh.worker_id = w.id
+    left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
+    left join CallCenter.Speciality sp on sp.id = w.speciality_id
+    where w.enabled = 1 and wh.master_weigth is not null and wh.house_id = {houseId}
+    and (wh.type_id is null or wh.type_id = {serviceTypeId})";
             if (showMasters)
                 query += "and w.is_master = 1";
             else
@@ -2076,10 +2137,14 @@ where s.request_id = @RequestId and deleted = 0;";
 
         public IList<WorketHouseAndTypeListDto> GetHouseAndTypesByWorkerId(int workerId)
         {
-            var query = $@"SELECT wh.id,s.name,h.building,h.corps,r.name type_name,wh.master_weigth FROM CallCenter.WorkerHouseAndType wh
+            var query = $@"SELECT wh.id,s.name,h.building,h.corps,
+    case when r.parrent_id is not null then r.name else null end type_name,
+    wh.master_weigth,
+    case when r.parrent_id is null then r.name else pt.name end parent_name FROM CallCenter.WorkerHouseAndType wh
 join CallCenter.Houses h on h.id = wh.house_id
 join CallCenter.Streets s on s.id = h.street_id
 left join CallCenter.RequestTypes r on r.id = wh.type_id
+left join CallCenter.RequestTypes pt on r.parrent_id = pt.id
 where wh.worker_id = {workerId}";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
@@ -2095,6 +2160,7 @@ where wh.worker_id = {workerId}";
                             Id = dataReader.GetInt32("id"),
                             StreetAndHouse = $"{dataReader.GetNullableString("name")} {dataReader.GetNullableString("building")}{corps}",
                             ServiceType = dataReader.GetNullableString("type_name")??"Все",
+                            ParentServiceType = dataReader.GetNullableString("parent_name") ??"Все",
                             Weigth = dataReader.GetInt32("master_weigth"),
                         });
                     }
@@ -2251,11 +2317,17 @@ where worker_id = @WorkerId";
 
         public void DeleteHouseAndTypesByWorkerId(int recordId)
         {
+            using (var cmd = new MySqlCommand(@"insert into CallCenter.WorkerHouseAndTypeDeleted select * from CallCenter.WorkerHouseAndType where id = @recordId;", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@recordId", recordId);
+                cmd.ExecuteNonQuery();
+            }
             using (var cmd = new MySqlCommand(@"delete from CallCenter.WorkerHouseAndType where id = @recordId;", _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@recordId", recordId);
                 cmd.ExecuteNonQuery();
             }
+
         }
 
         public void AddHouseAndTypesForWorker(int workerId,int houseId, int? serviceType, int weigth)

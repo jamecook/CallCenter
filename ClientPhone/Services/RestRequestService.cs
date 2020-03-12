@@ -15,8 +15,8 @@ namespace ClientPhone.Services
     {
         private static readonly string ApiKey  = "qwertyuiop987654321";
         //private static readonly string ApiUrl = "http://127.0.0.1:5000/Client";
-        private static readonly string ApiUrl = "http://192.168.0.130:5000/Client";
-        //private static readonly string ApiUrl = "http://192.168.1.124:32180/Client";
+        //private static readonly string ApiUrl = "http://192.168.0.130:5000/Client";
+        private static readonly string ApiUrl = "http://192.168.1.124:32180/Client";
         //private static readonly string ApiUrl = "http://192.168.1.124:32181/Client";
         public static ActiveChannelsDto[] GetActiveChannels(int userId)
         {
