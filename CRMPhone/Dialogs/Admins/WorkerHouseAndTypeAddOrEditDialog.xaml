@@ -50,8 +50,18 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
             <TextBlock Margin="3" VerticalAlignment="Center" Text="Причина:"/>
-            <ComboBox Margin="3" Width="140" VerticalAlignment="Center" DisplayMemberPath="Name" SelectedItem="{Binding SelectedService}" ItemsSource="{Binding ServiceList}" IsEditable="True" />
-
+            <ComboBox Margin="3" Width="140" VerticalAlignment="Center" ItemsSource="{Binding ServiceList}" IsEditable="True"
+                      IsReadOnly="True" SelectionChanged="CbOnSelectionChanged" DropDownClosed="CbOnDropDownClosed">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="2">
+                            <CheckBox IsChecked="{Binding Selected}"
+                                      Width="20" />
+                            <TextBlock Text="{Binding Name}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
 
             <TextBlock Margin="3" VerticalAlignment="Center" Text="Приоритет:"/>
             <TextBox Margin="3" Width="45" VerticalAlignment="Center"  Text="{Binding Path=Weigth}"/>

@@ -55,7 +55,7 @@ namespace CRMPhone.ViewModel.Admins
                 Name = w.Name,
                 Selected = false
             }));
-            ServiceList = new ObservableCollection<ServiceDto>();
+            ServiceList = new ObservableCollection<FieldForFilterDto>();
             foreach (var service in FilterParentServiceList)
             {
                 service.PropertyChanged += ServiceOnPropertyChanged;
@@ -171,14 +171,9 @@ namespace CRMPhone.ViewModel.Admins
             get { return _filterParentServiceList; }
             set { _filterParentServiceList = value; OnPropertyChanged(nameof(FilterParentServiceList));}
         }
-        private ServiceDto _selectedService;
-        private ObservableCollection<ServiceDto> _serviceList;
-        public ServiceDto SelectedService
-        {
-            get { return _selectedService; }
-            set { _selectedService = value; OnPropertyChanged(nameof(SelectedService)); }
-        }
-        public ObservableCollection<ServiceDto> ServiceList
+        private ObservableCollection<FieldForFilterDto> _serviceList;
+
+        public ObservableCollection<FieldForFilterDto> ServiceList
         {
             get { return _serviceList; }
             set { _serviceList = value; OnPropertyChanged(nameof(ServiceList)); }
@@ -188,10 +183,13 @@ namespace CRMPhone.ViewModel.Admins
             ServiceList.Clear();
             if (!parentServiceId.HasValue)
                 return;
-            foreach (var source in _requestService.GetServices(parentServiceId.Value).OrderBy(s => s.Name))
+
+            ServiceList = new ObservableCollection<FieldForFilterDto>(_requestService.GetServices(parentServiceId.Value).OrderBy(s => s.Name).Select(w => new FieldForFilterDto()
             {
-                ServiceList.Add(source);
-            }
+                Id = w.Id,
+                Name = w.Name,
+                Selected = false
+            }));
             OnPropertyChanged(nameof(ServiceList));
         }
 
@@ -240,9 +238,12 @@ namespace CRMPhone.ViewModel.Admins
                 return;
             foreach (var houseId in FilterHouseList.Where(h => h.Selected).Select(h => h.Id))
             {
-                if (SelectedService != null)
+                if (ServiceList.Any(h=>h.Selected))
                 {
-                    _requestService.AddHouseAndTypesForWorker(_workerId, houseId, SelectedService.Id, Weigth);
+                    foreach (var serviceId in ServiceList.Where(h => h.Selected).Select(h => h.Id))
+                    {
+                        _requestService.AddHouseAndTypesForWorker(_workerId, houseId, serviceId, Weigth);
+                    }
                 }
                 else
                 {
