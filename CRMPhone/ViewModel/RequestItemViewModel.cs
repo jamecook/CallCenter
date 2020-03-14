@@ -328,7 +328,7 @@ namespace CRMPhone.ViewModel
             }
             SelectedExecuter = ExecuterList.FirstOrDefault(m => m.Id == selectedExecuterId);
             if(SelectedExecuter == null)
-                SelectedExecuter = ExecuterList.FirstOrDefault();
+                SelectedExecuter = ExecuterList?.Where(e => e.AutoSet).FirstOrDefault();
             OnPropertyChanged(nameof(ExecuterList));
         }
 
@@ -336,6 +336,7 @@ namespace CRMPhone.ViewModel
         {
             var selectedMaster = SelectedMaster?.Id;
             MasterList.Clear();
+
             if (_showAllMasters)
             {
                 foreach (var master in _requestService.GetMasters(null))
@@ -356,6 +357,10 @@ namespace CRMPhone.ViewModel
                 }
             }
 
+            if (!MasterList.Contains(SelectedMaster) && SelectedMaster!= null)
+            {
+                MasterList.Add(SelectedMaster);
+            }
         }
 
         public ObservableCollection<WorkerDto> MasterList
@@ -507,6 +512,90 @@ namespace CRMPhone.ViewModel
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void SetRequest(RequestInfoDto request)
+        {
+            if(request == null)
+                return;
+            var selectedParrentService = ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            if (selectedParrentService == null)
+            {
+                var parrentServiceType = _requestService.GetServiceById(request.Type.ParentId ?? 0);
+                ParentServiceList.Add(parrentServiceType);
+                selectedParrentService = ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            }
+            SelectedParentService = selectedParrentService;
+            var service = ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+            if (service == null)
+            {
+                var serviceType = _requestService.GetServiceById(request.Type.Id);
+                ServiceList.Add(serviceType);
+                service = ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+            }
+            _selectedService = service;
+            _description = request.Description;
+            _isChargeable = request.IsChargeable;
+            _isImmediate = request.IsImmediate;
+            _isBadWork = request.IsBadWork;
+            _isRetry = request.IsRetry;
+            //Gatanty = request.Warranty;
+            _selectedGaranty = GarantyList.FirstOrDefault(g => g.Id == request.GarantyId);
+
+            _requestCreator = request.CreateUser.ShortName;
+            _requestDate = request.CreateTime;
+            _requestState = request.State.Description;
+            var sched = _requestService.GetScheduleTaskByRequestId(request.Id);
+            _selectedAppointment = sched != null ? new Appointment()
+            {
+                Id = sched.Id,
+                RequestId = sched.RequestId,
+                StartTime = sched.FromDate,
+                EndTime = sched.ToDate,
+            } : null;
+            OpenAppointment = SelectedAppointment;
+            var master = request.MasterId.HasValue ? _requestService.GetWorkerById(request.MasterId.Value) : null;
+            if (master != null)
+            {
+                if (MasterList.Count == 0 || MasterList.All(e => e.Id != master.Id))
+                {
+                    _masterList.Add(master);
+                }
+                _selectedMaster = MasterList.SingleOrDefault(i => i.Id == master.Id);
+            }
+            else
+            {
+                _selectedMaster = null;
+            }
+
+            var executer = request.ExecuterId.HasValue ? _requestService.GetWorkerById(request.ExecuterId.Value) : null;
+            if (executer != null)
+            {
+                if (ExecuterList.All(e => e.Id != executer.Id))
+                {
+                    _executerList.Add(executer);
+                }
+                _selectedExecuter = ExecuterList.SingleOrDefault(i => i.Id == executer.Id);
+            }
+            else
+            {
+                _selectedExecuter = null;
+            }
+            _selectedEquipment = EquipmentList.SingleOrDefault(e => e.Id == request.Equipment?.Id);
+            _requestId = request.Id;
+            _rating = request.Rating;
+            _alertTime = request.AlertTime;
+            if (request.ServiceCompanyId.HasValue)
+            {
+                _selectedCompany = CompanyList.FirstOrDefault(c => c.Id == request.ServiceCompanyId.Value);
+            }
+            if (request.ExecuteDate.HasValue && request.ExecuteDate.Value.Date > DateTime.MinValue)
+            {
+                _selectedDateTime = request.ExecuteDate.Value.Date;
+                _selectedPeriod = PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
+            }
+            _termOfExecution = request.TermOfExecution;
+            RefreshNote();
         }
     }
 }

@@ -71,53 +71,10 @@ namespace CRMPhone.ViewModel
                 return;
             }
 
-            var viewModel = new RequestDialogViewModel();
+            var viewModel = new RequestDialogViewModel(request);
             var view = new RequestDialog(viewModel);
             viewModel.SetView(view);
-            viewModel.SelectedCity = viewModel.CityList.SingleOrDefault(i=>i.Id == request.Address.CityId);
-            viewModel.SelectedStreet = viewModel.StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
-            viewModel.StreetName = request.Address.StreetName;
-            viewModel.SelectedHouse = viewModel.HouseList.SingleOrDefault(i=>i.Id == request.Address.HouseId);
-            if (viewModel.FlatList.All(i => i.Id != request.Address.Id))
-            {
-                viewModel.FlatList.Add(new FlatDto()
-                {
-                    Id = request.Address.Id,
-                    Flat = request.Address.Flat,
-                    TypeId = request.Address.TypeId,
-                    TypeName = request.Address.Type
-                });
-            }
-            viewModel.SelectedFlat =  viewModel.FlatList.SingleOrDefault(i=>i.Id == request.Address.Id);
-            viewModel.Floor = request.Floor;
-            viewModel.Entrance = request.Entrance;
-            viewModel.FromTime = request.FromTime;
-            viewModel.ToTime = request.ToTime;
-            var requestModel = viewModel.RequestList.FirstOrDefault();
-            requestModel.SelectedParentService = requestModel.ParentServiceList.FirstOrDefault(i => i.Id == request.Type.ParentId);
-            requestModel.SelectedService = requestModel.ServiceList.FirstOrDefault(i => i.Id == request.Type.Id);
-            requestModel.Description = request.Description;
-            requestModel.IsChargeable = request.IsChargeable;
-            requestModel.IsImmediate = request.IsImmediate;
-            requestModel.RequestCreator = request.CreateUser.ShortName;
-            requestModel.RequestDate = request.CreateTime;
-            requestModel.RequestState = request.State.Description;
-            requestModel.SelectedMaster = request.MasterId.HasValue ? _requestService.GetWorkerById(request.MasterId.Value) : null;
-            requestModel.SelectedExecuter = request.ExecuterId.HasValue ? _requestService.GetWorkerById(request.ExecuterId.Value) : null;
-
-            requestModel.Rating = request.Rating;
-            if (request.ServiceCompanyId.HasValue)
-            {
-                requestModel.SelectedCompany = requestModel.CompanyList.FirstOrDefault(c => c.Id == request.ServiceCompanyId.Value);
-            }
-            if (request.ExecuteDate.HasValue && request.ExecuteDate.Value.Date > DateTime.MinValue)
-            {
-                requestModel.SelectedDateTime = request.ExecuteDate.Value.Date;
-                requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
-            }
-            requestModel.TermOfExecution = request.TermOfExecution;
-            viewModel.RequestId = request.Id;
-            viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
+            
             view.Show();
 
         }

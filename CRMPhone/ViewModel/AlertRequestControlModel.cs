@@ -79,7 +79,7 @@ namespace CRMPhone.ViewModel
                 return;
             }
 
-            var viewModel = new RequestDialogViewModel();
+            var viewModel = new RequestDialogViewModel(request);
             viewModel.RequestId = request.Id;
             var view = new RequestDialog(viewModel);
             viewModel.SetView(view);
@@ -159,7 +159,7 @@ namespace CRMPhone.ViewModel
  
         private void AddRequest()
         {
-            var viewModel = new RequestDialogViewModel();
+            var viewModel = new RequestDialogViewModel(null);
             var view = new RequestDialog(viewModel);
             viewModel.SetView(view);
             view.Show();

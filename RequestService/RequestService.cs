@@ -2070,6 +2070,7 @@ where s.request_id = @RequestId and deleted = 0;";
                             SendSms = dataReader.GetBoolean("send_sms"),
                             AppNotification = dataReader.GetBoolean("send_notification"),
                             ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
+                            AutoSet = true
                         });
                     }
                     dataReader.Close();
@@ -2127,6 +2128,7 @@ where s.request_id = @RequestId and deleted = 0;";
                             SendSms = dataReader.GetBoolean("send_sms"),
                             AppNotification = dataReader.GetBoolean("send_notification"),
                             ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
+                            AutoSet = true
                         });
                     }
                     dataReader.Close();

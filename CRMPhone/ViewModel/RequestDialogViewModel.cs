@@ -65,7 +65,7 @@ namespace CRMPhone.ViewModel
                 return;
             }
 
-            var viewModel = new RequestDialogViewModel();
+            var viewModel = new RequestDialogViewModel(request);
             var view = new RequestDialog(viewModel);
             viewModel.SetView(view);
             viewModel.RequestId = request.Id;
@@ -1012,8 +1012,7 @@ namespace CRMPhone.ViewModel
         public DateTime? FromTime { get; set; }
         public DateTime? ToTime { get; set; }
 
-
-        public RequestDialogViewModel()
+        public RequestDialogViewModel(RequestInfoDto request)
         {
             WindowWidth = _defaultWidth;
             AlertExists = false;
@@ -1033,7 +1032,10 @@ namespace CRMPhone.ViewModel
             {
                 SelectedCity = CityList.FirstOrDefault();
             }
-            RequestList = new ObservableCollection<RequestItemViewModel> { new RequestItemViewModel(this) };
+
+            var model = new RequestItemViewModel(this);
+            model.SetRequest(request);
+            RequestList = new ObservableCollection<RequestItemViewModel> { model };
             //AppSettings.LastIncomingCall = "932";
             CanEditAddress = true;
             //CanEditAddress = AppSettings.CurrentUser.Roles.Select(r => r.Name).Contains("admin");
@@ -1050,7 +1052,38 @@ namespace CRMPhone.ViewModel
                 }
             }
             ContactList = new ObservableCollection<ContactDto>(new[] {contactInfo});
-
+            if (request?.Id > 0)
+            {
+                _selectedCity = CityList.SingleOrDefault(i => i.Id == request.Address.CityId);
+                SelectedStreet = StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
+                _streetName = request.Address.StreetName;
+                _selectedHouse = HouseList.SingleOrDefault(i => i.Id == request.Address.HouseId);
+                if (_flatList.All(i => i.Id != request.Address.Id))
+                {
+                    _flatList.Add(new FlatDto()
+                    {
+                        Id = request.Address.Id,
+                        Flat = request.Address.Flat,
+                        TypeId = request.Address.TypeId,
+                        TypeName = request.Address.Type
+                    });
+                }
+                _selectedFlat = FlatList.SingleOrDefault(i => i.Id == request.Address.Id);
+                _floor = request.Floor;
+                _entrance = request.Entrance;
+                FromTime = request.FromTime;
+                ToTime = request.ToTime;
+                //var requestModel = RequestList.FirstOrDefault();
+                //requestModel.SetRequest(request);
+                
+                ContactList = new ObservableCollection<ContactDto>(request.Contacts);
+                if (_selectedFlat != null)
+                {
+                    LoadRequestsBySelectedAddress(_selectedFlat.Id);
+                }
+                //Для обновления CanEdit и прочего
+                RequestId = request.Id;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
