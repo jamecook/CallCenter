@@ -1,0 +1,30 @@
+---------------------10:36:06---------------------
+OnCallState CallInfo: 8f284a49131d476ea34a09c2d0a44e86 - CALLING
+---------------------10:36:06---------------------
+OnCallState CallInfo: 8f284a49131d476ea34a09c2d0a44e86 - CONNECTING
+---------------------10:36:06---------------------
+OnCallState CallInfo: 8f284a49131d476ea34a09c2d0a44e86 - CONFIRMED
+---------------------10:36:30---------------------
+OnCallState CallInfo: 8f284a49131d476ea34a09c2d0a44e86 - DISCONNCTD
+---------------------10:37:21---------------------
+OnCallState CallInfo: 4dc22caa6c7143a6add1d727f5fcee78 - CALLING
+---------------------10:37:21---------------------
+OnCallState CallInfo: 4dc22caa6c7143a6add1d727f5fcee78 - DISCONNCTD
+---------------------10:37:54---------------------
+RegState: OK,0
+AccountInfo: RegStatus = OK, OnlineStatus = Offline---------------------10:38:20---------------------
+OnCallState CallInfo: 97245b4b298f4f00a4f5458c7a938e20 - CALLING
+---------------------10:38:20---------------------
+OnCallState CallInfo: 97245b4b298f4f00a4f5458c7a938e20 - CONNECTING
+---------------------10:38:20---------------------
+OnCallState CallInfo: 97245b4b298f4f00a4f5458c7a938e20 - CONFIRMED
+---------------------10:38:35---------------------
+OnCallState CallInfo: 97245b4b298f4f00a4f5458c7a938e20 - DISCONNCTD
+---------------------10:39:03---------------------
+OnCallState CallInfo: 4f16ee85c5ac4e56afc56efdbe4ccd95 - CALLING. Code: PJSIP_INV_STATE_CALLING
+---------------------10:39:03---------------------
+OnCallState CallInfo: 4f16ee85c5ac4e56afc56efdbe4ccd95 - CONNECTING. Code: PJSIP_INV_STATE_CONNECTING
+---------------------10:39:04---------------------
+OnCallState CallInfo: 4f16ee85c5ac4e56afc56efdbe4ccd95 - CONFIRMED. Code: PJSIP_INV_STATE_CONFIRMED
+---------------------10:39:28---------------------
+OnCallState CallInfo: 4f16ee85c5ac4e56afc56efdbe4ccd95 - DISCONNCTD. Code: PJSIP_INV_STATE_DISCONNECTED

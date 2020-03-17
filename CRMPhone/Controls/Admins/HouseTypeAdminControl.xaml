@@ -5,9 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CRMPhone.Controls.Admins"
              xmlns:viewModel="clr-namespace:CRMPhone.ViewModel"
+             xmlns:dto="clr-namespace:RequestServiceImpl.Dto;assembly=RequestServiceImpl"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance viewModel:HouseAdminControlContext}">
+             d:DesignHeight="300" d:DesignWidth="900"
+             d:DataContext="{d:DesignInstance viewModel:HouseTypeAdminControlContext}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -26,78 +27,35 @@
                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                 </ComboBox.Resources>
             </ComboBox>
-<Button Command="{Binding CreateFondCommand}" Content="Выгрузить жил. фонд" Margin="3" Padding="10,0"/>
+            <TextBlock Margin="5" Text="Поиск:"/>
+            <TextBox Text="{Binding StreetSearch, UpdateSourceTrigger=PropertyChanged}" Margin ="5" Width="140"/>
+            <Button Width="80" Margin ="5" Content="Добавить" Command="{Binding AddBindingCommand}"/>
         </WrapPanel>
-    <Grid Row="1">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <WrapPanel Grid.Row="0"  Grid.Column="0">
-                <Button Width="80" Margin ="5" Content="Добавить" Command="{Binding AddStreetCommand}"/>
-                <Button Width="80" Margin ="5" Content="Удалить" Command="{Binding DeleteStreetCommand}"/>
-                <TextBox Text="{Binding StreetSearch, UpdateSourceTrigger=PropertyChanged}" Margin ="5" Width="100"/>
-            </WrapPanel>
-        <DataGrid Name="StreetGrid" Grid.Row ="1" Grid.Column="0"
+        <Grid Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="420"/>
+            </Grid.ColumnDefinitions>
+            <DataGrid Name="BindingGrid" Grid.Column="0"
                   AutoGenerateColumns="False"
-                  ItemsSource="{Binding Path=View}"
-                  SelectedItem="{Binding Path=SelectedStreet}"
+                  ItemsSource="{Binding Path=BindingView}"
+                  SelectedItem="{Binding Path=SelectedBinding}"
                   SelectionMode="Single"
                   SelectionUnit="FullRow"
                   IsReadOnly="True"
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
-            <DataGrid.InputBindings>
-                <MouseBinding MouseAction="LeftDoubleClick"
-                              Command="{Binding Path=EditStreetCommand}"
-                              CommandParameter="{Binding ElementName=StreetGrid, Path=SelectedItem}" />
-            </DataGrid.InputBindings>
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Улицы" Width="*"
-                                    Binding="{Binding Path=NameWithPrefix}">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="TextWrapping" Value="Wrap"/>
-                            <Setter Property="Margin" Value="3"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-        <WrapPanel Grid.Row="0"  Grid.Column="1">
-            <Button Width="80" Margin ="5" Content="Добавить" Command="{Binding AddHouseCommand}"/>
-            <Button Width="80" Margin ="5" Content="Удалить" Command="{Binding DeleteHouseCommand}"/>
-        </WrapPanel>
-        <DataGrid Name="HouseGrid" Grid.Row ="1" Grid.Column="1"
-                  AutoGenerateColumns="False"
-                  ItemsSource="{Binding Path=HouseList}"
-                  SelectedItem="{Binding Path=SelectedHouse}"
-                  SelectionMode="Single"
-                  SelectionUnit="FullRow"
-                  IsReadOnly="True"
-                  HorizontalScrollBarVisibility="Auto"
-                  VerticalScrollBarVisibility="Auto">
-            <DataGrid.InputBindings>
-                <MouseBinding MouseAction="LeftDoubleClick"
-                              Command="{Binding Path=EditHouseCommand}"
-                              CommandParameter="{Binding ElementName=HouseGrid, Path=SelectedItem}" />
-            </DataGrid.InputBindings>
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Дом" Width="*"
-                                    Binding="{Binding Path=FullName}">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="TextWrapping" Value="Wrap"/>
-                            <Setter Property="Margin" Value="3"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                    <DataGridTextColumn Header="Квартир" Width="*"
-                                    Binding="{Binding Path=FlatCount}">
+                <DataGrid.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick"
+                              Command="{Binding Path=EditBindingCommand}"
+                              CommandParameter="{Binding ElementName=BindingGrid, Path=SelectedItem}" />
+                </DataGrid.InputBindings>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Улица" Width="*"
+                                    Binding="{Binding Path=StreetName}">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="{x:Type TextBlock}">
                                 <Setter Property="TextWrapping" Value="Wrap"/>
@@ -105,27 +63,62 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="УК" Width="*"
-                                    Binding="{Binding Path=ServiceCompanyName}">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="TextWrapping" Value="Wrap"/>
-                            <Setter Property="Margin" Value="3"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                    <DataGridTextColumn Header="Микрорайон" Width="*"
-                                    Binding="{Binding Path=RegionName}">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="TextWrapping" Value="Wrap"/>
-                            <Setter Property="Margin" Value="3"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-    </Grid>
+                    <DataGridTextColumn Header="Дом" Width="*"
+                                    Binding="{Binding Path=HouseName}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Margin" Value="3"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Услуга" Width="*"
+                                    Binding="{Binding Path=ParentType}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Margin" Value="3"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Причина" Width="*"
+                                    Binding="{Binding Path=ServiceType}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Margin" Value="3"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTemplateColumn Width="30" >
+                        <DataGridTemplateColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="ContentTemplate">
+                                    <Setter.Value>
+                                        <DataTemplate>
+                                            <Image Source="pack://application:,,,/Images/button_delete.png" Height="24" HorizontalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGridTemplateColumn.HeaderStyle>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate DataType="dto:AdditionInfoDto">
+                                <Button Width="20" VerticalAlignment="Center" Command="{Binding ElementName=BindingGrid, Path=DataContext.DeleteBindingCommand}" CommandParameter="{Binding ElementName=BindingGrid, Path=SelectedItem}">
+                                    <Image Source="pack://application:,,,/Images/button_delete.png"/>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <Grid  Grid.Column="1">
+                <DockPanel>
+                    <RichTextBox Name="FlowInfo" Margin="1" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+                    </RichTextBox>
+                </DockPanel>
+            </Grid>
+        </Grid>
     </Grid>
 
 </UserControl>

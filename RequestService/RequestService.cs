@@ -2485,7 +2485,7 @@ where worker_id = @WorkerId";
                 sqlQuery = @"SELECT S.id,S.city_id,S.name,P.id as Prefix_id,P.Name as Prefix_Name,P.ShortName FROM CallCenter.Streets S
     join CallCenter.StreetPrefixes P on P.id = S.prefix_id
     join CallCenter.Houses h on h.street_id = S.id and h.service_company_id = @ServiceCompanyId
-    where S.enabled = 1 and S.city_id = @CityId
+    where S.enabled = 1
     group by S.id;";
             }
                 
@@ -2493,11 +2493,15 @@ where worker_id = @WorkerId";
                 var cmd =
                     new MySqlCommand(sqlQuery, _dbConnection))
             {
-                cmd.Parameters.AddWithValue("@CityId", cityId);
                 if (serviceCompanyId.HasValue)
                 {
                     cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId.Value);
                 }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@CityId", cityId);
+                }
+
                 var streets = new List<StreetDto>();
                 using (var dataReader = cmd.ExecuteReader())
                 {
@@ -2519,6 +2523,149 @@ where worker_id = @WorkerId";
                     dataReader.Close();
                 }
                 return streets;
+            }
+        }
+
+        public void DeleteServiceTypeInfo(InfoType type, int id)
+        {
+            string sqlQuery;
+            if (type == InfoType.ByHouse)
+            {
+                sqlQuery = @"UPDATE CallCenter.HouseTypeInfo set deleted = id where id = @id;";
+            }
+            else
+            {
+                sqlQuery = @"UPDATE CallCenter.ServiceCompanyTypeInfo set deleted = id where id = @id;";
+            }
+            using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.ExecuteNonQuery();
+            }
+
+        }
+
+        public List<AdditionInfoDto> GetServiceTypeInfo(int serviceCompanyId)
+        {
+            var streets = new List<AdditionInfoDto>();
+            var sqlQuery =
+                @"SELECT sc.id, 'Все' street_name, 'Все' building, null corps,p.name parent_name, t.parrent_id, t.name type_name,info_id,null house_id,t.id type_id,sc.service_company_id,null street_id FROM CallCenter.ServiceCompanyTypeInfo sc
+join CallCenter.RequestTypes t on t.id = sc.type_id
+join CallCenter.RequestTypes p on p.id = t.parrent_id
+where sc.service_company_id = @ServiceCompanyId and sc.deleted = 0;";
+            using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        streets.Add(new AdditionInfoDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Type = InfoType.ByServiceCompany,
+                            StreetName = dataReader.GetString("street_name"),
+                            Building = dataReader.GetString("building"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            ParentType = dataReader.GetString("parent_name"),
+                            ServiceType = dataReader.GetString("type_name"),
+                            InfoId = dataReader.GetInt32("info_id"),
+                            ParentId = dataReader.GetInt32("parrent_id"),
+                            TypeId = dataReader.GetInt32("type_id"),
+                            CompanyId = dataReader.GetInt32("service_company_id"),
+                            StreetId = dataReader.GetNullableInt("street_id"),
+                            HouseId = dataReader.GetNullableInt("house_id"),
+                        });
+                    }
+
+                    dataReader.Close();
+                }
+            }
+
+            sqlQuery =
+                @"SELECT ht.id, s.name street_name, h.building,h.corps,p.name parent_name,t.name type_name,info_id,ht.house_id,t.parrent_id,t.id type_id,h.service_company_id,h.street_id FROM CallCenter.HouseTypeInfo ht
+join CallCenter.Houses h on h.id = ht.house_id
+join CallCenter.Streets s on s.id = h.street_id
+join CallCenter.RequestTypes t on t.id = ht.type_id
+join CallCenter.RequestTypes p on p.id = t.parrent_id
+where h.service_company_id = @ServiceCompanyId and ht.deleted = 0;";
+            using (var cmd = new MySqlCommand(sqlQuery, _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@ServiceCompanyId", serviceCompanyId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        streets.Add(new AdditionInfoDto
+                        {
+                            Id = dataReader.GetInt32("id"),
+                            Type = InfoType.ByHouse,
+                            StreetName = dataReader.GetString("street_name"),
+                            Building = dataReader.GetString("building"),
+                            Corpus = dataReader.GetNullableString("corps"),
+                            ParentType = dataReader.GetString("parent_name"),
+                            ServiceType = dataReader.GetString("type_name"),
+                            InfoId = dataReader.GetInt32("info_id"),
+                            ParentId = dataReader.GetInt32("parrent_id"),
+                            TypeId = dataReader.GetInt32("type_id"),
+                            CompanyId = dataReader.GetInt32("service_company_id"),
+                            StreetId = dataReader.GetNullableInt("street_id"),
+                            HouseId = dataReader.GetNullableInt("house_id"),
+                        });
+                    }
+
+                    dataReader.Close();
+                }
+            }
+
+            return streets;
+        }
+
+        public void SaveServiceTypeInfo(AdditionInfoDto infoDto, int companyId, int? houseId, int typeId, string flowDocument)
+        {
+            if (infoDto != null)
+            {
+                using (var cmd =
+                    new MySqlCommand(@"update CallCenter.Informations set info = @flowDocument where id = @id;",
+                        _dbConnection))
+                {
+                    cmd.Parameters.AddWithValue("@flowDocument", flowDocument);
+                    cmd.Parameters.AddWithValue("@id", infoDto.InfoId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            else
+            {
+                var infoId = 0;
+                    using (var cmd = new MySqlCommand(@"insert into CallCenter.Informations(info) values(@flowDocument);
+    select LAST_INSERT_ID();", _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@flowDocument", flowDocument);
+                        infoId = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+                if (houseId.HasValue)
+                {
+                    using (var cmd = new MySqlCommand(@"insert into CallCenter.HouseTypeInfo(house_id,type_id,info_id) values(@houseId,@typeId,@infoId);", _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@houseId", houseId.Value);
+                        cmd.Parameters.AddWithValue("@typeId", typeId);
+                        cmd.Parameters.AddWithValue("@infoId", infoId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                }
+                else
+                {
+                    using (var cmd = new MySqlCommand(@"insert into CallCenter.ServiceCompanyTypeInfo(service_company_id,type_id,info_id) values(@companyId,@typeId,@infoId);", _dbConnection))
+                    {
+                        cmd.Parameters.AddWithValue("@companyId", companyId);
+                        cmd.Parameters.AddWithValue("@typeId", typeId);
+                        cmd.Parameters.AddWithValue("@infoId", infoId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
             }
         }
 
@@ -4913,6 +5060,25 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
                 return result;
             }
         }
+        public string GetInfo(int infoId)
+        {
+            string result = string.Empty;
+            using (var cmd = new MySqlCommand(@"SELECT i.id, i.info FROM CallCenter.Informations i where id = @id; ",_dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@id", infoId);
+
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    dataReader.Read();
+                    if (dataReader.HasRows)
+                    {
+                        var ret_id = dataReader.GetInt32("id");
+                        result = dataReader.GetNullableString("info");
+                    }
+                }
+                return result;
+            }
+        }
         public string GetHouseTypeInfo(int houseId, int typeId)
         {
             string result = string.Empty;
@@ -5063,6 +5229,7 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
                 }
             }
         }
+
     }
 
 }

@@ -917,7 +917,7 @@
                                     <TextBlock Margin="3" Text="Информация по услугам"/>
                                 </StackPanel>
                             </TabItem.Header>
-                            <admins:HouseTypeAdminControl DataContext="{Binding HouseTypeAdminContext}"/>
+                            <admins:HouseTypeAdminControl x:Name="HouseTypeAdminControl" DataContext="{Binding HouseTypeAdminContext}"/>
                         </TabItem>
                     </TabControl>
                 </Grid>

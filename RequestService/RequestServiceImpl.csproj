@@ -66,6 +66,7 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Dto\ActiveChannelsDto.cs" />
+    <Compile Include="Dto\AdditionInfoDto.cs" />
     <Compile Include="Dto\AddressDto.cs" />
     <Compile Include="Dto\AddressTypeDto.cs" />
     <Compile Include="Dto\AlertDto.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Dto\GarantyDto.cs" />
     <Compile Include="Dto\HouseDto.cs" />
     <Compile Include="Dto\AudioDeviceDto.cs" />
+    <Compile Include="Dto\InfoType.cs" />
     <Compile Include="Dto\LoginDto.cs" />
     <Compile Include="Dto\CityRegionDto.cs" />
     <Compile Include="Dto\NotAnsweredDto.cs" />

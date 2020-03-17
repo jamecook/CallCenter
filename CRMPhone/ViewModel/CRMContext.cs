@@ -47,7 +47,6 @@ namespace CRMPhone.ViewModel
         //private UserAgent _sipAgent;
         private SipAgent _sipAgent;
         private string _version;
-        //public MainWindow mainWindow;
 
         private SipLine[] _sipLinesArray = {new SipLine { Id = 0, Name = "Линия 1:"}};
         private int _maxLineNumber = 1;
@@ -201,6 +200,7 @@ namespace CRMPhone.ViewModel
             CallsNotificationContext.Init();
             DispatcherContext.InitCollections();
             AlertAndWorkContext.InitCollections();
+            HouseTypeAdminContext.SetView(mainWindow.HouseTypeAdminControl);
             OnPropertyChanged(nameof(IsAdminRoleExist));
             if (!string.IsNullOrEmpty(AppSettings.SipInfo?.SipUser))
             {
@@ -1606,6 +1606,8 @@ namespace CRMPhone.ViewModel
 
         public void Call()
         {
+            if(_sipAgent.AnswerLine0())
+                return;
             //todo Только исходящий
             if(string.IsNullOrEmpty(_sipPhone))
                 return;

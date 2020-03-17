@@ -3,11 +3,14 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Xml.Linq;
 using CRMPhone.Annotations;
+using CRMPhone.Controls.Admins;
 using CRMPhone.Dialogs.Admins;
 using CRMPhone.ViewModel.Admins;
 using Microsoft.Win32;
@@ -22,24 +25,28 @@ namespace CRMPhone.ViewModel
         private RequestService RequestService => _requestService ?? (_requestService = new RequestService(AppSettings.DbConnection));
         private ObservableCollection<CityDto> _cityList;
         private CityDto _selectedCity;
-        private ObservableCollection<StreetDto> _streetList;
-        private StreetDto _selectedStreet;
-        private ObservableCollection<HouseDto> _houseList;
-        private HouseDto _selectedHouse;
-
+        private ObservableCollection<AdditionInfoDto> _bindingList;
+        private AdditionInfoDto _selectedBinding;
+        private ObservableCollection<ServiceCompanyDto> _companyList;
+        private ServiceCompanyDto _selectedCompany;
+        private string _streetSearch;
+        private HouseTypeAdminControl _view;
 
         public HouseTypeAdminControlContext()
         {
             CityList = new ObservableCollection<CityDto>();
-            StreetList = new ObservableCollection<StreetDto>();
-            HouseList = new ObservableCollection<HouseDto>();
+            BindingList = new ObservableCollection<AdditionInfoDto>();
             CompanyList = new ObservableCollection<ServiceCompanyDto>();
         }
 
+        public void SetView(HouseTypeAdminControl view)
+        {
+            _view = view;
+        }
         public ObservableCollection<CityDto> CityList
         {
             get { return _cityList; }
-            set { _cityList = value; OnPropertyChanged(nameof(CityList));}
+            set { _cityList = value; OnPropertyChanged(nameof(CityList)); }
         }
 
         public CityDto SelectedCity
@@ -49,14 +56,13 @@ namespace CRMPhone.ViewModel
             {
                 _selectedCity = value;
                 OnPropertyChanged(nameof(SelectedCity));
-                RefreshStreets(value, SelectedCompany);
             }
         }
 
         public ObservableCollection<ServiceCompanyDto> CompanyList
         {
             get { return _companyList; }
-            set { _companyList = value; OnPropertyChanged(nameof(CompanyList));}
+            set { _companyList = value; OnPropertyChanged(nameof(CompanyList)); }
         }
 
         public ServiceCompanyDto SelectedCompany
@@ -67,33 +73,35 @@ namespace CRMPhone.ViewModel
                 _selectedCompany = value;
                 if (_selectedCompany != null)
                 {
-                    RefreshStreets(SelectedCity, _selectedCompany);
+                    RefreshBinding(_selectedCompany);
+                }
+                else
+                {
+                    BindingList.Clear();
                 }
                 OnPropertyChanged(nameof(SelectedCompany));
             }
         }
 
-        private void RefreshStreets(CityDto city, ServiceCompanyDto company)
+        private void RefreshBinding(ServiceCompanyDto company)
         {
-            StreetList.Clear();
-            if (city == null)
-                return;
-            RequestService.GetStreets(city.Id,company?.Id).ToList().ForEach(s => StreetList.Add(s));
-            var filter = _view?.Filter;
-            _view = new ListCollectionView(StreetList);
-            _view.Filter = filter;
-            OnPropertyChanged(nameof(View));
+            BindingList.Clear();
+            RequestService.GetServiceTypeInfo(company.Id).ForEach(s => BindingList.Add(s));
+            var filter = _bindingView?.Filter;
+            _bindingView = new ListCollectionView(BindingList);
+            _bindingView.Filter = filter;
+            OnPropertyChanged(nameof(BindingView));
         }
 
-        private ListCollectionView _view;
-        public ICollectionView View
+        private ListCollectionView _bindingView;
+        public ICollectionView BindingView
         {
-            get { return _view; }
+            get { return _bindingView; }
         }
-        public ObservableCollection<StreetDto> StreetList
+        public ObservableCollection<AdditionInfoDto> BindingList
         {
-            get { return _streetList; }
-            set { _streetList = value; OnPropertyChanged(nameof(StreetList));}
+            get { return _bindingList; }
+            set { _bindingList = value; OnPropertyChanged(nameof(BindingList)); }
         }
 
         public string StreetSearch
@@ -103,55 +111,57 @@ namespace CRMPhone.ViewModel
             {
                 _streetSearch = value; OnPropertyChanged(nameof(StreetSearch));
                 if (String.IsNullOrEmpty(value))
-                    View.Filter = null;
+                    BindingView.Filter = null;
                 else
-                    View.Filter = new Predicate<object>(o => ((StreetDto)o).Name.ToUpper().Contains(value.ToUpper()));
+                    BindingView.Filter = new Predicate<object>(o => ((AdditionInfoDto)o).StreetName.ToUpper().Contains(value.ToUpper()));
 
             }
         }
 
-        public StreetDto SelectedStreet
+        public AdditionInfoDto SelectedBinding
         {
-            get { return _selectedStreet; }
+            get { return _selectedBinding; }
             set
             {
-                _selectedStreet = value;
-                OnPropertyChanged(nameof(SelectedStreet));
-                RefreshHouses(value);
+                _selectedBinding = value;
+                LoadServiceCompanyInfo(value?.HouseId,value?.TypeId);
+                OnPropertyChanged(nameof(SelectedBinding));
             }
         }
-
-        private void RefreshHouses(StreetDto street)
+        private void LoadServiceCompanyInfo(int? houseId, int? typeId)
         {
-
-            HouseList.Clear();
-            if(street== null)
+            if (_view == null)
                 return;
-            RequestService.GetHouses(street.Id,SelectedCompany?.Id).ToList().ForEach(h=>HouseList.Add(h));
-        }
 
-        public ObservableCollection<HouseDto> HouseList
-        {
-            get { return _houseList; }
-            set { _houseList = value; OnPropertyChanged(nameof(HouseList));}
-        }
+            var flowDoc = ((HouseTypeAdminControl)_view).FlowInfo.Document;
 
-        public HouseDto SelectedHouse
-        {
-            get { return _selectedHouse; }
-            set
+            var flowDocument = houseId.HasValue && typeId.HasValue ? _requestService.GetHouseTypeInfo(houseId.Value, typeId.Value) : "";
+            if (string.IsNullOrEmpty(flowDocument))
             {
-                _selectedHouse = value;
-                //RefreshAddress(value);
-                OnPropertyChanged(nameof(SelectedHouse));
+                flowDocument = typeId.HasValue ? _requestService.GetServiceCompanyTypeInfo(SelectedCompany.Id, typeId.Value) : "";
             }
-
+            var content = new TextRange(flowDoc.ContentStart, flowDoc.ContentEnd);
+            if (content.CanLoad(System.Windows.DataFormats.Xaml))
+            {
+                using (var stream = new MemoryStream())
+                {
+                    var buffer = Encoding.Default.GetBytes(flowDocument);
+                    stream.Write(buffer, 0, buffer.Length);
+                    if (stream.Length > 0)
+                    {
+                        content.Load(stream, System.Windows.DataFormats.Xaml);
+                    }
+                    else
+                    {
+                        content.Text = "";
+                    }
+                }
+            }
         }
-
         public void RefreshCities()
         {
             CityList.Clear();
-            RequestService.GetCities().ToList().ForEach(c=>CityList.Add(c));
+            RequestService.GetCities().ToList().ForEach(c => CityList.Add(c));
             OnPropertyChanged(nameof(CityList));
             SelectedCity = CityList.FirstOrDefault();
 
@@ -164,276 +174,63 @@ namespace CRMPhone.ViewModel
         {
             throw new System.NotImplementedException();
         }
-        private ICommand _addStreetCommand;
-        public ICommand AddStreetCommand { get { return _addStreetCommand ?? (_addStreetCommand = new CommandHandler(AddStreet, true)); } }
-        private ICommand _editStreetCommand;
-        public ICommand EditStreetCommand { get { return _editStreetCommand ?? (_editStreetCommand = new RelayCommand(EditStreet)); } }
-        private ICommand _deleteStreetCommand;
-        public ICommand DeleteStreetCommand { get { return _deleteStreetCommand ?? (_deleteStreetCommand = new CommandHandler(DeleteStreet, true)); } }
-        private ICommand _createFondCommand;
-        public ICommand CreateFondCommand { get { return _createFondCommand ?? (_createFondCommand = new CommandHandler(CreateFond, true)); } }
+        private ICommand _addBindingCommand;
+        public ICommand AddBindingCommand { get { return _addBindingCommand ?? (_addBindingCommand = new CommandHandler(AddBinding, true)); } }
+        private ICommand _editBindingCommand;
+        public ICommand EditBindingCommand { get { return _editBindingCommand ?? (_editBindingCommand = new RelayCommand(EditBinding)); } }
+        private ICommand _deleteBindingCommand;
+        public ICommand DeleteBindingCommand { get { return _deleteBindingCommand ?? (_deleteBindingCommand = new RelayCommand(DeleteBinding)); } }
 
-        private void CreateFond()
+        private void AddBinding()
         {
-            if (SelectedCompany == null)
-            {
-                MessageBox.Show("Необходимо выбрать УК!", "Ошибка");
-                return;
-            }
-            var houses = RequestService.GetHousesByServiceCompany(SelectedCompany.Id);
-            if (houses.Count == 0)
-            {
-                MessageBox.Show("Пустой список домов!", "Ошибка");
-                return;
-            }
-
-            try
-            {
-
-                var saveDialog = new SaveFileDialog();
-                saveDialog.AddExtension = true;
-                saveDialog.DefaultExt = ".xml";
-                saveDialog.Filter = "XML Файл|*.xml";
-                if (saveDialog.ShowDialog() == true)
-                {
-                    var fileName = saveDialog.FileName;
-
-
-                    XElement root = new XElement("Records");
-                    foreach (var house in houses)
-                    {
-                        root.AddFirst(
-                            new XElement("Record",
-                                new[]
-                                {
-                                    new XElement("УК", house.ServiceCompanyName),
-                                    new XElement("Улица", house.StreetName),
-                                    new XElement("Дом", house.FullName),
-                                    new XElement("Квартир", house.FlatCount),
-                                    new XElement("Этажей", house.FloorCount),
-                                    new XElement("Подъездов", house.EntranceCount),
-                                }));
-                    }
-                    var saver = new FileStream(fileName, FileMode.Create);
-                    root.Save(saver);
-                    saver.Close();
-                    MessageBox.Show("Данные сохранены в файл\r\n" + fileName);
-                }
-            }
-            catch (Exception exc)
-            {
-                MessageBox.Show("Произошла ошибка:\r\n" + exc.Message);
-            };
+            ShowStreetEditDialog(null);
         }
 
-        private void DeleteStreet()
+        private void EditBinding(object sender)
         {
-            if (SelectedStreet != null)
-            {
-                if (MessageBox.Show($"Вы действительно хотите удалить улицу {SelectedStreet.Name}", "Удалить",
-                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                {
-                    RequestService.DeleteStreet(SelectedStreet.Id);
-                    RefreshStreets(SelectedCity,SelectedCompany);
-                }
-            }
-        }
-
-        private void EditStreet(object sender)
-        {
-            var selectedItem = sender as StreetDto;
+            var selectedItem = sender as AdditionInfoDto;
             if (selectedItem == null)
                 return;
             ShowStreetEditDialog(selectedItem);
         }
 
-
-        private void AddStreet()
+        private void DeleteBinding(object sender)
         {
-            ShowStreetEditDialog(null);
-        }
-        private void ShowStreetEditDialog(StreetDto selectedItem)
-        {
-            var model = new StreetAdminDialogViewModel(RequestService, selectedItem?.Id);
-            var view = new StreetAddOrEditDialog();
-            model.SetView(view);
-            view.Owner = Application.Current.MainWindow;
-            view.DataContext = model;
-            if (view.ShowDialog() == true)
-            {
-                RefreshStreets(SelectedCity,SelectedCompany);
-            }
-        }
-
-        private ICommand _addHouseCommand;
-        public ICommand AddHouseCommand { get { return _addHouseCommand ?? (_addHouseCommand = new CommandHandler(AddHouse, true)); } }
-
-
-        private ICommand _editHouseCommand;
-        public ICommand EditHouseCommand { get { return _editHouseCommand ?? (_editHouseCommand = new RelayCommand(EditHouse)); } }
-        private ICommand _deleteHouseCommand;
-        private ObservableCollection<ServiceCompanyDto> _companyList;
-        private ServiceCompanyDto _selectedCompany;
-        private string _streetSearch;
-        public ICommand DeleteHouseCommand { get { return _deleteHouseCommand ?? (_deleteHouseCommand = new CommandHandler(DeleteHouse, true)); } }
-
-        private void AddHouse()
-        {
-            ShowHouseEditDialog(null);
-        }
-        private void EditHouse(object sender)
-        {
-            var selectedItem = sender as HouseDto;
+            var selectedItem = sender as AdditionInfoDto;
             if (selectedItem == null)
                 return;
-            ShowHouseEditDialog(selectedItem);
+            _requestService.DeleteServiceTypeInfo(selectedItem.Type,selectedItem.Id);
+            RefreshBinding(SelectedCompany);
         }
-        private void ShowHouseEditDialog(HouseDto selectedItem)
+
+
+
+
+        private void ShowStreetEditDialog(AdditionInfoDto selectedItem)
         {
-            if (SelectedStreet == null)
-                return;
-            var model = new HouseAdminDialogViewModel(RequestService, SelectedStreet.Id, selectedItem?.Id);
-            var view = new HouseAddOrEditDialog();
-            model.SetView(view);
+            var view = new HouseTypeAddAndEditDialog();
+
+            var model = new HouseTypeAddAndEditDialogViewModel(RequestService,selectedItem,view);
             view.Owner = Application.Current.MainWindow;
             view.DataContext = model;
             if (view.ShowDialog() == true)
             {
-                RefreshHouses(SelectedStreet);
+                var flowDoc = view.FlowInfo.Document;
+                var content = new TextRange(flowDoc.ContentStart, flowDoc.ContentEnd);
+                if (content.CanSave(System.Windows.DataFormats.Xaml))
+                {
+                    using (var stream = new MemoryStream())
+                    {
+                        content.Save(stream, System.Windows.DataFormats.Xaml);
+                        stream.Position = 0;
+                        var flowDocument = Encoding.Default.GetString(stream.GetBuffer());
+                        _requestService.SaveServiceTypeInfo(selectedItem, model.SelectedCompany.Id,model.SelectedHouse?.Id,model.SelectedService.Id, flowDocument);
+                    }
+                }
+
+                RefreshBinding(SelectedCompany);
             }
         }
-
-        private void DeleteHouse()
-        {
-            if (SelectedHouse != null)
-            {
-                if (MessageBox.Show($"Вы действительно хотите удалить дом {SelectedHouse.FullName}", "Удалить",
-                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                {
-                    RequestService.DeleteHouse(SelectedHouse.Id);
-                    RefreshHouses(SelectedStreet);
-                }
-            }
-
-        }
-
-
-        /*
-                private ICommand _addNewParentServiceCommand;
-                public ICommand AddNewStreetCommand { get { return _addNewParentServiceCommand ?? (_addNewParentServiceCommand = new CommandHandler(AddParentService, true)); } }
-                private ICommand _deleteParentServiceCommand;
-                public ICommand DeleteParentServiceCommand { get { return _deleteParentServiceCommand ?? (_deleteParentServiceCommand = new CommandHandler(DeleteParentService, true)); } }
-                private ICommand _editParentServiceCommand;
-                public ICommand EditParentServiceCommand { get { return _editParentServiceCommand ?? (_editParentServiceCommand = new RelayCommand(EditParentService)); } }
-
-                private ICommand _addNewServiceCommand;
-                public ICommand AddNewServiceCommand { get { return _addNewServiceCommand ?? (_addNewServiceCommand = new CommandHandler(AddService, true)); } }
-
-                private ICommand _deleteServiceCommand;
-                public ICommand DeleteServiceCommand { get { return _deleteServiceCommand ?? (_deleteServiceCommand = new CommandHandler(DeleteService, true)); } }
-
-                private ICommand _ediServiceCommand;
-                public ICommand EditServiceCommand { get { return _ediServiceCommand ?? (_ediServiceCommand = new RelayCommand(EditService)); } }
-
-                private void DeleteService()
-                {
-                    if (SelectedService != null)
-                    {
-                        if (MessageBox.Show(Application.Current.MainWindow,
-                                $"Вы действительно хотите удалить причину {SelectedService.Name}", "Удалить",
-                                MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                        {
-                            RequestService.DeleteService(SelectedService.Id);
-                            RefreshServiceList();
-                        }
-                    }
-                }
-
-                private void DeleteParentService()
-                {
-                    if (SelectedParentService != null)
-                    {
-                        if (MessageBox.Show(Application.Current.MainWindow,
-                                $"Вы действительно хотите удалить услугу {SelectedParentService.Name}", "Удалить",
-                                MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                        {
-                            RequestService.DeleteService(SelectedParentService.Id);
-                            RefreshParentServiceList();
-                        }
-                    }
-
-                }
-                private void AddParentService()
-                {
-                    ShowStreetEditDialog(null,null);
-                }
-                private void EditParentService(object sender)
-                {
-                    var selectedItem = sender as ServiceDto;
-                    if (selectedItem == null)
-                        return;
-
-                    ShowStreetEditDialog(selectedItem, null);
-                }
-                private void AddService()
-                {
-                    if (SelectedParentService != null)
-                    {
-                        ShowStreetEditDialog(null, SelectedParentService.Id);
-                    }
-                }
-                private void EditService(object sender)
-                {
-                    var selectedItem = sender as ServiceDto;
-                    if (selectedItem == null)
-                        return;
-                    if (SelectedParentService != null)
-                    {
-                        ShowStreetEditDialog(selectedItem, SelectedParentService.Id);
-                    }
-                }
-
-                private void ShowStreetEditDialog(ServiceDto selectedItem, int? parentId)
-                {
-                    var model = new ServiceDialogViewModel(RequestService, selectedItem?.Id, parentId);
-                    var view = new ServiceAddOrEditDialog();
-                    model.SetView(view);
-                    view.Owner = Application.Current.MainWindow;
-                    view.DataContext = model;
-                    if (view.ShowDialog() == true)
-                    {
-                        if (parentId == null)
-                        {
-                            RefreshParentServiceList();
-                        }
-                        else
-                        {
-                            RefreshServiceList();
-                        }
-                    }
-                }
-
-                public void RefreshParentServiceList()
-                {
-                    ParentServiceList.Clear();
-
-                    RequestService.GetServices(null).ToList().ForEach(w => ParentServiceList.Add(w));
-
-                    OnPropertyChanged(nameof(ParentServiceList));
-                }
-
-                private void RefreshServiceList()
-                {
-                    ServiceList.Clear();
-                    if (SelectedParentService != null)
-                    {
-                        RequestService.GetServices(SelectedParentService.Id).ToList().ForEach(w => ServiceList.Add(w));
-                    }
-                    OnPropertyChanged(nameof(ServiceList));
-                }
-                */
-
-
 
 
         public event PropertyChangedEventHandler PropertyChanged;

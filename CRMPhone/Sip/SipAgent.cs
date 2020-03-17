@@ -142,14 +142,19 @@ namespace CRMPhone.Sip
                 }
             }
         }
-        private void AnswerLine0()
+        public bool AnswerLine0()
         {
+            if (_acc.Calls.Count == 0)
+                return false;
             var info = _acc.Calls[0].getInfo();
             if (info.state == pjsip_inv_state.PJSIP_INV_STATE_INCOMING)
             {
                 var prm = new CallOpParam {statusCode = (pjsip_status_code) 200};
                 _acc.Calls[0].answer(prm);
+                return true;
             }
+
+            return false;
         }
 
         public void GetInfoLine0()

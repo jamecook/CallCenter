@@ -1071,6 +1071,13 @@ namespace CRMPhone.ViewModel
                 _selectedFlat = FlatList.SingleOrDefault(i => i.Id == request.Address.Id);
                 _floor = request.Floor;
                 _entrance = request.Entrance;
+
+                var house = _requestService.GetHouseById(request.Address.HouseId);
+                CommissioningDate = house.CommissioningDate;
+                ElevatorCount = house.ElevatorCount;
+                ServiceCompany = house.ServiceCompanyName;
+                CityRegion = house.RegionName;
+
                 FromTime = request.FromTime;
                 ToTime = request.ToTime;
                 //var requestModel = RequestList.FirstOrDefault();

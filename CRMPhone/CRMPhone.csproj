@@ -253,6 +253,9 @@
     <Compile Include="Dialogs\ChangeAlertTimeDialog.xaml.cs">
       <DependentUpon>ChangeAlertTimeDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\Admins\HouseTypeAddAndEditDialog.xaml.cs">
+      <DependentUpon>HouseTypeAddAndEditDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\WorkerInfoDialog.xaml.cs">
       <DependentUpon>WorkerInfoDialog.xaml</DependentUpon>
     </Compile>
@@ -289,6 +292,7 @@
     <Compile Include="Sip\SipCall.cs" />
     <Compile Include="Sip\SipAgent.cs" />
     <Compile Include="ViewModel\Admins\BindWorkerToWorkerDialogViewModel.cs" />
+    <Compile Include="ViewModel\Admins\HouseTypeAddAndEditDialogViewModel.cs" />
     <Compile Include="ViewModel\EditFondDialogViewModel.cs" />
     <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
     <Compile Include="BooleanToVisibilityConverter.cs" />
@@ -560,6 +564,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\ChangeAlertTimeDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\Admins\HouseTypeAddAndEditDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

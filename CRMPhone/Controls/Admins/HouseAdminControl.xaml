@@ -39,7 +39,7 @@
         </Grid.ColumnDefinitions>
         <WrapPanel Grid.Row="0"  Grid.Column="0">
                 <Button Width="80" Margin ="5" Content="Добавить" Command="{Binding AddStreetCommand}"/>
-                <Button Width="80" Margin ="5" Content="Удалить" Command="{Binding DeleteStreetCommand}"/>
+                <Button Width="80" Margin ="5" Content="Удалить" Command="{Binding DeleteBindingCommand}"/>
                 <TextBox Text="{Binding StreetSearch, UpdateSourceTrigger=PropertyChanged}" Margin ="5" Width="100"/>
             </WrapPanel>
         <DataGrid Name="StreetGrid" Grid.Row ="1" Grid.Column="0"
@@ -53,7 +53,7 @@
                   VerticalScrollBarVisibility="Auto">
             <DataGrid.InputBindings>
                 <MouseBinding MouseAction="LeftDoubleClick"
-                              Command="{Binding Path=EditStreetCommand}"
+                              Command="{Binding Path=EditBindingCommand}"
                               CommandParameter="{Binding ElementName=StreetGrid, Path=SelectedItem}" />
             </DataGrid.InputBindings>
             <DataGrid.Columns>
