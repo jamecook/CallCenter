@@ -20,7 +20,7 @@ namespace CRMPhone.ViewModel
 {
     public class RequestDialogViewModel : INotifyPropertyChanged
     {
-        private Window _view;
+        private RequestDialog _view;
         private double _defaultWidth = 1020;
 
         private readonly RequestServiceImpl.RequestService _requestService;
@@ -148,14 +148,32 @@ namespace CRMPhone.ViewModel
             }
         }
 
+        public bool ExistForAllInfo { get; set; }
+        public bool ExistForServiceInfo { get; set; }
+
         public bool IsExpanded
         {
             get => _isExpanded;
             set { _isExpanded = value;
-                if (value) WindowWidth = 1400;
-                else WindowWidth = _defaultWidth;
+                if (value)
+                {
+                    AdditionInfoVisibility = Visibility.Visible;
+                    WindowWidth = 1400;
+                }
+                else
+                {
+                    WindowWidth = _defaultWidth;
+                    AdditionInfoVisibility = Visibility.Collapsed;
+
+                }
                 OnPropertyChanged(nameof(IsExpanded));
             }
+        }
+
+        public Visibility AdditionInfoVisibility
+        {
+            get => _additionInfoVisibility;
+            set { _additionInfoVisibility = value; OnPropertyChanged(nameof(AdditionInfoVisibility));}
         }
 
 
@@ -942,6 +960,7 @@ namespace CRMPhone.ViewModel
         private string _streetName;
         private bool _isExpanded;
         private double _windowWidth;
+        private Visibility _additionInfoVisibility;
 
         public bool CanEditAddress
         {
@@ -1005,9 +1024,10 @@ namespace CRMPhone.ViewModel
         }
 
 
-        public void SetView(Window view)
+        public void SetView(RequestDialog view)
         {
             _view = view;
+            LoadInfoForAll();
         }
         public DateTime? FromTime { get; set; }
         public DateTime? ToTime { get; set; }
@@ -1016,6 +1036,7 @@ namespace CRMPhone.ViewModel
         {
             WindowWidth = _defaultWidth;
             AlertExists = false;
+            AdditionInfoVisibility = Visibility.Collapsed;
             _requestService = new RequestServiceImpl.RequestService(AppSettings.DbConnection);
             var contactInfo = new ContactDto {Id = 0, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall};
             _callUniqueId = _requestService.GetActiveCallUniqueIdByCallId(AppSettings.LastCallId);
@@ -1110,7 +1131,7 @@ namespace CRMPhone.ViewModel
             if (_view == null)
                 return;
 
-            var flowDoc = ((RequestDialog)_view).FlowInfo.Document;
+            var flowDoc = _view.FlowInfo.Document;
 
             var flowDocument = houseId.HasValue && typeId.HasValue ? _requestService.GetHouseTypeInfo(houseId.Value, typeId.Value): "";
             if (string.IsNullOrEmpty(flowDocument))
@@ -1128,11 +1149,51 @@ namespace CRMPhone.ViewModel
                     {
                         content.Load(stream, System.Windows.DataFormats.Xaml);
                         IsExpanded = true;
+                        ExistForServiceInfo = true;
                     }
                     else
                     {
                         content.Text = "";
-                        IsExpanded = false;
+                        if (!ExistForAllInfo)
+                        {
+                            IsExpanded = false;
+                        }
+                        ExistForServiceInfo = false;
+
+                    }
+                }
+            }
+        }
+        private void LoadInfoForAll()
+        {
+            if (_view == null)
+                return;
+            
+            var flowDoc = _view.InfoForAll.Document;
+
+            var flowDocument = _requestService.GetInfoForAll();
+            
+            var content = new TextRange(flowDoc.ContentStart, flowDoc.ContentEnd);
+            if (content.CanLoad(System.Windows.DataFormats.Xaml))
+            {
+                using (var stream = new MemoryStream())
+                {
+                    var buffer = Encoding.Default.GetBytes(flowDocument);
+                    stream.Write(buffer, 0, buffer.Length);
+                    if (stream.Length > 0)
+                    {
+                        content.Load(stream, System.Windows.DataFormats.Xaml);
+                        IsExpanded = true;
+                        ExistForAllInfo = true;
+                    }
+                    else
+                    {
+                        content.Text = "";
+                        if (!ExistForServiceInfo)
+                        {
+                            IsExpanded = false;
+                        }
+                        ExistForAllInfo = true;
                     }
                 }
             }

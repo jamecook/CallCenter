@@ -24,8 +24,9 @@ namespace CRMPhone
             Owner = Application.Current.MainWindow;
             DataContext = _context;
 
-            _context.SetView(this);
             InitializeComponent();
+            _context.SetView(this);
+
         }
 
         private void SelectCurrentContact(object sender, MouseButtonEventArgs e)

@@ -22,7 +22,10 @@
             <TextBox Margin="5" HorizontalAlignment="Right" Width="300" MaxLength="255" TextWrapping="Wrap" Text="{Binding ServiceName}">
             </TextBox>
         </DockPanel>
-            <CheckBox Margin="5" IsChecked="{Binding Immediate}" Visibility="{Binding CanSetImmediate}">Аварийная</CheckBox>
+            <DockPanel>
+                <CheckBox Margin="5" IsChecked="{Binding Immediate}" Visibility="{Binding CanSetImmediate}">Аварийная</CheckBox>
+                <CheckBox Margin="5" IsChecked="{Binding AvailableForClient}">Доступна Собственнику</CheckBox>
+            </DockPanel>
         </StackPanel>
         <StackPanel Grid.Row="2" HorizontalAlignment="Right">
             <Button Margin="5" Width="120" Height="24" Command="{Binding Path=SaveCommand}">Сохранить</Button>

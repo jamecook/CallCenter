@@ -60,5 +60,10 @@ namespace CRMPhone
         {
             (DataContext as CRMContext)?.CallFromList();
         }
+
+        private void ForAllInfoTab_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            var t = 1;
+        }
     }
 }

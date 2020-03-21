@@ -100,7 +100,42 @@ group by C.UniqueId
 ) a
 left join CallCenter.Users u on u.id = a.userId
 
-
+------------------Статистика звонков принятых вместо АИЖК
+select CallDirection "Направление",CallerIDNum "Номер",CreateTime "Время_звонка", TalkTime "Продолжительность_Разговора",WaitingTime "Время_Ожидания",
+ClearWaitingTime "Чистое_Время_Ожидания",IVRTime "Продолжительность_IVR",
+CallTime "Всего_время_звонка",
+concat(u.SurName,' ',if(u.FirstName is null,'',u.FirstName),' ',if(u.PatrName is null,'',u.PatrName)) "Диспетчер",
+case when u.id not in (106,107,108,109,110,111) then 'Dispex' else  'АИЖК' end "УК_Диспетчера",
+RequestId "Заявки", ServiceCompanyName from
+(
+select C.UniqueID AS UniqueId, C.Direction AS CallDirection,
+(case when C.PhoneNum is not null then C.PhoneNum when(C.CallerIDNum in ('scvip500415','594555')) then C.Exten else C.CallerIDNum end) AS CallerIDNum,
+C.CreateTime AS CreateTime,
+C.AnswerTime AS AnswerTime,
+C.EndTime AS EndTime,
+C.BridgedTime AS BridgedTime,
+C.MonitorFile AS MonitorFile,
+timestampdiff(SECOND, C.BridgedTime, C.EndTime) AS TalkTime,
+timestampdiff(SECOND, C.CreateTime, C.EndTime) as CallTime,
+  (timestampdiff(SECOND, C.CreateTime, C.EndTime) - ifnull(timestampdiff(SECOND, C.BridgedTime, C.EndTime), 0)) AS WaitingTime,
+timestampdiff(SECOND, C.queue_time, ifnull(C.BridgedTime, C.EndTime)) AS ClearWaitingTime,
+timestampdiff(SECOND, C.CreateTime, C.queue_time) AS IVRTime,
+ifnull(C.UserId, max(C2.UserId)) userId,
+(select group_concat(r.request_id order by r.request_id separator ', ') from CallCenter.RequestCalls r where r.uniqueID = C.UniqueID) AS RequestId,
+sc.Name ServiceCompanyName,
+group_concat(concat(C2.peer_number, ':', C2.ChannelState) order by C2.UniqueId desc separator ',') as redirect_phone,
+C.ivr_menu,C.ivr_dial
+FROM asterisk.ChannelHistory C
+left join asterisk.ChannelBridges B on B.UniqueId = C.UniqueId
+left join asterisk.ChannelHistory C2 on C2.BridgeId = B.BridgeId and C2.UniqueId <> C.UniqueId
+left join CallCenter.ServiceCompanies sc on sc.trunk_name = C.ServiceComp
+left join CallCenter.RequestCalls r on r.uniqueID = C.UniqueID
+where C.UniqueId >= '1552128123.322928' and C.UniqueId = C.LinkedId and C.Direction is not null and C.CreateTime > 20200301 and C.ServiceComp in ('yit_service','amega')
+and C.Context not in ('autoring','ringupcalls')
+group by C.UniqueId
+) a
+left join CallCenter.Users u on u.id = a.userId
+where a.WaitingTime > 80 and u.id not in (106,107,108,109,110,111) and CallDirection = 'in'
 
 
 -------------------------------Статистика по диспетчерам

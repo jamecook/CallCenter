@@ -122,6 +122,9 @@
     <Compile Include="Controls\Admins\HouseAdminControl.xaml.cs">
       <DependentUpon>HouseAdminControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Admins\AllInfoAdminControl.xaml.cs">
+      <DependentUpon>AllInfoAdminControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Admins\HouseTypeAdminControl.xaml.cs">
       <DependentUpon>HouseTypeAdminControl.xaml</DependentUpon>
     </Compile>
@@ -293,6 +296,7 @@
     <Compile Include="Sip\SipAgent.cs" />
     <Compile Include="ViewModel\Admins\BindWorkerToWorkerDialogViewModel.cs" />
     <Compile Include="ViewModel\Admins\HouseTypeAddAndEditDialogViewModel.cs" />
+    <Compile Include="ViewModel\AllInfoAdminControlContext.cs" />
     <Compile Include="ViewModel\EditFondDialogViewModel.cs" />
     <Compile Include="ViewModel\AddRatingDialogViewModel.cs" />
     <Compile Include="BooleanToVisibilityConverter.cs" />
@@ -398,6 +402,10 @@
     <Page Include="Controls\Admins\HouseAdminControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Admins\AllInfoAdminControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\Admins\HouseTypeAdminControl.xaml">
       <SubType>Designer</SubType>

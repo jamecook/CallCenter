@@ -2669,6 +2669,26 @@ where h.service_company_id = @ServiceCompanyId and ht.deleted = 0;";
             }
         }
 
+        public void SaveInfoForAll(int userId, string flowDocument, string contentText)
+        {
+            using (var cmd =
+                new MySqlCommand(
+                    @"update CallCenter.InfoForAllDispatcher set deleted = id, delete_date=sysdate(), delete_user_id = @userId where deleted=0;",
+                    _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@userId", userId);
+                cmd.ExecuteNonQuery();
+            }
+            if(string.IsNullOrWhiteSpace(contentText))
+                return;
+            using (var cmd = new MySqlCommand(@"insert into CallCenter.InfoForAllDispatcher(create_date,user_id,info) values(sysdate(),@userId,@flowDocument);", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@userId", userId);
+                cmd.Parameters.AddWithValue("@flowDocument", flowDocument);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         public IList<HouseDto> GetHouses(int streetId,int? serviceCompanyId = null)
         {
             var sqlQuery = @"SELECT h.id,h.street_id,s.Name street_name,h.building,h.corps,h.entrance_count,h.flat_count,h.floor_count,have_parking,elevator_count,service_company_id,sс.Name service_company_name,region_id, r.name region_name FROM CallCenter.Houses h
@@ -4149,7 +4169,7 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
         public ServiceDto GetServiceById(int serviceId)
         {
             ServiceDto service = null;
-            var query = "SELECT id,name,can_send_sms,immediate FROM CallCenter.RequestTypes  where id = @ID";
+            var query = "SELECT id,name,can_send_sms,immediate,for_client FROM CallCenter.RequestTypes  where id = @ID";
             using (var cmd = new MySqlCommand(query, _dbConnection))
             {
                 cmd.Parameters.AddWithValue("@ID", serviceId);
@@ -4162,7 +4182,8 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
                             Id = dataReader.GetInt32("id"),
                             Name = dataReader.GetString("name"),
                             CanSendSms = dataReader.GetBoolean("can_send_sms"),
-                            Immediate = dataReader.GetBoolean("immediate")
+                            Immediate = dataReader.GetBoolean("immediate"),
+                            AvailableForClient = dataReader.GetBoolean("for_client")
                         };
                     }
                     dataReader.Close();
@@ -4170,28 +4191,30 @@ values(@surName,@firstName,@patrName,@phone,@serviceCompanyId,@specialityId,@can
             }
             return service;
         }
-        public void SaveService(int? serviceId, int? parentId,  string serviceName, bool immediate)
+        public void SaveService(int? serviceId, int? parentId,  string serviceName, bool immediate, bool availableForClient)
         {
             if (serviceId.HasValue)
             {
-                using (var cmd = new MySqlCommand(@"update CallCenter.RequestTypes set Name = @serviceName, parrent_id = @parentId, immediate = @immediate where id = @ID;", _dbConnection))
+                using (var cmd = new MySqlCommand(@"update CallCenter.RequestTypes set Name = @serviceName, parrent_id = @parentId, immediate = @immediate, for_client = @availableForClient where id = @ID;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@ID", serviceId.Value);
                     cmd.Parameters.AddWithValue("@serviceName", serviceName);
                     cmd.Parameters.AddWithValue("@parentId", parentId);
                     cmd.Parameters.AddWithValue("@immediate", immediate);
+                    cmd.Parameters.AddWithValue("@availableForClient", availableForClient);
                     cmd.ExecuteNonQuery();
                 }
 
             }
             else
             {
-                using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestTypes(parrent_id,Name,immediate) values(@parentId, @serviceName, @immediate)
+                using (var cmd = new MySqlCommand(@"insert into CallCenter.RequestTypes(parrent_id,Name,immediate, for_client) values(@parentId, @serviceName, @immediate, @availableForClient)
                 ON DUPLICATE KEY UPDATE enabled = true;", _dbConnection))
                 {
                     cmd.Parameters.AddWithValue("@serviceName", serviceName);
                     cmd.Parameters.AddWithValue("@parentId", parentId);
                     cmd.Parameters.AddWithValue("@immediate", immediate);
+                    cmd.Parameters.AddWithValue("@availableForClient", availableForClient);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -5101,6 +5124,23 @@ where a.deleted = 0 and a.request_id = @requestId", dbConnection))
                 return result;
             }
         }
+        public string GetInfoForAll()
+        {
+            string result = string.Empty;
+            using (var cmd = new MySqlCommand(@"SELECT info FROM CallCenter.InfoForAllDispatcher where deleted = 0 order by id desc limit 1;", _dbConnection))
+            {
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    dataReader.Read();
+                    if (dataReader.HasRows)
+                    {
+                        result = dataReader.GetNullableString("info");
+                    }
+                }
+                return result;
+            }
+        }
+
         public string GetServiceCompanyTypeInfo(int companyId,int typeId)
         {
             string result = string.Empty;

@@ -828,7 +828,7 @@
                     </StackPanel>
                 </TabItem.Header>
                 <Grid>
-                    <TabControl TabStripPlacement="Left">
+                    <TabControl TabStripPlacement="Left" SelectedItem="{Binding SelectedControl}">
                         <TabItem Name="UsersTab">
                             <TabItem.Header>
                                 <StackPanel Orientation="Horizontal">
@@ -918,6 +918,15 @@
                                 </StackPanel>
                             </TabItem.Header>
                             <admins:HouseTypeAdminControl x:Name="HouseTypeAdminControl" DataContext="{Binding HouseTypeAdminContext}"/>
+                        </TabItem>                        
+                        <TabItem Name="ForAllInfoTab">
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <!--<Image  Source="pack://application:,,,/Images/events_small.png" Stretch="UniformToFill" Height="28" />-->
+                                    <TextBlock Margin="3" Text="Информация для всех"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <admins:AllInfoAdminControl x:Name="AllInfoAdminControl" DataContext="{Binding AllInfoAdminContext}"/>
                         </TabItem>
                     </TabControl>
                 </Grid>

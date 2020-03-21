@@ -16,6 +16,7 @@ namespace CRMPhone.ViewModel.Admins
         private ICommand _saveCommand;
         private string _serviceName;
         private bool _immediate;
+        private bool _availableForClient;
 
         public string ServiceName
         {
@@ -29,6 +30,12 @@ namespace CRMPhone.ViewModel.Admins
             set { _immediate = value; OnPropertyChanged(nameof(Immediate));}
         }
 
+        public bool AvailableForClient
+        {
+            get => _availableForClient;
+            set { _availableForClient = value;  OnPropertyChanged(nameof(AvailableForClient));}
+        }
+
         public ServiceDialogViewModel(RequestServiceImpl.RequestService requestService, int? serviceId, int? parentId)
         {
             _requestService = requestService;
@@ -39,6 +46,7 @@ namespace CRMPhone.ViewModel.Admins
                 var service = _requestService.GetServiceById(serviceId.Value);
                 ServiceName = service.Name;
                 Immediate = service.Immediate;
+                AvailableForClient = service.AvailableForClient;
             }
         }
 
@@ -51,7 +59,7 @@ namespace CRMPhone.ViewModel.Admins
 
         private void Save(object sender)
         {
-            _requestService.SaveService(_serviceId, _parentId, ServiceName,Immediate);
+            _requestService.SaveService(_serviceId, _parentId, ServiceName,Immediate,AvailableForClient);
             _view.DialogResult = true;
         }
 

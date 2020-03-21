@@ -35,6 +35,8 @@ using Color = System.Windows.Media.Color;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
+using System.Windows.Controls;
+using CRMPhone.Controls.Admins;
 
 namespace CRMPhone.ViewModel
 {
@@ -143,6 +145,7 @@ namespace CRMPhone.ViewModel
             ServiceAdminContext = new ServiceAdminControlContext();
             HouseAdminContext = new HouseAdminControlContext();
             HouseTypeAdminContext = new HouseTypeAdminControlContext();
+            AllInfoAdminContext = new AllInfoAdminControlContext();
             RedirectAdminContext = new RedirectAdminControlContext();
             RingUpAdminContext = new RingUpAdminControlContext();
             BlackListContext = new BlackListControlContext();
@@ -185,6 +188,8 @@ namespace CRMPhone.ViewModel
             InitMySql();
             _version = Assembly.GetEntryAssembly().GetName().Version.ToString();
             AppTitle = $"Call Center. {AppSettings.CurrentUser.SurName} {AppSettings.CurrentUser.FirstName} {AppSettings.CurrentUser.PatrName} ({AppSettings.SipInfo?.SipUser}) ver. {Assembly.GetEntryAssembly().GetName().Version}";
+            HouseTypeAdminContext.SetView(mainWindow.HouseTypeAdminControl);
+            AllInfoAdminContext.SetView(mainWindow.AllInfoAdminControl);
             AlertRequestDataContext.InitCollections();
             RequestDataContext.InitCollections();
             ServiceCompanyFondContext.InitCollections();
@@ -200,7 +205,6 @@ namespace CRMPhone.ViewModel
             CallsNotificationContext.Init();
             DispatcherContext.InitCollections();
             AlertAndWorkContext.InitCollections();
-            HouseTypeAdminContext.SetView(mainWindow.HouseTypeAdminControl);
             OnPropertyChanged(nameof(IsAdminRoleExist));
             if (!string.IsNullOrEmpty(AppSettings.SipInfo?.SipUser))
             {
@@ -211,6 +215,22 @@ namespace CRMPhone.ViewModel
 
             }
         }
+
+        public TabItem SelectedControl
+        {
+            get => _selectedControl;
+            set
+            {
+                _selectedControl = value;
+                if (value.Content is AllInfoAdminControl)
+                {
+                    var item = value.Content as AllInfoAdminControl;
+                    var context = item.DataContext as AllInfoAdminControlContext;
+                    context?.GetInfo();
+                }
+            }
+        }
+
         public DateTime FromDate
         {
             get { return _fromDate; }
@@ -1104,6 +1124,8 @@ namespace CRMPhone.ViewModel
         private DispatcherControlContext _dispatcherContext;
         private bool _queuePaused;
         private HouseTypeAdminControlContext _houseTypeAdminContext;
+        private AllInfoAdminControlContext _allInfoAdminContext;
+        private TabItem _selectedControl;
 
         public ICommand AddRequestToCallCommand { get { return _addRequestToCallCommand ?? (_addRequestToCallCommand = new CommandHandler(AddRequestToCall, _canExecute)); } }
 
@@ -1192,6 +1214,16 @@ namespace CRMPhone.ViewModel
         {
             get { return _houseAdminContext; }
             set { _houseAdminContext = value; OnPropertyChanged(nameof(HouseAdminContext)); }
+        }
+
+        public AllInfoAdminControlContext AllInfoAdminContext
+        {
+            get => _allInfoAdminContext;
+            set
+            {
+                _allInfoAdminContext = value; 
+                OnPropertyChanged(nameof(AllInfoAdminContext));
+            }
         }
 
         public HouseTypeAdminControlContext HouseTypeAdminContext

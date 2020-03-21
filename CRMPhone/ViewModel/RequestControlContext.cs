@@ -1153,7 +1153,6 @@ namespace CRMPhone.ViewModel
         {
             var viewModel = new RequestDialogViewModel(null);
             var view = new RequestDialog(viewModel);
-            viewModel.SetView(view);
             view.Show();
 
         }
