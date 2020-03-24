@@ -51,7 +51,7 @@ namespace CRMPhone.ViewModel.Admins
 
         private void Save(object sender)
         {
-            _requestService.SaveService(_serviceId, _parentId, ServiceName,Immediate);
+            _requestService.SaveService(_serviceId, _parentId, ServiceName,Immediate, true);
             _view.DialogResult = true;
         }
 

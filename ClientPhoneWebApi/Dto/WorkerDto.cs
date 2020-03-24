@@ -32,5 +32,6 @@ namespace ClientPhoneWebApi.Dto
         public bool ShowOnlyGaranty { get; set; }
         public bool FilterByHouses { get; set; }
         public bool ShowOnlyMy { get; set; }
+        public bool AutoSet { get; set; }
     }
 }

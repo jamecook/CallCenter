@@ -520,9 +520,7 @@ namespace ClientPhoneWebApi.Services
                 }
             }
         }
-
-        public WorkerDto[] GetWorkersByHouseAndService(int userId, int houseId, int parentServiceTypeId,
-            bool showMasters = true)
+        public List<WorkerDto> GetWorkersByHouseAndParentService(int houseId, int serviceTypeId, bool showMasters = true)
         {
             var query =
                 $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms, w.send_notification
@@ -531,13 +529,12 @@ namespace ClientPhoneWebApi.Services
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
     where w.enabled = 1 and wh.master_weigth is not null and wh.house_id = {houseId}
-    and (wh.type_id is null or wh.type_id = {parentServiceTypeId})";
+    and (wh.type_id is null or wh.type_id in(SELECT parrent_id FROM CallCenter.RequestTypes where id = {serviceTypeId}))";
             if (showMasters)
                 query += "and w.is_master = 1";
             else
                 query += "and w.is_executer = 1";
-            query +=
-                @" group by s.id,s.name ,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name,w.can_assign,w.parent_worker_id
+            query += @" group by s.id,s.name ,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name,w.can_assign,w.parent_worker_id
     order by wh.master_weigth desc;";
             using (var conn = new MySqlConnection(_connectionString))
             {
@@ -564,16 +561,87 @@ namespace ClientPhoneWebApi.Services
                                 SendSms = dataReader.GetBoolean("send_sms"),
                                 AppNotification = dataReader.GetBoolean("send_notification"),
                                 ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
+                                AutoSet = true
                             });
                         }
 
                         dataReader.Close();
                     }
 
-                    return workers.ToArray();
+                    return workers;
                 }
             }
         }
+
+        public WorkerDto[] GetWorkersByHouseAndService(int userId, int houseId, int serviceTypeId, bool showMasters = true)
+        {
+            var workers = GetWorkersByHouseAndServiceType(houseId, serviceTypeId, showMasters);
+            if (workers.Count == 0)
+            {
+                workers.AddRange(GetWorkersByHouseAndParentService(houseId, serviceTypeId, showMasters));
+            }
+
+            return workers.ToArray();
+        }
+
+        public List<WorkerDto> GetWorkersByHouseAndServiceType(int houseId, int serviceTypeId, bool showMasters = true)
+        {
+            var query =
+                $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms, w.send_notification
+    FROM CallCenter.WorkerHouseAndType wh
+    join CallCenter.Workers w on wh.worker_id = w.id
+    left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
+    left join CallCenter.Speciality sp on sp.id = w.speciality_id
+    where w.enabled = 1 and wh.master_weigth is not null and wh.house_id = {houseId}
+    and (wh.type_id is null or wh.type_id = {serviceTypeId})";
+            if (showMasters)
+                query += "and w.is_master = 1";
+            else
+                query += "and w.is_executer = 1";
+            query += @" group by s.id,s.name ,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name,w.can_assign,w.parent_worker_id
+    order by wh.master_weigth desc;";
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    var workers = new List<WorkerDto>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            workers.Add(new WorkerDto
+                            {
+                                Id = dataReader.GetInt32("id"),
+                                ServiceCompanyId = dataReader.GetNullableInt("service_id"),
+                                ServiceCompanyName = dataReader.GetNullableString("service_name"),
+                                SurName = dataReader.GetString("sur_name"),
+                                FirstName = dataReader.GetNullableString("first_name"),
+                                PatrName = dataReader.GetNullableString("patr_name"),
+                                SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                                SpecialityName = dataReader.GetNullableString("speciality_name"),
+                                Phone = dataReader.GetNullableString("phone"),
+                                CanAssign = dataReader.GetBoolean("can_assign"),
+                                SendSms = dataReader.GetBoolean("send_sms"),
+                                AppNotification = dataReader.GetBoolean("send_notification"),
+                                ParentWorkerId = dataReader.GetNullableInt("parent_worker_id"),
+                                AutoSet = true
+                            });
+                        }
+
+                        dataReader.Close();
+                    }
+
+                    return workers;
+                }
+            }
+        }
+
+
+
+
+
+
 
         public ClientAddressInfoDto GetLastAddressByClientPhone(int userId, string phone)
         {
@@ -1665,6 +1733,155 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
                 }
             }
         }
+
+
+        public void EditContacts(int userId, int requestId, ContactDto[] contactList)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                foreach (var contact in contactList)
+                {
+                    using (
+                        var cmd = new MySqlCommand(
+                            @"update CallCenter.ClientPhones set name = @Name,email = @Email,addition = @AddInfo where Number = @Phone;",
+                            conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
+                        cmd.Parameters.AddWithValue("@Name", contact.Name);
+                        cmd.Parameters.AddWithValue("@Email", contact.Email);
+                        cmd.Parameters.AddWithValue("@AddInfo", contact.AdditionInfo);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    using (
+                        var cmd =
+                            new MySqlCommand(@"update CallCenter.RequestContacts set IsMain = @IsMain where id = @Id;",
+                                conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", contact.Id);
+                        cmd.Parameters.AddWithValue("@IsMain", contact.IsMain);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+            }
+        }
+        public void DeleteContacts(int userId, int requestId, ContactDto[] contactList)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                foreach (var contact in contactList)
+                {
+                    using (
+                        var cmd = new MySqlCommand(
+                            @"delete from CallCenter.RequestContacts where id = @Id;",
+                            conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", contact.Id);
+                        cmd.ExecuteNonQuery();
+                    }
+
+
+                }
+            }
+        }
+
+        public void SaveContacts(int userId, int requestId, ContactDto[] contactList)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+
+                foreach (
+                    var contact in
+                    contactList.Where(c => !string.IsNullOrEmpty(c.PhoneNumber))
+                        .OrderByDescending(c => c.IsMain))
+                {
+                    var clientPhoneId = 0;
+                    ContactDto currentInfo = null;
+                    using (
+                        var cmd = new MySqlCommand(
+                            "SELECT id,name,email,addition FROM CallCenter.ClientPhones C where Number = @Phone",
+                            conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
+
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            if (dataReader.Read())
+                            {
+                                currentInfo = new ContactDto
+                                {
+                                    Id = dataReader.GetInt32("id"),
+                                    Name = dataReader.GetNullableString("name"),
+                                    Email = dataReader.GetNullableString("email"),
+                                    AdditionInfo = dataReader.GetNullableString("addition"),
+                                };
+                                clientPhoneId = currentInfo.Id;
+                            }
+
+                            dataReader.Close();
+                        }
+                    }
+
+                    if (currentInfo == null)
+                    {
+                        using (
+                            var cmd = new MySqlCommand(
+                                @"insert into CallCenter.ClientPhones(Number,name,email,addition) values(@Phone,@Name,@Email,@AddInfo);
+    select LAST_INSERT_ID();", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@Phone", contact.PhoneNumber);
+                            cmd.Parameters.AddWithValue("@Name", contact.Name);
+                            cmd.Parameters.AddWithValue("@Email", contact.Email);
+                            cmd.Parameters.AddWithValue("@AddInfo", contact.AdditionInfo);
+                            clientPhoneId = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+                    }
+                    else
+                    {
+                        using (
+                            var cmd = new MySqlCommand(
+                                @"update CallCenter.ClientPhones set name = @Name,email = @Email,addition = @AddInfo where id = @Id;",
+                                conn))
+                        {
+                            cmd.Parameters.AddWithValue("@Id", currentInfo.Id);
+                            cmd.Parameters.AddWithValue("@Name",
+                                string.IsNullOrEmpty(contact.Name) ? currentInfo.Name : contact.Name);
+                            cmd.Parameters.AddWithValue("@Email",
+                                string.IsNullOrEmpty(contact.Email) ? currentInfo.Email : contact.Email);
+                            cmd.Parameters.AddWithValue("@AddInfo",
+                                string.IsNullOrEmpty(contact.AdditionInfo)
+                                    ? currentInfo.AdditionInfo
+                                    : contact.AdditionInfo);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+
+                    using (
+                        var cmd =
+                            new MySqlCommand(
+                                @"insert into CallCenter.RequestContacts (request_id,IsMain,ClientPhone_id) 
+    values(@RequestId,@IsMain,@PhoneId);
+    select LAST_INSERT_ID();", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@RequestId", requestId);
+                        cmd.Parameters.AddWithValue("@IsMain", contact.IsMain);
+                        cmd.Parameters.AddWithValue("@PhoneId", clientPhoneId);
+                        contact.Id = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+                }
+            }
+        }
+
+
+
+
+
 
         public int? SaveNewRequest(int userId, string lastCallId, int addressId, int requestTypeId,
             ContactDto[] contactList, string requestMessage,

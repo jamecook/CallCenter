@@ -274,6 +274,7 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Services\ChangeAddressDto.cs" />
+    <Compile Include="Services\EditContactDto.cs" />
     <Compile Include="Services\NewRequestDto.cs" />
     <Compile Include="Services\RestRequestService.cs" />
     <Compile Include="Services\RingUpListDto.cs" />
@@ -656,6 +657,8 @@
     <Resource Include="Images\clipboard-copy-24.png" />
     <Resource Include="Images\pin-48.png" />
     <Resource Include="Images\phones.png" />
+    <Resource Include="Images\add.png" />
+    <Resource Include="Images\refresh.png" />
     <Content Include="russian.lex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

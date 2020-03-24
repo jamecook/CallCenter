@@ -2977,21 +2977,23 @@ body = {
                     {
                         while (dataReader.Read())
                         {
+                            var houseId = dataReader.GetInt32("house_id");
+                            var flat = dataReader.GetNullableString("flat");
                             var address = new AddressDto()
                             {
                                 Id = dataReader.GetInt32("id"),
-                                HouseId = dataReader.GetInt32("house_id"),
+                                HouseId = houseId,
                                 StreetPrefix = dataReader.GetNullableString("prefix_name"),
                                 StreetName = dataReader.GetNullableString("street_name"),
                                 Building = dataReader.GetNullableString("building"),
                                 Corpus = dataReader.GetNullableString("corps"),
-                                Flat = dataReader.GetNullableString("flat"),
+                                Flat = flat,
                                 AddressType = dataReader.GetNullableString("address_type"),
                                 IntercomId = dataReader.GetNullableString("intercomId"),
                                 SipId = dataReader.GetNullableString("sip_id"),
                                 CanBeCalled = dataReader.GetNullableBoolean("can_be_called"),
                             };
-                            var cameras = GetCameras(clientId, deviceId);
+                            var cameras = GetCameras(clientId,houseId, flat, deviceId);
                             address.Cameras = cameras;
                             addresses.Add(address);
                         }
@@ -3004,15 +3006,17 @@ body = {
             }
         }
 
-        public static CameraDto[] GetCameras(int clientId, string deviceId)
+        public static CameraDto[] GetCameras(int clientId, int houseId, string flat, string deviceId)
         {
             using (var conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
 
-                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetCameras(@ClientId,@DeviceId)", conn))
+                using (var cmd = new MySqlCommand(@"CALL CallCenter.ClientGetCameras(@ClientId,@houseId,@flat,@DeviceId)", conn))
                 {
                     cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.Parameters.AddWithValue("@houseId", houseId);
+                    cmd.Parameters.AddWithValue("@flat", flat);
                     cmd.Parameters.AddWithValue("@DeviceId", deviceId);
                     var cameras = new List<CameraDto>();
                     using (var dataReader = cmd.ExecuteReader())

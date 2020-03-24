@@ -36,7 +36,7 @@ namespace CRMPhone.ViewModel
         private int? _selectedServiceCompanyId;
         private ObservableCollection<ContactDto> _contactList;
         private int _requestId;
-        private List<ContactDto> requestContacts;
+        private List<ContactDto> _requestContacts;
 
         public ObservableCollection<CityDto> CityList
         {
@@ -128,8 +128,7 @@ namespace CRMPhone.ViewModel
                 requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
             }
             requestModel.TermOfExecution = request.TermOfExecution;
-            viewModel.
-                ContactList = new ObservableCollection<ContactDto>(request.Contacts);
+            viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
 
             view.Show();
 
@@ -395,10 +394,10 @@ namespace CRMPhone.ViewModel
             set
             {
                 _contactList = value; OnPropertyChanged(nameof(ContactList));
-                requestContacts = new List<ContactDto>();
+                _requestContacts = new List<ContactDto>();
                 foreach (var contactDto in ContactList)
                 {
-                    requestContacts.Add(contactDto.Copy());
+                    _requestContacts.Add(contactDto.Copy());
                 }
             }
         }
@@ -857,16 +856,16 @@ namespace CRMPhone.ViewModel
             }
             if (requestModel.RequestId.HasValue)
             {
-                if (requestContacts != null && AppSettings.CurrentUser.Roles.Exists(r => r.Name == "admin" || r.Name == "supervizor"))
+                if (_requestContacts != null && AppSettings.CurrentUser.Roles.Exists(r => r.Name == "admin" || r.Name == "supervizor"))
                 {
-                    var forDeleteItems = requestContacts?.Where(c => ContactList.All(l => l.Id != c.Id)).ToArray();
+                    var forDeleteItems = _requestContacts?.Where(c => ContactList.All(l => l.Id != c.Id)).ToArray();
                     _requestService.DeleteContacts(requestModel.RequestId.Value, forDeleteItems);
 
-                    var newItems = ContactList.Where(c => requestContacts.All(l => l.Id != c.Id)).Where(c=>!string.IsNullOrEmpty(c.PhoneNumber)).ToArray();
+                    var newItems = ContactList.Where(c => _requestContacts.All(l => l.Id != c.Id)).Where(c=>!string.IsNullOrEmpty(c.PhoneNumber)).ToArray();
                     _requestService.SaveContacts(requestModel.RequestId.Value,newItems);
 
                     var changedItems = (from c in ContactList
-                        from r in requestContacts
+                        from r in _requestContacts
                         where c.PhoneNumber == r.PhoneNumber && (c.Name != r.Name || c.IsMain != r.IsMain || c.AdditionInfo != r.AdditionInfo || c.Email != r.Email )
                         select c).ToArray();
                     _requestService.EditContacts(requestModel.RequestId.Value, changedItems);

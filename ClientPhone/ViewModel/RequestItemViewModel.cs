@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using CRMPhone.Annotations;
 using System.Windows;
+using System.Windows.Input;
 using ClientPhone.Services;
 using RequestServiceImpl;
 using RequestServiceImpl.Dto;
@@ -47,10 +48,11 @@ namespace CRMPhone.ViewModel
         private DateTime? _termOfExecution;
         private ObservableCollection<GarantyDto> _garantyList;
         private GarantyDto _selectedGaranty;
+        private RequestDialogViewModel _dialogModel;
 
-
-        public RequestItemViewModel()
+        public RequestItemViewModel(RequestDialogViewModel dialogModel)
         {
+            _dialogModel = dialogModel;
             //CanAttach = true;
             ServiceList = new ObservableCollection<ServiceDto>();
             MasterList = new ObservableCollection<WorkerDto>(RestRequestService.GetMasters(AppSettings.CurrentUser.Id,null,true));
@@ -70,11 +72,45 @@ namespace CRMPhone.ViewModel
             });
             SelectedGaranty = GarantyList.FirstOrDefault();
         }
+        private ICommand _addNoteCommand;
+        public ICommand AddNoteCommand { get { return _addNoteCommand ?? (_addNoteCommand = new CommandHandler(AddNote, true)); } }
+        private ICommand _refreshNoteCommand;
+        public ICommand RefreshNoteCommand { get { return _refreshNoteCommand ?? (_refreshNoteCommand = new CommandHandler(RefreshNote, true)); } }
+
+        public ObservableCollection<NoteDto> NoteList
+        {
+            get { return _noteList; }
+            set { _noteList = value; OnPropertyChanged(nameof(NoteList)); }
+        }
+
+        private void RefreshNote()
+        {
+            if (!_requestId.HasValue)
+                return;
+            NoteList = new ObservableCollection<NoteDto>(RestRequestService.GetNotes(AppSettings.CurrentUser.Id, _requestId.Value));
+        }
+
+        private void AddNote()
+        {
+            if (!_requestId.HasValue)
+                return;
+            RestRequestService.AddNewNote(AppSettings.CurrentUser.Id, _requestId.Value, Note);
+            Note = "";
+            RefreshNote();
+        }
+        public AttachmentDto SelectedNoteItem
+        {
+            get { return _selectedNoteItem; }
+            set { _selectedNoteItem = value; OnPropertyChanged(nameof(SelectedNoteItem)); }
+        }
 
         private Appointment _selectedAppointment;
         private string _phoneNumber;
         //private bool _canAttach;
         private string _selectedServiceText;
+        private ObservableCollection<NoteDto> _noteList;
+        private AttachmentDto _selectedNoteItem;
+
         private string _selectedParentText;
         public Appointment OpenAppointment { get; set; }
 
@@ -88,8 +124,10 @@ namespace CRMPhone.ViewModel
             get { return _requestId; }
             set { _requestId = value;
                 OnPropertyChanged(nameof(CanSave));
+                OnPropertyChanged(nameof(CanEditService));
                 OnPropertyChanged(nameof(CanEdit));
                 OnPropertyChanged(nameof(RequestId));
+                RefreshNote();
                 //OnPropertyChanged(nameof(CanAttachRecord));
             }
         }
@@ -126,7 +164,7 @@ namespace CRMPhone.ViewModel
             set
             {
                 _selectedHouseId = value;
-                UpdateMasters();
+                RefreshMasters();
                 RefreshExecuters();
                 UpdateParrentServices(_selectedHouseId);
                 OnPropertyChanged(nameof(SelectedHouseId));
@@ -200,35 +238,9 @@ namespace CRMPhone.ViewModel
             {
 
                 _showAllMasters = value;
-                UpdateMasters();
+                RefreshMasters();
                 OnPropertyChanged(nameof(ShowAllMasters));
             }
-        }
-
-        private void UpdateMasters()
-        {
-            var selectedMaster = SelectedMaster?.Id;
-                MasterList.Clear();
-            if (_showAllMasters)
-            {
-                foreach (var master in RestRequestService.GetMasters(AppSettings.CurrentUser.Id,null,true))
-                {
-                    MasterList.Add(master);
-                }
-                SelectedMaster = MasterList.FirstOrDefault(m => m.Id == selectedMaster);
-            }
-            else
-            {
-                if (_selectedHouseId.HasValue && SelectedParentService != null)
-                {
-                    foreach (var master in RestRequestService.GetWorkersByHouseAndService(AppSettings.CurrentUser.Id, _selectedHouseId.Value, SelectedParentService.Id))
-                    {
-                        MasterList.Add(master);
-                    }
-                    SelectedMaster = MasterList.FirstOrDefault();
-                }
-            }
-
         }
 
         public bool ShowAllExecuters
@@ -246,7 +258,7 @@ namespace CRMPhone.ViewModel
             get { return _description; }
             set { _description = value; OnPropertyChanged(nameof(Description)); }
         }
-
+        public string Note { get; set; }
         public DateTime? AlertTime
         {
             get { return _alertTime; }
@@ -262,7 +274,6 @@ namespace CRMPhone.ViewModel
                     return;
                 _selectedParentService = value;
                 ChangeParentService(value?.Id);
-                UpdateMasters();
                 OnPropertyChanged(nameof(SelectedParentService));
             }
         }
@@ -294,15 +305,19 @@ namespace CRMPhone.ViewModel
                 {
                     IsImmediate = value?.Immediate ?? false;
                 }
+                RefreshMasters();
+                RefreshExecuters();
+
                 OnPropertyChanged(nameof(IsImmediate));
                 OnPropertyChanged(nameof(SelectedService));
+                _dialogModel.GetInfoByHouseAndType(_selectedHouseId, value?.Id);
             }
         }
 
         public void RefreshExecuters()
         {
             var selectedExecuterId = SelectedExecuter?.Id;
-            if (ShowAllExecuters || SelectedCompany == null || SelectedParentService == null)
+            if (ShowAllExecuters || SelectedCompany == null || SelectedService == null)
                 ExecuterList = new ObservableCollection<WorkerDto>(RestRequestService.GetExecutors(AppSettings.CurrentUser.Id,null,true));
             else if (_selectedHouseId.HasValue)
             {
@@ -311,8 +326,37 @@ namespace CRMPhone.ViewModel
             }
             SelectedExecuter = ExecuterList.FirstOrDefault(m => m.Id == selectedExecuterId);
             if(SelectedExecuter == null)
-                SelectedExecuter = ExecuterList.FirstOrDefault();
+                SelectedExecuter = ExecuterList?.Where(e => e.AutoSet).FirstOrDefault();
             OnPropertyChanged(nameof(ExecuterList));
+        }
+        private void RefreshMasters()
+        {
+            var selectedMaster = SelectedMaster?.Id;
+            MasterList.Clear();
+            if (_showAllMasters)
+            {
+                foreach (var master in RestRequestService.GetMasters(AppSettings.CurrentUser.Id, null, true))
+                {
+                    MasterList.Add(master);
+                }
+                SelectedMaster = MasterList.FirstOrDefault(m => m.Id == selectedMaster);
+            }
+            else
+            {
+                if (_selectedHouseId.HasValue && SelectedService != null)
+                {
+                    foreach (var master in RestRequestService.GetWorkersByHouseAndService(AppSettings.CurrentUser.Id, _selectedHouseId.Value, SelectedParentService.Id))
+                    {
+                        MasterList.Add(master);
+                    }
+                    SelectedMaster = MasterList.FirstOrDefault();
+                }
+            }
+            if (!MasterList.Contains(SelectedMaster) && SelectedMaster != null)
+            {
+                MasterList.Add(SelectedMaster);
+            }
+
         }
 
         public ObservableCollection<WorkerDto> MasterList
@@ -399,6 +443,15 @@ namespace CRMPhone.ViewModel
                 return RequestId == null;
             }
         }
+
+        public bool CanEditService
+        {
+            get
+            {
+                var IsAdmin = AppSettings.CurrentUser.Roles.Exists(r => r.Name == "admin");
+                return RequestId == null || IsAdmin;
+            }
+        }
         public bool CanEdit
         {
             get
@@ -433,7 +486,6 @@ namespace CRMPhone.ViewModel
 
         private void ChangeParentService(int? parentServiceId)
         {
-            RefreshExecuters();
             ServiceList.Clear();
             if (!parentServiceId.HasValue)
                 return;
@@ -466,5 +518,90 @@ namespace CRMPhone.ViewModel
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public void SetRequest(RequestInfoDto request)
+        {
+            if (request == null)
+                return;
+            var selectedParrentService = ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            if (selectedParrentService == null)
+            {
+                var parrentServiceType = RestRequestService.GetServiceById(AppSettings.CurrentUser.Id, request.Type.ParentId ?? 0);
+                ParentServiceList.Add(parrentServiceType);
+                selectedParrentService = ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
+            }
+            SelectedParentService = selectedParrentService;
+            var service = ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+            if (service == null)
+            {
+                var serviceType = RestRequestService.GetServiceById(AppSettings.CurrentUser.Id,request.Type.Id);
+                ServiceList.Add(serviceType);
+                service = ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
+            }
+            _selectedService = service;
+            _description = request.Description;
+            _isChargeable = request.IsChargeable;
+            _isImmediate = request.IsImmediate;
+            _isBadWork = request.IsBadWork;
+            _isRetry = request.IsRetry;
+            //Gatanty = request.Warranty;
+            _selectedGaranty = GarantyList.FirstOrDefault(g => g.Id == request.GarantyId);
+
+            _requestCreator = request.CreateUser.ShortName;
+            _requestDate = request.CreateTime;
+            _requestState = request.State.Description;
+            var sched = RestRequestService.GetScheduleTaskByRequestId(AppSettings.CurrentUser.Id, request.Id);
+            _selectedAppointment = sched != null ? new Appointment()
+            {
+                Id = sched.Id,
+                RequestId = sched.RequestId,
+                StartTime = sched.FromDate,
+                EndTime = sched.ToDate,
+            } : null;
+            OpenAppointment = SelectedAppointment;
+            var master = request.MasterId.HasValue ? RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id, request.MasterId.Value) : null;
+            if (master != null)
+            {
+                if (MasterList.Count == 0 || MasterList.All(e => e.Id != master.Id))
+                {
+                    _masterList.Add(master);
+                }
+                _selectedMaster = MasterList.SingleOrDefault(i => i.Id == master.Id);
+            }
+            else
+            {
+                _selectedMaster = null;
+            }
+
+            var executer = request.ExecuterId.HasValue ? RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id, request.ExecuterId.Value) : null;
+            if (executer != null)
+            {
+                if (ExecuterList.All(e => e.Id != executer.Id))
+                {
+                    _executerList.Add(executer);
+                }
+                _selectedExecuter = ExecuterList.SingleOrDefault(i => i.Id == executer.Id);
+            }
+            else
+            {
+                _selectedExecuter = null;
+            }
+            _selectedEquipment = EquipmentList.SingleOrDefault(e => e.Id == request.Equipment?.Id);
+            _requestId = request.Id;
+            _rating = request.Rating;
+            _alertTime = request.AlertTime;
+            if (request.ServiceCompanyId.HasValue)
+            {
+                _selectedCompany = CompanyList.FirstOrDefault(c => c.Id == request.ServiceCompanyId.Value);
+            }
+            if (request.ExecuteDate.HasValue && request.ExecuteDate.Value.Date > DateTime.MinValue)
+            {
+                _selectedDateTime = request.ExecuteDate.Value.Date;
+                _selectedPeriod = PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
+            }
+            _termOfExecution = request.TermOfExecution;
+            RefreshNote();
+        }
+
     }
 }

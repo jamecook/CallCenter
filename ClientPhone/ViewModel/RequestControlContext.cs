@@ -717,108 +717,9 @@ namespace CRMPhone.ViewModel
                 return;
             }
 
-            var viewModel = new RequestDialogViewModel();
+            var viewModel = new RequestDialogViewModel(request);
             var view = new RequestDialog(viewModel);
             viewModel.SetView(view);
-            viewModel.RequestId = request.Id;
-            viewModel.SelectedCity = viewModel.CityList.SingleOrDefault(i=>i.Id == request.Address.CityId);
-            viewModel.SelectedStreet = viewModel.StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
-            viewModel.StreetName = request.Address.StreetName;
-            viewModel.SelectedHouse = viewModel.HouseList.SingleOrDefault(i=>i.Id == request.Address.HouseId);
-            if (viewModel.FlatList.All(i => i.Id != request.Address.Id))
-            {
-                viewModel.FlatList.Add(new FlatDto()
-                {
-                    Id = request.Address.Id,
-                    Flat = request.Address.Flat,
-                    TypeId = request.Address.TypeId,
-                    TypeName = request.Address.Type
-                });
-            }
-            viewModel.SelectedFlat =  viewModel.FlatList.SingleOrDefault(i=>i.Id == request.Address.Id);
-            viewModel.Floor = request.Floor;
-            viewModel.Entrance = request.Entrance;
-            viewModel.FromTime = request.FromTime;
-            viewModel.ToTime = request.ToTime;
-            var requestModel = viewModel.RequestList.FirstOrDefault();
-            var selectedParrentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
-            if (selectedParrentService == null)
-            {
-                var parrentServiceType = RestRequestService.GetServiceById(AppSettings.CurrentUser.Id,request.Type.ParentId ?? 0);
-                requestModel.ParentServiceList.Add(parrentServiceType);
-                selectedParrentService = requestModel.ParentServiceList.SingleOrDefault(i => i.Id == request.Type.ParentId);
-            }
-            requestModel.SelectedParentService = selectedParrentService;
-            var service = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
-            if (service == null)
-            {
-                var serviceType = RestRequestService.GetServiceById(AppSettings.CurrentUser.Id, request.Type.Id);
-                requestModel.ServiceList.Add(serviceType);
-                service = requestModel.ServiceList.SingleOrDefault(i => i.Id == request.Type.Id);
-            }
-            requestModel.SelectedService = service;
-            requestModel.Description = request.Description;
-            requestModel.IsChargeable = request.IsChargeable;
-            requestModel.IsImmediate = request.IsImmediate;
-            requestModel.IsBadWork = request.IsBadWork;
-            requestModel.IsRetry = request.IsRetry;
-            //requestModel.Gatanty = request.Warranty;
-            requestModel.SelectedGaranty = requestModel.GarantyList.FirstOrDefault(g => g.Id == request.GarantyId);
-
-            requestModel.RequestCreator = request.CreateUser.ShortName;
-            requestModel.RequestDate = request.CreateTime;
-            requestModel.RequestState = request.State.Description;
-            var sched = RestRequestService.GetScheduleTaskByRequestId(AppSettings.CurrentUser.Id, request.Id);
-            requestModel.SelectedAppointment = sched!=null?new Appointment()
-            {
-                Id = sched.Id,
-                RequestId = sched.RequestId,
-                StartTime = sched.FromDate,
-                EndTime = sched.ToDate,
-            }: null;
-            requestModel.OpenAppointment = requestModel.SelectedAppointment;
-            var master = request.MasterId.HasValue ? RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id, request.MasterId.Value) : null;
-            if (master != null)
-            {
-                if (requestModel.MasterList.Count == 0 || requestModel.MasterList.All(e => e.Id != master.Id))
-                {
-                    requestModel.MasterList.Add(master);
-                }
-                requestModel.SelectedMaster = requestModel.MasterList.SingleOrDefault(i => i.Id == master.Id);
-            }
-            else
-            {
-                requestModel.SelectedMaster = null;
-            }
-
-            var executer = request.ExecuterId.HasValue ? RestRequestService.GetWorkerById(AppSettings.CurrentUser.Id, request.ExecuterId.Value) : null;
-            if (executer != null)
-            {
-                if (requestModel.ExecuterList.All(e => e.Id != executer.Id))
-                {
-                    requestModel.ExecuterList.Add(executer);
-                }
-                requestModel.SelectedExecuter = requestModel.ExecuterList.SingleOrDefault(i => i.Id == executer.Id);
-            }
-            else
-            {
-                requestModel.SelectedExecuter = null;
-            }
-            requestModel.SelectedEquipment = requestModel.EquipmentList.SingleOrDefault(e => e.Id == request.Equipment?.Id);
-            requestModel.RequestId = request.Id;
-            requestModel.Rating = request.Rating;
-            requestModel.AlertTime = request.AlertTime;
-            if (request.ServiceCompanyId.HasValue)
-            {
-                requestModel.SelectedCompany = requestModel.CompanyList.FirstOrDefault(c => c.Id == request.ServiceCompanyId.Value);
-            }
-            if (request.ExecuteDate.HasValue && request.ExecuteDate.Value.Date > DateTime.MinValue)
-            {
-                requestModel.SelectedDateTime = request.ExecuteDate.Value.Date;
-                requestModel.SelectedPeriod = requestModel.PeriodList.SingleOrDefault(i => i.Id == request.PeriodId);
-            }
-            requestModel.TermOfExecution = request.TermOfExecution;
-            viewModel.ContactList = new ObservableCollection<ContactDto>(request.Contacts);
             view.Show();
 
         }
@@ -1005,7 +906,7 @@ namespace CRMPhone.ViewModel
 
         private void AddRequest()
         {
-            var viewModel = new RequestDialogViewModel();
+            var viewModel = new RequestDialogViewModel(null);
             var view = new RequestDialog(viewModel);
             viewModel.SetView(view);
             view.Show();

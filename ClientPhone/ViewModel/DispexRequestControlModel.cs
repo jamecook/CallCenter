@@ -52,7 +52,7 @@ namespace CRMPhone.ViewModel
                 return;
             }
 
-            var viewModel = new RequestDialogViewModel();
+            var viewModel = new RequestDialogViewModel(request);
             var view = new RequestDialog(viewModel);
             viewModel.SetView(view);
             viewModel.RequestId = request.Id;

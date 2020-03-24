@@ -85,6 +85,57 @@ namespace ClientPhone.Services
             var responce = client.Execute(request);
         }
 
+        internal static void SaveContacts(int userId, int requestId, ContactDto[] contacts)
+        {
+            var value = new EditContactDto()
+            {
+                UserId = userId,
+                RequestId = requestId,
+                Contacts = contacts
+            };
+            var restUrl = $"{ApiUrl}/SaveContacts";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+
+        internal static void DeleteContacts(int userId, int requestId, ContactDto[] contacts)
+        {
+            var value = new EditContactDto()
+            {
+                UserId = userId,
+                RequestId = requestId,
+                Contacts = contacts
+            };
+            var restUrl = $"{ApiUrl}/DeleteContacts";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.DELETE) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+
+        internal static void EditContacts(int userId, int requestId, ContactDto[] contacts)
+        {
+            var value = new EditContactDto()
+            {
+                UserId = userId,
+                RequestId = requestId,
+                Contacts = contacts
+            };
+            var restUrl = $"{ApiUrl}/EditContacts";
+            var client = new RestClient(restUrl);
+            var request = new RestRequest(Method.PUT) { RequestFormat = RestSharp.DataFormat.Json };
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            request.AddHeader("Authorization", $"{ApiKey}");
+            request.AddJsonBody(value);
+            var responce = client.Execute(request);
+        }
+
         public static UserDto[] GetDispatchers(int companyId)
         {
             var restUrl = $"{ApiUrl}/getDispatchers2?companyId={companyId}";

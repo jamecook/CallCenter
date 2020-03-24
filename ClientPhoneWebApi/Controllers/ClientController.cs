@@ -21,7 +21,7 @@ namespace ClientPhoneWebApi.Controllers
         private static DateTime _lastGetActiveChannelsTime;
         private static ActiveChannelsDto[] _lastActiveChannels;
         private static readonly string ApiKey = "qwertyuiop987654321";
-        public ClientController(RequestService requestService, ILogger<ProductsController> logger)
+        public ClientController(RequestService requestService, ILogger<ClientController> logger)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             RequestService = requestService ?? throw new ArgumentNullException(nameof(requestService));
@@ -642,6 +642,39 @@ namespace ClientPhoneWebApi.Controllers
                 return BadRequest("Authorization error!");
             }
             RequestService.SetRating(value.UserId, value.RequestId, value.RatingId, value.Description);
+            return Ok();
+        }
+        [HttpPut("EditContact")]
+        public IActionResult EditContact([FromBody]EditContactDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.EditContacts(value.UserId, value.RequestId, value.Contacts);
+            return Ok();
+        }
+        [HttpPost("SaveContacts")]
+        public IActionResult SaveContacts([FromBody]EditContactDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.SaveContacts(value.UserId, value.RequestId, value.Contacts);
+            return Ok();
+        }
+        [HttpDelete("DeleteContacts")]
+        public IActionResult DeleteContacts([FromBody]EditContactDto value)
+        {
+            var auth = Request.Headers.FirstOrDefault(h => h.Key == "Authorization");
+            if (auth.Value != ApiKey)
+            {
+                return BadRequest("Authorization error!");
+            }
+            RequestService.DeleteContacts(value.UserId, value.RequestId, value.Contacts);
             return Ok();
         }
         [HttpPost("SaveNewRequest")]

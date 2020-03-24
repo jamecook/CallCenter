@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 using ClientPhone.Services;
 using CRMPhone.Annotations;
@@ -17,7 +21,8 @@ namespace CRMPhone.ViewModel
 {
     public class RequestDialogViewModel : INotifyPropertyChanged
     {
-        private Window _view;
+        private RequestDialog _view;
+        private double _defaultWidth = 1020;
 
         private ObservableCollection<CityDto> _cityList;
         private CityDto _selectedCity;
@@ -31,6 +36,7 @@ namespace CRMPhone.ViewModel
         private int? _selectedServiceCompanyId;
         private ObservableCollection<ContactDto> _contactList;
         private int _requestId;
+        private List<ContactDto> _requestContacts;
 
         public ObservableCollection<CityDto> CityList
         {
@@ -59,7 +65,7 @@ namespace CRMPhone.ViewModel
                 return;
             }
 
-            var viewModel = new RequestDialogViewModel();
+            var viewModel = new RequestDialogViewModel(request);
             var view = new RequestDialog(viewModel);
             viewModel.SetView(view);
             viewModel.RequestId = request.Id;
@@ -134,12 +140,52 @@ namespace CRMPhone.ViewModel
                 _requestId = value;
                 OnPropertyChanged(nameof(RequestId));
                 OnPropertyChanged(nameof(CanEdit));
+                OnPropertyChanged(nameof(CanEditPhone));
+                OnPropertyChanged(nameof(ReadOnlyPhone));
                 OnPropertyChanged(nameof(ReadOnly));
             }
         }
 
-        public bool CanEdit { get { return RequestId == 0; } }
-        public bool ReadOnly { get { return !CanEdit; } }
+        public bool ExistForAllInfo { get; set; }
+        public bool ExistForServiceInfo { get; set; }
+
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set { _isExpanded = value;
+                if (value)
+                {
+                    AdditionInfoVisibility = Visibility.Visible;
+                    WindowWidth = 1400;
+                }
+                else
+                {
+                    WindowWidth = _defaultWidth;
+                    AdditionInfoVisibility = Visibility.Collapsed;
+
+                }
+                OnPropertyChanged(nameof(IsExpanded));
+            }
+        }
+
+        public Visibility AdditionInfoVisibility
+        {
+            get => _additionInfoVisibility;
+            set { _additionInfoVisibility = value; OnPropertyChanged(nameof(AdditionInfoVisibility));}
+        }
+
+
+        public double WindowWidth
+        {
+            get => _windowWidth;
+            set { _windowWidth = value; OnPropertyChanged(nameof(WindowWidth));}
+        }
+
+        public bool CanEdit => RequestId == 0;
+        public bool CanEditPhone { get { return RequestId == 0 || (AppSettings.CurrentUser != null && AppSettings.CurrentUser.Roles.Exists(r => r.Name == "admin" || r.Name == "supervizor")); } }
+        public bool ReadOnly => !CanEdit;
+        public bool ReadOnlyPhone => !CanEditPhone;
+
         public CityDto SelectedCity
         {
             get { return _selectedCity; }
@@ -344,7 +390,15 @@ namespace CRMPhone.ViewModel
         public ObservableCollection<ContactDto> ContactList
         {
             get { return _contactList; }
-            set { _contactList = value; OnPropertyChanged(nameof(ContactList)); }
+            set
+            {
+                _contactList = value; OnPropertyChanged(nameof(ContactList));
+                _requestContacts = new List<ContactDto>();
+                foreach (var contactDto in ContactList)
+                {
+                    _requestContacts.Add(contactDto.Copy());
+                }
+            }
         }
         private ContactDto _selectedContact;
         private RequestItemViewModel _selectedRequest;
@@ -369,7 +423,9 @@ namespace CRMPhone.ViewModel
 
         private void AddRequest()
         {
-            RequestList.Add(new RequestItemViewModel());
+            var newRequest = new RequestItemViewModel(this);
+            newRequest.SelectedHouseId = SelectedHouse.Id;
+            RequestList.Add(newRequest);
         }
 
         private ICommand _deleteCommand;
@@ -799,6 +855,26 @@ namespace CRMPhone.ViewModel
             }
             if (requestModel.RequestId.HasValue)
             {
+                if (_requestContacts != null && AppSettings.CurrentUser.Roles.Exists(r => r.Name == "admin" || r.Name == "supervizor"))
+                {
+                    var forDeleteItems = _requestContacts?.Where(c => ContactList.All(l => l.Id != c.Id)).ToArray();
+                    RestRequestService.DeleteContacts(AppSettings.CurrentUser.Id, requestModel.RequestId.Value, forDeleteItems);
+
+                    var newItems = ContactList.Where(c => _requestContacts.All(l => l.Id != c.Id)).Where(c=>!string.IsNullOrEmpty(c.PhoneNumber)).ToArray();
+                    RestRequestService.SaveContacts(AppSettings.CurrentUser.Id, requestModel.RequestId.Value,newItems);
+
+                    var changedItems = (from c in ContactList
+                        from r in _requestContacts
+                        where c.PhoneNumber == r.PhoneNumber && (c.Name != r.Name || c.IsMain != r.IsMain || c.AdditionInfo != r.AdditionInfo || c.Email != r.Email )
+                        select c).ToArray();
+                    RestRequestService.EditContacts(AppSettings.CurrentUser.Id, requestModel.RequestId.Value, changedItems);
+                    var updatedRequest = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, RequestId);
+                    if(updatedRequest != null)
+                    {
+                        ContactList = new ObservableCollection<ContactDto>(updatedRequest.Contacts);
+                    }
+                }
+
                 RestRequestService.EditRequest(AppSettings.CurrentUser.Id, requestModel.RequestId.Value, requestModel.SelectedService.Id,
                     requestModel.Description, requestModel.IsImmediate, requestModel.IsChargeable,requestModel.IsBadWork,requestModel.SelectedGaranty?.Id??0, requestModel.IsRetry, requestModel.AlertTime, requestModel.TermOfExecution);
                 //Делаем назначение в расписании
@@ -825,6 +901,8 @@ namespace CRMPhone.ViewModel
                 return;
             }
             //Надо УК брать из сохраненной заявки
+////todo
+/*
             var requestDto = RestRequestService.GetRequest(AppSettings.CurrentUser.Id, request.Value);
             var smsSettings = RestRequestService.GetSmsSettingsForServiceCompany(AppSettings.CurrentUser.Id, requestDto.ServiceCompanyId);
             if (smsSettings.SendToClient && ContactList.Any(c => c.IsMain) && requestModel.SelectedParentService.CanSendSms && requestModel.SelectedService.CanSendSms)
@@ -833,6 +911,7 @@ namespace CRMPhone.ViewModel
                 RestRequestService.SendSms(AppSettings.CurrentUser.Id, request.Value, smsSettings.Sender,
                     mainClient.PhoneNumber, $"Заявка № {request.Value}. {requestModel.SelectedParentService.Name} - {requestModel.SelectedService.Name}", true);
             }
+			*/
             requestModel.RequestId = request;
             if (requestModel.SelectedMaster != null && requestModel.SelectedMaster.Id > 0)
                 RestRequestService.AddNewMaster(AppSettings.CurrentUser.Id, request.Value, requestModel.SelectedMaster.Id);
@@ -874,6 +953,9 @@ namespace CRMPhone.ViewModel
         private string _serviceCompany;
         private string _cityRegion;
         private string _streetName;
+        private bool _isExpanded;
+        private double _windowWidth;
+        private Visibility _additionInfoVisibility;
 
         public bool CanEditAddress
         {
@@ -918,7 +1000,11 @@ namespace CRMPhone.ViewModel
         public RequestItemViewModel SelectedRequest
         {
             get { return _selectedRequest; }
-            set { _selectedRequest = value; OnPropertyChanged(nameof(SelectedRequest)); }
+            set {
+                _selectedRequest = value;
+                GetInfoByHouseAndType(value.SelectedHouseId, value.SelectedService?.Id);
+                OnPropertyChanged(nameof(SelectedRequest));
+            }
         }
 
         private void Delete()
@@ -933,18 +1019,19 @@ namespace CRMPhone.ViewModel
         }
 
 
-        public void SetView(Window view)
+        public void SetView(RequestDialog view)
         {
             _view = view;
         }
         public DateTime? FromTime { get; set; }
         public DateTime? ToTime { get; set; }
 
-
-        public RequestDialogViewModel()
+        public RequestDialogViewModel(RequestInfoDto request)
         {
+            WindowWidth = _defaultWidth;
             AlertExists = false;
-            var contactInfo = new ContactDto {Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall};
+            AdditionInfoVisibility = Visibility.Collapsed;
+            var contactInfo = new ContactDto {Id = 0, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall};
             _callUniqueId = RestRequestService.GetActiveCallUniqueIdByCallId(AppSettings.CurrentUser.Id, AppSettings.LastCallId);
             StreetList = new ObservableCollection<StreetDto>();
             HouseList = new ObservableCollection<HouseDto>();
@@ -959,7 +1046,10 @@ namespace CRMPhone.ViewModel
             {
                 SelectedCity = CityList.FirstOrDefault();
             }
-            RequestList = new ObservableCollection<RequestItemViewModel> { new RequestItemViewModel() };
+            var model = new RequestItemViewModel(this);
+            model.SetRequest(request);
+            RequestList = new ObservableCollection<RequestItemViewModel> { model };
+//            RequestList = new ObservableCollection<RequestItemViewModel> { new RequestItemViewModel() };
             //AppSettings.LastIncomingCall = "932";
             CanEditAddress = true;
             //CanEditAddress = AppSettings.CurrentUser.Roles.Select(r => r.Name).Contains("admin");
@@ -972,11 +1062,94 @@ namespace CRMPhone.ViewModel
                     SelectedHouse = HouseList.FirstOrDefault(h => h.Building == clientInfoDto.Building &&
                                                       h.Corpus == clientInfoDto.Corpus);
                     SelectedFlat = FlatList.FirstOrDefault(f => f.Flat == clientInfoDto.Flat);
-                    contactInfo = new ContactDto { Id = 1, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall,Name = clientInfoDto.Name};
+                    contactInfo = new ContactDto { Id = 0, IsMain = true, PhoneNumber = AppSettings.LastIncomingCall,Name = clientInfoDto.Name};
                 }
             }
             ContactList = new ObservableCollection<ContactDto>(new[] {contactInfo});
+            if (request?.Id > 0)
+            {
+                _selectedCity = CityList.SingleOrDefault(i => i.Id == request.Address.CityId);
+                SelectedStreet = StreetList.SingleOrDefault(i => i.Id == request.Address.StreetId);
+                _streetName = request.Address.StreetName;
+                _selectedHouse = HouseList.SingleOrDefault(i => i.Id == request.Address.HouseId);
+                if (_flatList.All(i => i.Id != request.Address.Id))
+                {
+                    _flatList.Add(new FlatDto()
+                    {
+                        Id = request.Address.Id,
+                        Flat = request.Address.Flat,
+                        TypeId = request.Address.TypeId,
+                        TypeName = request.Address.Type
+                    });
+                }
+                _selectedFlat = FlatList.SingleOrDefault(i => i.Id == request.Address.Id);
+                _floor = request.Floor;
+                _entrance = request.Entrance;
+
+                var house = RestRequestService.GetHouseById(AppSettings.CurrentUser.Id, request.Address.HouseId);
+                CommissioningDate = house.CommissioningDate;
+                ElevatorCount = house.ElevatorCount;
+                ServiceCompany = house.ServiceCompanyName;
+                CityRegion = house.RegionName;
+
+                FromTime = request.FromTime;
+                ToTime = request.ToTime;
+                //var requestModel = RequestList.FirstOrDefault();
+                //requestModel.SetRequest(request);
+                
+                ContactList = new ObservableCollection<ContactDto>(request.Contacts);
+                if (_selectedFlat != null)
+                {
+                    LoadRequestsBySelectedAddress(_selectedFlat.Id);
+                }
+                //Для обновления CanEdit и прочего
+                RequestId = request.Id;
+            }
         }
+        public void GetInfoByHouseAndType(int? selectedHouseId, int? typeId)
+        {
+            LoadServiceCompanyInfo(selectedHouseId, typeId);
+        }
+        private void LoadServiceCompanyInfo(int? houseId, int? typeId)
+        {
+            if (_view == null)
+                return;
+            /*
+            var flowDoc = _view.FlowInfo.Document;
+
+            var flowDocument = houseId.HasValue && typeId.HasValue ? RestRequestService.GetHouseTypeInfo(houseId.Value, typeId.Value) : "";
+            if (string.IsNullOrEmpty(flowDocument))
+            {
+                flowDocument = _selectedServiceCompanyId.HasValue && typeId.HasValue ? RestRequestService.GetServiceCompanyTypeInfo(_selectedServiceCompanyId.Value, typeId.Value) : "";
+            }
+            var content = new TextRange(flowDoc.ContentStart, flowDoc.ContentEnd);
+            if (content.CanLoad(System.Windows.DataFormats.Xaml))
+            {
+                using (var stream = new MemoryStream())
+                {
+                    var buffer = Encoding.Default.GetBytes(flowDocument);
+                    stream.Write(buffer, 0, buffer.Length);
+                    if (stream.Length > 0)
+                    {
+                        content.Load(stream, System.Windows.DataFormats.Xaml);
+                        IsExpanded = true;
+                        ExistForServiceInfo = true;
+                    }
+                    else
+                    {
+                        content.Text = "";
+                        if (!ExistForAllInfo)
+                        {
+                            IsExpanded = false;
+                        }
+                        ExistForServiceInfo = false;
+
+                    }
+                }
+            }
+            */
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
