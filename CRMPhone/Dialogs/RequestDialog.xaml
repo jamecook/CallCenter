@@ -29,7 +29,7 @@
         <!--<Expander Grid.Row="0" Grid.Column="1" Grid.RowSpan="4"  IsExpanded="{Binding IsExpanded}">-->
         <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="4" Visibility="{Binding AdditionInfoVisibility}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="250"/>
+                <RowDefinition Height="350"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <DockPanel Grid.Row="0">

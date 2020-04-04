@@ -146,6 +146,8 @@ namespace CRMPhone.ViewModel
         public ICommand RefreshRequestCommand { get { return _refreshRequestCommand ?? (_refreshRequestCommand = new CommandHandler(RefreshRequest, true)); } }
         private ICommand _exportRequestCommand;
         public ICommand ExportRequestCommand { get { return _exportRequestCommand ?? (_exportRequestCommand = new CommandHandler(ExportRequest, true)); } }
+        private ICommand _exportWithRecordsRequestCommand;
+        public ICommand ExportWithRecordsRequestCommand { get { return _exportWithRecordsRequestCommand ?? (_exportWithRecordsRequestCommand = new CommandHandler(ExportWithRecordsRequest, true)); } }
         private ICommand _printActsCommand;
         public ICommand PrintActsCommand { get { return _printActsCommand ?? (_printActsCommand = new CommandHandler(PrintActs, true)); } }
         private ICommand _clearFiltersCommand;
@@ -395,6 +397,105 @@ namespace CRMPhone.ViewModel
                     {
                         File.Copy("templates\\requests.xlsx",fileName,true);
                         CreateExcelDocByTemplate(fileName);
+                    }
+                    MessageBox.Show("Данные сохранены в файл\r\n" + fileName);
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("Произошла ошибка:\r\n" + exc.Message);
+            }
+
+        }
+        private void ExportWithRecordsRequest()
+        {
+            if (RequestList.Count == 0)
+            {
+                MessageBox.Show("Нельзя экспортировать пустой список!","Ошибка");
+                return;
+            }
+            try
+            {
+
+                var saveDialog = new SaveFileDialog();
+                saveDialog.AddExtension = true;
+                saveDialog.DefaultExt = ".xml";
+                saveDialog.Filter = "XML Файл|*.xml";
+                if (saveDialog.ShowDialog() == true)
+                {
+                    var fileName = saveDialog.FileName;
+                    if (fileName.EndsWith(".xml"))
+                    {
+                        var rootFolder = Path.GetDirectoryName(fileName) + "\\Звонки и вложения";
+                        if (Directory.Exists(rootFolder))
+                        {
+                            Directory.CreateDirectory(rootFolder);
+                        }
+
+                        var exported = 0;
+                        XElement root = new XElement("Records");
+                        foreach (var request in RequestList)
+                        {
+                            root.AddFirst(
+                                new XElement("Record",
+                                    new[]
+                                    {
+                                        new XElement("Заявка", request.Id),
+                                        new XElement("Статус", request.Status),
+                                        new XElement("ДатаСоздания", request.CreateTime.ToString("dd.MM.yyyy HH:mm")),
+                                        new XElement("Создатель", request.CreateUser.ShortName),
+                                        new XElement("Улица", request.StreetName),
+                                        new XElement("Дом", request.Building),
+                                        new XElement("Корпус", request.Corpus),
+                                        new XElement("Квартира", request.Flat),
+                                        new XElement("Район", request.RegionName),
+                                        new XElement("УК", request.ServiceCompany),
+                                        new XElement("Телефоны", request.ContactPhones),
+                                        new XElement("ФИО", request.MainFio),
+                                        new XElement("Услуга", request.ParentService),
+                                        new XElement("Причина", request.Service),
+                                        new XElement("Примечание", request.Description),
+                                        new XElement("Дата", request.ExecuteTime?.Date.ToString("dd.MM.yyyy") ?? ""),
+                                        new XElement("Время", request.ExecutePeriod),
+                                        new XElement("Мастер", request.Master?.ShortName),
+                                        new XElement("Исполнитель", request.Executer?.ShortName),
+                                        new XElement("ВыполнениеС", request.FromTime?.ToString("HH:mm:ss") ?? ""),
+                                        new XElement("ВыполнениеПо", request.ToTime?.ToString("HH:mm:ss") ?? ""),
+                                        new XElement("ПотраченоВремени", request.SpendTime),
+                                        new XElement("Гарантийная", request.GarantyTest),
+                                        new XElement("Аварийная", request.ImmediateText),
+                                        new XElement("Оценка", request.Rating),
+                                        new XElement("Комментарий_К_Оценке", request.RatingDescription),
+                                        new XElement("Повторная", request.IsRetry?"Да":""),
+                                        new XElement("Комментарий_исполнителя", request.LastNote),
+                                    }));
+                            Directory.CreateDirectory(rootFolder + "\\" + request.Id);
+                            var calls = _requestService.GetCallListByRequestId(request.Id);
+                            var attachs = _requestService.GetAttachments(request.Id);
+                            try
+                            {
+                                foreach (var call in calls)
+                                {
+                                    _requestService.CopyRecord(rootFolder + "\\" + request.Id + "\\", "192.168.0.130",
+                                        call.MonitorFileName);
+                                }
+
+                                var attachId = 0;
+                                foreach (var attach in attachs)
+                                {
+                                    File.WriteAllBytes(rootFolder + "\\" + request.Id + "\\" + attach.FileName,
+                                        _requestService.GetFile(request.Id, attach.FileName));
+                                }
+                            }
+                            catch
+                            { }
+
+                            exported++;
+                            RequestCount = exported;
+                        }
+                        var saver = new FileStream(fileName, FileMode.Create);
+                        root.Save(saver);
+                        saver.Close();
                     }
                     MessageBox.Show("Данные сохранены в файл\r\n" + fileName);
                 }
@@ -819,6 +920,25 @@ namespace CRMPhone.ViewModel
             }
         }
 
+        private ObservableCollection<CityDto> _cityList;
+        public ObservableCollection<CityDto> CityList
+        {
+            get { return _cityList; }
+            set { _cityList = value; OnPropertyChanged(nameof(CityList)); }
+        }
+
+        private CityDto _selectedCity;
+        public CityDto SelectedCity
+        {
+            get { return _selectedCity; }
+            set
+            {
+                _selectedCity = value;
+                OnPropertyChanged(nameof(SelectedCity));
+                ChangeCity(value?.Id);
+            }
+        }
+
 
         public ICollectionView StreetView
         {
@@ -987,7 +1107,7 @@ namespace CRMPhone.ViewModel
                 FilterServiceCompanyList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterUserList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
                 FilterRatingList.Where(w => w.Selected).Select(x => x.Id).ToArray(),
-                SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone, OnlyGaranty, OnlyImmediate, OnlyByClient, IsExcludeServiceCompany);
+                SelectedPayment?.Id, ServiceCompanyBadWork, OnlyRetry, ClientPhone, OnlyGaranty, OnlyImmediate, OnlyByClient, IsExcludeServiceCompany, SelectedCity?.Id);
             foreach (var request in requests)
             {
                 RequestList.Add(request);
@@ -1095,7 +1215,8 @@ namespace CRMPhone.ViewModel
             //}
 
             PaymentList = new ObservableCollection<PaymentDto>(new [] {new PaymentDto{Id=0,Name="Бесплатные"}, new PaymentDto{Id = 1, Name = "Платные"}});
-            ChangeCity(_requestService.GetCities().FirstOrDefault().Id);
+            CityList = new ObservableCollection<CityDto>(_requestService.GetCities());
+            SelectedCity = CityList.FirstOrDefault();
         }
 
         private void ServiceOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)

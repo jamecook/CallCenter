@@ -135,7 +135,9 @@ and C.Context not in ('autoring','ringupcalls')
 group by C.UniqueId
 ) a
 left join CallCenter.Users u on u.id = a.userId
-where a.WaitingTime > 80 and u.id not in (106,107,108,109,110,111) and CallDirection = 'in'
+where a.WaitingTime > 80 and u.id not in (SELECT u.id FROM Users u
+join Workers w on w.id = u.worker_id
+where w.service_company_id = 17 and is_dispetcher = 1) and CallDirection = 'in'
 
 
 -------------------------------Статистика по диспетчерам
@@ -194,10 +196,10 @@ order by YEAR(create_date), MONTH(create_date) -- ,is_client
 SELECT c.id,c.name,sum(sms_count),sum(sms_count*price) FROM CallCenter.SMSRequest s
 join CallCenter.Requests r on r.id = s.request_id
 join CallCenter.ServiceCompanies c on c.id = r.service_company_id
-where s.create_date between 20200201 and 20200301 and c.id in (17,48,88,142)
+where s.create_date between 20200201 and 20200301 and c.id in (17,48,88,142)  and s.state_id = 0
 group by c.id;
 
 SELECT c.name "УК",create_date "Дата",s.phone "Телефон",message "Текст",sms_count "Колво_СМС", sms_count*price "Цена" FROM CallCenter.SMSRequest s
 join CallCenter.Requests r on r.id = s.request_id
 join CallCenter.ServiceCompanies c on c.id = r.service_company_id
-where s.create_date between 20200201 and 20200301 and c.id in (17,48,88,142)
+where s.create_date between 20200201 and 20200301 and c.id in (17,48,88,142)  and s.state_id = 0

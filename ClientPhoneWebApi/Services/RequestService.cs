@@ -1987,6 +1987,7 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
 
                         #endregion
 
+                        SendSmsToClient(userId, newId, conn);
                         transaction.Commit();
                         return newId;
                     }
@@ -1998,6 +1999,58 @@ where a.deleted = 0 and a.request_id = @requestId", conn))
             }
 
             return null;
+        }
+
+
+        public void SendSmsToWorker(int userId, int requestId, bool sendToMaster, bool sendToExecutor,
+            MySqlConnection connection)
+        {
+            MySqlConnection conn;
+            if (connection != null)
+            {
+                conn = connection;
+            }
+            else
+            {
+                conn = new MySqlConnection(_connectionString);
+                conn.Open();
+            }
+
+            using (
+                var cmd =
+                    new MySqlCommand(
+                        @"call CallCenter.DesktopSendSms(@userId,@requestId,@sendToMaster,@sendToExecutor)",
+                        conn))
+            {
+                cmd.Parameters.AddWithValue("@userId", userId);
+                cmd.Parameters.AddWithValue("@requestId", requestId);
+                cmd.Parameters.AddWithValue("@sendToMaster", sendToMaster);
+                cmd.Parameters.AddWithValue("@sendToExecutor", sendToExecutor);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void SendSmsToClient(int userId, int requestId, MySqlConnection connection)
+        {
+            MySqlConnection conn;
+            if (connection != null)
+            {
+                conn = connection;
+            }
+            else
+            {
+                conn = new MySqlConnection(_connectionString);
+                conn.Open();
+            }
+
+            using (
+                var cmd =
+                    new MySqlCommand(@"call CallCenter.DesktopSendClientSms(@userId,@requestId)", conn))
+            {
+                cmd.Parameters.AddWithValue("@userId", userId);
+                cmd.Parameters.AddWithValue("@requestId", requestId);
+                cmd.ExecuteNonQuery();
+            }
         }
 
         public void SaveContacts(int requestId, ContactDto[] contactList, MySqlConnection connection)

@@ -671,6 +671,9 @@
                      
                      PreviewKeyUp="UIElement_OnPreviewKeyDown"/>
             <WrapPanel HorizontalAlignment="Center">
+                <TextBlock Margin="3" VerticalAlignment="Center" Text="Город:"/>
+                <ComboBox Margin="3" Width="100" TabIndex ="3" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCity}" ItemsSource="{Binding CityList}" IsEditable="True" PreviewKeyDown="tabItem_PreviewKeyDown"/>
+
                 <ComboBox Style="{StaticResource StreetComboBoxStyle}" Margin="3" Width="120" VerticalAlignment="Center" ItemsSource="{Binding StreetView}" Text=""
                           DropDownClosed="CbOnDropDownStreetClosed"/>
 
@@ -823,6 +826,7 @@
                 </StackPanel>
                 <Button Width="80" Margin="5" Background ="LightGreen" Content="Применить" Command="{Binding RefreshRequestCommand}"/>
                 <Button Width="80" Margin="5" Content="Экспорт" Command="{Binding ExportRequestCommand}"/>
+                <Button Visibility ="Collapsed" Width="120" Margin="5" Content="Экспорт со звонками" Command="{Binding ExportWithRecordsRequestCommand}"/>
                 <Button Width="80" Margin="5" Content="Акты" Command="{Binding PrintActsCommand}"/>
                 <Button Width="120" Margin="5" Content="Сброс фильтров" Command="{Binding ClearFiltersCommand}"/>
                 <TextBlock Margin="35,3,3,3" VerticalAlignment="Center" Text="Заявок:"/>

@@ -48,7 +48,7 @@ namespace CRMPhone.ViewModel
                 if (String.IsNullOrEmpty(value))
                     View.Filter = null;
                 else
-                    View.Filter = new Predicate<object>(o => ((WorkerDto)o).FullName.ToUpper().Contains(value.ToUpper()) || ((WorkerDto)o).ServiceCompanyName.ToUpper().Contains(value.ToUpper()));
+                    View.Filter = new Predicate<object>(o => ((WorkerDto)o).FullName.ToUpper().Contains(value.ToUpper()) || ((WorkerDto)o).ServiceCompanyName.ToUpper().Contains(value.ToUpper()) || ((WorkerDto)o).Phone?.Contains(value)==true);
             }
         }
 

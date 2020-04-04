@@ -40,6 +40,22 @@ namespace CRMPhone.ViewModel
             set { _smsList = value; OnPropertyChanged(nameof(SmsList));}
         }
 
+        public string SmsText
+        {
+            get => _smsText;
+            set
+            {
+                _smsText = value;
+                SmsLen = value.Length;
+            }
+        }
+
+        public int SmsLen
+        {
+            get => _smsLen;
+            set { _smsLen = value; OnPropertyChanged(nameof(SmsLen));}
+        }
+
         public ObservableCollection<CallsListDto> CallsList
         {
             get { return _callsList; }
@@ -64,6 +80,11 @@ namespace CRMPhone.ViewModel
 
         private void SendSmsToCitizen(object obj)
         {
+            if (!string.IsNullOrWhiteSpace(SmsText))
+            {
+                MessageBox.Show(Application.Current.MainWindow, "Произвольную СМС нельзя отправлять собственнику!", "Сообщение");
+                return;
+            }
             _requestService.SendSmsToClient(_requestId);
             MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
             RefreshLists();
@@ -72,16 +93,39 @@ namespace CRMPhone.ViewModel
         private ICommand _sendSmsToWorkerCommand;
         public ICommand SendSmsToWorkerCommand { get { return _sendSmsToWorkerCommand ?? (_sendSmsToWorkerCommand = new RelayCommand(SendSmsToWorker)); } }
         private ICommand _sendSmsToExecutorCommand;
+        private string _smsText;
+        private int _smsLen;
         public ICommand SendSmsToExecutorCommand { get { return _sendSmsToExecutorCommand ?? (_sendSmsToExecutorCommand = new RelayCommand(SendSmsToExecutor)); } }
 
         private void SendSmsToWorker(object obj)
         {
+            if (!string.IsNullOrWhiteSpace(SmsText))
+            {
+                if (MessageBox.Show(Application.Current.MainWindow, "Отправить произвольное сообщение мастеру?",
+                        "Сообщение", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    //var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
+                    _requestService.SendTextSmsToWorker(_requestId,SmsText,true,false);
+                }
+                return;
+            }
             _requestService.SendSmsToWorker(_requestId, true, false);
             MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
             RefreshLists();
         }
         private void SendSmsToExecutor(object obj)
         {
+            if (!string.IsNullOrWhiteSpace(SmsText))
+            {
+                if (MessageBox.Show(Application.Current.MainWindow, "Отправить произвольное сообщение исполнителю?",
+                        "Сообщение", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    //var smsSettings = _requestService.GetSmsSettingsForServiceCompany(request.ServiceCompanyId);
+                    _requestService.SendTextSmsToWorker(_requestId, SmsText, false, true);
+                }
+
+                return;
+            }
             _requestService.SendSmsToWorker(_requestId, false, true);
             MessageBox.Show(Application.Current.MainWindow, "Сообщение поставлено в очередь на отправку!", "Сообщение");
             RefreshLists();

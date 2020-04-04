@@ -121,9 +121,9 @@ namespace CRMPhone.Controls
 
         protected void OnFilterTextChanged(string oldValue, string newValue)
         {
-            if (this.filterTextChangedByControl)
+            this.filteredData?.Refresh();
+            if (!this.filterTextChangedByControl)
             {
-                this.filteredData?.Refresh();
                 this.IsDropDownOpen = true;
             }
             else

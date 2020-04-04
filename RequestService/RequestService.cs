@@ -474,6 +474,20 @@ namespace RequestServiceImpl
                 cmd.ExecuteNonQuery();
             }
         }
+        public void SendTextSmsToWorker(int requestId, string text, bool sendToMaster, bool sendToExecutor)
+        {
+            using (
+                var cmd =
+                    new MySqlCommand(@"call CallCenter.DesktopSendTextSms(@userId,@requestId,@text,@sendToMaster,@sendToExecutor)", _dbConnection))
+            {
+                cmd.Parameters.AddWithValue("@userId", AppSettings.CurrentUser.Id);
+                cmd.Parameters.AddWithValue("@requestId", requestId);
+                cmd.Parameters.AddWithValue("@text", text);
+                cmd.Parameters.AddWithValue("@sendToMaster", sendToMaster);
+                cmd.Parameters.AddWithValue("@sendToExecutor", sendToExecutor);
+                cmd.ExecuteNonQuery();
+            }
+        }
         public void SendSmsToClient(int requestId)
         {
             using (
@@ -1140,7 +1154,7 @@ namespace RequestServiceImpl
             }
         }
 
-        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone, bool onlyGaranty, bool onlyImmediate, bool onlyByClient, bool isExcludeServiceCompany)
+        public IList<RequestForListDto> GetRequestList(string requestId, bool filterByCreateDate, DateTime fromDate, DateTime toDate, DateTime executeFromDate, DateTime executeToDate, int[] streetsId, int? houseId, int? addressId, int[] parentServicesId, int? serviceId, int[] statusesId, int[] mastersId, int[] executersId, int[] serviceCompaniesId,int[] usersId, int[] ratingsId, int? payment, bool onlyBadWork, bool onlyRetry, string clientPhone, bool onlyGaranty, bool onlyImmediate, bool onlyByClient, bool isExcludeServiceCompany,int? cityId = null)
         {
             var findFromDate = fromDate.Date;
             var findToDate = toDate.Date.AddDays(1).AddSeconds(-1);
@@ -1211,6 +1225,8 @@ namespace RequestServiceImpl
                     sqlQuery += $" and a.id = {addressId.Value}";
                 if (serviceId.HasValue)
                     sqlQuery += $" and rt.id = {serviceId.Value}";
+                if (cityId.HasValue)
+                    sqlQuery += $" and s.city_id = {cityId.Value}";
 
                 if (parentServicesId != null && parentServicesId.Length >0)
                     sqlQuery += $" and rt2.id in ({parentServicesId.Select(x => x.ToString()).Aggregate((x, y) => x + "," + y)})";
@@ -1621,6 +1637,25 @@ namespace RequestServiceImpl
             else
                 MessageBox.Show($"Файл с записью недоступен!\r\n{localFileNameMp3}", "Ошибка");
 
+        }
+        public void CopyRecord(string destinationFolder, string serverIpAddress, string fileName)
+        {
+            //todo Можно убрать после перетаскивая записей
+            var oldFileName = fileName.Replace("/raid/monitor/", $"\\\\192.168.1.130\\mixmonitor\\").Replace("/", "\\");
+            var oldFileNameMp3 = fileName.Replace("/raid/monitor/", $"\\\\192.168.1.130\\mixmonitor\\mp3\\").Replace("/", "\\").Replace(".wav", ".mp3");
+
+            var localFileName = fileName.Replace("/raid/monitor/", $"\\\\{serverIpAddress}\\mixmonitor\\").Replace("/", "\\");
+            var localFileNameMp3 = localFileName.Replace(".wav", ".mp3");
+            if (File.Exists(localFileNameMp3))
+               File.Copy(localFileNameMp3, destinationFolder + Path.GetFileName(localFileNameMp3) );
+            else if (File.Exists(localFileName))
+                File.Copy(localFileName, destinationFolder + Path.GetFileName(localFileName));
+
+            else if (File.Exists(oldFileName))
+                File.Copy(oldFileName, destinationFolder + Path.GetFileName(oldFileName));
+            else if (File.Exists(oldFileNameMp3))
+                File.Copy(oldFileNameMp3, destinationFolder + Path.GetFileName(oldFileNameMp3));
+       
         }
         public string GetRecordFileNameByUniqueId(string uniqueId)
         {
@@ -2035,7 +2070,7 @@ where s.request_id = @RequestId and deleted = 0;";
         public List<WorkerDto> GetWorkersByHouseAndParentService(int houseId, int serviceTypeId, bool showMasters = true)
         {
             var query =
-                $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms, w.send_notification
+                $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms, w.send_notification, wh.master_weigth
     FROM CallCenter.WorkerHouseAndType wh
     join CallCenter.Workers w on wh.worker_id = w.id
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
@@ -2064,6 +2099,7 @@ where s.request_id = @RequestId and deleted = 0;";
                             FirstName = dataReader.GetNullableString("first_name"),
                             PatrName = dataReader.GetNullableString("patr_name"),
                             SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            Weigth = dataReader.GetNullableInt("master_weigth"),
                             SpecialityName = dataReader.GetNullableString("speciality_name"),
                             Phone = dataReader.GetNullableString("phone"),
                             CanAssign = dataReader.GetBoolean("can_assign"),
@@ -2093,13 +2129,13 @@ where s.request_id = @RequestId and deleted = 0;";
         public List<WorkerDto> GetWorkersByHouseAndServiceType(int houseId, int serviceTypeId, bool showMasters = true)
         {
             var query =
-                $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms, w.send_notification
+                $@"SELECT s.id service_id, s.name service_name,w.id,w.sur_name,w.first_name,w.patr_name,w.phone,w.speciality_id,sp.name speciality_name,w.can_assign,w.parent_worker_id,w.send_sms, w.send_notification,wh.master_weigth
     FROM CallCenter.WorkerHouseAndType wh
     join CallCenter.Workers w on wh.worker_id = w.id
     left join CallCenter.ServiceCompanies s on s.id = w.service_company_id
     left join CallCenter.Speciality sp on sp.id = w.speciality_id
     where w.enabled = 1 and wh.master_weigth is not null and wh.house_id = {houseId}
-    and (wh.type_id is null or wh.type_id = {serviceTypeId})";
+    and (wh.type_id is null or wh.type_id = {serviceTypeId} or wh.type_id in (select parrent_id from CallCenter.RequestTypes where id = {serviceTypeId}))";
             if (showMasters)
                 query += "and w.is_master = 1";
             else
@@ -2122,6 +2158,7 @@ where s.request_id = @RequestId and deleted = 0;";
                             FirstName = dataReader.GetNullableString("first_name"),
                             PatrName = dataReader.GetNullableString("patr_name"),
                             SpecialityId = dataReader.GetNullableInt("speciality_id"),
+                            Weigth = dataReader.GetNullableInt("master_weigth"),
                             SpecialityName = dataReader.GetNullableString("speciality_name"),
                             Phone = dataReader.GetNullableString("phone"),
                             CanAssign = dataReader.GetBoolean("can_assign"),

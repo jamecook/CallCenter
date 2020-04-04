@@ -328,7 +328,7 @@ namespace CRMPhone.ViewModel
             }
             SelectedExecuter = ExecuterList.FirstOrDefault(m => m.Id == selectedExecuterId);
             if(SelectedExecuter == null)
-                SelectedExecuter = ExecuterList?.Where(e => e.AutoSet).FirstOrDefault();
+                SelectedExecuter = ExecuterList?.Where(e => e.AutoSet).OrderByDescending(e=>e.Weigth).FirstOrDefault();
             OnPropertyChanged(nameof(ExecuterList));
         }
 
@@ -343,7 +343,7 @@ namespace CRMPhone.ViewModel
                 {
                     MasterList.Add(master);
                 }
-                SelectedMaster = MasterList.FirstOrDefault(m => m.Id == selectedMaster);
+                SelectedMaster = MasterList.OrderByDescending(e => e.Weigth).FirstOrDefault(m => m.Id == selectedMaster);
             }
             else
             {
@@ -353,7 +353,7 @@ namespace CRMPhone.ViewModel
                     {
                         MasterList.Add(master);
                     }
-                    SelectedMaster = MasterList.FirstOrDefault();
+                    SelectedMaster = MasterList.OrderByDescending(w=>w.Weigth).FirstOrDefault();
                 }
             }
 

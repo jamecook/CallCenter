@@ -16,6 +16,8 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <PublishUrl>..\Public\</PublishUrl>
     <Install>false</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -31,8 +33,6 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -124,6 +124,9 @@
     </Compile>
     <Compile Include="Controls\Admins\AllInfoAdminControl.xaml.cs">
       <DependentUpon>AllInfoAdminControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Admins\ResponsibilityAdminControl.xaml.cs">
+      <DependentUpon>ResponsibilityAdminControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Admins\HouseTypeAdminControl.xaml.cs">
       <DependentUpon>HouseTypeAdminControl.xaml</DependentUpon>
@@ -323,6 +326,7 @@
     <Compile Include="ViewModel\DigitsDialogViewModel.cs" />
     <Compile Include="ViewModel\EditExecuterBindDialogViewModel.cs" />
     <Compile Include="ViewModel\ExecuterBindDialogViewModel.cs" />
+    <Compile Include="ViewModel\ResponsibilityAdminControlContext.cs" />
     <Compile Include="ViewModel\HouseTypeAdminControlContext.cs" />
     <Compile Include="ViewModel\InputBindingsManager.cs" />
     <Compile Include="ViewModel\NotificationYesNo.cs" />
@@ -404,6 +408,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\Admins\AllInfoAdminControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\Admins\ResponsibilityAdminControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -23,6 +23,7 @@ namespace RequestServiceImpl.Dto
         public bool SendSms { get; set; }
         public bool AppNotification { get; set; }
         public int? ParentWorkerId { get; set; }
+        public int? Weigth { get; set; }
         public bool CanCreateRequest { get; set; }
         public bool ShowAllRequest { get; set; }
         public bool CanCloseRequest { get; set; }
